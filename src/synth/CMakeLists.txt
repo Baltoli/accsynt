@@ -4,13 +4,14 @@ add_library(synth
   src/lib.cpp
 )
 
-set_property(TARGET synth PROPERTY CXX_STANDARD 17)
-set_property(TARGET synth PROPERTY CXX_STANDARD_REQUIRED ON)
-
 target_include_directories(synth PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
     PRIVATE src)
+
+target_link_libraries(synth
+  ${llvm_libs}
+)
 
 install(TARGETS synth EXPORT SynthConfig
     ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
