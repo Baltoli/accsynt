@@ -10,6 +10,12 @@ struct is_tuple : std::false_type {};
 template<typename T>
 struct is_tuple<T, decltype(std::tuple_size<T>::value, void())> : std::true_type {};
 
+template<class R, class... Args>
+struct Example {
+  std::tuple<Args...> input;
+  R output;
+};
+
 /**
  * An oracle conceptually "wraps" an accelerator's interface and provides a set
  * of operations that can be accessed using a uniform interface.
@@ -30,13 +36,13 @@ struct Oracle {
     class Gen, 
     typename std::enable_if_t<is_tuple<typename Gen::return_t>::value, int> = 0
   >
-  R positive(Gen& g);
+  Example<R, Args...> positive(Gen& g);
 
   template<
     class Gen, 
     typename std::enable_if_t<!is_tuple<typename Gen::return_t>::value, int> = 0
   >
-  R positive(Gen& g);
+  Example<R, Args...> positive(Gen& g);
 private:
   interface_t interface_;
 };
@@ -52,12 +58,16 @@ template<
   class Gen, 
   typename std::enable_if_t<is_tuple<typename Gen::return_t>::value, int>
 >
-R Oracle<R, Args...>::positive(Gen& g)
+Example<R, Args...> Oracle<R, Args...>::positive(Gen& g)
 {
-  return std::apply([&](auto&&... x)
-    { return interface_(x...); },
-    g()
-  );
+  auto in = g();
+  return {
+    in,
+    std::apply([&](auto&&... x)
+      { return interface_(x...); },
+      in
+    )
+  };
 }
 
 template<class R, class... Args>
@@ -65,9 +75,10 @@ template<
   class Gen, 
   typename std::enable_if_t<!is_tuple<typename Gen::return_t>::value, int>
 >
-R Oracle<R, Args...>::positive(Gen& g)
+Example<R, Args...> Oracle<R, Args...>::positive(Gen& g)
 {
-  return interface_(g());
+  auto in = g();
+  return {in, interface_(in)};
 }
 
 #endif

@@ -5,14 +5,14 @@
 
 int main()
 {
-  Oracle<int, int, int> o([](auto i, auto j) {
-    return i + j;
+  Oracle<int, int> o([](auto i) {
+    return i + 1;
   });
 
-  auto a = Args{Sequential{}, Sequential{}};
+  auto a = Args{Sequential{}};
 
   for(int i = 0; i < 10; ++i) {
     auto r = o.positive(a);
-    std::cout << r << '\n';
+    std::cout << std::get<0>(r.input) << " " << r.output << '\n';
   }
 }
