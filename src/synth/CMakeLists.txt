@@ -1,7 +1,8 @@
 project(libsynth VERSION 0.1 LANGUAGES CXX)
 
 add_library(synth
-  src/lib.cpp
+  src/oracle.cpp
+  src/generator.cpp
 )
 
 target_include_directories(synth PUBLIC
