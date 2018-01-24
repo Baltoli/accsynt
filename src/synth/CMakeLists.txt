@@ -3,6 +3,7 @@ project(libsynth VERSION 0.1 LANGUAGES CXX)
 add_library(synth
   src/oracle.cpp
   src/generator.cpp
+  src/hypothesis.cpp
 )
 
 target_include_directories(synth PUBLIC

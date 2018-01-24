@@ -1,17 +1,14 @@
 #include <synth/generator.h>
+#include <synth/hypothesis.h>
 #include <synth/oracle.h>
 #include <synth/types.h>
 
-#include <iostream>
-
 #include <llvm/Support/raw_ostream.h>
 
-int main()
+#include <iostream>
+
+void test_args()
 {
-  auto c = llvm::LLVMContext{};
-
-  get_llvm_int<int>(c)->print(llvm::errs());
-
   Oracle<int, int> o([](auto i) {
     return i + 1;
   });
@@ -26,4 +23,11 @@ int main()
       std::cout << std::get<0>(r->input) << " " << r->output << '\n';
     }
   }
+}
+
+int main()
+{
+  Hypothesis<int64_t, int8_t, int> h;
+  h.mod_->print(llvm::errs(), nullptr);
+  return h(0, 0);
 }
