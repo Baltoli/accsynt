@@ -27,7 +27,8 @@ void test_args()
 
 int main()
 {
-  Hypothesis<int64_t, int8_t, int> h;
+  Hypothesis<int, int, int> h;
   h.mod_->print(llvm::errs(), nullptr);
-  return h(0, 0);
+
+  return h(1, 3);
 }

@@ -2,6 +2,7 @@
 
 #include <synth/types.h>
 
+#include <llvm/ADT/APInt.h>
 #include <llvm/ExecutionEngine/GenericValue.h>
 #include <llvm/ExecutionEngine/Interpreter.h>
 #include <llvm/IR/BasicBlock.h>
@@ -12,6 +13,7 @@
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 #include <llvm/Support/raw_ostream.h>
+#include <llvm/Transforms/Utils/Cloning.h>
 
 #include <array>
 #include <limits>
@@ -47,9 +49,10 @@ public:
       fun_ty, llvm::GlobalValue::LinkageTypes::ExternalLinkage, "", mod_.get());
     auto bb = llvm::BasicBlock::Create(C, "", func_);
 
-    auto ret = llvm::ConstantInt::get(ret_ty, 10);
+    auto ret = llvm::ConstantInt::get(ret_ty, 0);
     llvm::IRBuilder<> B(&func_->getEntryBlock());
-    B.CreateRet(ret);
+    auto add = B.CreateAdd(func_->arg_begin(), func_->arg_begin()+1);
+    B.CreateRet(add);
   }
 
   R operator()(Args... args);
@@ -60,12 +63,27 @@ public:
   llvm::Function* func_;
 };
 
+template<class... Args>
+auto get_arg_values(Args... args)
+{
+  constexpr auto make_generic_int = [](const auto i) {
+    llvm::GenericValue gv;
+    gv.IntVal = llvm::APInt(sizeof(i)*8, i, std::is_signed_v<decltype(i)>);
+    return gv;
+  };
+
+  return std::array<llvm::GenericValue, sizeof...(Args)>{
+    { make_generic_int(args)... }
+  };
+}
+
 template<class R, class... Args>
 R Hypothesis<R, Args...>::operator()(Args... args)
 {
-  llvm::EngineBuilder eb(std::move(mod_));
+  auto&& clone = llvm::CloneModule(mod_.get());
+  llvm::EngineBuilder eb(std::move(clone));
   auto e = eb.create();
-  llvm::GenericValue g;
-  g.IntVal = 0;
-  return R(e->runFunction(func_, {g, g}).IntVal.getLimitedValue(std::numeric_limits<R>::max()));
+
+  auto arg_values = get_arg_values(args...);
+  return R(e->runFunction(func_, arg_values).IntVal.getLimitedValue(std::numeric_limits<R>::max()));
 }
