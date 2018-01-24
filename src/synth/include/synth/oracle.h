@@ -1,20 +1,26 @@
-#ifndef ORACLE_H
-#define ORACLE_H
+#pragma once
+
+#include <synth/types.h>
 
 #include <functional>
-#include <type_traits>
+#include <optional>
 
-template<typename T, typename = void>
-struct is_tuple : std::false_type {};
-
-template<typename T>
-struct is_tuple<T, decltype(std::tuple_size<T>::value, void())> : std::true_type {};
-
+/**
+ * An example just aggregates an input-output pair, whatever their types and the
+ * size of the output are.
+ */
 template<class R, class... Args>
 struct Example {
   std::tuple<Args...> input;
   R output;
 };
+
+/**
+ * A query response can be either an example or nothing at all, so we model them
+ * using an optional.
+ */
+template<class R, class... Args>
+using Response = std::optional<Example<R, Args...>>;
 
 /**
  * An oracle conceptually "wraps" an accelerator's interface and provides a set
@@ -24,7 +30,8 @@ struct Example {
  * interface is a function call.
  */
 template<class R, class... Args>
-struct Oracle {
+class Oracle {
+public:
   using interface_t = std::function<R(Args...)>;
 
   Oracle(interface_t i) :
@@ -36,13 +43,13 @@ struct Oracle {
     class Gen, 
     typename std::enable_if_t<is_tuple<typename Gen::return_t>::value, int> = 0
   >
-  Example<R, Args...> positive(Gen& g);
+  Response<R, Args...> positive(Gen& g);
 
   template<
     class Gen, 
     typename std::enable_if_t<!is_tuple<typename Gen::return_t>::value, int> = 0
   >
-  Example<R, Args...> positive(Gen& g);
+  Response<R, Args...> positive(Gen& g);
 private:
   interface_t interface_;
 };
@@ -58,16 +65,14 @@ template<
   class Gen, 
   typename std::enable_if_t<is_tuple<typename Gen::return_t>::value, int>
 >
-Example<R, Args...> Oracle<R, Args...>::positive(Gen& g)
+Response<R, Args...> Oracle<R, Args...>::positive(Gen& g)
 {
   auto in = g();
-  return {
-    in,
-    std::apply([&](auto&&... x)
-      { return interface_(x...); },
-      in
+  return {{
+    in, std::apply([&](auto&&... x)
+      { return interface_(x...); }, in
     )
-  };
+  }};
 }
 
 template<class R, class... Args>
@@ -75,10 +80,8 @@ template<
   class Gen, 
   typename std::enable_if_t<!is_tuple<typename Gen::return_t>::value, int>
 >
-Example<R, Args...> Oracle<R, Args...>::positive(Gen& g)
+Response<R, Args...> Oracle<R, Args...>::positive(Gen& g)
 {
   auto in = g();
   return {in, interface_(in)};
 }
-
-#endif

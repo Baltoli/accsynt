@@ -1,5 +1,4 @@
-#ifndef GENERATOR_H
-#define GENERATOR_H
+#pragma once
 
 #include <tuple>
 
@@ -17,15 +16,15 @@ struct Args : Generator<std::tuple<typename Gs::return_t...>, Args<Gs...>> {
   using tuple_t = std::tuple<typename Gs::return_t...>;
 
   Args(Gs... gs) :
-    gens_(gs...) {}
+    gens(gs...) {}
 
   tuple_t next() {
     return std::apply([](auto&&... x){
       return std::make_tuple(x()...);},
-    gens_);
+    gens);
   };
-private:
-  std::tuple<Gs...> gens_;
+
+  std::tuple<Gs...> gens;
 };
 
 struct Sequential : Generator<int, Sequential> {
@@ -40,5 +39,18 @@ struct Zero : Generator<int, Zero> {
   int next();
 };
 
+template<class T>
+struct Hint : Generator<T, Hint<T>> {
+  Hint(T t) :
+    hint_(t) {}
 
-#endif
+  T next() {
+    return hint_;
+  }
+
+  void set_hint(T t) {
+    hint_ = t;
+  }
+private:
+  T hint_;
+};
