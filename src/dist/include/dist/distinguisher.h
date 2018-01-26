@@ -6,6 +6,7 @@
 
 #include <array>
 #include <string>
+#include <optional>
 
 namespace llvm {
   class Function;
@@ -21,18 +22,21 @@ public:
     std::string id=""
   );
 
-  template<class... Args>
-  llvm::GenericValue run_f(Args... args);
-
-  template<class... Args>
-  llvm::GenericValue run_g(Args... args);
-
+  std::optional<llvm::ArrayRef<llvm::GenericValue>> operator()() const;
 private:
+  size_t arg_size() const;
+
   template<class... Args>
-  auto get_arg_values(Args... args);
+  auto get_arg_values(Args... args) const;
+
+  template<class... Args>
+  uint64_t run_f(Args... args) const;
+
+  template<class... Args>
+  uint64_t run_g(Args... args) const;
 
   llvm::GenericValue run_function(llvm::Function *f, 
-                                  llvm::ArrayRef<llvm::GenericValue> args);
+                                  llvm::ArrayRef<llvm::GenericValue> args) const;
 
   llvm::LLVMContext C_;
   std::unique_ptr<llvm::Module> module_;
@@ -41,7 +45,7 @@ private:
 };
 
 template<class... Args>
-auto Distinguisher::get_arg_values(Args... args)
+auto Distinguisher::get_arg_values(Args... args) const
 {
   constexpr auto make_generic_int = [](const auto i) {
     llvm::GenericValue gv;
@@ -55,13 +59,13 @@ auto Distinguisher::get_arg_values(Args... args)
 }
 
 template<class... Args>
-llvm::GenericValue Distinguisher::run_f(Args... args)
+uint64_t Distinguisher::run_f(Args... args) const
 {
-  return run_function(f_, get_arg_values(args...));
+  return run_function(f_, get_arg_values(args...)).IntVal.getLimitedValue();
 }
 
 template<class... Args>
-llvm::GenericValue Distinguisher::run_g(Args... args)
+uint64_t Distinguisher::run_g(Args... args) const
 {
-  return run_function(g_, get_arg_values(args...));
+  return run_function(g_, get_arg_values(args...)).IntVal.getLimitedValue();
 }

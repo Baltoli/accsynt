@@ -52,4 +52,16 @@ Function *make_g()
 int main()
 {
   auto d = Distinguisher(make_f(), make_g(), "dist");
+
+  auto res = d();
+  if(!res) {
+    llvm::outs() << "Functions are identical!\n";
+  } else {
+    llvm::outs() << "Found a counterexample!\n";
+    llvm::outs() << "(";
+    for(auto& gv : *res) {
+      llvm::outs() << gv.IntVal.getLimitedValue() << ", ";
+    }
+    llvm::outs() << ")\n";
+  }
 }
