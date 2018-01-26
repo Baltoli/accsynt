@@ -37,15 +37,26 @@ Function *make_g()
 {
   auto ty = function_type();
   auto fn = Function::Create(ty, GlobalValue::ExternalLinkage, "g");
-  auto bb = BasicBlock::Create(C, "", fn);
+  auto bb = BasicBlock::Create(C, "entry", fn);
   auto B = IRBuilder<>(&fn->getEntryBlock());
 
   auto* arg_1 = fn->arg_begin();
   auto* arg_2 = (fn->arg_begin() + 1);
 
-  auto add = B.CreateMul(arg_1, arg_2);
-  auto ret = B.CreateRet(add);
+  auto wrong_bb = BasicBlock::Create(C, "wrong", fn);
+  auto ret_bb = BasicBlock::Create(C, "correct", fn);
 
+  auto eq = B.CreateICmpEQ(arg_1, arg_2);
+  auto br = B.CreateCondBr(eq, wrong_bb, ret_bb);
+
+  B.SetInsertPoint(wrong_bb);
+  auto two = ConstantInt::get(IntegerType::get(C, 32), 3);
+  auto mul = B.CreateMul(arg_1, two);
+  B.CreateRet(mul);
+
+  B.SetInsertPoint(ret_bb);
+  auto add = B.CreateAdd(arg_1, arg_2);
+  B.CreateRet(add);
   return fn;
 }
 

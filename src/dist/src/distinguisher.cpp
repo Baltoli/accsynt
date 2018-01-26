@@ -44,6 +44,8 @@ Distinguisher::Distinguisher(
 
   CloneFunctionInto(f_, old_f, v_map, false, returns);
   CloneFunctionInto(g_, old_g, v_map, false, returns);
+
+  module_->print(llvm::outs(), nullptr);
 }
 
 size_t Distinguisher::arg_size() const
@@ -67,7 +69,7 @@ std::optional<ArrayRef<GenericValue>> Distinguisher::operator()() const
   auto engine = std::default_random_engine(rd());
   auto dist = std::geometric_distribution<int32_t>{0.1};
 
-  for(int i = 0; i < 100; ++i) {
+  for(int i = 0; i < 10000; ++i) {
     auto args = std::vector<GenericValue>(arg_size());
     for(auto i = 0; i < arg_size(); ++i) {
       auto val = GenericValue{};
