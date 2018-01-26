@@ -12,3 +12,4 @@ enable_testing()
 
 add_subdirectory(asyn)
 add_subdirectory(synth)
+add_subdirectory(dist)

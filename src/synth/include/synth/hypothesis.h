@@ -21,6 +21,30 @@
 #include <tuple>
 #include <typeinfo>
 
+template<class F, class R, class... Args>
+class Function {
+public:
+  using args_t = std::tuple<Args...>;
+  using return_t = R;
+
+  Function(F f) :
+    f_(f)
+  {
+  }
+
+  auto operator()(Args... args) {
+    return f_(args...);
+  }
+private:
+  F f_;
+};
+
+template<class R, class... Args>
+constexpr inline auto make_function(auto f)
+{
+  return Function<decltype(f), R, Args...>(f);
+}
+
 /**
  * This class will act as a wrapper around an LLVM function that acts as a
  * hypothesis for what a device computes. Implementation questions that I need
@@ -36,6 +60,9 @@
 template<class R, class... Args>
 class Hypothesis {
 public:
+  using args_t = std::tuple<Args...>;
+  using return_t = R;
+
   Hypothesis(std::string name="") :
     C{}, 
     mod_(std::make_unique<llvm::Module>(name, C))
@@ -57,7 +84,7 @@ public:
 
   R operator()(Args... args);
 
-//private:
+private:
   llvm::LLVMContext C;
   std::unique_ptr<llvm::Module> mod_;
   llvm::Function* func_;

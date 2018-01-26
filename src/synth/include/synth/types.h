@@ -3,6 +3,7 @@
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/LLVMContext.h>
 
+#include <functional>
 #include <tuple>
 #include <type_traits>
 
