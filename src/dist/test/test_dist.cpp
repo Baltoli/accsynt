@@ -1,4 +1,5 @@
 #include <dist/distinguisher.h>
+#include <dist/function_callable.h>
 
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/DerivedTypes.h>

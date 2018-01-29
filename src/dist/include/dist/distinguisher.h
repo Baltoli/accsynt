@@ -43,14 +43,8 @@ public:
    * for the two functions (i.e. their behaviour differs for that input).
    */
   std::optional<std::vector<llvm::GenericValue>> operator()() const;
-private:
-  /**
-   * Create a function "shell" into which we can copy the body of another
-   * function using LLVM cloning transforms. This method copies the type
-   * signature, name and linkage from f.
-   */
-  static llvm::Function *function_interface_copy(llvm::Function *f, llvm::Module *m);
 
+private:
   /**
    * Get the number of arguments expected by the two functions managed by this
    * distinguisher.
