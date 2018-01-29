@@ -7,6 +7,7 @@
 #include <array>
 #include <string>
 #include <optional>
+#include <vector>
 
 namespace llvm {
   class Function;
@@ -22,7 +23,7 @@ public:
     std::string id=""
   );
 
-  std::optional<llvm::ArrayRef<llvm::GenericValue>> operator()() const;
+  std::optional<std::vector<llvm::GenericValue>> operator()() const;
 private:
   size_t arg_size() const;
 

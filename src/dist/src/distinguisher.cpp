@@ -63,7 +63,7 @@ GenericValue Distinguisher::run_function(Function *f, ArrayRef<GenericValue> arg
   return e->runFunction(f, args);
 }
 
-std::optional<ArrayRef<GenericValue>> Distinguisher::operator()() const
+std::optional<std::vector<GenericValue>> Distinguisher::operator()() const
 {
   auto rd = std::random_device{};
   auto engine = std::default_random_engine(rd());
