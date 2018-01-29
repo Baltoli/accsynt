@@ -25,6 +25,8 @@ public:
 
   std::optional<std::vector<llvm::GenericValue>> operator()() const;
 private:
+  static llvm::Function *function_interface_copy(llvm::Function *f, llvm::Module *m);
+
   size_t arg_size() const;
 
   template<class... Args>

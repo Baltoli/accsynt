@@ -20,10 +20,8 @@ Distinguisher::Distinguisher(
 ) :
   C_{},
   module_(std::make_unique<Module>(id, C_)),
-  f_(Function::Create(old_f->getFunctionType(), old_f->getLinkage(), 
-                      old_f->getName(), module_.get())),
-  g_(Function::Create(old_g->getFunctionType(), old_g->getLinkage(), 
-                      old_g->getName(), module_.get()))
+  f_(function_interface_copy(old_f, module_.get())),
+  g_(function_interface_copy(old_g, module_.get()))
 {
   assert(old_f->arg_size() == old_g->arg_size() && "Functions must have same args");
 
@@ -46,6 +44,11 @@ Distinguisher::Distinguisher(
   CloneFunctionInto(g_, old_g, v_map, false, returns);
 
   module_->print(llvm::outs(), nullptr);
+}
+
+Function *Distinguisher::function_interface_copy(llvm::Function *f, llvm::Module *m)
+{
+  return Function::Create(f->getFunctionType(), f->getLinkage(), f->getName(), m);
 }
 
 size_t Distinguisher::arg_size() const
