@@ -13,7 +13,7 @@
 
 using namespace llvm;
 
-Distinguisher::Distinguisher(
+FunctionDistinguisher::FunctionDistinguisher(
   Function *old_f,
   Function *old_g,
   std::string id,
@@ -48,17 +48,17 @@ Distinguisher::Distinguisher(
   module_->print(llvm::outs(), nullptr);
 }
 
-Function *Distinguisher::function_interface_copy(llvm::Function *f, llvm::Module *m)
+Function *FunctionDistinguisher::function_interface_copy(llvm::Function *f, llvm::Module *m)
 {
   return Function::Create(f->getFunctionType(), f->getLinkage(), f->getName(), m);
 }
 
-size_t Distinguisher::arg_size() const
+size_t FunctionDistinguisher::arg_size() const
 {
   return f_->arg_size();
 }
 
-GenericValue Distinguisher::run_function(Function *f, ArrayRef<GenericValue> args) const
+GenericValue FunctionDistinguisher::run_function(Function *f, ArrayRef<GenericValue> args) const
 {
   assert(f->arg_size() == args.size() && "Wrong number of arguments");
 
@@ -68,7 +68,7 @@ GenericValue Distinguisher::run_function(Function *f, ArrayRef<GenericValue> arg
   return e->runFunction(f, args);
 }
 
-std::optional<std::vector<GenericValue>> Distinguisher::operator()() const
+std::optional<std::vector<GenericValue>> FunctionDistinguisher::operator()() const
 {
   auto rd = std::random_device{};
   auto engine = std::default_random_engine(rd());

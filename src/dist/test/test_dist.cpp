@@ -62,7 +62,7 @@ Function *make_g()
 
 int main()
 {
-  auto d = Distinguisher(make_f(), make_g(), "dist");
+  auto d = FunctionDistinguisher(make_f(), make_g(), "dist");
 
   auto res = d();
   if(!res) {

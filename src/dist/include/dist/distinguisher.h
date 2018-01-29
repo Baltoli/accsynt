@@ -16,22 +16,22 @@ namespace llvm {
 }
 
 /**
- * A Distinguisher is responsible for discovering input arguments to a pair of
+ * A FunctionDistinguisher is responsible for discovering input arguments to a pair of
  * LLVM functions such that the functions' behaviour differs at those inputs
  * (i.e. it implements a distinguishing input oracle for the two functions).
  * Once constructed, the distinguisher can be called to generate such an input
  * (if one exists / can be found).
  */
-class Distinguisher {
+class FunctionDistinguisher {
 public:
   /**
-   * The Distinguisher object does not take ownership of the two functions f and
+   * The FunctionDistinguisher object does not take ownership of the two functions f and
    * g it is passed at construction time. Instead, it copies them both into a
    * new internal module. The module ID can be specified using this constructor,
    * as can the number of possible inputs to try before deciding the two
    * functions are identical.
    */
-  Distinguisher(
+  FunctionDistinguisher(
     llvm::Function *f,
     llvm::Function *g,
     std::string id="",
