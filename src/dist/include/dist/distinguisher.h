@@ -15,29 +15,51 @@ namespace llvm {
   class Module;
 }
 
+/**
+ * A Distinguisher is responsible for discovering input arguments to a pair of
+ * LLVM functions such that the functions' behaviour differs at those inputs
+ * (i.e. it implements a distinguishing input oracle for the two functions).
+ * Once constructed, the distinguisher can be called to generate such an input
+ * (if one exists / can be found).
+ */
 class Distinguisher {
 public:
+  /**
+   * The Distinguisher object does not take ownership of the two functions f and
+   * g it is passed at construction time. Instead, it copies them both into a
+   * new internal module. The module ID can be specified using this constructor,
+   * as can the number of possible inputs to try before deciding the two
+   * functions are identical.
+   */
   Distinguisher(
     llvm::Function *f,
     llvm::Function *g,
-    std::string id=""
+    std::string id="",
+    size_t limit=10000
   );
 
+  /**
+   * Returns an optional vector of LLVM values that are a distinguishing input
+   * for the two functions (i.e. their behaviour differs for that input).
+   */
   std::optional<std::vector<llvm::GenericValue>> operator()() const;
 private:
+  /**
+   * Create a function "shell" into which we can copy the body of another
+   * function using LLVM cloning transforms. This method copies the type
+   * signature, name and linkage from f.
+   */
   static llvm::Function *function_interface_copy(llvm::Function *f, llvm::Module *m);
 
+  /**
+   * Get the number of arguments expected by the two functions managed by this
+   * distinguisher.
+   */
   size_t arg_size() const;
 
-  template<class... Args>
-  auto get_arg_values(Args... args) const;
-
-  template<class... Args>
-  uint64_t run_f(Args... args) const;
-
-  template<class... Args>
-  uint64_t run_g(Args... args) const;
-
+  /**
+   * Run an LLVM function on the supplied arguments using the LLVM interpreter.
+   */
   llvm::GenericValue run_function(llvm::Function *f, 
                                   llvm::ArrayRef<llvm::GenericValue> args) const;
 
@@ -45,30 +67,5 @@ private:
   std::unique_ptr<llvm::Module> module_;
   llvm::Function *f_;
   llvm::Function *g_;
+  size_t example_limit_;
 };
-
-template<class... Args>
-auto Distinguisher::get_arg_values(Args... args) const
-{
-  constexpr auto make_generic_int = [](const auto i) {
-    llvm::GenericValue gv;
-    gv.IntVal = llvm::APInt(sizeof(i)*8, i, std::is_signed_v<decltype(i)>);
-    return gv;
-  };
-
-  return std::array<llvm::GenericValue, sizeof...(Args)>{
-    { make_generic_int(args)... }
-  };
-}
-
-template<class... Args>
-uint64_t Distinguisher::run_f(Args... args) const
-{
-  return run_function(f_, get_arg_values(args...)).IntVal.getLimitedValue();
-}
-
-template<class... Args>
-uint64_t Distinguisher::run_g(Args... args) const
-{
-  return run_function(g_, get_arg_values(args...)).IntVal.getLimitedValue();
-}

@@ -16,12 +16,14 @@ using namespace llvm;
 Distinguisher::Distinguisher(
   Function *old_f,
   Function *old_g,
-  std::string id
+  std::string id,
+  size_t limit
 ) :
   C_{},
   module_(std::make_unique<Module>(id, C_)),
   f_(function_interface_copy(old_f, module_.get())),
-  g_(function_interface_copy(old_g, module_.get()))
+  g_(function_interface_copy(old_g, module_.get())),
+  example_limit_(limit)
 {
   assert(old_f->arg_size() == old_g->arg_size() && "Functions must have same args");
 
@@ -72,7 +74,7 @@ std::optional<std::vector<GenericValue>> Distinguisher::operator()() const
   auto engine = std::default_random_engine(rd());
   auto dist = std::geometric_distribution<int32_t>{0.1};
 
-  for(int i = 0; i < 10000; ++i) {
+  for(int i = 0; i < example_limit_; ++i) {
     auto args = std::vector<GenericValue>(arg_size());
     for(auto i = 0; i < arg_size(); ++i) {
       auto val = GenericValue{};
