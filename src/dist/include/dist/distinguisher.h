@@ -1,65 +1,57 @@
 #pragma once
 
-#include <llvm/ADT/APInt.h>
-#include <llvm/ExecutionEngine/GenericValue.h>
-#include <llvm/IR/LLVMContext.h>
-
 #include <array>
 #include <string>
 #include <optional>
+#include <random>
 #include <vector>
 
-namespace llvm {
-  class Function;
-  class LLVMContext;
-  class Module;
-}
-
-/**
- * A FunctionDistinguisher is responsible for discovering input arguments to a pair of
- * LLVM functions such that the functions' behaviour differs at those inputs
- * (i.e. it implements a distinguishing input oracle for the two functions).
- * Once constructed, the distinguisher can be called to generate such an input
- * (if one exists / can be found).
- */
-class FunctionDistinguisher {
+template<class... Args>
+class TupleSampler {
 public:
-  /**
-   * The FunctionDistinguisher object does not take ownership of the two functions f and
-   * g it is passed at construction time. Instead, it copies them both into a
-   * new internal module. The module ID can be specified using this constructor,
-   * as can the number of possible inputs to try before deciding the two
-   * functions are identical.
-   */
-  FunctionDistinguisher(
-    llvm::Function *f,
-    llvm::Function *g,
-    std::string id="",
-    size_t limit=10000
-  );
-
-  /**
-   * Returns an optional vector of LLVM values that are a distinguishing input
-   * for the two functions (i.e. their behaviour differs for that input).
-   */
-  std::optional<std::vector<llvm::GenericValue>> operator()() const;
+  template<class... Ds>
+  std::tuple<Args...> sample(Ds... ds);
 
 private:
-  /**
-   * Get the number of arguments expected by the two functions managed by this
-   * distinguisher.
-   */
-  size_t arg_size() const;
+  std::random_device rd;
+  std::default_random_engine engine;
+};
 
-  /**
-   * Run an LLVM function on the supplied arguments using the LLVM interpreter.
-   */
-  llvm::GenericValue run_function(llvm::Function *f, 
-                                  llvm::ArrayRef<llvm::GenericValue> args) const;
+template<class... Args>
+template<class... Ds>
+std::tuple<Args...> TupleSampler<Args...>::sample(Ds... ds)
+{
+  static_assert(sizeof...(Args) == sizeof...(Ds), "Each argument needs a distribution");
 
-  llvm::LLVMContext C_;
-  std::unique_ptr<llvm::Module> module_;
-  llvm::Function *f_;
-  llvm::Function *g_;
+  auto ret = std::tuple<Args...>{};
+  for_each(ret, std::tuple<Ds...>(ds...), [this](auto& t, auto& d) {
+    t = d(engine);
+  });
+  return ret;
+}
+
+template<class F, class G, class... Args>
+class OracleDistinguisher {
+public:
+  using return_t = std::invoke_result<G, Args...>;
+
+  OracleDistinguisher(F&& f, G&& g, size_t limit=10000) :
+    example_limit_(limit)
+  {
+    static_assert(std::is_convertible_v<
+      std::invoke_result<F, Args...>, // from
+      std::invoke_result<G, Args...>  // to
+    >, "f and g must yield the same result type");
+  }
+
+  std::optional<std::tuple<Args...>> operator()() const;
+
+private:
   size_t example_limit_;
 };
+
+template<class... Args>
+auto make_oracle_distinguisher(auto&& f, auto&& g)
+{
+  return OracleDistinguisher<decltype(f), decltype(g), Args...>(f, g);
+}

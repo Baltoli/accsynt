@@ -8,6 +8,8 @@
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/Support/raw_ostream.h>
 
+#include <random>
+
 using namespace llvm;
 
 static LLVMContext C{};
@@ -63,17 +65,24 @@ Function *make_g()
 
 int main()
 {
-  auto d = FunctionDistinguisher(make_f(), make_g(), "dist");
+  auto f = FunctionCallable<int>(make_f());
+  auto g = FunctionCallable<int>(make_g());
 
-  auto res = d();
-  if(!res) {
-    llvm::outs() << "Functions are identical!\n";
-  } else {
-    llvm::outs() << "Found a counterexample!\n";
-    llvm::outs() << "(";
-    for(auto& gv : *res) {
-      llvm::outs() << gv.IntVal.getLimitedValue() << ", ";
-    }
-    llvm::outs() << ")\n";
-  }
+  auto d = make_oracle_distinguisher<int, int>(f, g);
+
+  auto s = TupleSampler<int, int>{};
+  auto dist = std::uniform_int_distribution<int>{};
+  /* auto d = FunctionDistinguisher(make_f(), make_g(), "dist"); */
+
+  /* auto res = d(); */
+  /* if(!res) { */
+  /*   llvm::outs() << "Functions are identical!\n"; */
+  /* } else { */
+  /*   llvm::outs() << "Found a counterexample!\n"; */
+  /*   llvm::outs() << "("; */
+  /*   for(auto& gv : *res) { */
+  /*     llvm::outs() << gv.IntVal.getLimitedValue() << ", "; */
+  /*   } */
+  /*   llvm::outs() << ")\n"; */
+  /* } */
 }
