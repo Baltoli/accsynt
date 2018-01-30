@@ -13,7 +13,7 @@ public:
   using gen_t = T;
 
   Geometric(double p = 0.5) :
-    p_(p), engine_(std::random_device{}()), geo_(p) {}
+    engine_(std::random_device{}()), geo_(p) {}
 
   gen_t operator()()
   {
@@ -21,7 +21,6 @@ public:
   }
 
 private:
-  double p_;
   std::default_random_engine engine_;
   std::geometric_distribution<T> geo_;
 };
