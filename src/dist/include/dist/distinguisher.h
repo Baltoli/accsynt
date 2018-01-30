@@ -54,7 +54,7 @@ auto make_oracle_distinguisher(auto&& f, auto&& g)
 template<class F, class G, class... Args>
 counterexample_t<F, Args...> OracleDistinguisher<F, G, Args...>::operator()() const
 {
-  auto sampler = Tuple(Geometric<Args>()...);
+  auto sampler = Tuple(Geometric<Args>(0.1)...);
 
   for(auto i = 0; i < example_limit_; ++i) {
     auto args = sampler();

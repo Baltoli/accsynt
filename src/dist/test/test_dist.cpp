@@ -1,5 +1,6 @@
 #include <dist/distinguisher.h>
 #include <dist/function_callable.h>
+#include <dist/synthesizer.h>
 
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/DerivedTypes.h>
@@ -63,7 +64,7 @@ Function *make_g()
   return fn;
 }
 
-int main()
+void test_oracles()
 {
   auto f = FunctionCallable<int>(make_f());
   auto g = FunctionCallable<int>(make_g());
@@ -81,4 +82,15 @@ int main()
   } else {
     llvm::outs() << "Identical!\n";
   }
+}
+
+void test_synth()
+{
+  auto l = synth::Linear<int, int, int>();
+}
+
+int main()
+{
+  test_oracles();
+  test_synth();
 }

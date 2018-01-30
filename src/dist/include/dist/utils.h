@@ -2,6 +2,7 @@
 
 #include <llvm/ADT/APInt.h>
 #include <llvm/ExecutionEngine/GenericValue.h>
+#include <llvm/IR/DerivedTypes.h>
 
 #include <memory>
 
@@ -56,4 +57,10 @@ void zip_for_each(Tuple&& t, Dists&& d, Func&& f) {
   dispatcher([&f,&t,&d](auto idx) {
     f(std::get<idx>(std::forward<Tuple>(t)), std::get<idx>(std::forward<Dists>(d))); 
   });
+}
+
+template <typename T, typename std::enable_if_t<std::is_integral_v<T>, int> = 0>
+llvm::IntegerType *get_llvm_type(llvm::LLVMContext& C)
+{
+  return llvm::IntegerType::get(C, sizeof(T)*8);
 }
