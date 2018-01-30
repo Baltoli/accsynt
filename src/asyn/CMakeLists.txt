@@ -3,6 +3,5 @@ add_executable(asyn
 )
 
 target_link_libraries(asyn
-  synth
   dist
 )

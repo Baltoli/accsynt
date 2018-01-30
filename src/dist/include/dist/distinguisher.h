@@ -1,5 +1,7 @@
 #pragma once
 
+#include <dist/generators.h>
+
 #include <array>
 #include <string>
 #include <optional>
@@ -7,42 +9,8 @@
 #include <tuple>
 #include <vector>
 
-template<class... Args>
-class TupleSampler {
-public:
-  TupleSampler() :
-    rd(), engine(rd()) {}
-
-  template<class... Ds>
-  std::tuple<Args...> sample(Ds... ds);
-
-  template<class Dists>
-  std::tuple<Args...> sample(Dists ds);
-private:
-  std::random_device rd;
-  std::default_random_engine engine;
-};
-
-template<class... Args>
-template<class... Ds>
-std::tuple<Args...> TupleSampler<Args...>::sample(Ds... ds)
-{
-  return sample(std::tuple<Ds...>(ds...));
-}
-
-template<class... Args>
-template<class Dists>
-std::tuple<Args...> TupleSampler<Args...>::sample(Dists ds)
-{
-  static_assert(sizeof...(Args) == std::tuple_size_v<Dists>, "Each argument needs a distribution");
-
-  auto ret = std::tuple<Args...>{};
-  zip_for_each(ret, ds, [this](auto&& t, auto&& d) {
-    t = d(engine);
-  });
-
-  return ret;
-}
+using gen::Geometric;
+using gen::Tuple;
 
 template<class R, class... Args>
 struct Counterexample {
@@ -86,11 +54,11 @@ auto make_oracle_distinguisher(auto&& f, auto&& g)
 template<class F, class G, class... Args>
 counterexample_t<F, Args...> OracleDistinguisher<F, G, Args...>::operator()() const
 {
-  auto dists = std::make_tuple(std::geometric_distribution<Args>{0.1}...);
-  auto sampler = TupleSampler<Args...>{};
+  auto dists = std::make_tuple(Geometric<Args>{0.1}...);
+  auto sampler = Tuple(dists);
 
   for(auto i = 0; i < example_limit_; ++i) {
-    auto args = sampler.sample(dists);
+    auto args = sampler();
     auto f_result = return_t{std::apply(f_, args)};
     auto g_result = std::apply(g_, args);
     

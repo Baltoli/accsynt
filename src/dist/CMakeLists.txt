@@ -1,8 +1,6 @@
 project(libdist VERSION 0.1 LANGUAGES CXX)
 
 add_library(dist
-  src/distinguisher.cpp
-  src/function_callable.cpp
   src/utils.cpp
 )
 
