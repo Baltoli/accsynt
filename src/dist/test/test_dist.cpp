@@ -69,20 +69,16 @@ int main()
   auto g = FunctionCallable<int>(make_g());
 
   auto d = make_oracle_distinguisher<int, int>(f, g);
+  auto example = d();
 
-  auto s = TupleSampler<int, int>{};
-  auto dist = std::uniform_int_distribution<int>{};
-  /* auto d = FunctionDistinguisher(make_f(), make_g(), "dist"); */
-
-  /* auto res = d(); */
-  /* if(!res) { */
-  /*   llvm::outs() << "Functions are identical!\n"; */
-  /* } else { */
-  /*   llvm::outs() << "Found a counterexample!\n"; */
-  /*   llvm::outs() << "("; */
-  /*   for(auto& gv : *res) { */
-  /*     llvm::outs() << gv.IntVal.getLimitedValue() << ", "; */
-  /*   } */
-  /*   llvm::outs() << ")\n"; */
-  /* } */
+  if(example) {
+    llvm::outs() << "Counterexample!\nArgs: (";
+    for_each(example->args, [&](auto&& arg) {
+      llvm::outs() << arg << ", ";
+    });
+    llvm::outs() << ")\nf: " << example->f_return << '\n';
+    llvm::outs() << "g: " << example->g_return << '\n';
+  } else {
+    llvm::outs() << "Identical!\n";
+  }
 }

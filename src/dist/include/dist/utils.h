@@ -38,9 +38,18 @@ auto make_index_dispatcher() {
     return make_index_dispatcher(std::make_index_sequence<N>{}); 
 }
 
+template <typename Tuple, typename Func>
+void for_each(Tuple&& t, Func&& f) {
+  constexpr auto n = std::tuple_size<std::decay_t<Tuple>>::value;
+  auto dispatcher = make_index_dispatcher<n>();
+  dispatcher([&f,&t](auto idx) {
+    f(std::get<idx>(std::forward<Tuple>(t)));
+  });
+}
+
 template <typename Tuple, typename Dists, typename Func>
-void for_each(Tuple&& t, Dists&& d, Func&& f) {
-  static_assert(std::tuple_size_v<Tuple> == std::tuple_size_v<Dists>);
+void zip_for_each(Tuple&& t, Dists&& d, Func&& f) {
+  static_assert(std::tuple_size_v<std::decay_t<Tuple>> == std::tuple_size_v<std::decay_t<Dists>>);
 
   constexpr auto n = std::tuple_size<std::decay_t<Tuple>>::value;
   auto dispatcher = make_index_dispatcher<n>();
