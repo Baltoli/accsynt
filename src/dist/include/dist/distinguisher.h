@@ -58,8 +58,8 @@ counterexample_t<F, Args...> OracleDistinguisher<F, G, Args...>::operator()() co
 
   for(auto i = 0; i < example_limit_; ++i) {
     auto args = sampler();
-    auto f_result = return_t{std::apply(f_, args)};
-    auto g_result = std::apply(g_, args);
+    auto f_result = return_t{f_(args)};
+    auto g_result = g_(args);
     
     if(f_result != g_result) {
       return {{f_result, g_result, args}};

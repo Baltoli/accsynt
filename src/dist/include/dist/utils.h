@@ -64,3 +64,12 @@ llvm::IntegerType *get_llvm_type(llvm::LLVMContext& C)
 {
   return llvm::IntegerType::get(C, sizeof(T)*8);
 }
+
+template <typename T, typename = void>
+struct is_tuple : std::false_type {};
+
+template <typename T>
+struct is_tuple<T, decltype(std::tuple_size<T>::value, void())> : std::true_type {};
+
+template <typename T>
+constexpr inline bool is_tuple_v = is_tuple<T>::value;

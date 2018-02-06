@@ -41,6 +41,21 @@ private:
   T state_; 
 };
 
+template <typename T>
+class Constant {
+  using gen_t = T;
+
+  Constant(T v) :
+    value_(v) {}
+
+  gen_t operator()() const
+  {
+    return value_;
+  }
+private:
+  const T value_;
+};
+
 template<class... Args>
 class Tuple {
 public:

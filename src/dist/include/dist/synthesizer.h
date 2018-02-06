@@ -1,5 +1,6 @@
 #pragma once
 
+#include <dist/function_callable.h>
 #include <dist/utils.h>
 
 #include <llvm/IR/IRBuilder.h>
@@ -45,6 +46,21 @@ public:
 private:
   llvm::LLVMContext C_;
   std::unique_ptr<llvm::Module> module_;
+
+  bool satisfies_examples(llvm::Function *f);
+
+  using example_t = std::pair<R, std::tuple<Args...>>;
+  std::vector<example_t> examples;
 };
+
+template <typename R, typename... Args>
+bool Linear<R, Args...>::satisfies_examples(llvm::Function *f)
+{
+  auto fc = FunctionCallable<R>(f);
+  for(auto ex : examples) {
+    
+  }
+}
+
 
 }

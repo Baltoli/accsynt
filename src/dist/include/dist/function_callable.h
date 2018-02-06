@@ -26,6 +26,11 @@ public:
   template<class... Args>
   R operator()(Args... args);
 
+  template<class TupleArgs, typename std::enable_if_t<is_tuple_v<TupleArgs>, int> = 0>
+  R operator()(TupleArgs args)
+  {
+    return std::apply(*this, args);
+  }
 private:
   llvm::ValueToValueMapTy v;
   llvm::LLVMContext C_;
