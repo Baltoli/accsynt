@@ -87,6 +87,12 @@ void test_oracles()
 void test_synth()
 {
   auto l = synth::Linear<int, int, int>();
+  l.add_example(2, std::make_tuple(2, 4));
+  l.add_example(3, std::make_tuple(2, 5));
+  auto f = l.generate_candidate();
+  if(f) {
+    f->getParent()->print(llvm::errs(), nullptr);
+  }
 }
 
 int main()
