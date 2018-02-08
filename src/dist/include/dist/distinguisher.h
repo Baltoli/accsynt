@@ -28,12 +28,12 @@ class OracleDistinguisher {
 public:
   using return_t = std::invoke_result_t<G, Args...>;
 
-  OracleDistinguisher(F&& f, G&& g, size_t limit=10000) :
+  OracleDistinguisher(F&& f, G&& g, size_t limit) :
     f_(f), g_(g), example_limit_(limit)
   {
     static_assert(std::is_convertible_v<
-      std::invoke_result<F, Args...>, // from
-      std::invoke_result<G, Args...>  // to
+      std::invoke_result_t<F, Args...>, // from
+      std::invoke_result_t<G, Args...>  // to
     >, "f and g must yield the same result type");
   }
 
@@ -46,9 +46,9 @@ private:
 };
 
 template<class... Args>
-auto make_oracle_distinguisher(auto&& f, auto&& g)
+auto make_oracle_distinguisher(auto&& f, auto&& g, size_t limit=10'000)
 {
-  return OracleDistinguisher<decltype(f), decltype(g), Args...>(f, g);
+  return OracleDistinguisher<decltype(f), decltype(g), Args...>(f, g, limit);
 }
 
 template<class F, class G, class... Args>
@@ -58,8 +58,8 @@ counterexample_t<F, Args...> OracleDistinguisher<F, G, Args...>::operator()() co
 
   for(auto i = 0; i < example_limit_; ++i) {
     auto args = sampler();
-    auto f_result = return_t{f_(args)};
-    auto g_result = g_(args);
+    auto f_result = return_t{std::apply(f_, args)};
+    auto g_result = std::apply(g_, args);
     
     if(f_result != g_result) {
       return {{f_result, g_result, args}};

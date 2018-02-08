@@ -87,19 +87,12 @@ void test_oracles()
 
 void test_synth()
 {
-  auto l = synth::Linear<int, int, int, int, int>();
-  l.add_example(0, std::make_tuple(0, 0, 0, 0));
-  l.add_example(98, std::make_tuple(13, 11, 5, 3));
-  l.add_example(12, std::make_tuple(3, 2, 2, 3));
-  auto f = l();
-  if(f) {
-    f->getParent()->print(llvm::errs(), nullptr);
-  }
-
-  auto dot = [](auto a, auto b, auto c, auto d) {
+  auto f = [](auto a, auto b, auto c, auto d) {
     return a*c + b*d;
   };
-  auto o = synth::make_oracle_synth<int, int, int, int>(dot);
+  auto o = synth::make_oracle_synth<int, int, int, int, int>(f);
+
+  o()->getParent()->print(llvm::outs(), nullptr);
 }
 
 int main()

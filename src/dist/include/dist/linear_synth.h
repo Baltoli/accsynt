@@ -51,7 +51,7 @@ public:
     module_(std::make_unique<llvm::Module>("", C_)) {}
 
   void add_example(R ret, std::tuple<Args...> args);
-  llvm::Function *operator()();
+  llvm::Function *operator()(bool clear = true);
 
 private:
   llvm::LLVMContext C_;
@@ -109,8 +109,20 @@ llvm::Value *Linear<R, Args...>::sample(llvm::Function *f) const
 }
 
 template <typename R, typename... Args>
-llvm::Function *Linear<R, Args...>::operator()()
+llvm::Function *Linear<R, Args...>::operator()(bool clear)
 {
+  if(clear) {
+    std::vector<llvm::Function *> to_clear;
+
+    for(auto& F : *module_) {
+      to_clear.push_back(&F);
+    }
+
+    for(auto F : to_clear) {
+      F->eraseFromParent();
+    }
+  }
+
   auto ret_ty = get_llvm_type<R>(C_);
   auto arg_tys = std::array<llvm::Type*, sizeof...(Args)>{
     { get_llvm_type<Args>(C_)... }
@@ -152,7 +164,7 @@ bool Linear<R, Args...>::satisfies_examples(llvm::Function *f) const
 {
   auto fc = FunctionCallable<R>(f);
   return std::all_of(std::begin(examples_), std::end(examples_), [&fc](auto ex) {
-    return fc(ex.second) == ex.first;
+    return std::apply(fc, ex.second) == ex.first;
   });
 }
 

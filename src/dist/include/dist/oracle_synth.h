@@ -1,5 +1,7 @@
 #pragma once
 
+#include <dist/distinguisher.h>
+#include <dist/function_callable.h>
 #include <dist/linear_synth.h>
 
 namespace llvm {
@@ -29,7 +31,18 @@ auto make_oracle_synth(auto f)
 template <typename F, typename R, typename... Args>
 llvm::Function *Oracle<F, R, Args...>::operator()()
 {
-  return nullptr;
+  while(true) {
+    auto candidate = linear_();
+    auto fc = FunctionCallable<R>{candidate};
+    auto dist = make_oracle_distinguisher<Args...>(reference_, fc);
+
+    auto example = dist();
+    if(example) {
+      linear_.add_example(example->f_return, example->args);
+    } else {
+      return candidate;
+    }
+  }
 }
 
 }
