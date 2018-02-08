@@ -12,6 +12,8 @@ namespace llvm {
   class Module;
 }
 
+namespace util {
+
 /**
  * Create a function "shell" into which we can copy the body of another
  * function using LLVM cloning transforms. This method copies the type
@@ -79,3 +81,5 @@ struct is_tuple<T, decltype(std::tuple_size<T>::value, void())> : std::true_type
 
 template <typename T>
 constexpr inline bool is_tuple_v = is_tuple<T>::value;
+
+}

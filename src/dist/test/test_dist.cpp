@@ -75,7 +75,7 @@ void test_oracles()
 
   if(example) {
     llvm::outs() << "Counterexample!\nArgs: (";
-    for_each(example->args, [&](auto&& arg) {
+    util::for_each(example->args, [&](auto&& arg) {
       llvm::outs() << arg << ", ";
     });
     llvm::outs() << ")\nf: " << example->f_return << '\n';

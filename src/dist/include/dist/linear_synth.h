@@ -44,6 +44,9 @@ static std::pair<create_t, int> linear_binary[] = {
 
 #undef FUNC
 
+/*
+ * This is a linear synthesizer.
+ */
 template <typename R, typename... Args>
 class Linear {
 public:
@@ -123,9 +126,9 @@ llvm::Function *Linear<R, Args...>::operator()(bool clear)
     }
   }
 
-  auto ret_ty = get_llvm_type<R>(C_);
+  auto ret_ty = util::get_llvm_type<R>(C_);
   auto arg_tys = std::array<llvm::Type*, sizeof...(Args)>{
-    { get_llvm_type<Args>(C_)... }
+    { util::get_llvm_type<Args>(C_)... }
   };
 
   auto fn_ty = llvm::FunctionType::get(ret_ty, arg_tys, false);

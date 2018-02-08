@@ -70,7 +70,7 @@ public:
   gen_t operator()()
   {
     auto ret = gen_t{};
-    zip_for_each(ret, generators_, [this](auto&& t, auto&& d) {
+    util::zip_for_each(ret, generators_, [this](auto&& t, auto&& d) {
       t = d();
     });
 

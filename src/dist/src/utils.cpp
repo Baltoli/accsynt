@@ -7,6 +7,8 @@
 
 using namespace llvm;
 
+namespace util {
+
 Function *function_copy(Function *f, Module *m)
 {
   auto func = Function::Create(f->getFunctionType(), f->getLinkage(), f->getName(), m);
@@ -30,4 +32,6 @@ ExecutionEngine *create_engine(Module* m)
   auto&& clone = llvm::CloneModule(m);
   auto eb = EngineBuilder(std::move(clone));
   return eb.create();
+}
+
 }

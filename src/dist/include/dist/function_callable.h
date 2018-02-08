@@ -40,7 +40,7 @@ FunctionCallable<R>::FunctionCallable(llvm::Function *f)
     func_ = llvm::cast<llvm::Function>(v[f]);
   } else {
     module_ = std::make_unique<llvm::Module>("", C_);
-    func_ = function_copy(f, module_.get());
+    func_ = util::function_copy(f, module_.get());
   }
 }
 
@@ -49,10 +49,10 @@ template<class... Args>
 R FunctionCallable<R>::operator()(Args... args) 
 {
   assert(func_->arg_size() == sizeof...(args) && "Argument count mismatch");
-  auto engine = create_engine(module_.get());
+  auto engine = util::create_engine(module_.get());
 
   auto func_args = std::array<llvm::GenericValue, sizeof...(args)>{
-    { make_generic(args)... }
+    { util::make_generic(args)... }
   };
 
   auto ret = engine->runFunction(func_, func_args);
