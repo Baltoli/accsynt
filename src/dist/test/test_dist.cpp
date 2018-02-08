@@ -1,6 +1,7 @@
 #include <dist/distinguisher.h>
 #include <dist/function_callable.h>
 #include <dist/linear_synth.h>
+#include <dist/oracle_synth.h>
 
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/DerivedTypes.h>
@@ -94,6 +95,11 @@ void test_synth()
   if(f) {
     f->getParent()->print(llvm::errs(), nullptr);
   }
+
+  auto dot = [](auto a, auto b, auto c, auto d) {
+    return a*c + b*d;
+  };
+  auto o = synth::make_oracle_synth<int, int, int, int>(dot);
 }
 
 int main()
