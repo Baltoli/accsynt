@@ -70,7 +70,7 @@ void test_oracles()
   auto f = FunctionCallable<int>(make_f());
   auto g = FunctionCallable<int>(make_g());
 
-  auto d = make_oracle_distinguisher<int, int>(f, g);
+  auto d = dist::make_oracle_distinguisher<int, int>(f, g);
   auto example = d();
 
   if(example) {
@@ -88,7 +88,7 @@ void test_oracles()
 void test_synth()
 {
   auto f = [](auto a, auto b, auto c, auto d) {
-    return (a & c) + (b | d);
+    return a + b + c + d;
   };
   auto o = synth::make_oracle_synth<int, int, int, int, int>(f);
 

@@ -30,16 +30,16 @@ static std::pair<create_t, int> linear_binary[] = {
   { FUNC(Add), 1 },
   { FUNC(Sub), 1 },
   { FUNC(Mul), 1 },
-  /* { FUNC(UDiv), 1 }, */
-  /* { FUNC(URem), 1 }, */
-  /* { FUNC(SDiv), 1 }, */
-  /* { FUNC(SRem), 1 }, */
   { FUNC(Shl), 1 },
   { FUNC(LShr), 1 },
   { FUNC(AShr), 1 },
   { FUNC(And), 1 },
   { FUNC(Or), 1 },
-  { FUNC(Xor), 1 }
+  { FUNC(Xor), 1 },
+  /* { FUNC(UDiv), 1 }, */
+  /* { FUNC(URem), 1 }, */
+  /* { FUNC(SDiv), 1 }, */
+  /* { FUNC(SRem), 1 }, */
 };
 
 #undef FUNC

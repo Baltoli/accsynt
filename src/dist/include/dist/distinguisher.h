@@ -12,6 +12,8 @@
 using gen::Geometric;
 using gen::Tuple;
 
+namespace dist {
+
 template<class R, class... Args>
 struct Counterexample {
   R f_return;
@@ -67,4 +69,6 @@ counterexample_t<F, Args...> OracleDistinguisher<F, G, Args...>::operator()() co
   }
 
   return {};
+}
+
 }

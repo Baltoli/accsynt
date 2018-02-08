@@ -34,7 +34,7 @@ llvm::Function *Oracle<F, R, Args...>::operator()()
   while(true) {
     auto candidate = linear_();
     auto fc = FunctionCallable<R>{candidate};
-    auto dist = make_oracle_distinguisher<Args...>(reference_, fc);
+    auto dist = dist::make_oracle_distinguisher<Args...>(reference_, fc);
 
     auto example = dist();
     if(example) {
