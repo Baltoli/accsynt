@@ -1,6 +1,6 @@
 #include <dist/distinguisher.h>
 #include <dist/function_callable.h>
-#include <dist/synthesizer.h>
+#include <dist/linear_synth.h>
 
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/DerivedTypes.h>
