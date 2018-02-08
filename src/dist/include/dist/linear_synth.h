@@ -27,9 +27,9 @@ using create_t = std::function<llvm::Value *(llvm::IRBuilder<>&, llvm::Value *, 
 #define FUNC(name) ([](auto& B, auto *v1, auto *v2) { return B.Create##name(v1, v2); })
 
 static std::pair<create_t, int> linear_binary[] = {
-  { FUNC(Add), 1 },
+  { FUNC(Add), 2 },
   { FUNC(Sub), 1 },
-  { FUNC(Mul), 1 },
+  { FUNC(Mul), 2 },
   /* { FUNC(UDiv), 1 }, */
   /* { FUNC(URem), 1 }, */
   /* { FUNC(SDiv), 1 }, */
@@ -51,7 +51,7 @@ public:
     module_(std::make_unique<llvm::Module>("", C_)) {}
 
   void add_example(R ret, std::tuple<Args...> args);
-  llvm::Function *generate_candidate();
+  llvm::Function *operator()();
 
 private:
   llvm::LLVMContext C_;
@@ -109,7 +109,7 @@ llvm::Value *Linear<R, Args...>::sample(llvm::Function *f) const
 }
 
 template <typename R, typename... Args>
-llvm::Function *Linear<R, Args...>::generate_candidate()
+llvm::Function *Linear<R, Args...>::operator()()
 {
   auto ret_ty = get_llvm_type<R>(C_);
   auto arg_tys = std::array<llvm::Type*, sizeof...(Args)>{

@@ -90,7 +90,7 @@ void test_synth()
   l.add_example(0, std::make_tuple(0, 0, 0, 0));
   l.add_example(98, std::make_tuple(13, 11, 5, 3));
   l.add_example(12, std::make_tuple(3, 2, 2, 3));
-  auto f = l.generate_candidate();
+  auto f = l();
   if(f) {
     f->getParent()->print(llvm::errs(), nullptr);
   }
