@@ -59,10 +59,16 @@ void zip_for_each(Tuple&& t, Dists&& d, Func&& f) {
   });
 }
 
-template <typename T, typename std::enable_if_t<std::is_integral_v<T>, int> = 0>
+template <typename T>
 llvm::IntegerType *get_llvm_type(llvm::LLVMContext& C)
 {
-  return llvm::IntegerType::get(C, sizeof(T)*8);
+  constexpr auto is_int = std::is_integral_v<T>;
+
+  if constexpr(is_int) {
+    return llvm::IntegerType::get(C, sizeof(T)*8);
+  } else {
+    static_assert(is_int, "Only integral types supported for LLVM so far");
+  }
 }
 
 template <typename T, typename = void>

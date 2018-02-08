@@ -88,7 +88,7 @@ void test_oracles()
 void test_synth()
 {
   auto f = [](auto a, auto b, auto c, auto d) {
-    return a*c + b*d;
+    return (a & c) + (b | d);
   };
   auto o = synth::make_oracle_synth<int, int, int, int, int>(f);
 
