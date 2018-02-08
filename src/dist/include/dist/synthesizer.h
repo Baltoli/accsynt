@@ -28,7 +28,7 @@ using create_t = std::function<llvm::Value *(llvm::IRBuilder<>&, llvm::Value *, 
 
 static std::pair<create_t, int> linear_binary[] = {
   { FUNC(Add), 1 },
-  { FUNC(Sub), 5 },
+  { FUNC(Sub), 1 },
   { FUNC(Mul), 1 },
   /* { FUNC(UDiv), 1 }, */
   /* { FUNC(URem), 1 }, */
