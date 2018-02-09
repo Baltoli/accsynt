@@ -40,7 +40,7 @@ FunctionCallable<R>::FunctionCallable(llvm::Function *f)
     func_ = llvm::cast<llvm::Function>(v[f]);
   } else {
     module_ = std::make_unique<llvm::Module>("", C_);
-    func_ = util::function_copy(f, module_.get());
+    func_ = util::copy_function(f, module_.get());
   }
 }
 

@@ -12,25 +12,17 @@ namespace llvm {
   class Module;
 }
 
-namespace util {
+/**
+ * Implementation details needed by the utility functions.
+ */
+namespace {
 
 /**
- * Create a function "shell" into which we can copy the body of another
- * function using LLVM cloning transforms. This method copies the type
- * signature, name and linkage from f.
+ * These functions are implementation details for the tuple iteration methods
+ * below. They are taken from:
+ *
+ * https://blog.tartanllama.xyz/exploding-tuples-fold-expressions/
  */
-llvm::Function *function_copy(llvm::Function *f, llvm::Module *m);
-
-llvm::ExecutionEngine *create_engine(llvm::Module* m);
-
-template<class T>
-llvm::GenericValue make_generic(T t)
-{
-  llvm::GenericValue gv;
-  gv.IntVal = llvm::APInt(sizeof(T)*8, t, std::is_signed_v<T>);
-  return gv;
-}
-
 template <std::size_t... Idx>
 auto make_index_dispatcher(std::index_sequence<Idx...>) {
     return [] (auto&& f) { (f(std::integral_constant<std::size_t,Idx>{}), ...); };
@@ -41,26 +33,96 @@ auto make_index_dispatcher() {
     return make_index_dispatcher(std::make_index_sequence<N>{}); 
 }
 
+}
+
+/**
+ * \brief Utility functions used by other parts of the code.
+ *
+ * Ideally everything in this namespace would be better organised.
+ */
+namespace util {
+
+/**
+ * \brief Copy a function into another module.
+ *
+ * This creates a new function inside \p m with the same body as \p f, and
+ * returns the new function.
+ */
+llvm::Function *copy_function(llvm::Function *f, llvm::Module *m);
+
+/**
+ * \brief Create a new execution engine using a clone of \p m.
+ *
+ * A clone of \p m is created and used to instantiate a new execution engine.
+ * The new engine is returned and can be used to execute LLVM functions.
+ */
+std::unique_ptr<llvm::ExecutionEngine> create_engine(llvm::Module* m);
+
+/**
+ * \brief Convert an integer value to an LLVM GenericValue.
+ *
+ * The type \p T must satisfy \p std::is_integral . The returned generic value
+ * can be used to pass arguments to LLVM functions being executed by an
+ * execution engine.
+ */
+template<class T>
+llvm::GenericValue make_generic(T t)
+{
+  static_assert(std::is_integral_v<T>, "Type must be integral");
+
+  llvm::GenericValue gv;
+  gv.IntVal = llvm::APInt(sizeof(T)*8, t, std::is_signed_v<T>);
+  return gv;
+}
+
+/**
+ * \brief Iterate over each item in a tuple.
+ *
+ * The callable \p f is called for each element of \p t, which can be any type
+ * that supports \p std::get and \p std::tuple_size.
+ */
 template <typename Tuple, typename Func>
 void for_each(Tuple&& t, Func&& f) {
-  constexpr auto n = std::tuple_size<std::decay_t<Tuple>>::value;
-  auto dispatcher = make_index_dispatcher<n>();
+  constexpr auto n = std::tuple_size_v<std::decay_t<Tuple>>;
+  auto dispatcher = ::make_index_dispatcher<n>();
+
   dispatcher([&f,&t](auto idx) {
     f(std::get<idx>(std::forward<Tuple>(t)));
   });
 }
 
-template <typename Tuple, typename Dists, typename Func>
-void zip_for_each(Tuple&& t, Dists&& d, Func&& f) {
-  static_assert(std::tuple_size_v<std::decay_t<Tuple>> == std::tuple_size_v<std::decay_t<Dists>>);
+/**
+ * \brief Iterate over two zipped tuples.
+ *
+ * The callable \p f is called with two arguments, one from each tuple. The
+ * types \p Tuple1 and \p Tuple2 must both support \p std::get and \p
+ * std::tuple_size. The size of \p Tuple1 must be less than or equal to the size
+ * of \p Tuple2.
+ */
+template <typename Tuple1, typename Tuple2, typename Func>
+void zip_for_each(Tuple1&& t1, Tuple2&& t2, Func&& f) {
+  constexpr auto a1_size = std::tuple_size_v<std::decay_t<Tuple1>>;
+  constexpr auto a2_size = std::tuple_size_v<std::decay_t<Tuple2>>;
 
-  constexpr auto n = std::tuple_size<std::decay_t<Tuple>>::value;
-  auto dispatcher = make_index_dispatcher<n>();
-  dispatcher([&f,&t,&d](auto idx) {
-    f(std::get<idx>(std::forward<Tuple>(t)), std::get<idx>(std::forward<Dists>(d))); 
+  static_assert(a1_size <= a2_size, "Second argument tuple is too small");
+
+  constexpr auto n = std::tuple_size_v<std::decay_t<Tuple1>>;
+  auto dispatcher = ::make_index_dispatcher<n>();
+
+  dispatcher([&f,&t1,&t2](auto idx) {
+    f(std::get<idx>(std::forward<Tuple1>(t1)), 
+      std::get<idx>(std::forward<Tuple2>(t2))); 
   });
 }
 
+/**
+ * \brief Get an LLVM type corresponding to a C++ type.
+ *
+ * The returned type will be the same size as \p T. Currently, only integral
+ * types are supported.
+ *
+ * \todo  Handle more types, signedness etc.
+ */
 template <typename T>
 llvm::IntegerType *get_llvm_type(llvm::LLVMContext& C)
 {
@@ -73,12 +135,21 @@ llvm::IntegerType *get_llvm_type(llvm::LLVMContext& C)
   }
 }
 
+/**
+ * \brief Type trait for detecting tuple types.
+ */
 template <typename T, typename = void>
 struct is_tuple : std::false_type {};
 
+/**
+ * \brief Type trait for detecting tuple types.
+ */
 template <typename T>
-struct is_tuple<T, decltype(std::tuple_size<T>::value, void())> : std::true_type {};
+struct is_tuple<T, decltype(std::tuple_size_v<T>, void())> : std::true_type {};
 
+/**
+ * \brief Convenience value for tuple detection.
+ */
 template <typename T>
 constexpr inline bool is_tuple_v = is_tuple<T>::value;
 

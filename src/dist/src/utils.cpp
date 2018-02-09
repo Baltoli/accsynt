@@ -9,7 +9,7 @@ using namespace llvm;
 
 namespace util {
 
-Function *function_copy(Function *f, Module *m)
+Function *copy_function(Function *f, Module *m)
 {
   auto func = Function::Create(f->getFunctionType(), f->getLinkage(), f->getName(), m);
 
@@ -27,11 +27,11 @@ Function *function_copy(Function *f, Module *m)
   return func;
 }
 
-ExecutionEngine *create_engine(Module* m)
+std::unique_ptr<ExecutionEngine> create_engine(Module* m)
 {
   auto&& clone = llvm::CloneModule(m);
   auto eb = EngineBuilder(std::move(clone));
-  return eb.create();
+  return std::unique_ptr<ExecutionEngine>{eb.create()};
 }
 
 }
