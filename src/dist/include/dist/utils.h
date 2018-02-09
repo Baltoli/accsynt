@@ -135,20 +135,14 @@ llvm::IntegerType *get_llvm_type(llvm::LLVMContext& C)
   }
 }
 
-/**
- * \brief Type trait for detecting tuple types.
- */
 template <typename T, typename = void>
 struct is_tuple : std::false_type {};
 
-/**
- * \brief Type trait for detecting tuple types.
- */
 template <typename T>
 struct is_tuple<T, decltype(std::tuple_size_v<T>, void())> : std::true_type {};
 
 /**
- * \brief Convenience value for tuple detection.
+ * \brief Type trait that detects tuple-like types.
  */
 template <typename T>
 constexpr inline bool is_tuple_v = is_tuple<T>::value;
