@@ -1,3 +1,7 @@
+/**
+ * \file function_callable.h
+ */
+
 #pragma once
 
 #include <dist/utils.h>
@@ -18,11 +22,27 @@ namespace llvm {
   class Module;
 }
 
+/**
+ * \brief Wraps an LLVM function in a callable interface.
+ *
+ * This class creates a copy of the function it is constructed with, and allows
+ * it to be called with native values as arguments. The return type of the
+ * function must be known in advance to construct an instance of this class.
+ */
 template<class R>
 class FunctionCallable {
 public:
+  /**
+   * \brief Construct a callable wrapper by copying \p f.
+   */
   FunctionCallable(llvm::Function *f);
 
+  /**
+   * \brief Call the LLVM function with a variadic set of arguments.
+   *
+   * The compile-time size of \p args must be the same as the argument count of
+   * the LLVM function associated with this callable.
+   */
   template<class... Args>
   R operator()(Args... args);
 private:
