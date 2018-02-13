@@ -45,23 +45,22 @@ public:
    */
   template<class... Args>
   R operator()(Args... args);
+
 private:
-  llvm::ValueToValueMapTy v;
   llvm::LLVMContext C_;
   std::unique_ptr<llvm::Module> module_;
   llvm::Function *func_;
+  llvm::ExecutionEngine *engine_;
 };
 
 template<class R>
-FunctionCallable<R>::FunctionCallable(llvm::Function *f)
+FunctionCallable<R>::FunctionCallable(llvm::Function *f) :
+  C_{},
+  module_{std::make_unique<llvm::Module>("", C_)},
+  func_{util::copy_function(f, module_.get())}
 {
-  if(f->getParent()) {
-    module_ = llvm::CloneModule(f->getParent(), v);
-    func_ = llvm::cast<llvm::Function>(v[f]);
-  } else {
-    module_ = std::make_unique<llvm::Module>("", C_);
-    func_ = util::copy_function(f, module_.get());
-  }
+  auto eb = llvm::EngineBuilder{std::move(module_)};
+  engine_ = eb.create();
 }
 
 template<class R>
@@ -69,12 +68,11 @@ template<class... Args>
 R FunctionCallable<R>::operator()(Args... args) 
 {
   assert(func_->arg_size() == sizeof...(args) && "Argument count mismatch");
-  auto engine = util::create_engine(module_.get());
 
   auto func_args = std::array<llvm::GenericValue, sizeof...(args)>{
     { util::make_generic(args)... }
   };
 
-  auto ret = engine->runFunction(func_, func_args);
+  auto ret = engine_->runFunction(func_, func_args);
   return R(ret.IntVal.getLimitedValue(std::numeric_limits<R>::max()));
 }
