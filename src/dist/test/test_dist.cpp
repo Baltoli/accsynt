@@ -1,7 +1,9 @@
+#include <dist/contexts.h>
 #include <dist/distinguisher.h>
 #include <dist/function_callable.h>
 #include <dist/linear_synth.h>
 #include <dist/oracle_synth.h>
+#include <dist/types.h>
 
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/DerivedTypes.h>
@@ -95,8 +97,23 @@ void test_synth()
   o()->getParent()->print(llvm::outs(), nullptr);
 }
 
+void test_types()
+{
+  std::thread t{ []{
+    llvm::outs() << &ThreadContext::get() << '\n';
+  }};
+
+  std::thread t1{ []{
+    llvm::outs() << &ThreadContext::get() << '\n';
+  }};
+
+  t.join();
+  t1.join();
+}
+
 int main()
 {
+  test_types();
   /* test_oracles(); */
-  test_synth();
+  /* test_synth(); */
 }
