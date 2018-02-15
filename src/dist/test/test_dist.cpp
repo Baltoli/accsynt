@@ -97,18 +97,28 @@ void test_synth()
   o()->getParent()->print(llvm::outs(), nullptr);
 }
 
+#include <limits>
 void test_types()
 {
-  std::thread t{ []{
-    llvm::outs() << &ThreadContext::get() << '\n';
-  }};
+  auto i1 = types::Integer{4};
+  auto i2 = types::Integer{8};
+  auto a = types::Array{i2, 16};
+  auto s = types::Struct{i1, a};
 
-  std::thread t1{ []{
-    llvm::outs() << &ThreadContext::get() << '\n';
-  }};
+  auto ag = a.generate();
+  for(auto i = 0; i < ag.size(); ++i) {
+    if(i == 0) { 
+      llvm::outs() << "["; 
+    }
 
-  t.join();
-  t1.join();
+    llvm::outs() << ag[i];
+    
+    if(i == ag.size() - 1) {
+      llvm::outs() << "]\n";
+    } else {
+      llvm::outs() << ", ";
+    }
+  }
 }
 
 int main()
