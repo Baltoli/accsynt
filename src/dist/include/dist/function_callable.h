@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <dist/contexts.h>
 #include <dist/utils.h>
 
 #include <llvm/ADT/APInt.h>
@@ -47,7 +48,6 @@ public:
   R operator()(Args... args);
 
 private:
-  llvm::LLVMContext C_;
   std::unique_ptr<llvm::Module> module_;
   llvm::Function *func_;
   llvm::ExecutionEngine *engine_;
@@ -55,8 +55,7 @@ private:
 
 template<class R>
 FunctionCallable<R>::FunctionCallable(llvm::Function *f) :
-  C_{},
-  module_{std::make_unique<llvm::Module>("", C_)},
+  module_{std::make_unique<llvm::Module>("", ThreadContext::get())},
   func_{util::copy_function(f, module_.get())}
 {
   auto eb = llvm::EngineBuilder{std::move(module_)};

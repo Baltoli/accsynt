@@ -29,9 +29,9 @@ using create_t = std::function<llvm::Value *(llvm::IRBuilder<>&, llvm::Value *, 
 #define FUNC(name) ([](auto& B, auto *v1, auto *v2) { return B.Create##name(v1, v2); })
 
 std::array<std::pair<create_t, int>, 9> linear_binary = {{
-  { FUNC(Add), 1 },
+  { FUNC(Add), 5 },
   { FUNC(Sub), 1 },
-  { FUNC(Mul), 1 },
+  { FUNC(Mul), 5 },
   { FUNC(Shl), 1 },
   { FUNC(LShr), 1 },
   { FUNC(AShr), 1 },

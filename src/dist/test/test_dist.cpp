@@ -16,11 +16,9 @@
 
 using namespace llvm;
 
-static LLVMContext C{};
-
 FunctionType *function_type()
 {
-  auto it = IntegerType::get(C, 32);
+  auto it = IntegerType::get(ThreadContext::get(), 32);
   return FunctionType::get(it, {it, it}, false);
 }
 
@@ -28,7 +26,7 @@ Function *make_f()
 {
   auto ty = function_type();
   auto fn = Function::Create(ty, GlobalValue::ExternalLinkage, "f");
-  auto bb = BasicBlock::Create(C, "", fn);
+  auto bb = BasicBlock::Create(ThreadContext::get(), "", fn);
   auto B = IRBuilder<>(&fn->getEntryBlock());
 
   auto* arg_1 = fn->arg_begin();
@@ -44,20 +42,20 @@ Function *make_g()
 {
   auto ty = function_type();
   auto fn = Function::Create(ty, GlobalValue::ExternalLinkage, "g");
-  auto bb = BasicBlock::Create(C, "entry", fn);
+  auto bb = BasicBlock::Create(ThreadContext::get(), "entry", fn);
   auto B = IRBuilder<>(&fn->getEntryBlock());
 
   auto* arg_1 = fn->arg_begin();
   auto* arg_2 = (fn->arg_begin() + 1);
 
-  auto wrong_bb = BasicBlock::Create(C, "wrong", fn);
-  auto ret_bb = BasicBlock::Create(C, "correct", fn);
+  auto wrong_bb = BasicBlock::Create(ThreadContext::get(), "wrong", fn);
+  auto ret_bb = BasicBlock::Create(ThreadContext::get(), "correct", fn);
 
   auto eq = B.CreateICmpEQ(arg_1, arg_2);
   auto br = B.CreateCondBr(eq, wrong_bb, ret_bb);
 
   B.SetInsertPoint(wrong_bb);
-  auto two = ConstantInt::get(IntegerType::get(C, 32), 3);
+  auto two = ConstantInt::get(IntegerType::get(ThreadContext::get(), 32), 3);
   auto mul = B.CreateMul(arg_1, two);
   B.CreateRet(mul);
 
@@ -90,7 +88,7 @@ void test_oracles()
 void test_synth()
 {
   auto f = [](auto a, auto b, auto c, auto d) {
-    return a + b + c + d;
+    return (a*c) + (b*d);
   };
   auto o = synth::make_oracle_synth<int, int, int, int, int>(f);
 
@@ -125,9 +123,28 @@ void test_types()
   llvm::outs() << '\n';
 }
 
+void test_thread_fcs()
+{
+  std::mutex print_lock;
+
+  std::thread t1{ [&]{
+    auto f = FunctionCallable<int>(make_f());
+    llvm::outs() << f(1,1) << '\n';
+  }};
+
+  std::thread t2{ [&]{
+    auto f = FunctionCallable<int>(make_g());
+    llvm::outs() << f(1,1) << '\n';
+  }};
+
+  t1.join();
+  t2.join();
+}
+
 int main()
 {
-  test_types();
+  /* test_types(); */
   /* test_oracles(); */
   /* test_synth(); */
+  test_thread_fcs();
 }
