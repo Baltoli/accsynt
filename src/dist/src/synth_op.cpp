@@ -1,7 +1,5 @@
 #include <dist/synth_op.h>
 
-#include <llvm/IR/Value.h>
-
 namespace {
 
 bool validate_types(size_t num, value_array args)
@@ -28,4 +26,10 @@ bool Add::validate(value_array args)
 bool Mul::validate(value_array args)
 {
   return validate_types(2, args);
+}
+
+Ops& Ops::instance()
+{
+  static auto inst = Ops{};
+  return inst;
 }

@@ -127,7 +127,17 @@ void test_types()
 void test_ops()
 {
   auto a = Add{};
-  /* a.produced_type().llvm_type()->print(llvm::outs()); */
+
+  auto ty = function_type();
+  auto fn = Function::Create(ty, GlobalValue::ExternalLinkage, "ops");
+  auto bb = BasicBlock::Create(ThreadContext::get(), "entry", fn);
+  auto B = IRBuilder<>(&fn->getEntryBlock());
+
+  auto v1 = fn->arg_begin();
+  auto v2 = fn->arg_begin() + 1;
+
+  Ops::sample(B, {v1, v2});
+  fn->print(llvm::errs());
 }
 
 #include <any>
