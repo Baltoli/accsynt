@@ -97,12 +97,11 @@ void test_synth()
   o()->getParent()->print(llvm::outs(), nullptr);
 }
 
-#include <limits>
 void test_types()
 {
   auto i1 = types::Integer{4};
   auto i2 = types::Integer{8};
-  auto a = types::Array{i2, 16};
+  auto a = types::Array{i2, 2};
   auto s = types::Struct{i1, a};
 
   auto&& [i, ag] = s.generate();
@@ -112,7 +111,7 @@ void test_types()
       llvm::outs() << "["; 
     }
 
-    llvm::outs() << ag[i];
+    llvm::outs() << ag.at(i);
     
     if(i == ag.size() - 1) {
       llvm::outs() << "]";
@@ -120,7 +119,10 @@ void test_types()
       llvm::outs() << ", ";
     }
   }
-  llvm::outs() << "}\n";
+  llvm::outs() << " }\n";
+
+  s.llvm_type()->print(llvm::outs());
+  llvm::outs() << '\n';
 }
 
 int main()

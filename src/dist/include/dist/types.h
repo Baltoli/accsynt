@@ -68,13 +68,16 @@ public:
   using example_t = std::tuple<typename Types::example_t...>;
 
   Struct(Types... ts) :
-    types_{ts...},
-    llvm_types_{{ llvm::dyn_cast<llvm::Type>(ts.llvm_type())... }}
+    types_{ts...}
   {}
 
   llvm::StructType *llvm_type() const
   {
-    return llvm::StructType::get(ThreadContext::get(), types_);
+    auto llvm_types = std::array<llvm::Type *, sizeof...(Types)>{};
+    util::zip_for_each(types_, llvm_types, [&] (auto&& t, auto&& l) {
+      l = llvm::dyn_cast<llvm::Type>(t.llvm_type());
+    });
+    return llvm::StructType::get(ThreadContext::get(), llvm_types);
   }
 
   example_t generate() const
@@ -85,9 +88,9 @@ public:
     });
     return ret;
   }
+
 private:
   std::tuple<Types...> types_;
-  std::array<llvm::Type *, sizeof...(Types)> llvm_types_;
 };
 
 }
