@@ -1,6 +1,7 @@
 #pragma once
 
 #include <dist/function_callable.h>
+#include <dist/types.h>
 #include <dist/utils.h>
 
 #include <llvm/Analysis/InstructionSimplify.h>
@@ -22,6 +23,27 @@ namespace llvm {
 }
 
 namespace synth {
+
+namespace v2 {
+
+template <typename R, typename... Args>
+class Linear {
+public:
+  Linear(R r, Args... args) :
+    return_type_{r}, arg_types_{args...},
+    examples_{}
+  {}
+
+private:
+  R return_type_;
+  std::tuple<Args...> arg_types_;
+
+  using example_t = std::pair<typename R::example_t, 
+                              std::tuple<typename Args::example_t...>>;
+  std::vector<example_t> examples_;
+};
+
+}
 
 using create_t = std::function<llvm::Value *(llvm::IRBuilder<>&, llvm::Value *, llvm::Value *)>;
 

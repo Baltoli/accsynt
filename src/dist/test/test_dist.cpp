@@ -140,11 +140,18 @@ void test_ops()
   fn->print(llvm::errs());
 }
 
+void test_synth_v2()
+{
+  auto i32 = types::Integer{32};
+  auto l = synth::v2::Linear{i32, i32, i32};
+}
+
 #include <any>
 int main()
 {
   /* test_types(); */
   /* test_oracles(); */
   /* test_synth(); */
-  test_ops();
+  /* test_ops(); */
+  test_synth_v2();
 }
