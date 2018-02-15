@@ -5,6 +5,7 @@
 
 #include <random>
 #include <tuple>
+#include <variant>
 
 #include <llvm/IR/DerivedTypes.h>
 

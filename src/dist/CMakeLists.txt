@@ -4,6 +4,7 @@ add_library(dist
   src/contexts.cpp
   src/types.cpp
   src/utils.cpp
+  src/synth_op.cpp
 )
 
 target_include_directories(dist PUBLIC

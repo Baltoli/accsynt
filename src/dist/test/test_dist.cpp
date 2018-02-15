@@ -3,6 +3,7 @@
 #include <dist/function_callable.h>
 #include <dist/linear_synth.h>
 #include <dist/oracle_synth.h>
+#include <dist/synth_op.h>
 #include <dist/types.h>
 
 #include <llvm/IR/BasicBlock.h>
@@ -123,28 +124,17 @@ void test_types()
   llvm::outs() << '\n';
 }
 
-void test_thread_fcs()
+void test_ops()
 {
-  std::mutex print_lock;
-
-  std::thread t1{ [&]{
-    auto f = FunctionCallable<int>(make_f());
-    llvm::outs() << f(1,1) << '\n';
-  }};
-
-  std::thread t2{ [&]{
-    auto f = FunctionCallable<int>(make_g());
-    llvm::outs() << f(1,1) << '\n';
-  }};
-
-  t1.join();
-  t2.join();
+  auto a = Add{};
+  /* a.produced_type().llvm_type()->print(llvm::outs()); */
 }
 
+#include <any>
 int main()
 {
   /* test_types(); */
   /* test_oracles(); */
   /* test_synth(); */
-  test_thread_fcs();
+  test_ops();
 }
