@@ -1,6 +1,7 @@
 #pragma once
 
 #include <dist/contexts.h>
+#include <dist/utils.h>
 
 #include <random>
 #include <tuple>
@@ -64,16 +65,29 @@ private:
 template <typename... Types>
 class Struct {
 public:
+  using example_t = std::tuple<typename Types::example_t...>;
+
   Struct(Types... ts) :
-    types_{{ llvm::dyn_cast<llvm::Type>(ts.llvm_type())... }}
+    types_{ts...},
+    llvm_types_{{ llvm::dyn_cast<llvm::Type>(ts.llvm_type())... }}
   {}
 
   llvm::StructType *llvm_type() const
   {
     return llvm::StructType::get(ThreadContext::get(), types_);
   }
+
+  example_t generate() const
+  {
+    auto ret = example_t{};
+    util::zip_for_each(types_, ret, [&] (auto&& t, auto&& r) {
+      r = t.generate();
+    });
+    return ret;
+  }
 private:
-  std::array<llvm::Type *, sizeof...(Types)> types_;
+  std::tuple<Types...> types_;
+  std::array<llvm::Type *, sizeof...(Types)> llvm_types_;
 };
 
 }

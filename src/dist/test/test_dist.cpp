@@ -105,7 +105,8 @@ void test_types()
   auto a = types::Array{i2, 16};
   auto s = types::Struct{i1, a};
 
-  auto ag = a.generate();
+  auto&& [i, ag] = s.generate();
+  llvm::outs() << "{ " << i << ", ";
   for(auto i = 0; i < ag.size(); ++i) {
     if(i == 0) { 
       llvm::outs() << "["; 
@@ -114,11 +115,12 @@ void test_types()
     llvm::outs() << ag[i];
     
     if(i == ag.size() - 1) {
-      llvm::outs() << "]\n";
+      llvm::outs() << "]";
     } else {
       llvm::outs() << ", ";
     }
   }
+  llvm::outs() << "}\n";
 }
 
 int main()
