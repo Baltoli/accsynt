@@ -68,22 +68,22 @@ Function *make_g()
 
 void test_oracles()
 {
-  auto f = FunctionCallable<int>(make_f());
-  auto g = FunctionCallable<int>(make_g());
+  /* auto f = FunctionCallable<int>(make_f()); */
+  /* auto g = FunctionCallable<int>(make_g()); */
 
-  auto d = dist::make_oracle_distinguisher<int, int>(f, g);
-  auto example = d();
+  /* auto d = dist::make_oracle_distinguisher<int, int>(f, g); */
+  /* auto example = d(); */
 
-  if(example) {
-    llvm::outs() << "Counterexample!\nArgs: (";
-    util::for_each(example->args, [&](auto&& arg) {
-      llvm::outs() << arg << ", ";
-    });
-    llvm::outs() << ")\nf: " << example->f_return << '\n';
-    llvm::outs() << "g: " << example->g_return << '\n';
-  } else {
-    llvm::outs() << "Identical!\n";
-  }
+  /* if(example) { */
+  /*   llvm::outs() << "Counterexample!\nArgs: ("; */
+  /*   util::for_each(example->args, [&](auto&& arg) { */
+  /*     llvm::outs() << arg << ", "; */
+  /*   }); */
+  /*   llvm::outs() << ")\nf: " << example->f_return << '\n'; */
+  /*   llvm::outs() << "g: " << example->g_return << '\n'; */
+  /* } else { */
+  /*   llvm::outs() << "Identical!\n"; */
+  /* } */
 }
 
 void test_types()
@@ -139,7 +139,7 @@ void test_synth_v2()
   auto i32 = types::Integer{32};
   auto o = synth::Oracle{f, i32, i32, i32, i32, i32};
 
-  o()->getParent()->print(llvm::outs(), nullptr);
+  o()->print(llvm::outs(), nullptr);
 }
 
 int main()

@@ -36,7 +36,7 @@ public:
   /**
    * \brief Construct a callable wrapper by copying \p f.
    */
-  FunctionCallable(llvm::Function *f);
+  FunctionCallable(llvm::Module *m, llvm::StringRef name);
 
   /**
    * \brief Call the LLVM function with a variadic set of arguments.
@@ -54,9 +54,9 @@ private:
 };
 
 template<class R>
-FunctionCallable<R>::FunctionCallable(llvm::Function *f) :
-  module_{std::make_unique<llvm::Module>("", ThreadContext::get())},
-  func_{util::copy_function(f, module_.get())}
+FunctionCallable<R>::FunctionCallable(llvm::Module *m, llvm::StringRef name) :
+  module_{util::copy_module_to(ThreadContext::get(), m)},
+  func_{module_->getFunction(name)}
 {
   auto eb = llvm::EngineBuilder{std::move(module_)};
   engine_ = eb.create();

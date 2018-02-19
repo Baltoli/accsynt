@@ -4,6 +4,8 @@
 #include <dist/function_callable.h>
 #include <dist/linear_synth.h>
 
+#include <memory>
+
 namespace llvm {
   class Function;
 }
@@ -18,20 +20,20 @@ public:
     linear_{r, args...}
   {}
 
-  llvm::Function *operator()();
+  std::unique_ptr<llvm::Module> operator()();
 private:
   Linear<R, Args...> linear_;
   F reference_;
 };
 
 template <typename F, typename R, typename... Args>
-llvm::Function *Oracle<F, R, Args...>::operator()()
+std::unique_ptr<llvm::Module> Oracle<F, R, Args...>::operator()()
 {
   using ret_t = typename decltype(linear_)::ret_t;
 
   while(true) {
     auto candidate = linear_();
-    auto fc = FunctionCallable<ret_t>{candidate};
+    auto fc = FunctionCallable<ret_t>{candidate.get(), "cand"};
     auto dist = dist::make_oracle_distinguisher<typename Args::example_t...>(reference_, fc);
 
     auto example = dist();

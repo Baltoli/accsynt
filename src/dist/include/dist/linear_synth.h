@@ -35,12 +35,11 @@ public:
 
   Linear(R r, Args... args) :
     return_type_{r}, arg_types_{args...},
-    examples_{},
-    module_{std::make_unique<llvm::Module>("", ThreadContext::get())}
+    examples_{}
   {}
 
   void add_example(ret_t ret, args_t args);
-  llvm::Function *operator()(bool clear = true);
+  std::unique_ptr<llvm::Module> operator()(bool clear = true);
 
 private:
   llvm::FunctionType *llvm_function_type() const;
@@ -48,46 +47,66 @@ private:
   bool satisfies_examples(llvm::Function *f) const;
   llvm::Value *sample(llvm::Function *f);
 
-  void clear_functions();
+  void clear_functions(llvm::Module& module);
 
   R return_type_;
   std::tuple<Args...> arg_types_;
 
   std::vector<io_pair_t> examples_;
-
-  std::unique_ptr<llvm::Module> module_;
 };
 
 template <typename R, typename... Args>
-llvm::Function *Linear<R, Args...>::operator()(bool clear)
+std::unique_ptr<llvm::Module> Linear<R, Args...>::operator()(bool clear)
 {
-  if(clear) {
-    clear_functions();
+  auto ret = std::unique_ptr<llvm::Module>{};
+
+  auto work = [&] {
+    auto fn_ty = llvm_function_type();
+    auto B = llvm::IRBuilder<>{ThreadContext::get()};
+    auto mod = std::make_unique<llvm::Module>("", ThreadContext::get());
+
+    while(true) {
+      if(ret) {
+        return;
+      }
+
+      if(clear) {
+        clear_functions(*mod);
+      }
+
+      auto fn = llvm::Function::Create(fn_ty, llvm::GlobalValue::ExternalLinkage, 
+                                       "cand", mod.get());
+
+      auto bb = llvm::BasicBlock::Create(ThreadContext::get(), "", fn);
+      B.SetInsertPoint(bb);
+
+      for(auto i = 0; i < 10; ++i) {
+        auto v1 = sample(fn);
+        auto v2 = sample(fn);
+        Ops::sample(B, {v1, v2});
+      }
+
+      B.CreateRet(sample(fn));
+
+      if(satisfies_examples(fn)) {
+        ret = std::move(mod);
+        return;
+      } else {
+        fn->eraseFromParent();
+      }
+    }
+  };
+
+  auto threads = std::forward_list<std::thread>{};
+  for(auto i = 0; i < std::thread::hardware_concurrency(); ++i) {
+    threads.emplace_front(work);
   }
 
-  auto fn_ty = llvm_function_type();
-  auto B = llvm::IRBuilder<>{ThreadContext::get()};
-
-  while(true) {
-    auto fn = llvm::Function::Create(fn_ty, llvm::GlobalValue::ExternalLinkage, "", module_.get());
-
-    auto bb = llvm::BasicBlock::Create(ThreadContext::get(), "", fn);
-    B.SetInsertPoint(bb);
-
-    for(auto i = 0; i < 10; ++i) {
-      auto v1 = sample(fn);
-      auto v2 = sample(fn);
-      Ops::sample(B, {v1, v2});
-    }
-
-    B.CreateRet(sample(fn));
-
-    if(satisfies_examples(fn)) {
-      return fn;
-    } else {
-      fn->eraseFromParent();
-    }
+  for(auto& t : threads) {
+    t.join();
   }
+
+  return ret;
 }
 
 template <typename R, typename... Args>
@@ -119,7 +138,7 @@ size_t Linear<R, Args...>::value_count(llvm::Function *f) const
 template <typename R, typename... Args>
 bool Linear<R, Args...>::satisfies_examples(llvm::Function *f) const
 {
-  auto fc = FunctionCallable<ret_t>(f);
+  auto fc = FunctionCallable<ret_t>(f->getParent(), f->getName());
   return std::all_of(std::begin(examples_), std::end(examples_), [&fc](auto ex) {
     return std::apply(fc, ex.second) == ex.first;
   });
@@ -153,11 +172,11 @@ llvm::Value *Linear<R, Args...>::sample(llvm::Function *f)
 }
 
 template <typename R, typename... Args>
-void Linear<R, Args...>::clear_functions()
+void Linear<R, Args...>::clear_functions(llvm::Module& module)
 {
   auto to_clear = std::forward_list<llvm::Function *>{};
 
-  for(auto& f : *module_) {
+  for(auto& f : module) {
     to_clear.push_front(&f);
   }
 
