@@ -1,6 +1,7 @@
 #pragma once
 
 #include <dist/function_callable.h>
+#include <dist/synth_op.h>
 #include <dist/types.h>
 #include <dist/utils.h>
 
@@ -40,6 +41,7 @@ public:
   {}
 
   void add_example(ret_t ret, args_t args);
+  llvm::Function *operator()();
 
 private:
   llvm::FunctionType *llvm_function_type() const;
@@ -54,6 +56,34 @@ private:
 
   std::unique_ptr<llvm::Module> module_;
 };
+
+template <typename R, typename... Args>
+llvm::Function *Linear<R, Args...>::operator()()
+{
+  auto fn_ty = llvm_function_type();
+  auto B = llvm::IRBuilder<>{ThreadContext::get()};
+
+  while(true) {
+    auto fn = llvm::Function::Create(fn_ty, llvm::GlobalValue::ExternalLinkage, "", module_.get());
+
+    auto bb = llvm::BasicBlock::Create(ThreadContext::get(), "", fn);
+    B.SetInsertPoint(bb);
+
+    for(auto i = 0; i < 10; ++i) {
+      auto v1 = sample(fn);
+      auto v2 = sample(fn);
+      Ops::sample(B, {v1, v2});
+    }
+
+    B.CreateRet(sample(fn));
+
+    if(satisfies_examples(fn)) {
+      return fn;
+    } else {
+      fn->eraseFromParent();
+    }
+  }
+}
 
 template <typename R, typename... Args>
 void Linear<R, Args...>::add_example(Linear::ret_t r, Linear::args_t args)
@@ -84,10 +114,37 @@ size_t Linear<R, Args...>::value_count(llvm::Function *f) const
 template <typename R, typename... Args>
 bool Linear<R, Args...>::satisfies_examples(llvm::Function *f) const
 {
-  auto fc = FunctionCallable<R>(f);
+  auto fc = FunctionCallable<ret_t>(f);
   return std::all_of(std::begin(examples_), std::end(examples_), [&fc](auto ex) {
     return std::apply(fc, ex.second) == ex.first;
   });
+}
+
+template <typename R, typename... Args>
+llvm::Value *Linear<R, Args...>::sample(llvm::Function *f)
+{
+  auto rd = std::random_device{};
+
+  auto range = value_count(f) - 1;
+
+  auto dist = std::uniform_int_distribution<decltype(range)>{0, range};
+  auto index = dist(rd);
+
+  if(index < f->arg_size()) {
+    return f->arg_begin() + index;
+  } else {
+    auto count = f->arg_size();
+    for(auto& BB : *f) {
+      for(auto& I : BB) {
+        if(count++ == index) {
+          return &I;
+        }
+      }
+    }
+  }
+
+  // Exceptional case here - correct way to handle it?
+  return nullptr;
 }
 
 }

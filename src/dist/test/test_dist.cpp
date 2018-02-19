@@ -142,11 +142,33 @@ void test_ops()
 
 void test_synth_v2()
 {
-  auto i32 = types::Integer{32};
-  auto l = synth::v2::Linear{i32, i32, i32};
+  std::mutex m;
+
+  auto work = [&m] {
+    auto i32 = types::Integer{32};
+    auto l = synth::v2::Linear{i32, i32, i32};
+
+    l.add_example(0, {0, 2});
+    l.add_example(0, {0, 4});
+    l.add_example(1, {1, 4});
+    l.add_example(2, {2, 0});
+
+    auto f = l();
+    if(f) {
+      std::lock_guard l{m};
+      f->print(llvm::outs());
+    }
+  };
+
+  std::thread t{work};
+  std::thread t1{work};
+  std::thread t2{work};
+
+  t.join();
+  t1.join();
+  t2.join();
 }
 
-#include <any>
 int main()
 {
   /* test_types(); */
