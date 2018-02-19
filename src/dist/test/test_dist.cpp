@@ -86,16 +86,6 @@ void test_oracles()
   }
 }
 
-void test_synth()
-{
-  auto f = [](auto a, auto b, auto c, auto d) {
-    return (a*c) + (b*d);
-  };
-  auto o = synth::make_oracle_synth<int, int, int, int, int>(f);
-
-  o()->getParent()->print(llvm::outs(), nullptr);
-}
-
 void test_types()
 {
   auto i1 = types::Integer{4};
@@ -142,31 +132,14 @@ void test_ops()
 
 void test_synth_v2()
 {
-  std::mutex m;
-
-  auto work = [&m] {
-    auto i32 = types::Integer{32};
-    auto l = synth::v2::Linear{i32, i32, i32};
-
-    l.add_example(0, {0, 2});
-    l.add_example(0, {0, 4});
-    l.add_example(1, {1, 4});
-    l.add_example(2, {2, 0});
-
-    auto f = l();
-    if(f) {
-      std::lock_guard l{m};
-      f->print(llvm::outs());
-    }
+  auto f = [](auto a, auto b, auto c, auto d) {
+    return (a*c) + (b*d);
   };
 
-  std::thread t{work};
-  std::thread t1{work};
-  std::thread t2{work};
+  auto i32 = types::Integer{32};
+  auto o = synth::Oracle{f, i32, i32, i32, i32, i32};
 
-  t.join();
-  t1.join();
-  t2.join();
+  /* o()->getParent()->print(llvm::outs(), nullptr); */
 }
 
 int main()

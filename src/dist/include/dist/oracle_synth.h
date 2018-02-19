@@ -13,36 +13,31 @@ namespace synth {
 template <typename F, typename R, typename... Args>
 class Oracle {
 public:
-  Oracle(F f) :
-    linear_{}, reference_{f} {}
+  Oracle(F f, R r, Args... args) :
+    reference_{f}
+  {}
 
-  llvm::Function *operator()();
+  /* llvm::Function *operator()(); */
 private:
-  Linear<R, Args...> linear_;
+  /* Linear<R, Args...> linear_; */
   F reference_;
 };
 
-template <typename R, typename... Args>
-auto make_oracle_synth(auto f)
-{
-  return Oracle<decltype(f), R, Args...>(f);
-}
+/* template <typename F, typename R, typename... Args> */
+/* llvm::Function *Oracle<F, R, Args...>::operator()() */
+/* { */
+  /* while(true) { */
+  /*   auto candidate = linear_(); */
+  /*   auto fc = FunctionCallable<R>{candidate}; */
+  /*   auto dist = dist::make_oracle_distinguisher<Args...>(reference_, fc); */
 
-template <typename F, typename R, typename... Args>
-llvm::Function *Oracle<F, R, Args...>::operator()()
-{
-  while(true) {
-    auto candidate = linear_();
-    auto fc = FunctionCallable<R>{candidate};
-    auto dist = dist::make_oracle_distinguisher<Args...>(reference_, fc);
-
-    auto example = dist();
-    if(example) {
-      linear_.add_example(example->f_return, example->args);
-    } else {
-      return candidate;
-    }
-  }
-}
+  /*   auto example = dist(); */
+  /*   if(example) { */
+  /*     linear_.add_example(example->f_return, example->args); */
+  /*   } else { */
+  /*     return candidate; */
+  /*   } */
+  /* } */
+/* } */
 
 }
