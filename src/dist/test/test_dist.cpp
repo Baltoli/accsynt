@@ -139,14 +139,13 @@ void test_synth_v2()
   auto i32 = types::Integer{32};
   auto o = synth::Oracle{f, i32, i32, i32, i32, i32};
 
-  /* o()->getParent()->print(llvm::outs(), nullptr); */
+  o()->getParent()->print(llvm::outs(), nullptr);
 }
 
 int main()
 {
   /* test_types(); */
   /* test_oracles(); */
-  /* test_synth(); */
   /* test_ops(); */
   test_synth_v2();
 }

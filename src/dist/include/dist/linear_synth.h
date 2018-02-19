@@ -12,6 +12,7 @@
 #include <llvm/Transforms/InstCombine/InstCombine.h>
 
 #include <algorithm>
+#include <forward_list>
 #include <memory>
 #include <mutex>
 #include <random>
@@ -39,13 +40,15 @@ public:
   {}
 
   void add_example(ret_t ret, args_t args);
-  llvm::Function *operator()();
+  llvm::Function *operator()(bool clear = true);
 
 private:
   llvm::FunctionType *llvm_function_type() const;
   size_t value_count(llvm::Function *f) const;
   bool satisfies_examples(llvm::Function *f) const;
   llvm::Value *sample(llvm::Function *f);
+
+  void clear_functions();
 
   R return_type_;
   std::tuple<Args...> arg_types_;
@@ -56,8 +59,12 @@ private:
 };
 
 template <typename R, typename... Args>
-llvm::Function *Linear<R, Args...>::operator()()
+llvm::Function *Linear<R, Args...>::operator()(bool clear)
 {
+  if(clear) {
+    clear_functions();
+  }
+
   auto fn_ty = llvm_function_type();
   auto B = llvm::IRBuilder<>{ThreadContext::get()};
 
@@ -143,6 +150,20 @@ llvm::Value *Linear<R, Args...>::sample(llvm::Function *f)
 
   // Exceptional case here - correct way to handle it?
   return nullptr;
+}
+
+template <typename R, typename... Args>
+void Linear<R, Args...>::clear_functions()
+{
+  auto to_clear = std::forward_list<llvm::Function *>{};
+
+  for(auto& f : *module_) {
+    to_clear.push_front(&f);
+  }
+
+  for(auto* f : to_clear) {
+    f->eraseFromParent();
+  }
 }
 
 }
