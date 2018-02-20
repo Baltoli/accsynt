@@ -86,7 +86,11 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::operator()(bool clear)
       for(auto i = 0; i < 20; ++i) {
         auto v1 = sample(fn);
         auto v2 = sample(fn);
-        Ops::sample(B, {v1, v2});
+        
+        // is this the right thing to do?
+        if(!Ops::sample(B, {v1, v2})) {
+          return;
+        }
       }
 
       B.CreateRet(sample(fn));

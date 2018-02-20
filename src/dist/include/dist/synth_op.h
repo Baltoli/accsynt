@@ -7,6 +7,7 @@
 #include <llvm/IR/Instruction.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Value.h>
+#include <llvm/Support/raw_ostream.h>
 
 #include <functional>
 #include <random>
@@ -77,6 +78,10 @@ public:
     });
 
     auto len = std::size(candidates);
+    if(len == 0) {
+      return nullptr;
+    }
+
     auto rd = std::random_device{};
     auto dist = std::uniform_int_distribution<size_t>{0, len - 1};
 

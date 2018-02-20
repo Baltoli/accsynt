@@ -69,14 +69,22 @@ std::unique_ptr<llvm::ExecutionEngine> create_engine(llvm::Module* m);
  * can be used to pass arguments to LLVM functions being executed by an
  * execution engine.
  */
-template<class T>
+template <typename T>
 llvm::GenericValue make_generic(T t)
 {
-  static_assert(std::is_integral_v<T>, "Type must be integral");
-
-  llvm::GenericValue gv;
-  gv.IntVal = llvm::APInt(sizeof(T)*8, t, std::is_signed_v<T>);
-  return gv;
+  if constexpr(std::is_integral_v<T>) {
+    llvm::GenericValue gv;
+    gv.IntVal = llvm::APInt(sizeof(T)*8, t, std::is_signed_v<T>);
+    return gv;
+  } else {
+    llvm::GenericValue gv;
+    std::vector<llvm::GenericValue> agg{};
+    for(auto item : t) {
+      agg.push_back(make_generic(item));
+    }
+    gv.AggregateVal = agg;
+    return gv;
+  }
 }
 
 /**
