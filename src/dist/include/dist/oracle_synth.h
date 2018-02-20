@@ -34,7 +34,7 @@ std::unique_ptr<llvm::Module> Oracle<F, R, Args...>::operator()()
   while(true) {
     auto candidate = linear_();
     auto fc = FunctionCallable<ret_t>{candidate.get(), "cand"};
-    auto dist = dist::make_oracle_distinguisher<typename Args::example_t...>(reference_, fc);
+    auto dist = dist::v2::OracleDistinguisher{reference_, fc, linear_.arg_types()};
 
     auto example = dist();
     if(example) {

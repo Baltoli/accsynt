@@ -15,6 +15,13 @@ namespace llvm {
 
 namespace types {
 
+template <typename> struct example_ts;
+
+template <typename... Args>
+struct example_ts<std::tuple<Args...>> {
+  using type = std::tuple<typename Args::example_t...>;
+};
+
 class Integer {
 public:
   using example_t = intmax_t;

@@ -41,6 +41,8 @@ public:
   void add_example(ret_t ret, args_t args);
   std::unique_ptr<llvm::Module> operator()(bool clear = true);
 
+  std::tuple<Args...> arg_types() const { return arg_types_; }
+
 private:
   llvm::FunctionType *llvm_function_type() const;
   size_t value_count(llvm::Function *f) const;
@@ -59,6 +61,7 @@ template <typename R, typename... Args>
 std::unique_ptr<llvm::Module> Linear<R, Args...>::operator()(bool clear)
 {
   auto ret = std::unique_ptr<llvm::Module>{};
+  auto mut = std::mutex{};
 
   auto work = [&] {
     auto fn_ty = llvm_function_type();
@@ -80,7 +83,7 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::operator()(bool clear)
       auto bb = llvm::BasicBlock::Create(ThreadContext::get(), "", fn);
       B.SetInsertPoint(bb);
 
-      for(auto i = 0; i < 10; ++i) {
+      for(auto i = 0; i < 20; ++i) {
         auto v1 = sample(fn);
         auto v2 = sample(fn);
         Ops::sample(B, {v1, v2});
