@@ -5,8 +5,10 @@
 
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/Instruction.h>
+#include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Value.h>
 
+#include <functional>
 #include <random>
 #include <tuple>
 
@@ -16,9 +18,19 @@ namespace llvm {
 
 using value_array = llvm::ArrayRef<llvm::Value *>;
 
-class Add {
+bool validate_types(size_t num, value_array args);
+
+template <class F>
+class BinaryOp {
 public:
-  bool validate(value_array args);
+  BinaryOp(F f) :
+    create_(f)
+  {}
+
+  bool validate(value_array args)
+  {
+    return validate_types(2, args);
+  }
 
   template <typename B>
   llvm::Value *combine(B&& b, value_array args)
@@ -27,23 +39,10 @@ public:
       return nullptr;
     }
 
-    return b.CreateAdd(args[0], args[1]);
+    return create_(b, args[0], args[1]);
   }
-};
-
-class Mul {
-public:
-  bool validate(value_array args);
-
-  template <typename B>
-  llvm::Value *combine(B&& b, value_array args)
-  {
-    if(!validate(args)) {
-      return nullptr;
-    }
-
-    return b.CreateMul(args[0], args[1]);
-  }
+private:
+  F create_;
 };
 
 class Ops {
@@ -54,7 +53,9 @@ public:
   static auto inst_all()
   {
     return std::make_tuple(
-      Add{}, Mul{}
+      BinaryOp{[](auto& b, auto* v1, auto* v2) { return b.CreateAdd(v1, v2); }},
+      BinaryOp{[](auto& b, auto* v1, auto* v2) { return b.CreateSub(v1, v2); }},
+      BinaryOp{[](auto& b, auto* v1, auto* v2) { return b.CreateMul(v1, v2); }}
     );
   }
 

@@ -1,7 +1,5 @@
 #include <dist/synth_op.h>
 
-namespace {
-
 bool validate_types(size_t num, value_array args)
 {
   if(num == 0) { return true; }
@@ -14,18 +12,6 @@ bool validate_types(size_t num, value_array args)
          std::all_of(begin, end, [&args] (auto v) {
             return v->getType() == args[0]->getType();
          });
-}
-
-}
-
-bool Add::validate(value_array args)
-{
-  return validate_types(2, args);
-}
-
-bool Mul::validate(value_array args)
-{
-  return validate_types(2, args);
 }
 
 Ops& Ops::instance()
