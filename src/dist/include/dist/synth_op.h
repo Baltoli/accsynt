@@ -81,16 +81,46 @@ public:
 
     auto indexes = std::vector<llvm::Value *>{};
 
-    if(llvm::isa<llvm::ArrayType>(ptr_ty->getElementType())) {
+    if(auto arr_t = llvm::dyn_cast<llvm::ArrayType>(ptr_ty->getElementType())) {
       auto z_ty = llvm::IntegerType::get(ThreadContext::get(), 64);
+      
+      auto max = llvm::ConstantInt::get(args[1]->getType(), arr_t->getNumElements() - 1);
+      auto upper_pred = b.CreateICmpSGT(args[1], max);
+      auto max_sel = b.CreateSelect(upper_pred, max, args[1]);
+
+      auto min = llvm::ConstantInt::get(max_sel->getType(), 0);
+      auto lower_pred = b.CreateICmpSLT(max_sel, min);
+      auto min_sel = b.CreateSelect(lower_pred, min, max_sel);
+
       auto zero = llvm::ConstantInt::get(z_ty, 0);
-      indexes.push_back(zero);
+      return b.CreateInBoundsGEP(args[0], {zero, min_sel});
+    } else {
+      return b.CreateInBoundsGEP(args[0], args[1]);
+    }
+  }
+};
+
+class Load {
+public:
+  Load() = default;
+
+  bool validate(value_array args)
+  {
+    if(auto ptr_ty = llvm::dyn_cast<llvm::PointerType>(args[0]->getType())) {
+      return args.size() >= 1 && llvm::isa<llvm::IntegerType>(ptr_ty->getElementType());
     }
 
-    auto n = std::min(max_gep_depth(ptr_ty), indexes.size());
-    std::copy_n(args.begin() + 1, n, std::back_inserter(indexes));
+    return false;
+  }
 
-    return b.CreateGEP(args[0], indexes);
+  template <typename B>
+  llvm::Value *combine(B&& b, value_array args)
+  {
+    if(!validate(args)) {
+      return nullptr;
+    }
+
+    return b.CreateLoad(args[0]);
   }
 };
 
@@ -105,7 +135,7 @@ public:
       BinaryOp{[](auto& b, auto* v1, auto* v2) { return b.CreateAdd(v1, v2); }},
       BinaryOp{[](auto& b, auto* v1, auto* v2) { return b.CreateSub(v1, v2); }},
       BinaryOp{[](auto& b, auto* v1, auto* v2) { return b.CreateMul(v1, v2); }},
-      CreateGEP{}
+      CreateGEP{}, Load{}
     );
   }
 
