@@ -65,9 +65,8 @@ std::unique_ptr<llvm::ExecutionEngine> create_engine(llvm::Module* m);
 /**
  * \brief Convert an integer value to an LLVM GenericValue.
  *
- * The type \p T must satisfy \p std::is_integral . The returned generic value
- * can be used to pass arguments to LLVM functions being executed by an
- * execution engine.
+ * The returned generic value can be used to pass arguments to LLVM functions
+ * being executed by an execution engine.
  */
 template <typename T>
 llvm::GenericValue make_generic(T t)
@@ -77,13 +76,14 @@ llvm::GenericValue make_generic(T t)
     gv.IntVal = llvm::APInt(sizeof(T)*8, t, std::is_signed_v<T>);
     return gv;
   } else {
-    llvm::GenericValue gv;
-    std::vector<llvm::GenericValue> agg{};
-    for(auto item : t) {
-      agg.push_back(make_generic(item));
-    }
-    gv.AggregateVal = agg;
-    return gv;
+    return llvm::PTOGV(&t);
+    /* llvm::GenericValue gv; */
+    /* std::vector<llvm::GenericValue> agg{}; */
+    /* for(auto item : t) { */
+    /*   agg.push_back(make_generic(item)); */
+    /* } */
+    /* gv.AggregateVal = agg; */
+    /* return gv; */
   }
 }
 

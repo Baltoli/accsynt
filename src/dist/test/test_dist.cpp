@@ -135,21 +135,21 @@ void test_synth_v2()
   auto i32 = types::Integer{32};
   auto arr = types::Array{i32, 4};
 
-  auto f = [](auto a, auto b, auto c, auto d) {
-    return (a*c) + (b*d);
-  };
-
-  auto o = synth::Oracle{f, i32, i32, i32, i32, i32};
-  o()->print(llvm::outs(), nullptr);
-
-  /* auto g = [](auto a, auto i) { */
-  /*   return a[i]; */
+  /* auto f = [](auto a, auto b, auto c, auto d) { */
+  /*   return (a*c) + (b*d); */
   /* }; */
+
+  /* auto o = synth::Oracle{f, i32, i32, i32, i32, i32}; */
+  /* o()->print(llvm::outs(), nullptr); */
+
+  auto g = [](auto a, auto i) {
+    return i;
+  };
   
-  /* auto p = synth::Oracle{g, i32, arr, i32}; */
-  /* if(auto r = p()) { */
-  /*   r->print(llvm::outs(), nullptr); */
-  /* } */
+  auto p = synth::Oracle{g, i32, arr, i32};
+  if(auto r = p()) {
+    r->print(llvm::outs(), nullptr);
+  }
 }
 
 int main()

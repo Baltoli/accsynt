@@ -49,9 +49,10 @@ public:
     type_{t}, size_{s}
   {}
 
-  llvm::ArrayType *llvm_type() const
+  llvm::PointerType *llvm_type() const
   {
-    return llvm::ArrayType::get(type_.llvm_type(), size_);
+    return llvm::PointerType::getUnqual(
+      llvm::ArrayType::get(type_.llvm_type(), size_));
   }
 
   example_t generate() const

@@ -21,6 +21,8 @@ using value_array = llvm::ArrayRef<llvm::Value *>;
 
 bool validate_types(size_t num, value_array args);
 
+size_t max_gep_depth(llvm::Type *t);
+
 template <class F>
 class BinaryOp {
 public:
@@ -30,7 +32,8 @@ public:
 
   bool validate(value_array args)
   {
-    return validate_types(2, args);
+    return validate_types(2, args) && 
+           llvm::isa<llvm::IntegerType>(args[0]->getType());
   }
 
   template <typename B>
@@ -54,12 +57,16 @@ public:
   {
     const auto can_gep = [](auto val) {
       const auto ty = val->getType();
-      return llvm::isa<llvm::PointerType>(ty) ||
-             llvm::isa<llvm::StructType>(ty) ||
-             llvm::isa<llvm::ArrayType>(ty);
+      auto ptr_ty = llvm::dyn_cast<llvm::PointerType>(ty);
+
+      // TODO: not completely right?
+      return ptr_ty && llvm::isa<llvm::ArrayType>(ptr_ty->getElementType());
     };
 
-    return args.size() >= 2 && can_gep(args[0]);
+    return args.size() >= 2 && can_gep(args[0]) &&
+           std::all_of(args.begin() + 1, args.end(), [](auto a) {
+              return llvm::isa<llvm::IntegerType>(a->getType());
+           });
   }
 
   template <typename B>
@@ -69,14 +76,21 @@ public:
       return nullptr;
     }
 
-    if(auto arr = llvm::dyn_cast<llvm::ArrayType>(args[0]->getType())) {
-      auto ptr_ty = llvm::PointerType::getUnqual(arr->getElementType());
-      auto ptr = b.CreateBitCast(args[0], ptr_ty);
-      auto ret = b.CreateInBoundsGEP(ptr, args.drop_front());
-      return ret;
-    } else {
-      return b.CreateInBoundsGEP(args[0], args.drop_front());
+    auto ptr_ty = llvm::dyn_cast<llvm::PointerType>(args[0]->getType());
+    assert(ptr_ty && "Need a pointer to GEP");
+
+    auto indexes = std::vector<llvm::Value *>{};
+
+    if(llvm::isa<llvm::ArrayType>(ptr_ty->getElementType())) {
+      auto z_ty = llvm::IntegerType::get(ThreadContext::get(), 64);
+      auto zero = llvm::ConstantInt::get(z_ty, 0);
+      indexes.push_back(zero);
     }
+
+    auto n = std::min(max_gep_depth(ptr_ty), indexes.size());
+    std::copy_n(args.begin() + 1, n, std::back_inserter(indexes));
+
+    return b.CreateGEP(args[0], indexes);
   }
 };
 
@@ -90,8 +104,8 @@ public:
     return std::make_tuple(
       BinaryOp{[](auto& b, auto* v1, auto* v2) { return b.CreateAdd(v1, v2); }},
       BinaryOp{[](auto& b, auto* v1, auto* v2) { return b.CreateSub(v1, v2); }},
-      BinaryOp{[](auto& b, auto* v1, auto* v2) { return b.CreateMul(v1, v2); }}
-      /* CreateGEP{} */
+      BinaryOp{[](auto& b, auto* v1, auto* v2) { return b.CreateMul(v1, v2); }},
+      CreateGEP{}
     );
   }
 

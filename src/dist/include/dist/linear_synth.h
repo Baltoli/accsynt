@@ -88,12 +88,32 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::operator()(bool clear)
         auto v2 = sample(fn);
         
         // is this the right thing to do?
-        if(!Ops::sample(B, {v1, v2})) {
-          return;
+        Ops::sample(B, {v1, v2});
+      }
+
+      auto ret_t = fn_ty->getReturnType();
+      auto possibles = std::vector<llvm::Value *>{};
+      for(auto& bb : *fn) {
+        for(auto& inst : bb) {
+          if(inst.getType() == ret_t) {
+            possibles.push_back(&inst);
+          }
         }
       }
 
-      B.CreateRet(sample(fn));
+      for(auto& arg : fn->args()) {
+        if(arg.getType() == ret_t) {
+          possibles.push_back(&arg);
+        }
+      }
+
+      if(possibles.empty()) {
+        return;
+      }
+
+      auto d = std::uniform_int_distribution{0lu, possibles.size() - 1};
+      auto rd = std::random_device{};
+      B.CreateRet(possibles[d(rd)]);
 
       if(satisfies_examples(fn)) {
         ret = std::move(mod);

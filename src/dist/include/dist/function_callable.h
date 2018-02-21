@@ -73,5 +73,7 @@ R FunctionCallable<R>::operator()(Args... args)
   };
 
   auto ret = engine_->runFunction(func_, func_args);
+  
+  // TODO: this needs to be changed
   return R(ret.IntVal.getLimitedValue(std::numeric_limits<R>::max()));
 }
