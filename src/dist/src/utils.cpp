@@ -5,6 +5,7 @@
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
 #include <llvm/IR/Function.h>
 #include <llvm/IR/Module.h>
+#include <llvm/IR/Verifier.h>
 #include <llvm/Support/MemoryBuffer.h>
 #include <llvm/Transforms/Utils/Cloning.h>
 
@@ -36,6 +37,8 @@ std::unique_ptr<Module> copy_module_to(LLVMContext& ctx, Module *m)
     return nullptr;
   }
 
+  llvm::verifyModule(*m, &llvm::errs());
+
   if(&ctx == &m->getContext()) {
     return llvm::CloneModule(m);
   } else {
@@ -44,7 +47,15 @@ std::unique_ptr<Module> copy_module_to(LLVMContext& ctx, Module *m)
     WriteBitcodeToFile(m, stream);
 
     auto buf = MemoryBuffer::getMemBuffer(stream.str());
-    return std::move(parseBitcodeFile(buf->getMemBufferRef(), ctx).get());
+    auto expect = parseBitcodeFile(buf->getMemBufferRef(), ctx);
+
+    if(auto err = expect.takeError()) {
+      m->print(llvm::errs(), nullptr);
+      llvm::logAllUnhandledErrors(std::move(err), llvm::errs(), "");
+      std::exit(1);
+    }
+
+    return std::move(expect.get());
   }
 }
 

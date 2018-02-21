@@ -46,6 +46,40 @@ private:
   F create_;
 };
 
+class CreateGEP {
+public:
+  CreateGEP() = default;
+
+  bool validate(value_array args)
+  {
+    const auto can_gep = [](auto val) {
+      const auto ty = val->getType();
+      return llvm::isa<llvm::PointerType>(ty) ||
+             llvm::isa<llvm::StructType>(ty) ||
+             llvm::isa<llvm::ArrayType>(ty);
+    };
+
+    return args.size() >= 2 && can_gep(args[0]);
+  }
+
+  template <typename B>
+  llvm::Value *combine(B&& b, value_array args)
+  {
+    if(!validate(args)) {
+      return nullptr;
+    }
+
+    if(auto arr = llvm::dyn_cast<llvm::ArrayType>(args[0]->getType())) {
+      auto ptr_ty = llvm::PointerType::getUnqual(arr->getElementType());
+      auto ptr = b.CreateBitCast(args[0], ptr_ty);
+      auto ret = b.CreateInBoundsGEP(ptr, args.drop_front());
+      return ret;
+    } else {
+      return b.CreateInBoundsGEP(args[0], args.drop_front());
+    }
+  }
+};
+
 class Ops {
 public:
   Ops(const Ops&) = delete;
@@ -57,6 +91,7 @@ public:
       BinaryOp{[](auto& b, auto* v1, auto* v2) { return b.CreateAdd(v1, v2); }},
       BinaryOp{[](auto& b, auto* v1, auto* v2) { return b.CreateSub(v1, v2); }},
       BinaryOp{[](auto& b, auto* v1, auto* v2) { return b.CreateMul(v1, v2); }}
+      /* CreateGEP{} */
     );
   }
 

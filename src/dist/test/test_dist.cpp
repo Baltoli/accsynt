@@ -142,14 +142,14 @@ void test_synth_v2()
   auto o = synth::Oracle{f, i32, i32, i32, i32, i32};
   o()->print(llvm::outs(), nullptr);
 
-  auto g = [](auto a, auto i) {
-    return a[i];
-  };
+  /* auto g = [](auto a, auto i) { */
+  /*   return a[i]; */
+  /* }; */
   
-  auto p = synth::Oracle{g, i32, arr, i32};
-  if(auto r = p()) {
-    r->print(llvm::outs(), nullptr);
-  }
+  /* auto p = synth::Oracle{g, i32, arr, i32}; */
+  /* if(auto r = p()) { */
+  /*   r->print(llvm::outs(), nullptr); */
+  /* } */
 }
 
 int main()
