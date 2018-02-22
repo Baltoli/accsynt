@@ -19,7 +19,7 @@ using namespace llvm;
 
 FunctionType *function_type()
 {
-  auto it = IntegerType::get(ThreadContext::get(), 32);
+  auto it = IntegerType::get(ThreadContext::get(), 64);
   return FunctionType::get(it, {it, it}, false);
 }
 
@@ -56,7 +56,7 @@ Function *make_g()
   auto br = B.CreateCondBr(eq, wrong_bb, ret_bb);
 
   B.SetInsertPoint(wrong_bb);
-  auto two = ConstantInt::get(IntegerType::get(ThreadContext::get(), 32), 3);
+  auto two = ConstantInt::get(IntegerType::get(ThreadContext::get(), 64), 3);
   auto mul = B.CreateMul(arg_1, two);
   B.CreateRet(mul);
 
@@ -70,7 +70,7 @@ std::unique_ptr<Module> make_h()
 {
   auto mod = std::make_unique<Module>("hmod", ThreadContext::get());
 
-  auto ret_t = IntegerType::get(mod->getContext(), 32);
+  auto ret_t = IntegerType::get(mod->getContext(), 64);
   auto arr_t = ArrayType::get(ret_t, 4);
   auto ptr_t = PointerType::getUnqual(arr_t);
   auto fn_t = FunctionType::get(ret_t, {ptr_t, ret_t}, false);
@@ -162,21 +162,21 @@ void test_ops()
 
 void test_synth_v2()
 {
-  auto i32 = types::Integer{32};
-  auto arr = types::Array{i32, 4};
+  auto i64 = types::Integer{64};
+  auto arr = types::Array{i64, 4};
 
   auto f = [](auto a, auto b, auto c, auto d) {
     return (a*c) + (b*d);
   };
 
-  auto o = synth::Oracle{f, i32, i32, i32, i32, i32};
+  auto o = synth::Oracle{f, i64, i64, i64, i64, i64};
   o()->print(llvm::outs(), nullptr);
 
   auto g = [](auto a, auto i) {
     return a[i <= 3 ? (i < 0 ? 0 : i) : 3];
   };
   
-  auto p = synth::Oracle{g, i32, arr, i32};
+  auto p = synth::Oracle{g, i64, arr, i64};
   if(auto r = p()) {
     r->print(llvm::outs(), nullptr);
   }
@@ -187,9 +187,9 @@ void test_array_call()
   auto mod = make_h();
   mod->print(llvm::outs(), nullptr);
 
-  auto fc = FunctionCallable<int>{mod.get(), "h"};
+  auto fc = FunctionCallable<intmax_t>{mod.get(), "h"};
 
-  auto buf = std::vector<int>{{1, 2, 3, 4}};
+  auto buf = std::vector<intmax_t>{{1, 2, 3, 4}};
   llvm::outs () << fc(buf, 1) << '\n';
 }
 
