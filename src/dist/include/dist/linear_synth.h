@@ -59,51 +59,41 @@ template <typename R, typename... Args>
 std::unique_ptr<llvm::Module> Linear<R, Args...>::operator()(bool clear)
 {
   auto ret = std::unique_ptr<llvm::Module>{};
-  auto mut = std::mutex{};
 
   auto work = [&] {
     auto fn_ty = llvm_function_type();
-    auto B = llvm::IRBuilder<>{ThreadContext::get()};
     auto mod = std::make_unique<llvm::Module>("", ThreadContext::get());
+    auto B = llvm::IRBuilder<>{mod->getContext()};
 
-    while(true) {
-      if(ret) {
-        return;
-      }
-
+    while(true && !ret) {
       if(clear) {
         clear_functions(*mod);
       }
 
       auto fn = llvm::Function::Create(fn_ty, llvm::GlobalValue::ExternalLinkage, 
                                        "cand", mod.get());
+      auto bb = llvm::BasicBlock::Create(fn->getContext(), "", fn);
+      B.SetInsertPoint(bb);
 
       auto live = std::vector<llvm::Value *>{};
       for(auto& arg : fn->args()) {
         live.push_back(&arg);
       }
 
-      auto bb = llvm::BasicBlock::Create(ThreadContext::get(), "", fn);
-      B.SetInsertPoint(bb);
-
       for(auto i = 0; i < 20; ++i) {
         auto v1 = util::uniform_sample(live);
         auto v2 = util::uniform_sample(live);
         
-        // is this the right thing to do?
         if(auto next = Ops::sample(B, {v1, v2})) {
           live.push_back(next);
         }
       }
 
-      auto ret_t = fn_ty->getReturnType();
       auto possibles = std::vector<llvm::Value *>{};
-
-      for(auto inst : live) {
-        if(inst->getType() == ret_t) {
-          possibles.push_back(inst);
-        }
-      }
+      std::copy_if(live.begin(), live.end(), std::back_inserter(possibles), 
+          [&](auto inst) {
+            return inst->getType() == fn_ty->getReturnType();
+          });
 
       if(possibles.empty()) {
         return;
