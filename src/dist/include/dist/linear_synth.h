@@ -80,30 +80,36 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::operator()(bool clear)
       auto fn = llvm::Function::Create(fn_ty, llvm::GlobalValue::ExternalLinkage, 
                                        "cand", mod.get());
 
+      auto live = std::vector<llvm::Value *>{};
+      for(auto& arg : fn->args()) {
+        live.push_back(&arg);
+      }
+
+      auto live_sample = [](auto& live_set) {
+        auto rd = std::random_device{};
+        auto ldist = std::uniform_int_distribution<size_t>{0, live_set.size() - 1};
+        return live_set[ldist(rd)];
+      };
+
       auto bb = llvm::BasicBlock::Create(ThreadContext::get(), "", fn);
       B.SetInsertPoint(bb);
 
       for(auto i = 0; i < 20; ++i) {
-        auto v1 = sample(fn);
-        auto v2 = sample(fn);
+        auto v1 = live_sample(live);
+        auto v2 = live_sample(live);
         
         // is this the right thing to do?
-        Ops::sample(B, {v1, v2});
+        if(auto next = Ops::sample(B, {v1, v2})) {
+          live.push_back(next);
+        }
       }
 
       auto ret_t = fn_ty->getReturnType();
       auto possibles = std::vector<llvm::Value *>{};
-      for(auto& bb : *fn) {
-        for(auto& inst : bb) {
-          if(inst.getType() == ret_t) {
-            possibles.push_back(&inst);
-          }
-        }
-      }
 
-      for(auto& arg : fn->args()) {
-        if(arg.getType() == ret_t) {
-          possibles.push_back(&arg);
+      for(auto inst : live) {
+        if(inst->getType() == ret_t) {
+          possibles.push_back(inst);
         }
       }
 
@@ -111,9 +117,7 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::operator()(bool clear)
         return;
       }
 
-      auto d = std::uniform_int_distribution{0lu, possibles.size() - 1};
-      auto rd = std::random_device{};
-      B.CreateRet(possibles[d(rd)]);
+      B.CreateRet(live_sample(possibles));
 
       if(satisfies_examples(fn)) {
         ret = std::move(mod);
@@ -125,7 +129,7 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::operator()(bool clear)
   };
 
   auto threads = std::forward_list<std::thread>{};
-  auto max_threads = std::thread::hardware_concurrency();
+  auto max_threads = 1; // std::thread::hardware_concurrency()
   for(auto i = 0; i < max_threads; ++i) {
     threads.emplace_front(work);
   }
@@ -167,7 +171,7 @@ template <typename R, typename... Args>
 bool Linear<R, Args...>::satisfies_examples(llvm::Function *f) const
 {
   auto fc = FunctionCallable<ret_t>(f->getParent(), f->getName());
-  return std::all_of(std::begin(examples_), std::end(examples_), [&fc](auto ex) {
+  return std::all_of(std::begin(examples_), std::end(examples_), [f,&fc](auto ex) {
     return std::apply(fc, ex.second) == ex.first;
   });
 }

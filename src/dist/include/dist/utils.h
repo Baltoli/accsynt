@@ -69,14 +69,14 @@ std::unique_ptr<llvm::ExecutionEngine> create_engine(llvm::Module* m);
  * being executed by an execution engine.
  */
 template <typename T>
-llvm::GenericValue make_generic(T t)
+llvm::GenericValue make_generic(T& t)
 {
   if constexpr(std::is_integral_v<T>) {
     llvm::GenericValue gv;
     gv.IntVal = llvm::APInt(sizeof(T)*8, t, std::is_signed_v<T>);
     return gv;
   } else {
-    return llvm::PTOGV(&t);
+    return llvm::PTOGV(t.data());
     /* llvm::GenericValue gv; */
     /* std::vector<llvm::GenericValue> agg{}; */
     /* for(auto item : t) { */

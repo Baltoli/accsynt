@@ -19,7 +19,7 @@ using namespace llvm;
 
 FunctionType *function_type()
 {
-  auto it = IntegerType::get(ThreadContext::get(), 32);
+  auto it = IntegerType::get(ThreadContext::get(), 64);
   return FunctionType::get(it, {it, it}, false);
 }
 
@@ -56,7 +56,7 @@ Function *make_g()
   auto br = B.CreateCondBr(eq, wrong_bb, ret_bb);
 
   B.SetInsertPoint(wrong_bb);
-  auto two = ConstantInt::get(IntegerType::get(ThreadContext::get(), 32), 3);
+  auto two = ConstantInt::get(IntegerType::get(ThreadContext::get(), 64), 3);
   auto mul = B.CreateMul(arg_1, two);
   B.CreateRet(mul);
 
@@ -64,6 +64,36 @@ Function *make_g()
   auto add = B.CreateAdd(arg_1, arg_2);
   B.CreateRet(add);
   return fn;
+}
+
+std::unique_ptr<Module> make_h()
+{
+  auto mod = std::make_unique<Module>("hmod", ThreadContext::get());
+
+  auto ret_t = IntegerType::get(mod->getContext(), 64);
+  auto arr_t = ArrayType::get(ret_t, 4);
+  auto ptr_t = PointerType::getUnqual(arr_t);
+  auto fn_t = FunctionType::get(ret_t, {ptr_t, ret_t}, false);
+
+  auto fn = Function::Create(fn_t, GlobalValue::ExternalLinkage, "h", mod.get());
+  auto bb = BasicBlock::Create(fn->getContext(), "entry", fn);
+  auto B = IRBuilder<>(&fn->getEntryBlock());
+
+  auto three = ConstantInt::get(ret_t, 3);
+  auto zero = ConstantInt::get(ret_t, 0);
+  auto i = fn->arg_begin() + 1;
+
+  auto max_p = B.CreateICmpSGT(i, three);
+  auto max_sel = B.CreateSelect(max_p, three, i);
+  auto min_p = B.CreateICmpSLT(max_sel, zero);
+  auto min_sel = B.CreateSelect(min_p, zero, max_sel);
+
+  auto gep = B.CreateGEP(fn->arg_begin(), {zero, min_sel});
+  auto load = B.CreateLoad(gep);
+
+  B.CreateRet(load);
+
+  return mod;
 }
 
 void test_oracles()
@@ -132,24 +162,35 @@ void test_ops()
 
 void test_synth_v2()
 {
-  auto i32 = types::Integer{32};
-  auto arr = types::Array{i32, 4};
+  auto i64 = types::Integer{64};
+  auto arr = types::Array{i64, 4};
 
   auto f = [](auto a, auto b, auto c, auto d) {
     return (a*c) + (b*d);
   };
 
-  auto o = synth::Oracle{f, i32, i32, i32, i32, i32};
+  auto o = synth::Oracle{f, i64, i64, i64, i64, i64};
   o()->print(llvm::outs(), nullptr);
 
-  /* auto g = [](auto a, auto i) { */
-  /*   return a[std::max(std::min(0l, i), 3l)]; */
-  /* }; */
+  auto g = [](auto a, auto i) {
+    return a[i <= 3 ? (i < 0 ? 0 : i) : 3];
+  };
   
-  /* auto p = synth::Oracle{g, i32, arr, i32}; */
-  /* if(auto r = p()) { */
-  /*   r->print(llvm::outs(), nullptr); */
-  /* } */
+  auto p = synth::Oracle{g, i64, arr, i64};
+  if(auto r = p()) {
+    r->print(llvm::outs(), nullptr);
+  }
+}
+
+void test_array_call()
+{
+  auto mod = make_h();
+  mod->print(llvm::outs(), nullptr);
+
+  auto fc = FunctionCallable<intmax_t>{mod.get(), "h"};
+
+  auto buf = std::vector<intmax_t>{{1, 2, 3, 4}};
+  llvm::outs () << fc(buf, 1) << '\n';
 }
 
 int main()
@@ -158,4 +199,5 @@ int main()
   /* test_oracles(); */
   /* test_ops(); */
   test_synth_v2();
+  /* test_array_call(); */
 }
