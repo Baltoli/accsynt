@@ -68,6 +68,9 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::operator()(bool clear)
     auto B = llvm::IRBuilder<>{ThreadContext::get()};
     auto mod = std::make_unique<llvm::Module>("", ThreadContext::get());
 
+    // compute a "live set" of interesting values here? Do this and avoid the
+    // problem of guessing programs that try to return intermediate GEP results.
+
     while(true) {
       if(ret) {
         return;

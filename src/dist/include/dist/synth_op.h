@@ -132,9 +132,9 @@ public:
   static auto inst_all()
   {
     return std::make_tuple(
-      /* BinaryOp{[](auto& b, auto* v1, auto* v2) { return b.CreateAdd(v1, v2); }}, */
-      /* BinaryOp{[](auto& b, auto* v1, auto* v2) { return b.CreateSub(v1, v2); }}, */
-      /* BinaryOp{[](auto& b, auto* v1, auto* v2) { return b.CreateMul(v1, v2); }}, */
+      BinaryOp{[](auto& b, auto* v1, auto* v2) { return b.CreateAdd(v1, v2); }},
+      BinaryOp{[](auto& b, auto* v1, auto* v2) { return b.CreateSub(v1, v2); }},
+      BinaryOp{[](auto& b, auto* v1, auto* v2) { return b.CreateMul(v1, v2); }},
       CreateGEP{}, Load{}
     );
   }
