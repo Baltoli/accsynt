@@ -91,7 +91,7 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::operator()(bool clear)
 
       auto possibles = std::vector<llvm::Value *>{};
       std::copy_if(live.begin(), live.end(), std::back_inserter(possibles), 
-          [&](auto inst) {
+          [fn_ty](auto inst) {
             return inst->getType() == fn_ty->getReturnType();
           });
 
