@@ -39,7 +39,7 @@ public:
   {}
 
   void add_example(ret_t ret, args_t args);
-  std::unique_ptr<llvm::Module> operator()(bool clear = true);
+  std::unique_ptr<llvm::Module> operator()();
 
   std::tuple<Args...> arg_types() const { return arg_types_; }
 
@@ -49,6 +49,8 @@ private:
 
   void clear_functions(llvm::Module& module);
 
+  std::unique_ptr<llvm::Module> generate_candidate(bool&);
+
   R return_type_;
   std::tuple<Args...> arg_types_;
 
@@ -56,57 +58,15 @@ private:
 };
 
 template <typename R, typename... Args>
-std::unique_ptr<llvm::Module> Linear<R, Args...>::operator()(bool clear)
+std::unique_ptr<llvm::Module> Linear<R, Args...>::operator()()
 {
   auto ret = std::unique_ptr<llvm::Module>{};
+  bool done = false;
 
   auto work = [&] {
-    auto fn_ty = llvm_function_type();
-    auto mod = std::make_unique<llvm::Module>("", ThreadContext::get());
-    auto B = llvm::IRBuilder<>{mod->getContext()};
-
-    while(true && !ret) {
-      if(clear) {
-        clear_functions(*mod);
-      }
-
-      auto fn = llvm::Function::Create(fn_ty, llvm::GlobalValue::ExternalLinkage, 
-                                       "cand", mod.get());
-      auto bb = llvm::BasicBlock::Create(fn->getContext(), "", fn);
-      B.SetInsertPoint(bb);
-
-      auto live = std::vector<llvm::Value *>{};
-      for(auto& arg : fn->args()) {
-        live.push_back(&arg);
-      }
-
-      for(auto i = 0; i < 20; ++i) {
-        auto v1 = util::uniform_sample(live);
-        auto v2 = util::uniform_sample(live);
-        
-        if(auto next = Ops::sample(B, {v1, v2})) {
-          live.push_back(next);
-        }
-      }
-
-      auto possibles = std::vector<llvm::Value *>{};
-      std::copy_if(live.begin(), live.end(), std::back_inserter(possibles), 
-          [fn_ty](auto inst) {
-            return inst->getType() == fn_ty->getReturnType();
-          });
-
-      if(possibles.empty()) {
-        return;
-      }
-
-      B.CreateRet(util::uniform_sample(possibles));
-
-      if(satisfies_examples(fn)) {
-        ret = std::move(mod);
-        return;
-      } else {
-        fn->eraseFromParent();
-      }
+    auto cand = generate_candidate(done);
+    if(cand) {
+      ret = std::move(cand);
     }
   };
 
@@ -121,6 +81,58 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::operator()(bool clear)
   }
 
   return ret;
+}
+
+template <typename R, typename... Args>
+std::unique_ptr<llvm::Module> Linear<R, Args...>::generate_candidate(bool& done)
+{
+  auto fn_ty = llvm_function_type();
+  auto mod = std::make_unique<llvm::Module>("", ThreadContext::get());
+  auto B = llvm::IRBuilder<>{mod->getContext()};
+
+  while(!done) {
+    clear_functions(*mod);
+
+    auto fn = llvm::Function::Create(fn_ty, llvm::GlobalValue::ExternalLinkage, 
+                                     "cand", mod.get());
+    auto bb = llvm::BasicBlock::Create(fn->getContext(), "", fn);
+    B.SetInsertPoint(bb);
+
+    auto live = std::vector<llvm::Value *>{};
+    for(auto& arg : fn->args()) {
+      live.push_back(&arg);
+    }
+
+    for(auto i = 0; i < 20; ++i) {
+      auto v1 = util::uniform_sample(live);
+      auto v2 = util::uniform_sample(live);
+      
+      if(auto next = Ops::sample(B, {v1, v2})) {
+        live.push_back(next);
+      }
+    }
+
+    auto possibles = std::vector<llvm::Value *>{};
+    std::copy_if(live.begin(), live.end(), std::back_inserter(possibles), 
+        [fn_ty](auto inst) {
+          return inst->getType() == fn_ty->getReturnType();
+        });
+
+    if(possibles.empty()) {
+      return nullptr;
+    }
+
+    B.CreateRet(util::uniform_sample(possibles));
+
+    if(satisfies_examples(fn)) {
+      done = true;
+      return std::move(mod);
+    } else {
+      fn->eraseFromParent();
+    }
+  }
+
+  return nullptr;
 }
 
 template <typename R, typename... Args>
