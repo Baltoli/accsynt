@@ -125,7 +125,7 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::operator()(bool clear)
   };
 
   auto threads = std::forward_list<std::thread>{};
-  auto max_threads = std::thread::hardware_concurrency();
+  auto max_threads = 1; // std::thread::hardware_concurrency()
   for(auto i = 0; i < max_threads; ++i) {
     threads.emplace_front(work);
   }
@@ -167,7 +167,7 @@ template <typename R, typename... Args>
 bool Linear<R, Args...>::satisfies_examples(llvm::Function *f) const
 {
   auto fc = FunctionCallable<ret_t>(f->getParent(), f->getName());
-  return std::all_of(std::begin(examples_), std::end(examples_), [&fc](auto ex) {
+  return std::all_of(std::begin(examples_), std::end(examples_), [f,&fc](auto ex) {
     return std::apply(fc, ex.second) == ex.first;
   });
 }
