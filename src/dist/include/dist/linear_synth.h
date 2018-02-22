@@ -45,9 +45,7 @@ public:
 
 private:
   llvm::FunctionType *llvm_function_type() const;
-  size_t value_count(llvm::Function *f) const;
   bool satisfies_examples(llvm::Function *f) const;
-  llvm::Value *sample(llvm::Function *f);
 
   void clear_functions(llvm::Module& module);
 
@@ -85,18 +83,12 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::operator()(bool clear)
         live.push_back(&arg);
       }
 
-      auto live_sample = [](auto& live_set) {
-        auto rd = std::random_device{};
-        auto ldist = std::uniform_int_distribution<size_t>{0, live_set.size() - 1};
-        return live_set[ldist(rd)];
-      };
-
       auto bb = llvm::BasicBlock::Create(ThreadContext::get(), "", fn);
       B.SetInsertPoint(bb);
 
       for(auto i = 0; i < 20; ++i) {
-        auto v1 = live_sample(live);
-        auto v2 = live_sample(live);
+        auto v1 = util::uniform_sample(live);
+        auto v2 = util::uniform_sample(live);
         
         // is this the right thing to do?
         if(auto next = Ops::sample(B, {v1, v2})) {
@@ -117,7 +109,7 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::operator()(bool clear)
         return;
       }
 
-      B.CreateRet(live_sample(possibles));
+      B.CreateRet(util::uniform_sample(possibles));
 
       if(satisfies_examples(fn)) {
         ret = std::move(mod);
@@ -158,49 +150,12 @@ llvm::FunctionType *Linear<R, Args...>::llvm_function_type() const
 }
 
 template <typename R, typename... Args>
-size_t Linear<R, Args...>::value_count(llvm::Function *f) const
-{
-  auto instrs = std::accumulate
-    (std::begin(*f), std::end(*f), 0, [f](auto sum, auto& bb) {
-      return sum + bb.size();
-    });
-  return instrs + f->arg_size();
-}
-
-template <typename R, typename... Args>
 bool Linear<R, Args...>::satisfies_examples(llvm::Function *f) const
 {
   auto fc = FunctionCallable<ret_t>(f->getParent(), f->getName());
   return std::all_of(std::begin(examples_), std::end(examples_), [f,&fc](auto ex) {
     return std::apply(fc, ex.second) == ex.first;
   });
-}
-
-template <typename R, typename... Args>
-llvm::Value *Linear<R, Args...>::sample(llvm::Function *f)
-{
-  auto rd = std::random_device{};
-
-  auto range = value_count(f) - 1;
-
-  auto dist = std::uniform_int_distribution<decltype(range)>{0, range};
-  auto index = dist(rd);
-
-  if(index < f->arg_size()) {
-    return f->arg_begin() + index;
-  } else {
-    auto count = f->arg_size();
-    for(auto& BB : *f) {
-      for(auto& I : BB) {
-        if(count++ == index) {
-          return &I;
-        }
-      }
-    }
-  }
-
-  // Exceptional case here - correct way to handle it?
-  return nullptr;
 }
 
 template <typename R, typename... Args>

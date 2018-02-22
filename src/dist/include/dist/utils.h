@@ -6,7 +6,9 @@
 #include <llvm/ExecutionEngine/GenericValue.h>
 #include <llvm/IR/DerivedTypes.h>
 
+#include <iterator>
 #include <memory>
+#include <random>
 
 namespace llvm {
   class ExecutionEngine;
@@ -43,6 +45,19 @@ auto make_index_dispatcher() {
  * Ideally everything in this namespace would be better organised.
  */
 namespace util {
+
+template <typename Container>
+auto uniform_sample(Container c)
+{
+  auto rd = std::random_device{};
+  auto dist = std::uniform_int_distribution<size_t>{0, std::size(c) - 1};
+  auto idx = dist(rd);
+
+  auto it = std::begin(c);
+  std::advance(it, idx);
+
+  return *it;
+}
 
 /**
  * \brief Copy a function into another module.
