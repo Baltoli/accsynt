@@ -26,7 +26,7 @@ class Integer {
 public:
   using example_t = intmax_t;
 
-  Integer(size_t b = 32);
+  Integer(size_t b = 64);
 
   llvm::IntegerType *llvm_type() const;
 
@@ -66,9 +66,38 @@ public:
     return ret;
   }
 
+  size_t array_size() const { 
+    return size_; 
+  }
+
 private:
   Type type_;
   size_t size_;
+};
+
+template <typename T>
+class Index {
+public:
+  using example_t = size_t;
+
+  Index(Array<T> const& a) :
+    array_t_(a)
+  {}
+
+  llvm::IntegerType *llvm_type() const
+  {
+    return llvm::IntegerType::get(ThreadContext::get(), 64);
+  }
+
+  example_t generate() const
+  {
+    auto rd = std::random_device{};
+    auto dis = std::uniform_int_distribution<example_t>{0, array_t_.array_size() - 1};
+    return dis(rd);
+  }
+
+private:
+  Array<T> const& array_t_;
 };
 
 template <typename... Types>

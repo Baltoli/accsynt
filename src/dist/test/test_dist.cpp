@@ -167,19 +167,20 @@ void test_synth_v2()
 {
   auto i64 = types::Integer{64};
   auto arr = types::Array{i64, 4};
+  auto idx = types::Index{arr};
 
-  auto f = [](auto a, auto b, auto c, auto d) {
-    return (a*c) + (b*d);
-  };
+  /* auto f = [](auto a, auto b, auto c, auto d) { */
+  /*   return (a*c) + (b*d); */
+  /* }; */
 
-  auto o = synth::Oracle{f, i64, i64, i64, i64, i64};
-  o()->print(llvm::outs(), nullptr);
+  /* auto o = synth::Oracle{f, i64, i64, i64, i64, i64}; */
+  /* o()->print(llvm::outs(), nullptr); */
 
   auto g = [](auto a, auto i) {
     return a[i <= 3 ? (i < 0 ? 0 : i) : 3];
   };
   
-  auto p = synth::Oracle{g, i64, arr, i64};
+  auto p = synth::Oracle{g, i64, arr, idx};
   if(auto r = p()) {
     r->print(llvm::outs(), nullptr);
   }
@@ -230,7 +231,7 @@ int main()
   /* test_types(); */
   /* test_oracles(); */
   /* test_ops(); */
-  /* test_synth_v2(); */
+  test_synth_v2();
   /* test_array_call(); */
-  test_exn();
+  /* test_exn(); */
 }
