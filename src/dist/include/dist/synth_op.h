@@ -1,5 +1,6 @@
 #pragma once
 
+#include <dist/synth_metadata.h>
 #include <dist/types.h>
 #include <dist/utils.h>
 
@@ -20,7 +21,6 @@ namespace llvm {
 using value_array = llvm::ArrayRef<llvm::Value *>;
 
 bool validate_types(size_t num, value_array args);
-
 size_t max_gep_depth(llvm::Type *t);
 
 template <class F>
@@ -173,4 +173,8 @@ public:
 
     return ret;
   }
+
+  SynthMetadata &metadata() { return metadata_; }
+private:
+  SynthMetadata metadata_;
 };
