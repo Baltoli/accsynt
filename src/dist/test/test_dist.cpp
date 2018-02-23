@@ -170,14 +170,14 @@ void test_synth_v2()
   auto idx = types::Index{arr};
 
   /* auto f = [](auto a, auto b, auto c, auto d) { */
-  /*   return (a*c) + (b*d); */
+  /*   return a * a; */
   /* }; */
 
   /* auto o = synth::Oracle{f, i64, i64, i64, i64, i64}; */
   /* o()->print(llvm::outs(), nullptr); */
 
   auto g = [](auto a, auto i) {
-    return a[i <= 3 ? (i < 0 ? 0 : i) : 3];
+    return a[i];
   };
   
   auto p = synth::Oracle{g, i64, arr, idx};

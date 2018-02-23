@@ -144,6 +144,14 @@ public:
     return instance().inst_all();
   }
 
+  // de-static this class? it doesn't actually need to be static - this
+  // introduces lots of silly global state when we could just as well have each
+  // thread create one.
+  // combination functions will need to take an extra parameter - const ref to
+  // metadata class so that they can consult the analysis?
+  // instance of this class will construct a metadata object, then expose a
+  // reference so that the synthesizer can add things to it. Then pass each
+  // combiner a metadata object.
   template <typename B>
   static llvm::Value *sample(B&& b, value_array args)
   {
