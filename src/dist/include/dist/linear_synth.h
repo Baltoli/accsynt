@@ -90,6 +90,8 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::generate_candidate(bool& done)
   auto mod = std::make_unique<llvm::Module>("", ThreadContext::get());
   auto B = llvm::IRBuilder<>{mod->getContext()};
 
+  auto sampler = ValueSampler{};
+
   while(!done) {
     clear_functions(*mod);
 
@@ -107,7 +109,7 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::generate_candidate(bool& done)
       auto v1 = util::uniform_sample(live);
       auto v2 = util::uniform_sample(live);
       
-      if(auto next = Ops::sample(B, {v1, v2})) {
+      if(auto next = sampler(B, {v1, v2})) {
         live.push_back(next);
       }
     }

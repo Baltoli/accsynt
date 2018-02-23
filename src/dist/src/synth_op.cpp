@@ -27,9 +27,3 @@ size_t max_gep_depth(Type *t)
     return 0;
   }
 }
-
-Ops& Ops::instance()
-{
-  static auto inst = Ops{};
-  return inst;
-}

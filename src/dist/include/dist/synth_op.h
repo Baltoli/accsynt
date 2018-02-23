@@ -124,12 +124,11 @@ public:
   }
 };
 
-class Ops {
+class ValueSampler {
 public:
-  Ops(const Ops&) = delete;
-  Ops& operator=(const Ops&) = delete;
+  ValueSampler() = default;
 
-  static auto inst_all()
+  auto all()
   {
     return std::make_tuple(
       BinaryOp{[](auto& b, auto* v1, auto* v2) { return b.CreateAdd(v1, v2); }},
@@ -139,21 +138,13 @@ public:
     );
   }
 
-  static auto all()
-  {
-    return instance().inst_all();
-  }
-
-  // de-static this class? it doesn't actually need to be static - this
-  // introduces lots of silly global state when we could just as well have each
-  // thread create one.
   // combination functions will need to take an extra parameter - const ref to
   // metadata class so that they can consult the analysis?
   // instance of this class will construct a metadata object, then expose a
   // reference so that the synthesizer can add things to it. Then pass each
   // combiner a metadata object.
   template <typename B>
-  static llvm::Value *sample(B&& b, value_array args)
+  llvm::Value *operator()(B&& b, value_array args)
   {
     auto candidates = std::vector<llvm::Value *>{};
 
@@ -182,9 +173,4 @@ public:
 
     return ret;
   }
-
-private:
-  Ops() {}
-
-  static Ops& instance();
 };
