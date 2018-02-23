@@ -11,7 +11,10 @@
 #include <llvm/IR/Function.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
+#include <llvm/IRReader/IRReader.h>
 #include <llvm/Support/raw_ostream.h>
+#include <llvm/Support/MemoryBuffer.h>
+#include <llvm/Support/SourceMgr.h>
 
 #include <random>
 
@@ -193,11 +196,41 @@ void test_array_call()
   llvm::outs () << fc(buf, 1) << '\n';
 }
 
+void test_exn()
+{
+  const auto str = R"(
+@_ZTIi = external constant i8*
+declare i8* @__cxa_allocate_exception(i64)
+declare void @__cxa_throw(i8*, i8*, i8*)
+
+define i32 @main() {
+  %1 = alloca i32, align 4
+  store i32 0, i32* %1, align 4
+  %2 = call i8* @__cxa_allocate_exception(i64 4)
+  %3 = bitcast i8* %2 to i32*
+  store i32 1, i32* %3, align 16
+  call void @__cxa_throw(i8* %2, i8* bitcast (i8** @_ZTIi to i8*), i8* null)
+  unreachable
+})";
+
+  auto sm = SMDiagnostic{};
+  auto buf = MemoryBuffer::getMemBuffer(str);
+  auto mod = parseIR(*buf, sm, ThreadContext::get());
+
+  auto fc = FunctionCallable<int>{mod.get(), "main"};
+  try {
+    fc();
+  } catch(int i) {
+    llvm::outs() << i << '\n';
+  }
+}
+
 int main()
 {
   /* test_types(); */
   /* test_oracles(); */
   /* test_ops(); */
-  test_synth_v2();
+  /* test_synth_v2(); */
   /* test_array_call(); */
+  test_exn();
 }
