@@ -128,7 +128,7 @@ class ValueSampler {
 public:
   ValueSampler() = default;
 
-  auto all()
+  auto all() const
   {
     return std::make_tuple(
       BinaryOp{[](auto& b, auto* v1, auto* v2) { return b.CreateAdd(v1, v2); }},
@@ -144,7 +144,7 @@ public:
   // reference so that the synthesizer can add things to it. Then pass each
   // combiner a metadata object.
   template <typename B>
-  llvm::Value *operator()(B&& b, value_array args)
+  llvm::Value *operator()(B&& b, value_array args) const
   {
     auto candidates = std::vector<llvm::Value *>{};
 

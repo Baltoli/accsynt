@@ -118,6 +118,16 @@ void for_each(Tuple&& t, Func&& f) {
   });
 }
 
+template <typename Tuple, typename Func>
+void index_for_each(Tuple&& t, Func&& f) {
+  constexpr auto n = std::tuple_size_v<std::decay_t<Tuple>>;
+  auto dispatcher = ::make_index_dispatcher<n>();
+
+  dispatcher([&f,&t](auto idx) {
+    f(std::get<idx>(std::forward<Tuple>(t)), idx);
+  });
+}
+
 /**
  * \brief Iterate over two zipped tuples.
  *

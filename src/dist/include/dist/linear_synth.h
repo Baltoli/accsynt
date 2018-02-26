@@ -90,10 +90,11 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::generate_candidate(bool& done)
   auto mod = std::make_unique<llvm::Module>("", ThreadContext::get());
   auto B = llvm::IRBuilder<>{mod->getContext()};
 
-  auto sampler = ValueSampler{};
-
   while(!done) {
     clear_functions(*mod);
+
+    auto sampler = ValueSampler{};
+    auto& meta = sampler.metadata();
 
     auto fn = llvm::Function::Create(fn_ty, llvm::GlobalValue::ExternalLinkage, 
                                      "cand", mod.get());
@@ -104,6 +105,12 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::generate_candidate(bool& done)
     for(auto& arg : fn->args()) {
       live.push_back(&arg);
     }
+
+    util::index_for_each(arg_types_, [&](auto&& at, auto idx) {
+      if constexpr(is_index(at)) {
+        meta.set_index_bound(fn->arg_begin() + idx, at.bound());
+      }
+    });
 
     for(auto i = 0; i < 20; ++i) {
       auto v1 = util::uniform_sample(live);

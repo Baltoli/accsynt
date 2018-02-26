@@ -96,9 +96,27 @@ public:
     return dis(rd);
   }
 
+  size_t bound() const 
+  {
+    return array_t_.array_size() - 1;
+  }
 private:
   Array<T> const& array_t_;
 };
+
+namespace {
+
+template <typename T>
+struct is_index_type : std::false_type {};
+
+template <typename T>
+struct is_index_type<Index<T>> : std::true_type {};
+
+}
+
+constexpr bool is_index(auto&& ty) {
+  return is_index_type<std::decay_t<decltype(ty)>>::value;
+}
 
 template <typename... Types>
 class Struct {
