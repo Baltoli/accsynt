@@ -166,8 +166,9 @@ void test_ops()
 void test_synth_v2()
 {
   auto i64 = types::Integer{64};
-  auto arr = types::Array{i64, 4};
+  auto arr = types::Array{i64, 16};
   auto idx = types::Index{arr};
+  auto idx2 = types::Index{arr};
 
   /* auto f = [](auto a, auto b, auto c, auto d) { */
   /*   return a * a; */
@@ -176,11 +177,13 @@ void test_synth_v2()
   /* auto o = synth::Oracle{f, i64, i64, i64, i64, i64}; */
   /* o()->print(llvm::outs(), nullptr); */
 
-  auto g = [](auto a, auto i) {
-    return a[i];
+  auto g = [](auto a, auto i, auto j) {
+    auto idx = i * j;
+    // don't actually want to clamp, but need to for now
+    return a.at(idx > 15 ? 15 : (idx < 0 ? : idx));
   };
   
-  auto p = synth::Oracle{g, i64, arr, idx};
+  auto p = synth::Oracle{g, i64, arr, idx, idx2};
   if(auto r = p()) {
     r->print(llvm::outs(), nullptr);
   }

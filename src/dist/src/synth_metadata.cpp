@@ -9,6 +9,11 @@ std::optional<size_t> SynthMetadata::index_bound(llvm::Value *v) const
   }
 }
 
+bool SynthMetadata::is_index(llvm::Value *v) const
+{
+  return bounds_.find(v) != std::end(bounds_);
+}
+
 void SynthMetadata::set_index_bound(llvm::Value *v, size_t b)
 {
   bounds_.insert_or_assign(v, b);

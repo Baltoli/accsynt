@@ -71,7 +71,7 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::operator()()
   };
 
   auto threads = std::forward_list<std::thread>{};
-  auto max_threads = std::thread::hardware_concurrency();
+  auto max_threads = 1;//std::max(1u, std::thread::hardware_concurrency() - 1);
   for(auto i = 0; i < max_threads; ++i) {
     threads.emplace_front(work);
   }

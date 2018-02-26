@@ -12,6 +12,7 @@ public:
   SynthMetadata() = default;
 
   std::optional<size_t> index_bound(llvm::Value *v) const;
+  bool is_index(llvm::Value *v) const;
   void set_index_bound(llvm::Value *v, size_t b);
 
 private:
