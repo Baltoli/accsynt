@@ -9,6 +9,10 @@
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/PassManager.h>
+#include <llvm/IR/Verifier.h>
+#include <llvm/IRReader/IRReader.h>
+#include <llvm/Support/MemoryBuffer.h>
+#include <llvm/Support/SourceMgr.h>
 #include <llvm/Transforms/InstCombine/InstCombine.h>
 
 #include <algorithm>
@@ -49,7 +53,10 @@ private:
 
   void clear_functions(llvm::Module& module);
 
+  std::unique_ptr<llvm::Module> exn_module(bool debug = false) const;
   std::unique_ptr<llvm::Module> generate_candidate(bool&);
+
+  llvm::Value *throw_value(auto&& B, int64_t value) const;
 
   R return_type_;
   std::tuple<Args...> arg_types_;
@@ -84,10 +91,45 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::operator()()
 }
 
 template <typename R, typename... Args>
+std::unique_ptr<llvm::Module> Linear<R, Args...>::exn_module(bool debug) const
+{
+  const auto str = R"(
+@_ZTIl = external constant i8*
+declare i8* @__cxa_allocate_exception(i64)
+declare void @__cxa_throw(i8*, i8*, i8*)
+
+define void @throw_val(i64) {
+  %2 = alloca i64, align 8
+  store i64 %0, i64* %2, align 8
+  %3 = call i8* @__cxa_allocate_exception(i64 8)
+  %4 = bitcast i8* %3 to i64*
+  %5 = load i64, i64* %2, align 8
+  store i64 %5, i64* %4, align 16
+  call void @__cxa_throw(i8* %3, i8* bitcast (i8** @_ZTIl to i8*), i8* null)
+  unreachable
+})";
+
+  auto sm = llvm::SMDiagnostic{};
+  auto buf = llvm::MemoryBuffer::getMemBuffer(str);
+  auto mod = llvm::parseIR(*buf, sm, ThreadContext::get());
+
+  if(debug) {
+    if(!mod) {
+      sm.print(nullptr, llvm::errs());
+      std::exit(1);
+    }
+
+    llvm::verifyModule(*mod, &llvm::errs());
+  }
+
+  return mod;
+}
+
+template <typename R, typename... Args>
 std::unique_ptr<llvm::Module> Linear<R, Args...>::generate_candidate(bool& done)
 {
   auto fn_ty = llvm_function_type();
-  auto mod = std::make_unique<llvm::Module>("", ThreadContext::get());
+  auto mod = exn_module();
   auto B = llvm::IRBuilder<>{mod->getContext()};
 
   while(!done) {
@@ -170,12 +212,24 @@ bool Linear<R, Args...>::satisfies_examples(llvm::Function *f) const
 }
 
 template <typename R, typename... Args>
+llvm::Value *Linear<R, Args...>::throw_value(auto&& B, int64_t value) const
+{
+  auto mod = B.GetInsertBlock()->getParent()->getParent();
+  auto throw_fn = mod->getFunction("throw_val");
+  assert(throw_fn && "Need exception throwing function in module!");
+  
+  return B.CreateCall(throw_fn, B.getInt64(value));
+}
+
+template <typename R, typename... Args>
 void Linear<R, Args...>::clear_functions(llvm::Module& module)
 {
   auto to_clear = std::forward_list<llvm::Function *>{};
 
   for(auto& f : module) {
-    to_clear.push_front(&f);
+    if(f.getName() == "cand") {
+      to_clear.push_front(&f);
+    }
   }
 
   for(auto* f : to_clear) {
