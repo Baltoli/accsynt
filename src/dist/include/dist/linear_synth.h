@@ -212,16 +212,6 @@ bool Linear<R, Args...>::satisfies_examples(llvm::Function *f) const
 }
 
 template <typename R, typename... Args>
-llvm::Value *Linear<R, Args...>::throw_value(auto&& B, int64_t value) const
-{
-  auto mod = B.GetInsertBlock()->getParent()->getParent();
-  auto throw_fn = mod->getFunction("throw_val");
-  assert(throw_fn && "Need exception throwing function in module!");
-  
-  return B.CreateCall(throw_fn, B.getInt64(value));
-}
-
-template <typename R, typename... Args>
 void Linear<R, Args...>::clear_functions(llvm::Module& module)
 {
   auto to_clear = std::forward_list<llvm::Function *>{};

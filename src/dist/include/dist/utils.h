@@ -69,6 +69,15 @@ llvm::Function *copy_function(llvm::Function *f, llvm::Module *m);
 
 std::unique_ptr<llvm::Module> copy_module_to(llvm::LLVMContext& ctx, llvm::Module *m);
 
+inline llvm::Value *throw_value(auto&& B, int64_t value)
+{
+  auto mod = B.GetInsertBlock()->getParent()->getParent();
+  auto throw_fn = mod->getFunction("throw_val");
+  assert(throw_fn && "Need exception throwing function in module!");
+  
+  return B.CreateCall(throw_fn, B.getInt64(value));
+}
+
 /**
  * \brief Create a new execution engine using a clone of \p m.
  *
