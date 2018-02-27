@@ -13,6 +13,7 @@
 #include <llvm/IR/Function.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
+#include <llvm/IR/Verifier.h>
 #include <llvm/Transforms/Utils/Cloning.h>
 
 #include <memory>
@@ -49,30 +50,33 @@ public:
 
 private:
   std::unique_ptr<llvm::Module> module_;
-  llvm::Function *func_;
+  std::string name_;
   llvm::ExecutionEngine *engine_;
 };
 
 template<class R>
 FunctionCallable<R>::FunctionCallable(llvm::Module *m, llvm::StringRef name) :
   module_{util::copy_module_to(ThreadContext::get(), m)},
-  func_{module_->getFunction(name)}
+  name_{name}
 {
-  auto eb = llvm::EngineBuilder{std::move(module_)};
-  engine_ = eb.create();
+  engine_ = llvm::EngineBuilder(std::move(module_)).
+    create();
+
+  assert(engine_);
 }
 
 template<class R>
 template<class... Args>
 R FunctionCallable<R>::operator()(Args... args) 
 {
-  assert(func_->arg_size() == sizeof...(args) && "Argument count mismatch");
+  auto func = engine_->FindFunctionNamed(name_);
+  assert(func && func->arg_size() == sizeof...(args) && "Argument count mismatch");
 
   auto func_args = std::array<llvm::GenericValue, sizeof...(args)>{
     { util::make_generic(args)... }
   };
 
-  auto ret = engine_->runFunction(func_, func_args);
+  auto ret = engine_->runFunction(func, func_args);
   
   // TODO: this needs to be changed
   return R(ret.IntVal.getLimitedValue(std::numeric_limits<R>::max()));

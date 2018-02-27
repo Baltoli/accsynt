@@ -94,15 +94,15 @@ public:
     // that compares the two versions can run each and make sure they both
     // throw? or just ignore cases where they throw?
     auto max = llvm::ConstantInt::get(args[1]->getType(), *m.index_bound(args[1]));
-    auto upper_pred = b.CreateICmpSGT(args[1], max);
-    auto max_sel = b.CreateSelect(upper_pred, max, args[1]);
+    auto min = llvm::ConstantInt::get(args[1]->getType(), 0);
 
-    auto min = llvm::ConstantInt::get(max_sel->getType(), 0);
-    auto lower_pred = b.CreateICmpSLT(max_sel, min);
-    auto min_sel = b.CreateSelect(lower_pred, min, max_sel);
+    auto upper_pred = b.CreateICmpSGT(args[1], max);
+    auto lower_pred = b.CreateICmpSLT(args[1], min);
+    auto either = b.CreateOr(upper_pred, lower_pred);
+    util::throw_value_if(b, 0, either);
 
     auto zero = llvm::ConstantInt::get(z_ty, 0);
-    auto gep = b.CreateInBoundsGEP(args[0], {zero, min_sel});
+    auto gep = b.CreateInBoundsGEP(args[0], {zero, args[1]});
     return b.CreateLoad(gep);
   }
 };
