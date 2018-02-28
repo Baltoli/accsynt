@@ -111,15 +111,6 @@ llvm::GenericValue make_generic(T& t)
   }
 }
 
-inline llvm::Value *throw_value_if(auto&& B, int64_t value, llvm::Value *cond)
-{
-  auto mod = B.GetInsertBlock()->getParent()->getParent();
-  auto throw_fn = mod->getFunction("throw_val_if");
-  assert(throw_fn && "Need exception throwing function in module!");
-  
-  return B.CreateCall(throw_fn, {B.getInt64(value), cond});
-}
-
 /**
  * \brief Iterate over each item in a tuple.
  *

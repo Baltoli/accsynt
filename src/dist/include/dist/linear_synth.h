@@ -95,9 +95,7 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::exn_module(bool debug) const
 {
   const auto str = R"(
 @_ZTIl = external constant i8*
-
 declare i8* @__cxa_allocate_exception(i64)
-
 declare void @__cxa_throw(i8*, i8*, i8*)
 
 define void @throw_val(i64) {
@@ -109,30 +107,6 @@ define void @throw_val(i64) {
   store i64 %5, i64* %4, align 16
   call void @__cxa_throw(i8* %3, i8* bitcast (i8** @_ZTIl to i8*), i8* null)
   unreachable
-                                                  ; No predecessors!
-  ret void
-}
-
-define void @throw_val_if(i64, i1 zeroext) {
-  %3 = alloca i64, align 8
-  %4 = alloca i8, align 1
-  store i64 %0, i64* %3, align 8
-  %5 = zext i1 %1 to i8
-  store i8 %5, i8* %4, align 1
-  %6 = load i8, i8* %4, align 1
-  %7 = trunc i8 %6 to i1
-  br i1 %7, label %8, label %12
-
-; <label>:8:                                      ; preds = %2
-  %9 = call i8* @__cxa_allocate_exception(i64 8)
-  %10 = bitcast i8* %9 to i64*
-  %11 = load i64, i64* %3, align 8
-  store i64 %11, i64* %10, align 16
-  call void @__cxa_throw(i8* %9, i8* bitcast (i8** @_ZTIl to i8*), i8* null)
-  unreachable
-
-; <label>:12:                                     ; preds = %2
-  ret void
 })";
 
   auto sm = llvm::SMDiagnostic{};

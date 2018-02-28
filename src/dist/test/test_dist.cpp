@@ -179,7 +179,9 @@ void test_synth_v2()
   /* o()->print(llvm::outs(), nullptr); */
 
   auto g = [](auto a, auto i, auto j) {
-    return a.at(i);
+    auto idx = i * j;
+    // don't actually want to clamp, but need to for now
+    return a.at(idx > 15 ? 15 : (idx < 0 ? : idx));
   };
   
   auto p = synth::Oracle{g, i64, arr, idx, idx2};
