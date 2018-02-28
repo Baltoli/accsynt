@@ -22,6 +22,7 @@ public:
 
   template <typename Pred>
   std::set<llvm::Value *> live_with(Pred&& p);
+
 private:
   std::map<llvm::Value *, size_t> bounds_ = {};
   std::set<llvm::Value *> live_set_ = {};

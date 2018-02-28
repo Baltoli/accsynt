@@ -36,7 +36,7 @@ public:
   /**
    * \brief Construct a callable wrapper by copying \p f.
    */
-  FunctionCallable(llvm::Module *m, llvm::StringRef name);
+  FunctionCallable(llvm::Module *m, llvm::StringRef name, bool e = false);
 
   /**
    * \brief Call the LLVM function with a variadic set of arguments.
@@ -47,14 +47,24 @@ public:
   template<class... Args>
   R operator()(Args... args);
 
+  std::optional<int64_t> get_error() { return error_; };
+
 private:
+  bool uses_error_;
+  std::optional<int64_t> error_ = {};
+
   std::unique_ptr<llvm::Module> module_;
   llvm::Function *func_;
   llvm::ExecutionEngine *engine_;
+
+  R return_val(auto gv) const { 
+    return R(gv.IntVal.getLimitedValue(std::numeric_limits<R>::max())); 
+  };
 };
 
 template<class R>
-FunctionCallable<R>::FunctionCallable(llvm::Module *m, llvm::StringRef name) :
+FunctionCallable<R>::FunctionCallable(llvm::Module *m, llvm::StringRef name, bool e) :
+  uses_error_{e},
   module_{util::copy_module_to(ThreadContext::get(), m)},
   func_{module_->getFunction(name)}
 {
@@ -72,8 +82,26 @@ R FunctionCallable<R>::operator()(Args... args)
     { util::make_generic(args)... }
   };
 
-  auto ret = engine_->runFunction(func_, func_args);
-  
-  // TODO: this needs to be changed
-  return R(ret.IntVal.getLimitedValue(std::numeric_limits<R>::max()));
+  if(uses_error_) {
+    auto args_with_err = std::array<llvm::GenericValue, sizeof...(args) + 1>{};
+    std::copy(std::begin(func_args), std::end(func_args), std::next(std::begin(args_with_err)));
+
+    auto err = int64_t{0};
+    auto err_v = llvm::GenericValue{};
+    err_v.PointerVal = &err;
+
+    args_with_err[0] = err_v;
+    auto ret = engine_->runFunction(func_, args_with_err);
+    
+    if(err != 0) {
+      error_ = err;
+      return R{0};
+    } else {
+      error_ = {};
+      return return_val(ret);
+    }
+  } else {
+    auto ret = engine_->runFunction(func_, func_args);
+    return return_val(ret);
+  }
 }
