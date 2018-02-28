@@ -144,7 +144,7 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::generate_candidate(bool& done)
     B.SetInsertPoint(bb);
 
     for(auto& arg : fn->args()) {
-      meta.live_set().insert(&arg);
+      meta.make_live(&arg);
     }
 
     util::index_for_each(arg_types_, [&](auto&& at, auto idx) {
@@ -158,15 +158,13 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::generate_candidate(bool& done)
       auto v2 = util::uniform_sample(meta.live_set());
       
       if(auto next = sampler(B, {v1, v2})) {
-        meta.live_set().insert(next);
+        meta.make_live(next);
       }
     }
 
-    auto possibles = std::vector<llvm::Value *>{};
-    std::copy_if(meta.live_set().begin(), meta.live_set().end(), std::back_inserter(possibles), 
-        [fn_ty](auto inst) {
-          return inst->getType() == fn_ty->getReturnType();
-        });
+    auto possibles = meta.live_with( [fn_ty] (auto inst) {
+      return inst->getType() == fn_ty->getReturnType();
+    });
 
     if(possibles.empty()) {
       return nullptr;

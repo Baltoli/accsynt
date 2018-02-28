@@ -18,3 +18,8 @@ void SynthMetadata::set_index_bound(llvm::Value *v, size_t b)
 {
   bounds_.insert_or_assign(v, b);
 }
+
+void SynthMetadata::make_live(llvm::Value *v)
+{
+  live_set_.insert(v);
+}
