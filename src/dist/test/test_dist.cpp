@@ -239,6 +239,36 @@ define void @throw_val(i64) {
   }
 }
 
+void test_err()
+{
+  auto mod = std::make_unique<Module>("hmod", ThreadContext::get());
+
+  auto ret_t = IntegerType::get(mod->getContext(), 64);
+  auto ptr_t = PointerType::getUnqual(ret_t);
+  auto fn_t = FunctionType::get(ret_t, {ptr_t}, false);
+
+  auto fn = Function::Create(fn_t, GlobalValue::ExternalLinkage, "h", mod.get());
+  auto bb = BasicBlock::Create(fn->getContext(), "entry", fn);
+  auto B = IRBuilder<>(&fn->getEntryBlock());
+
+  auto zero = ConstantInt::get(ret_t, 0);
+  auto one = ConstantInt::get(ret_t, 1234);
+
+  auto gep = B.CreateGEP(fn->arg_begin(), zero);
+  auto load = B.CreateStore(one, gep);
+
+  B.CreateRet(one);
+
+  mod->print(llvm::errs(), nullptr);
+  auto fc = FunctionCallable<int64_t>{mod.get(), "h", true};
+
+  fc();
+  if(auto e = fc.get_error()) {
+    llvm::errs() << *e << '\n';
+    llvm::errs() << fc() << '\n';
+  }
+}
+
 int main()
 {
   /* test_types(); */
@@ -247,4 +277,5 @@ int main()
   test_synth_v2();
   /* test_array_call(); */
   /* test_exn(); */
+  /* test_err(); */
 }

@@ -76,7 +76,8 @@ template<class R>
 template<class... Args>
 R FunctionCallable<R>::operator()(Args... args) 
 {
-  assert(func_->arg_size() == sizeof...(args) && "Argument count mismatch");
+  if(!uses_error_) assert(func_->arg_size() == sizeof...(args) && "Argument count mismatch");
+  if(uses_error_) assert(func_->arg_size() - 1 == sizeof...(args) && "Argument count mismatch");
 
   auto func_args = std::array<llvm::GenericValue, sizeof...(args)>{
     { util::make_generic(args)... }
