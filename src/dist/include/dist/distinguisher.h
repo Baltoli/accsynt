@@ -1,5 +1,6 @@
 #pragma once
 
+#include <dist/function_callable.h>
 #include <dist/generators.h>
 #include <dist/types.h>
 

@@ -105,3 +105,12 @@ R FunctionCallable<R>::operator()(Args... args)
     return return_val(ret);
   }
 }
+
+template <typename T>
+struct has_error_code_st : std::false_type {};
+
+template <typename T>
+struct has_error_code_st<FunctionCallable<T>> : std::true_type {};
+
+template <typename T>
+constexpr inline bool has_error_code = has_error_code_st<std::decay_t<T>>::value;
