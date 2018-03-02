@@ -40,11 +40,11 @@ std::unique_ptr<Module> copy_module_to(LLVMContext& ctx, Module *m)
   llvm::verifyModule(*m, &llvm::errs());
 
   if(&ctx == &m->getContext()) {
-    return llvm::CloneModule(m);
+    return llvm::CloneModule(*m);
   } else {
     std::string str;
     raw_string_ostream stream{str};
-    WriteBitcodeToFile(m, stream);
+    WriteBitcodeToFile(*m, stream);
 
     auto buf = MemoryBuffer::getMemBuffer(stream.str());
     auto expect = parseBitcodeFile(buf->getMemBufferRef(), ctx);
@@ -57,13 +57,6 @@ std::unique_ptr<Module> copy_module_to(LLVMContext& ctx, Module *m)
 
     return std::move(expect.get());
   }
-}
-
-std::unique_ptr<ExecutionEngine> create_engine(Module* m)
-{
-  auto&& clone = llvm::CloneModule(m);
-  auto eb = EngineBuilder(std::move(clone));
-  return std::unique_ptr<ExecutionEngine>{eb.create()};
 }
 
 }
