@@ -38,6 +38,8 @@ public:
    */
   FunctionCallable(llvm::Module *m, llvm::StringRef name, bool e = false);
 
+  FunctionCallable(llvm::Function *f, bool e = false);
+
   /**
    * \brief Call the LLVM function with a variadic set of arguments.
    *
@@ -62,7 +64,7 @@ private:
   };
 };
 
-template<class R>
+template <typename R>
 FunctionCallable<R>::FunctionCallable(llvm::Module *m, llvm::StringRef name, bool e) :
   uses_error_{e},
   module_{util::copy_module_to(ThreadContext::get(), m)},
@@ -70,6 +72,12 @@ FunctionCallable<R>::FunctionCallable(llvm::Module *m, llvm::StringRef name, boo
 {
   auto eb = llvm::EngineBuilder{std::move(module_)};
   engine_ = eb.create();
+}
+
+template <typename R>
+FunctionCallable<R>::FunctionCallable(llvm::Function *f, bool e) :
+  FunctionCallable{f->getParent(), f->getName(), e}
+{
 }
 
 template<class R>
