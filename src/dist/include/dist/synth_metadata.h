@@ -18,14 +18,18 @@ public:
   void set_index_bound(llvm::Value *v, size_t b);
 
   void make_live(llvm::Value *v);
-  std::set<llvm::Value *> & live_set() { return live_set_; }
+  std::set<llvm::Value *> const& live_set() const { return live_set_; }
 
   template <typename Pred>
   std::set<llvm::Value *> live_with(Pred&& p);
 
+  void make_oob_flag(llvm::Value *v);
+  std::set<llvm::Value *> const& oob_flags() const { return oob_flags_; }
+
 private:
   std::map<llvm::Value *, size_t> bounds_ = {};
   std::set<llvm::Value *> live_set_ = {};
+  std::set<llvm::Value *> oob_flags_ = {};
 };
 
 template <typename Pred>

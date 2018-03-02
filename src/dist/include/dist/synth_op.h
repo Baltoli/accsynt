@@ -90,15 +90,14 @@ public:
 
     auto z_ty = llvm::IntegerType::get(ThreadContext::get(), 64);
     
-    // this needs to be replaced with exception throwing code. then the code
-    // that compares the two versions can run each and make sure they both
-    // throw? or just ignore cases where they throw?
     auto max = llvm::ConstantInt::get(args[1]->getType(), *m.index_bound(args[1]));
     auto upper_pred = b.CreateICmpSGT(args[1], max);
+    m.make_oob_flag(upper_pred);
     auto max_sel = b.CreateSelect(upper_pred, max, args[1]);
 
     auto min = llvm::ConstantInt::get(max_sel->getType(), 0);
     auto lower_pred = b.CreateICmpSLT(max_sel, min);
+    m.make_oob_flag(lower_pred);
     auto min_sel = b.CreateSelect(lower_pred, min, max_sel);
 
     auto zero = llvm::ConstantInt::get(z_ty, 0);

@@ -23,3 +23,9 @@ void SynthMetadata::make_live(llvm::Value *v)
 {
   live_set_.insert(v);
 }
+
+
+void SynthMetadata::make_oob_flag(llvm::Value *v)
+{
+  oob_flags_.insert(v);
+}
