@@ -53,6 +53,14 @@ private:
 
   void clear_functions(llvm::Module& module);
 
+  template <typename Builder>
+  void populate_instructions(Builder&& b, ValueSampler& sampler, 
+                             llvm::Function *fn, size_t n) const;
+
+  template <typename Builder>
+  llvm::Value *create_return(Builder&& b, ValueSampler& sampler,
+                             llvm::Function *fn) const;
+
   std::unique_ptr<llvm::Module> generate_candidate(bool&);
 
   llvm::Value *throw_value(auto&& B, int64_t value) const;
@@ -90,9 +98,51 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::operator()()
 }
 
 template <typename R, typename... Args>
+template <typename Builder>
+void Linear<R, Args...>::populate_instructions(Builder&& B,
+                                               ValueSampler& sampler, 
+                                               llvm::Function *fn, 
+                                               size_t n) const
+{
+  auto& meta = sampler.metadata();
+
+  for(auto& arg : fn->args()) {
+    meta.make_live(&arg);
+  }
+
+  for(auto i = 0; i < n; ++i) {
+    auto v1 = util::uniform_sample(meta.live_set());
+    auto v2 = util::uniform_sample(meta.live_set());
+    
+    if(auto next = sampler(B, {v1, v2})) {
+      meta.make_live(next);
+    }
+  }
+}
+
+template <typename R, typename... Args>
+template <typename Builder>
+llvm::Value *Linear<R, Args...>::create_return(Builder&& B, 
+                                               ValueSampler& sampler,
+                                               llvm::Function *fn) const
+{
+  auto& meta = sampler.metadata();
+  auto fn_ty = fn->getFunctionType();
+
+  auto possibles = meta.live_with( [fn_ty] (auto inst) {
+    return inst->getType() == fn_ty->getReturnType();
+  });
+
+  if(possibles.empty()) {
+    return nullptr;
+  }
+
+  return B.CreateRet(util::uniform_sample(possibles));
+}
+
+template <typename R, typename... Args>
 std::unique_ptr<llvm::Module> Linear<R, Args...>::generate_candidate(bool& done)
 {
-  auto fn_ty = llvm_function_type();
   auto mod = std::make_unique<llvm::Module>("linear-candidate", ThreadContext::get());
   auto B = llvm::IRBuilder<>{mod->getContext()};
 
@@ -102,14 +152,10 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::generate_candidate(bool& done)
     auto sampler = ValueSampler{};
     auto& meta = sampler.metadata();
 
-    auto fn = llvm::Function::Create(fn_ty, llvm::GlobalValue::ExternalLinkage, 
+    auto fn = llvm::Function::Create(llvm_function_type(), llvm::GlobalValue::ExternalLinkage, 
                                      "cand", mod.get());
     auto bb = llvm::BasicBlock::Create(fn->getContext(), "", fn);
     B.SetInsertPoint(bb);
-
-    for(auto& arg : fn->args()) {
-      meta.make_live(&arg);
-    }
 
     util::index_for_each(arg_types_, [&](auto&& at, auto idx) {
       if constexpr(is_index(at)) {
@@ -117,30 +163,15 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::generate_candidate(bool& done)
       }
     });
 
-    for(auto i = 0; i < 20; ++i) {
-      auto v1 = util::uniform_sample(meta.live_set());
-      auto v2 = util::uniform_sample(meta.live_set());
-      
-      if(auto next = sampler(B, {v1, v2})) {
-        meta.make_live(next);
-      }
-    }
-
-    auto possibles = meta.live_with( [fn_ty] (auto inst) {
-      return inst->getType() == fn_ty->getReturnType();
-    });
-
-    if(possibles.empty()) {
+    populate_instructions(B, sampler, fn, 20);
+    auto ret = create_return(B, sampler, fn);
+    if(!ret) {
       return nullptr;
     }
-
-    B.CreateRet(util::uniform_sample(possibles));
 
     if(satisfies_examples(fn)) {
       done = true;
       return std::move(mod);
-    } else {
-      fn->eraseFromParent();
     }
   }
 
