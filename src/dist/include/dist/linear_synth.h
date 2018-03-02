@@ -106,8 +106,8 @@ void Linear<R, Args...>::populate_instructions(Builder&& B,
 {
   auto& meta = sampler.metadata();
 
-  for(auto& arg : fn->args()) {
-    meta.make_live(&arg);
+  for(auto arg = std::next(fn->arg_begin()); arg != fn->arg_end(); ++arg) {
+    meta.make_live(arg);
   }
 
   for(auto i = 0; i < n; ++i) {
@@ -159,7 +159,7 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::generate_candidate(bool& done)
 
     util::index_for_each(arg_types_, [&](auto&& at, auto idx) {
       if constexpr(is_index(at)) {
-        meta.set_index_bound(fn->arg_begin() + idx, at.bound());
+        meta.set_index_bound(fn->arg_begin() + idx + 1, at.bound());
       }
     });
 
@@ -191,13 +191,20 @@ llvm::FunctionType *Linear<R, Args...>::llvm_function_type() const
   util::zip_for_each(arg_types_, llvm_arg_tys, [] (auto a, auto& ll) {
     ll = a.llvm_type();
   });
-  return llvm::FunctionType::get(return_type_.llvm_type(), llvm_arg_tys, false);
+
+  auto i64_t = llvm::IntegerType::get(ThreadContext::get(), 64);
+  auto ptr_t = llvm::PointerType::getUnqual(i64_t);
+  auto arg_tys = std::array<llvm::Type*, sizeof...(Args) + 1>{};
+  std::copy(std::begin(llvm_arg_tys), std::end(llvm_arg_tys), std::next(std::begin(arg_tys)));
+  arg_tys[0] = ptr_t;
+
+  return llvm::FunctionType::get(return_type_.llvm_type(), arg_tys, false);
 }
 
 template <typename R, typename... Args>
 bool Linear<R, Args...>::satisfies_examples(llvm::Function *f) const
 {
-  auto fc = FunctionCallable<ret_t>(f->getParent(), f->getName());
+  auto fc = FunctionCallable<ret_t>{f->getParent(), f->getName(), true};
   return std::all_of(std::begin(examples_), std::end(examples_), [f,&fc](auto ex) {
     return std::apply(fc, ex.second) == ex.first;
   });
