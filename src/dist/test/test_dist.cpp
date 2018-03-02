@@ -178,10 +178,13 @@ void test_synth_v2()
   /* auto o = synth::Oracle{f, i64, i64, i64, i64, i64}; */
   /* o()->print(llvm::outs(), nullptr); */
 
-  auto g = [](auto a, auto i, auto j) {
-    auto idx = i * j;
-    // don't actually want to clamp, but need to for now
-    return a.at(idx > 15 ? 15 : (idx < 0 ? : idx));
+  auto g = [](auto a, auto i, auto j) -> int64_t {
+    auto idx = i + j;
+    if(idx < 0 || idx >= 16) {
+      return 0;
+    }
+
+    return a.at(idx);
   };
   
   auto p = synth::Oracle{g, i64, arr, idx, idx2};

@@ -61,6 +61,10 @@ private:
   llvm::Value *create_return(Builder&& b, ValueSampler& sampler,
                              llvm::Function *fn) const;
 
+  template <typename Builder>
+  void create_oob_returns(Builder&& b, ValueSampler& sampler,
+                          llvm::Function *fn) const;
+
   std::unique_ptr<llvm::Module> generate_candidate(bool&);
 
   llvm::Value *throw_value(auto&& B, int64_t value) const;
@@ -141,6 +145,38 @@ llvm::Value *Linear<R, Args...>::create_return(Builder&& B,
 }
 
 template <typename R, typename... Args>
+template <typename Builder>
+void Linear<R, Args...>::create_oob_returns(Builder&& b, 
+                                            ValueSampler& sampler, 
+                                            llvm::Function *fn) const
+{
+  auto& meta = sampler.metadata();
+
+  auto ret_ty = fn->getFunctionType()->getReturnType();
+  auto zero = llvm::ConstantInt::get(ret_ty, 0);
+  auto one = llvm::ConstantInt::get(ret_ty, 1);
+
+  auto oob_bb = llvm::BasicBlock::Create(fn->getContext(), "oob-exit", fn);
+  b.SetInsertPoint(oob_bb);
+  b.CreateStore(one, fn->arg_begin()); 
+  b.CreateRet(zero);
+
+  for(auto oob_flag_val : meta.oob_flags()) {
+    auto oob_flag = llvm::cast<llvm::Instruction>(oob_flag_val);
+
+    auto old_bb = oob_flag->getParent();
+    auto new_bb = old_bb->splitBasicBlock(oob_flag);
+
+    auto old_term = old_bb->getTerminator();
+
+    b.SetInsertPoint(old_term);
+    auto br = b.CreateCondBr(oob_flag_val, oob_bb, new_bb);
+    oob_flag->moveBefore(br);
+    old_term->eraseFromParent();
+  }
+}
+
+template <typename R, typename... Args>
 std::unique_ptr<llvm::Module> Linear<R, Args...>::generate_candidate(bool& done)
 {
   auto mod = std::make_unique<llvm::Module>("linear-candidate", ThreadContext::get());
@@ -168,6 +204,8 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::generate_candidate(bool& done)
     if(!ret) {
       return nullptr;
     }
+
+    create_oob_returns(B, sampler, fn);
 
     if(satisfies_examples(fn)) {
       done = true;
@@ -205,6 +243,7 @@ template <typename R, typename... Args>
 bool Linear<R, Args...>::satisfies_examples(llvm::Function *f) const
 {
   auto fc = FunctionCallable<ret_t>{f, true};
+
   return std::all_of(std::begin(examples_), std::end(examples_), [f,&fc](auto ex) {
     return std::apply(fc, ex.second) == ex.first;
   });
