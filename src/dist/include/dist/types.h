@@ -75,11 +75,11 @@ private:
   size_t size_;
 };
 
-template <typename T>
 class Index {
 public:
   using example_t = size_t;
 
+  template <typename T>
   Index(Array<T> const& a) :
     bound_(a.array_size() - 1)
   {}
@@ -114,8 +114,8 @@ namespace {
 template <typename T>
 struct is_index_type : std::false_type {};
 
-template <typename T>
-struct is_index_type<Index<T>> : std::true_type {};
+template <>
+struct is_index_type<Index> : std::true_type {};
 
 }
 
