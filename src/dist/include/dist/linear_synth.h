@@ -70,7 +70,7 @@ private:
   R return_type_;
   std::tuple<Args...> arg_types_;
 
-  std::vector<io_pair_t> examples_;
+  std::map<args_t, ret_t> examples_;
 };
 
 template <typename R, typename... Args>
@@ -217,7 +217,7 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::generate_candidate(bool& done)
 template <typename R, typename... Args>
 void Linear<R, Args...>::add_example(Linear::ret_t r, Linear::args_t args)
 {
-  examples_.push_back({r, args});
+  examples_.insert_or_assign(args, r);
 }
 
 template <typename R, typename... Args>
@@ -243,7 +243,7 @@ bool Linear<R, Args...>::satisfies_examples(llvm::Function *f) const
   auto fc = FunctionCallable<ret_t>{f, true};
 
   return std::all_of(std::begin(examples_), std::end(examples_), [f,&fc](auto ex) {
-    return std::apply(fc, ex.second) == ex.first;
+    return std::apply(fc, ex.first) == ex.second;
   });
 }
 

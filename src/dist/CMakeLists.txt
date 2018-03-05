@@ -34,6 +34,7 @@ add_executable(test_dist
 add_executable(unit_tests
   test/unit/main.cpp
   test/unit/function_call.cpp
+  test/unit/linear_synth.cpp
   test/unit/load_module.cpp
 )
 
