@@ -81,7 +81,11 @@ public:
   using example_t = size_t;
 
   Index(Array<T> const& a) :
-    array_t_(a)
+    bound_(a.array_size() - 1)
+  {}
+
+  Index(size_t b) :
+    bound_(b)
   {}
 
   llvm::IntegerType *llvm_type() const
@@ -92,16 +96,17 @@ public:
   example_t generate() const
   {
     auto rd = std::random_device{};
-    auto dis = std::uniform_int_distribution<example_t>{0, array_t_.array_size() - 1};
+    auto dis = std::uniform_int_distribution<example_t>{0, bound()};
     return dis(rd);
   }
 
   size_t bound() const 
   {
-    return array_t_.array_size() - 1;
+    return bound_;
   }
+
 private:
-  Array<T> const& array_t_;
+  size_t bound_;
 };
 
 namespace {
