@@ -122,4 +122,4 @@ template <typename T>
 struct has_error_code_st<FunctionCallable<T>> : std::true_type {};
 
 template <typename T>
-constexpr inline bool has_error_code = has_error_code_st<std::decay_t<T>>::value;
+constexpr inline bool has_error_code_v = has_error_code_st<std::decay_t<T>>::value;

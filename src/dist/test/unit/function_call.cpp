@@ -5,16 +5,13 @@
 
 #include <llvm/IR/Module.h>
 
-TEST_CASE( "LLVM functions can be wrapped and called", "[function]") {
-  const auto mod_str = R"(
+TEST_CASE( "LLVM functions can be wrapped and called", "[function]" ) {
+  LOAD_MODULE(mod, R"(
 define i64 @func(i64) {
   %2 = add nsw i64 %0, 1
   ret i64 %2
 }
-  )";
-
-  auto mod = load_module(mod_str);
-  REQUIRE(mod);
+  )");
 
   auto fc = FunctionCallable<long>(mod.get(), "func");
 
@@ -28,5 +25,47 @@ define i64 @func(i64) {
     REQUIRE(fc(0) == 1);
     REQUIRE(fc(-30) == -29);
     REQUIRE(fc(22) == 23);
+  }
+}
+
+TEST_CASE( "LLVM functions can return an error", "[function]" ) {
+  LOAD_MODULE(mod, R"(
+define i64 @func(i64*) {
+  store i64 3, i64* %0
+  ret i64 0
+}
+  )");
+
+  auto fc = FunctionCallable<long>(mod.get(), "func", true);
+
+  SECTION( "error is not set initially" ) {
+    REQUIRE(!fc.get_error());
+  }
+
+  SECTION( "error is set after calling" ) {
+    fc();
+    REQUIRE(fc.get_error());
+    REQUIRE(*fc.get_error() == 3);
+  }
+}
+
+TEST_CASE( "LLVM functions can take an array", "[function]" ) {
+  LOAD_MODULE(mod, R"(
+define i64 @func([4 x i64]*, i64) {
+  %3 = getelementptr inbounds [4 x i64], [4 x i64]* %0, i64 0, i64 %1
+  %4 = load i64, i64* %3
+  ret i64 %4
+}
+  )");
+
+  auto fc = FunctionCallable<long>(mod.get(), "func");
+  auto vec = std::vector<long>{2, 4, -1, -6, 0};
+
+  SECTION( "valid indices yield the correct values" ) {
+    REQUIRE(fc(vec, 0) == 2);
+    REQUIRE(fc(vec, 1) == 4);
+    REQUIRE(fc(vec, 2) == -1);
+    REQUIRE(fc(vec, 3) == -6);
+    REQUIRE(fc(vec, 4) == 0);
   }
 }

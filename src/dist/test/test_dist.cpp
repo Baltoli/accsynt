@@ -193,53 +193,10 @@ void test_synth_v2()
   }
 }
 
-void test_array_call()
-{
-  auto mod = make_h();
-  mod->print(llvm::outs(), nullptr);
-
-  auto fc = FunctionCallable<intmax_t>{mod.get(), "h"};
-
-  auto buf = std::vector<intmax_t>{{1, 2, 3, 4}};
-  llvm::outs () << fc(buf, 1) << '\n';
-}
-
-void test_err()
-{
-  auto mod = std::make_unique<Module>("hmod", ThreadContext::get());
-
-  auto ret_t = IntegerType::get(mod->getContext(), 64);
-  auto ptr_t = PointerType::getUnqual(ret_t);
-  auto fn_t = FunctionType::get(ret_t, {ptr_t}, false);
-
-  auto fn = Function::Create(fn_t, GlobalValue::ExternalLinkage, "h", mod.get());
-  auto bb = BasicBlock::Create(fn->getContext(), "entry", fn);
-  auto B = IRBuilder<>(bb);
-
-  auto zero = ConstantInt::get(ret_t, 0);
-  auto one = ConstantInt::get(ret_t, 1234);
-
-  auto gep = B.CreateGEP(fn->arg_begin(), zero);
-  B.CreateStore(one, gep);
-
-  B.CreateRet(one);
-
-  mod->print(llvm::errs(), nullptr);
-  auto fc = FunctionCallable<int64_t>{mod.get(), "h", true};
-
-  fc();
-  if(auto e = fc.get_error()) {
-    llvm::errs() << *e << '\n';
-    llvm::errs() << fc() << '\n';
-  }
-}
-
 int main()
 {
   /* test_types(); */
   /* test_oracles(); */
   /* test_ops(); */
   test_synth_v2();
-  /* test_array_call(); */
-  /* test_err(); */
 }
