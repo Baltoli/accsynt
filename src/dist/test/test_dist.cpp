@@ -36,11 +36,7 @@ void test_synth_v2()
   /* o()->print(llvm::outs(), nullptr); */
 
   auto g = [](auto a, auto i, auto j) -> int64_t {
-    auto idx = i + j;
-    if(idx < 0 || idx >= 16) {
-      return 0;
-    }
-
+    auto idx = i * j;
     return a.at(idx);
   };
   

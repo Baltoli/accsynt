@@ -18,12 +18,12 @@ using gen::Tuple;
 
 namespace dist {
 
-namespace v2 {
-
 template <typename R, typename Args>
 struct Counterexample {
   const R f_return;
   const R g_return;
+  const bool f_err;
+  const bool g_err;
   const Args args;
 };
 
@@ -50,11 +50,11 @@ public:
 
     for(auto i = 0u; i < example_limit_; ++i) {
       auto example = gen();
-      auto f_result = std::apply(f_, example);
-      auto g_result = return_t{std::apply(g_, example)};
+      auto&& [f_err, f_result] = try_apply(f_, example);
+      auto&& [g_err, g_result] = try_apply(g_, example);
 
-      if(f_result != g_result) {
-        return {{f_result, g_result, example}};
+      if((f_err != g_err) || (f_result != g_result)) {
+        return {{f_result, g_result, f_err, g_err, example}};
       }
     }
 
@@ -68,58 +68,5 @@ private:
   G& g_;
   ArgsT args_;
 };
-
-}
-
-template<class R, class... Args>
-struct Counterexample {
-  R f_return;
-  R g_return;
-  std::tuple<Args...> args;
-};
-
-template<class F, class... Args>
-using counterexample_t = 
-  std::optional<Counterexample<std::invoke_result_t<F, Args...>, Args...>>;
-
-template<class F, class G, class... Args>
-class OracleDistinguisher {
-public:
-  using return_t = std::invoke_result_t<G, Args...>;
-
-  OracleDistinguisher(F&& f, G&& g, size_t limit) :
-    f_(f), g_(g), example_limit_(limit)
-  {
-    static_assert(std::is_convertible_v<
-      std::invoke_result_t<F, Args...>, // from
-      std::invoke_result_t<G, Args...>  // to
-    >, "f and g must yield the same result type");
-  }
-
-  counterexample_t<F, Args...> operator()() const;
-
-private:
-  F& f_;
-  G& g_;
-  size_t example_limit_;
-};
-
-template<class F, class G, class... Args>
-counterexample_t<F, Args...> OracleDistinguisher<F, G, Args...>::operator()() const
-{
-  auto sampler = Tuple(Geometric<Args>(0.1)...);
-
-  for(auto i = 0; i < example_limit_; ++i) {
-    auto args = sampler();
-    auto f_result = return_t{std::apply(f_, args)};
-    auto g_result = std::apply(g_, args);
-    
-    if(f_result != g_result) {
-      return {{f_result, g_result, args}};
-    }
-  }
-
-  return {};
-}
 
 }
