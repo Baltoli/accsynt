@@ -30,3 +30,24 @@ TEST_CASE( "arithmetic programs can be synthesized", "[linear]" ) {
     REQUIRE(c_func(1, 3) == 3);
   }
 }
+
+TEST_CASE( "array access programs can be synthesized", "[linear]" ) {
+  auto i64 = types::Integer{};
+  auto arr = types::Array{i64, 4};
+  auto idx = types::Index{arr};
+  auto linear = synth::Linear{i64, arr, idx};
+
+  auto vec = std::vector<long>{2, -1, 3, -4};
+  auto vec2 = std::vector<long>{4, 52, -13, 0};
+
+  SECTION( "examples are respected" ) {
+    linear.add_example(2, {vec, 0});
+    linear.add_example(-13, {vec2, 2});
+
+    auto candidate = linear();
+    auto c_func = FunctionCallable<long>{candidate.get(), "cand", true};
+
+    REQUIRE(c_func(vec, 0) == 2);
+    REQUIRE(c_func(vec2, 2) == -13);
+  }
+}
