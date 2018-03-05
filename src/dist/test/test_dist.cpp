@@ -32,13 +32,13 @@ Function *make_f()
   auto ty = function_type();
   auto fn = Function::Create(ty, GlobalValue::ExternalLinkage, "f");
   auto bb = BasicBlock::Create(ThreadContext::get(), "", fn);
-  auto B = IRBuilder<>(&fn->getEntryBlock());
+  auto B = IRBuilder<>(bb);
 
   auto* arg_1 = fn->arg_begin();
   auto* arg_2 = (fn->arg_begin() + 1);
 
   auto add = B.CreateAdd(arg_1, arg_2);
-  auto ret = B.CreateRet(add);
+  B.CreateRet(add);
 
   return fn;
 }
@@ -48,7 +48,7 @@ Function *make_g()
   auto ty = function_type();
   auto fn = Function::Create(ty, GlobalValue::ExternalLinkage, "g");
   auto bb = BasicBlock::Create(ThreadContext::get(), "entry", fn);
-  auto B = IRBuilder<>(&fn->getEntryBlock());
+  auto B = IRBuilder<>(bb);
 
   auto* arg_1 = fn->arg_begin();
   auto* arg_2 = (fn->arg_begin() + 1);
@@ -57,7 +57,7 @@ Function *make_g()
   auto ret_bb = BasicBlock::Create(ThreadContext::get(), "correct", fn);
 
   auto eq = B.CreateICmpEQ(arg_1, arg_2);
-  auto br = B.CreateCondBr(eq, wrong_bb, ret_bb);
+  B.CreateCondBr(eq, wrong_bb, ret_bb);
 
   B.SetInsertPoint(wrong_bb);
   auto two = ConstantInt::get(IntegerType::get(ThreadContext::get(), 64), 3);
@@ -81,7 +81,7 @@ std::unique_ptr<Module> make_h()
 
   auto fn = Function::Create(fn_t, GlobalValue::ExternalLinkage, "h", mod.get());
   auto bb = BasicBlock::Create(fn->getContext(), "entry", fn);
-  auto B = IRBuilder<>(&fn->getEntryBlock());
+  auto B = IRBuilder<>(bb);
 
   auto three = ConstantInt::get(ret_t, 3);
   auto zero = ConstantInt::get(ret_t, 0);
@@ -129,7 +129,7 @@ void test_types()
 
   auto&& [i, ag] = s.generate();
   llvm::outs() << "{ " << i << ", ";
-  for(auto i = 0; i < ag.size(); ++i) {
+  for(auto i = 0u; i < ag.size(); ++i) {
     if(i == 0) { 
       llvm::outs() << "["; 
     }
@@ -214,13 +214,13 @@ void test_err()
 
   auto fn = Function::Create(fn_t, GlobalValue::ExternalLinkage, "h", mod.get());
   auto bb = BasicBlock::Create(fn->getContext(), "entry", fn);
-  auto B = IRBuilder<>(&fn->getEntryBlock());
+  auto B = IRBuilder<>(bb);
 
   auto zero = ConstantInt::get(ret_t, 0);
   auto one = ConstantInt::get(ret_t, 1234);
 
   auto gep = B.CreateGEP(fn->arg_begin(), zero);
-  auto load = B.CreateStore(one, gep);
+  B.CreateStore(one, gep);
 
   B.CreateRet(one);
 

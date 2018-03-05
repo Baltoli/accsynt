@@ -48,7 +48,7 @@ public:
       return ret;
     };
 
-    for(auto i = 0; i < example_limit_; ++i) {
+    for(auto i = 0u; i < example_limit_; ++i) {
       auto example = gen();
       auto f_result = std::apply(f_, example);
       auto g_result = return_t{std::apply(g_, example)};
@@ -103,12 +103,6 @@ private:
   G& g_;
   size_t example_limit_;
 };
-
-template<class... Args>
-auto make_oracle_distinguisher(auto&& f, auto&& g, size_t limit=10'000)
-{
-  return OracleDistinguisher<decltype(f), decltype(g), Args...>(f, g, limit);
-}
 
 template<class F, class G, class... Args>
 counterexample_t<F, Args...> OracleDistinguisher<F, G, Args...>::operator()() const

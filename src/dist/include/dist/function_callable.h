@@ -59,7 +59,7 @@ private:
   llvm::Function *func_;
   llvm::ExecutionEngine *engine_;
 
-  R return_val(auto gv) const { 
+  R return_val(llvm::GenericValue gv) const { 
     return R(gv.IntVal.getLimitedValue(std::numeric_limits<R>::max())); 
   };
 };

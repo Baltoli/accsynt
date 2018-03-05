@@ -31,5 +31,12 @@ add_executable(test_dist
   test/test_dist.cpp
 )
 
+add_executable(unit_tests
+  test/unit/main.cpp
+  test/unit/function_call.cpp
+  test/unit/load_module.cpp
+)
+
 target_link_libraries(test_dist dist)
-add_test(test_dist test_dist)
+target_link_libraries(unit_tests dist)
+add_test(unit_tests test_dist)

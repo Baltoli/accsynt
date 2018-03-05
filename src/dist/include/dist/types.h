@@ -59,7 +59,7 @@ public:
   {
     auto ret = example_t{};
 
-    for(auto i = 0; i < size_; ++i) {
+    for(auto i = 0u; i < size_; ++i) {
       ret.push_back(type_.generate());
     }
 
@@ -119,7 +119,8 @@ struct is_index_type<Index<T>> : std::true_type {};
 
 }
 
-constexpr bool is_index(auto&& ty) {
+template <typename T>
+constexpr bool is_index(T&& ty) {
   return is_index_type<std::decay_t<decltype(ty)>>::value;
 }
 

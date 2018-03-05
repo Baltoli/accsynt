@@ -67,8 +67,6 @@ private:
 
   std::unique_ptr<llvm::Module> generate_candidate(bool&);
 
-  llvm::Value *throw_value(auto&& B, int64_t value) const;
-
   R return_type_;
   std::tuple<Args...> arg_types_;
 
@@ -114,7 +112,7 @@ void Linear<R, Args...>::populate_instructions(Builder&& B,
     meta.make_live(arg);
   }
 
-  for(auto i = 0; i < n; ++i) {
+  for(auto i = 0u; i < n; ++i) {
     auto v1 = util::uniform_sample(meta.live_set());
     auto v2 = util::uniform_sample(meta.live_set());
     

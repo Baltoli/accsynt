@@ -16,11 +16,12 @@ template <typename F, typename R, typename... Args>
 class Oracle {
 public:
   Oracle(F f, R r, Args... args) :
-    reference_{f},
-    linear_{r, args...}
+    linear_{r, args...},
+    reference_{f}
   {}
 
   std::unique_ptr<llvm::Module> operator()();
+
 private:
   Linear<R, Args...> linear_;
   F reference_;

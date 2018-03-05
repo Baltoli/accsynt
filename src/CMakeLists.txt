@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 
-set(CMAKE_CXX_FLAGS "-std=c++17 ${CMAKE_CXX_FLAGS}")
+set(CXX_PROJECT_FLAGS "-std=c++17 -Wall -Werror -pedantic")
+set(CMAKE_CXX_FLAGS "${CXX_PROJECT_FLAGS} ${CMAKE_CXX_FLAGS}")
 
 find_package(LLVM 7 REQUIRED CONFIG)
 include_directories(${LLVM_INCLUDE_DIRS})
@@ -10,7 +11,6 @@ llvm_map_components_to_libnames(llvm_libs support core irreader interpreter)
 include(GNUInstallDirs)
 enable_testing()
 
-add_subdirectory(asyn)
 add_subdirectory(dist)
 
 option(BUILD_DOC "Build documentation" ON)
