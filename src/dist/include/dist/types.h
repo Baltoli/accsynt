@@ -109,20 +109,25 @@ private:
   size_t bound_;
 };
 
-namespace {
+class Size {
+  using example_t = size_t;
 
-template <typename T>
-struct is_index_type : std::false_type {};
+  Size() {}
 
-template <>
-struct is_index_type<Index> : std::true_type {};
+  llvm::IntegerType *llvm_type() const
+  {
+    return llvm::IntegerType::get(ThreadContext::get(), 64);
+  }
 
-}
+  example_t generate() const
+  {
+    return 128;
+  }
+};
 
-template <typename T>
-constexpr bool is_index(T&& ty) {
-  return is_index_type<std::decay_t<decltype(ty)>>::value;
-}
+template <typename Type>
+class SizedPointer {
+};
 
 template <typename... Types>
 class Struct {
@@ -154,5 +159,20 @@ public:
 private:
   std::tuple<Types...> types_;
 };
+
+namespace {
+
+template <typename T>
+struct is_index_type : std::false_type {};
+
+template <>
+struct is_index_type<Index> : std::true_type {};
+
+}
+
+template <typename T>
+constexpr bool is_index(T&& ty) {
+  return is_index_type<std::decay_t<decltype(ty)>>::value;
+}
 
 }
