@@ -13,8 +13,6 @@ namespace llvm {
   class IntegerType;
 }
 
-namespace types {
-
 template <typename> struct example_ts;
 
 template <typename... Args>
@@ -136,7 +134,7 @@ public:
   llvm::StructType *llvm_type() const
   {
     auto llvm_types = std::array<llvm::Type *, sizeof...(Types)>{};
-    util::zip_for_each(types_, llvm_types, [&] (auto&& t, auto&& l) {
+    zip_for_each(types_, llvm_types, [&] (auto&& t, auto&& l) {
       l = llvm::dyn_cast<llvm::Type>(t.llvm_type());
     });
     return llvm::StructType::get(ThreadContext::get(), llvm_types);
@@ -145,7 +143,7 @@ public:
   example_t generate() const
   {
     auto ret = example_t{};
-    util::zip_for_each(types_, ret, [&] (auto&& t, auto&& r) {
+    zip_for_each(types_, ret, [&] (auto&& t, auto&& r) {
       r = t.generate();
     });
     return ret;
@@ -154,5 +152,3 @@ public:
 private:
   std::tuple<Types...> types_;
 };
-
-}

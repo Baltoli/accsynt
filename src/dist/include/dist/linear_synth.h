@@ -28,8 +28,6 @@ namespace llvm {
   class Module;
 }
 
-namespace synth {
-
 template <typename R, typename... Args>
 class Linear {
 public:
@@ -113,8 +111,8 @@ void Linear<R, Args...>::populate_instructions(Builder&& B,
   }
 
   for(auto i = 0u; i < n; ++i) {
-    auto v1 = util::uniform_sample(meta.live_set());
-    auto v2 = util::uniform_sample(meta.live_set());
+    auto v1 = uniform_sample(meta.live_set());
+    auto v2 = uniform_sample(meta.live_set());
     
     if(auto next = sampler(B, {v1, v2})) {
       meta.make_live(next);
@@ -139,7 +137,7 @@ llvm::Value *Linear<R, Args...>::create_return(Builder&& B,
     return nullptr;
   }
 
-  return B.CreateRet(util::uniform_sample(possibles));
+  return B.CreateRet(uniform_sample(possibles));
 }
 
 template <typename R, typename... Args>
@@ -191,7 +189,7 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::generate_candidate(bool& done)
     auto bb = llvm::BasicBlock::Create(fn->getContext(), "", fn);
     B.SetInsertPoint(bb);
 
-    util::index_for_each(arg_types_, [&](auto&& at, auto idx) {
+    index_for_each(arg_types_, [&](auto&& at, auto idx) {
       if constexpr(is_index(at)) {
         meta.set_index_bound(fn->arg_begin() + idx + 1, at.bound());
       }
@@ -224,7 +222,7 @@ template <typename R, typename... Args>
 llvm::FunctionType *Linear<R, Args...>::llvm_function_type() const
 {
   auto llvm_arg_tys = std::array<llvm::Type*, sizeof...(Args)>{};
-  util::zip_for_each(arg_types_, llvm_arg_tys, [] (auto a, auto& ll) {
+  zip_for_each(arg_types_, llvm_arg_tys, [] (auto a, auto& ll) {
     ll = a.llvm_type();
   });
 
@@ -261,6 +259,4 @@ void Linear<R, Args...>::clear_functions(llvm::Module& module)
   for(auto* f : to_clear) {
     f->eraseFromParent();
   }
-}
-
 }

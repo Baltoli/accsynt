@@ -41,13 +41,6 @@ auto make_index_dispatcher() {
 
 }
 
-/**
- * \brief Utility functions used by other parts of the code.
- *
- * Ideally everything in this namespace would be better organised.
- */
-namespace util {
-
 template <typename Container>
 auto uniform_sample(Container c)
 {
@@ -185,5 +178,3 @@ struct is_tuple<T, decltype(std::tuple_size_v<T>, void())> : std::true_type {};
  */
 template <typename T>
 constexpr inline bool is_tuple_v = is_tuple<T>::value;
-
-}

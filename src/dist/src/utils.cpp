@@ -11,8 +11,6 @@
 
 using namespace llvm;
 
-namespace util {
-
 Function *copy_function(Function *f, Module *m)
 {
   auto func = Function::Create(f->getFunctionType(), f->getLinkage(), f->getName(), m);
@@ -57,6 +55,4 @@ std::unique_ptr<Module> copy_module_to(LLVMContext& ctx, Module *m)
 
     return std::move(expect.get());
   }
-}
-
 }

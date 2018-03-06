@@ -124,7 +124,7 @@ public:
   {
     auto candidates = std::vector<llvm::Value *>{};
 
-    util::for_each(all(), [&] (auto op) {
+    for_each(all(), [&] (auto op) {
       auto c = op.combine(metadata_, b, args);
       if(c) {
         candidates.push_back(c);

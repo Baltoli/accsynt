@@ -23,10 +23,10 @@ using namespace llvm;
 
 void test_synth_v2()
 {
-  auto i64 = types::Integer{64};
-  auto arr = types::Array{i64, 16};
-  auto idx = types::Index{arr};
-  auto idx2 = types::Index{arr};
+  auto i64 = Integer{64};
+  auto arr = Array{i64, 16};
+  auto idx = Index{arr};
+  auto idx2 = Index{arr};
 
   /* auto f = [](auto a, auto b, auto c, auto d) { */
   /*   return a * a; */
@@ -40,7 +40,7 @@ void test_synth_v2()
     return a.at(idx);
   };
   
-  auto p = synth::Oracle{g, i64, arr, idx, idx2};
+  auto p = Oracle{g, i64, arr, idx, idx2};
   if(auto r = p()) {
     r->print(llvm::outs(), nullptr);
   }

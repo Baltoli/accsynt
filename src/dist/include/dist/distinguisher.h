@@ -13,11 +13,6 @@
 #include <tuple>
 #include <vector>
 
-using gen::Geometric;
-using gen::Tuple;
-
-namespace dist {
-
 template <typename R, typename Args>
 struct Counterexample {
   const R f_return;
@@ -30,7 +25,7 @@ struct Counterexample {
 template <typename F, typename G, typename ArgsT>
 class OracleDistinguisher {
 public:
-  using args_tuple_t = typename types::example_ts<ArgsT>::type;
+  using args_tuple_t = typename example_ts<ArgsT>::type;
   using return_t = decltype(std::apply(std::declval<F>(), std::declval<args_tuple_t>()));
   using counterexample_t = std::optional<Counterexample<return_t, args_tuple_t>>;
 
@@ -42,7 +37,7 @@ public:
   {
     const auto gen = [this] {
       auto ret = args_tuple_t{};
-      util::zip_for_each(ret, args_, [&](auto& ex, auto a) {
+      zip_for_each(ret, args_, [&](auto& ex, auto a) {
         ex = a.generate();
       });
       return ret;
@@ -68,5 +63,3 @@ private:
   G& g_;
   ArgsT args_;
 };
-
-}
