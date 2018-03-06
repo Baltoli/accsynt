@@ -11,7 +11,7 @@
 
 using namespace llvm;
 
-namespace util {
+namespace accsynt {
 
 Function *copy_function(Function *f, Module *m)
 {

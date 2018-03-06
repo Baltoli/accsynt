@@ -5,7 +5,7 @@
 #include <random>
 #include <tuple>
 
-namespace gen {
+namespace accsynt {
 
 template <typename T>
 class Geometric {
@@ -70,7 +70,7 @@ public:
   gen_t operator()()
   {
     auto ret = gen_t{};
-    util::zip_for_each(ret, generators_, [this](auto&& t, auto&& d) {
+    zip_for_each(ret, generators_, [this](auto&& t, auto&& d) {
       t = d();
     });
 

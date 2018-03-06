@@ -7,6 +7,7 @@
 #include <llvm/Support/MemoryBuffer.h>
 #include <llvm/Support/SourceMgr.h>
 
+using namespace accsynt;
 using namespace llvm;
 
 std::unique_ptr<llvm::Module> load_module(const std::string& str)

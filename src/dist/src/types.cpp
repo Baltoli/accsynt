@@ -4,7 +4,7 @@
 
 using namespace llvm;
 
-namespace types {
+namespace accsynt {
 
 Integer::Integer(size_t b) :
   bits_(b)

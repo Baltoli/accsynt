@@ -18,6 +18,8 @@ namespace llvm {
   template <typename> class ArrayRef;
 }
 
+namespace accsynt {
+
 using value_array = llvm::ArrayRef<llvm::Value *>;
 
 bool validate_types(size_t num, value_array args);
@@ -124,7 +126,7 @@ public:
   {
     auto candidates = std::vector<llvm::Value *>{};
 
-    util::for_each(all(), [&] (auto op) {
+    for_each(all(), [&] (auto op) {
       auto c = op.combine(metadata_, b, args);
       if(c) {
         candidates.push_back(c);
@@ -155,3 +157,5 @@ public:
 private:
   SynthMetadata metadata_;
 };
+
+}

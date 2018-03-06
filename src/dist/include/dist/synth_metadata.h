@@ -9,6 +9,8 @@ namespace llvm {
   class Value;
 }
 
+namespace accsynt {
+
 class SynthMetadata {
 public:
   SynthMetadata() = default;
@@ -41,4 +43,6 @@ std::set<llvm::Value *> SynthMetadata::live_with(Pred&& p)
                std::inserter(ret, std::end(ret)), p);
 
   return ret;
+}
+
 }

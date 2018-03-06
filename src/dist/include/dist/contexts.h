@@ -7,6 +7,8 @@
 #include <mutex>
 #include <thread>
 
+namespace accsynt {
+
 class ThreadContext {
 public:
   ThreadContext(const ThreadContext&) = delete;
@@ -30,3 +32,5 @@ private:
 
   std::mutex map_mutex_;
 };
+
+}

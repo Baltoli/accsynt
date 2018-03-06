@@ -4,6 +4,8 @@
 
 using llvm::LLVMContext;
 
+namespace accsynt {
+
 ThreadContext& ThreadContext::instance()
 {
   static ThreadContext instance;
@@ -31,4 +33,6 @@ LLVMContext& ThreadContext::get(std::thread::id id)
 LLVMContext& ThreadContext::get(const std::thread& t)
 {
   return get(t.get_id());
+}
+
 }

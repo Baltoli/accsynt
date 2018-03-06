@@ -10,7 +10,7 @@ namespace llvm {
   class Function;
 }
 
-namespace synth {
+namespace accsynt {
 
 template <typename F, typename R, typename... Args>
 class Oracle {
@@ -39,7 +39,7 @@ std::unique_ptr<llvm::Module> Oracle<F, R, Args...>::operator()()
     }
 
     auto fc = FunctionCallable<ret_t>{candidate.get(), "cand", true};
-    auto dist = dist::OracleDistinguisher{reference_, fc, linear_.arg_types()};
+    auto dist = OracleDistinguisher{reference_, fc, linear_.arg_types()};
 
     auto example = dist();
     if(example) {

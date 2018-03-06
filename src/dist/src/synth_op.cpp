@@ -2,6 +2,8 @@
 
 using namespace llvm;
 
+namespace accsynt {
+
 bool validate_types(size_t num, value_array args)
 {
   if(num == 0) { return true; }
@@ -26,4 +28,6 @@ size_t max_gep_depth(Type *t)
     // TODO: handle structs
     return 0;
   }
+}
+
 }

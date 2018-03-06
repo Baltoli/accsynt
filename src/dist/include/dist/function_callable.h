@@ -23,6 +23,8 @@ namespace llvm {
   class Module;
 }
 
+namespace accsynt {
+
 /**
  * \brief Wraps an LLVM function in a callable interface.
  *
@@ -67,7 +69,7 @@ private:
 template <typename R>
 FunctionCallable<R>::FunctionCallable(llvm::Module *m, llvm::StringRef name, bool e) :
   uses_error_{e},
-  module_{util::copy_module_to(ThreadContext::get(), m)},
+  module_{copy_module_to(ThreadContext::get(), m)},
   func_{module_->getFunction(name)}
 {
   auto eb = llvm::EngineBuilder{std::move(module_)};
@@ -88,7 +90,7 @@ R FunctionCallable<R>::operator()(Args... args)
   if(uses_error_) assert(func_->arg_size() - 1 == sizeof...(args) && "Argument count mismatch");
 
   auto func_args = std::array<llvm::GenericValue, sizeof...(args)>{
-    { util::make_generic(args)... }
+    { make_generic(args)... }
   };
 
   if(uses_error_) {
@@ -144,3 +146,4 @@ decltype(auto) try_apply(F&& f, Args&&... args)
   }
 }
 
+}

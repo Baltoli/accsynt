@@ -3,9 +3,11 @@
 #include <dist/linear_synth.h>
 #include <dist/types.h>
 
+using namespace accsynt;
+
 TEST_CASE( "arithmetic programs can be synthesized", "[linear]" ) {
-  auto i64 = types::Integer{};
-  auto linear = synth::Linear{i64, i64, i64};
+  auto i64 = Integer{};
+  auto linear = Linear{i64, i64, i64};
 
   SECTION( "examples are respected" ) {
     linear.add_example(3, {1, 2});
@@ -32,10 +34,10 @@ TEST_CASE( "arithmetic programs can be synthesized", "[linear]" ) {
 }
 
 TEST_CASE( "array access programs can be synthesized", "[linear]" ) {
-  auto i64 = types::Integer{};
-  auto arr = types::Array{i64, 4};
-  auto idx = types::Index{arr};
-  auto linear = synth::Linear{i64, arr, idx};
+  auto i64 = Integer{};
+  auto arr = Array{i64, 4};
+  auto idx = Index{arr};
+  auto linear = Linear{i64, arr, idx};
 
   auto vec = std::vector<long>{2, -1, 3, -4};
   auto vec2 = std::vector<long>{4, 52, -13, 0};
