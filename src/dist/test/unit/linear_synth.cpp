@@ -3,6 +3,8 @@
 #include <dist/linear_synth.h>
 #include <dist/types.h>
 
+using namespace accsynt;
+
 TEST_CASE( "arithmetic programs can be synthesized", "[linear]" ) {
   auto i64 = Integer{};
   auto linear = Linear{i64, i64, i64};

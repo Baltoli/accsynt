@@ -13,6 +13,8 @@
 #include <tuple>
 #include <vector>
 
+namespace accsynt {
+
 template <typename R, typename Args>
 struct Counterexample {
   const R f_return;
@@ -63,3 +65,5 @@ private:
   G& g_;
   ArgsT args_;
 };
+
+}

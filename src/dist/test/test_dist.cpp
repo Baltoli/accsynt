@@ -19,6 +19,7 @@
 
 #include <random>
 
+using namespace accsynt;
 using namespace llvm;
 
 void test_synth_v2()

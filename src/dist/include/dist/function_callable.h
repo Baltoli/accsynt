@@ -23,6 +23,8 @@ namespace llvm {
   class Module;
 }
 
+namespace accsynt {
+
 /**
  * \brief Wraps an LLVM function in a callable interface.
  *
@@ -144,3 +146,4 @@ decltype(auto) try_apply(F&& f, Args&&... args)
   }
 }
 
+}

@@ -28,6 +28,8 @@ namespace llvm {
   class Module;
 }
 
+namespace accsynt {
+
 template <typename R, typename... Args>
 class Linear {
 public:
@@ -259,4 +261,6 @@ void Linear<R, Args...>::clear_functions(llvm::Module& module)
   for(auto* f : to_clear) {
     f->eraseFromParent();
   }
+}
+
 }

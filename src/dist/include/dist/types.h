@@ -13,6 +13,8 @@ namespace llvm {
   class IntegerType;
 }
 
+namespace accsynt {
+
 template <typename> struct example_ts;
 
 template <typename... Args>
@@ -152,3 +154,5 @@ public:
 private:
   std::tuple<Types...> types_;
 };
+
+}

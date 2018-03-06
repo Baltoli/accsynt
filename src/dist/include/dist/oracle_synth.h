@@ -10,6 +10,8 @@ namespace llvm {
   class Function;
 }
 
+namespace accsynt {
+
 template <typename F, typename R, typename... Args>
 class Oracle {
 public:
@@ -46,4 +48,6 @@ std::unique_ptr<llvm::Module> Oracle<F, R, Args...>::operator()()
       return candidate;
     }
   }
+}
+
 }

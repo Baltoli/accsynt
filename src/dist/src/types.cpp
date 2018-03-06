@@ -4,6 +4,8 @@
 
 using namespace llvm;
 
+namespace accsynt {
+
 Integer::Integer(size_t b) :
   bits_(b)
 {
@@ -30,4 +32,6 @@ Integer::example_t Integer::max() const
 Integer::example_t Integer::min() const
 {
   return -(1 << (bits_ - 1));
+}
+
 }

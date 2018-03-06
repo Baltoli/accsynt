@@ -18,6 +18,8 @@ namespace llvm {
   template <typename> class ArrayRef;
 }
 
+namespace accsynt {
+
 using value_array = llvm::ArrayRef<llvm::Value *>;
 
 bool validate_types(size_t num, value_array args);
@@ -155,3 +157,5 @@ public:
 private:
   SynthMetadata metadata_;
 };
+
+}

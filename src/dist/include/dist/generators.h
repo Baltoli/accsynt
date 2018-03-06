@@ -5,6 +5,8 @@
 #include <random>
 #include <tuple>
 
+namespace accsynt {
+
 template <typename T>
 class Geometric {
 public:
@@ -78,3 +80,5 @@ public:
 private:
   std::tuple<Args...> generators_;
 };
+
+}

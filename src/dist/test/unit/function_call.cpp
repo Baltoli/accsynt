@@ -5,6 +5,8 @@
 
 #include <llvm/IR/Module.h>
 
+using namespace accsynt;
+
 TEST_CASE( "LLVM functions can be wrapped and called", "[function]" ) {
   LOAD_MODULE(mod, R"(
 define i64 @func(i64) {

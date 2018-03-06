@@ -1,5 +1,7 @@
 #include <dist/synth_metadata.h>
 
+namespace accsynt {
+
 std::optional<size_t> SynthMetadata::index_bound(llvm::Value *v) const
 {
   if(auto b = bounds_.find(v); b != std::end(bounds_)) {
@@ -28,4 +30,6 @@ void SynthMetadata::make_live(llvm::Value *v)
 void SynthMetadata::make_oob_flag(llvm::Value *v)
 {
   oob_flags_.insert(v);
+}
+
 }
