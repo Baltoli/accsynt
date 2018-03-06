@@ -6,6 +6,7 @@ add_library(dist
   src/utils.cpp
   src/synth_metadata.cpp
   src/synth_op.cpp
+  src/permute.cpp
 )
 
 target_include_directories(dist PUBLIC
@@ -35,6 +36,7 @@ add_executable(unit_tests
   test/unit/main.cpp
   test/unit/function_call.cpp
   test/unit/linear_synth.cpp
+  test/unit/permute.cpp
   test/unit/load_module.cpp
 )
 
