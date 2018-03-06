@@ -6,7 +6,6 @@ add_library(dist
   src/utils.cpp
   src/synth_metadata.cpp
   src/synth_op.cpp
-  src/permute.cpp
 )
 
 target_include_directories(dist PUBLIC
