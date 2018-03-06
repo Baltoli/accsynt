@@ -37,6 +37,7 @@ add_executable(unit_tests
   test/unit/linear_synth.cpp
   test/unit/permute.cpp
   test/unit/load_module.cpp
+  test/unit/types.cpp
 )
 
 target_link_libraries(test_dist dist)
