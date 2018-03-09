@@ -110,9 +110,11 @@ private:
 };
 
 class Size {
+public:
   using example_t = size_t;
 
-  Size() {}
+  Size() = default;
+  Size(size_t ub) : upper_bound(ub) {}
 
   llvm::IntegerType *llvm_type() const
   {
@@ -121,12 +123,38 @@ class Size {
 
   example_t generate() const
   {
-    return 128;
+    auto rd = std::random_device{};
+    auto dis = std::uniform_int_distribution<example_t>{1, upper_bound};
+    return dis(rd);
   }
+
+  const size_t upper_bound = 1024;
 };
 
 template <typename Type>
 class SizedPointer {
+public:
+  using example_t = std::vector<typename Type::example_t>;
+
+  SizedPointer(Type t, Size s) :
+    type(t), size(s) {}
+
+  llvm::PointerType *llvm_type() const
+  {
+    return llvm::PointerType::getUnqual(type.llvm_type());
+  }
+
+  example_t generate() const
+  {
+    auto vec = example_t(size.upper_bound);
+    std::for_each(std::begin(vec), std::end(vec), [this](auto &ex) {
+      ex = type.generate();
+    });
+    return vec;
+  }
+
+  const Type type;
+  const Size size;
 };
 
 template <typename... Types>
