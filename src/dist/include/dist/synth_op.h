@@ -25,6 +25,20 @@ using value_array = llvm::ArrayRef<llvm::Value *>;
 bool validate_types(size_t num, value_array args);
 size_t max_gep_depth(llvm::Type *t);
 
+class ConstantValue {
+public:
+  ConstantValue(int64_t v) :
+    value(v) {}
+
+  template <typename B>
+  llvm::Value *combine(SynthMetadata &m, B&& b, value_array args)
+  {
+    return b.getInt64(value);
+  }
+
+  const int64_t value;
+};
+
 template <class F>
 class BinaryOp {
 public:
@@ -112,7 +126,8 @@ public:
       BinaryOp{[](auto &m, auto &b, auto* v1, auto* v2) { return b.CreateAdd(v1, v2); }},
       BinaryOp{[](auto &m, auto &b, auto* v1, auto* v2) { return b.CreateSub(v1, v2); }},
       BinaryOp{[](auto &m, auto &b, auto* v1, auto* v2) { return b.CreateMul(v1, v2); }},
-      CreateGEP{}
+      CreateGEP{},
+      ConstantValue{0}
     );
   }
 
@@ -144,7 +159,7 @@ public:
     auto ret = candidates[dist(rd)];
 
     for(auto* c : candidates) {
-      if(auto i = llvm::dyn_cast<llvm::Instruction>(c); c != ret) {
+      if(auto i = llvm::dyn_cast<llvm::Instruction>(c); i && c != ret) {
         i->eraseFromParent();
       }
     }

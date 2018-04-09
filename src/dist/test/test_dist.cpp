@@ -37,7 +37,7 @@ void test_synth_v2()
   /* o()->print(llvm::outs(), nullptr); */
 
   auto g = [](auto a, auto i, auto j) -> int64_t {
-    auto idx = i * j;
+    auto idx = 0;
     return a.at(idx);
   };
   
