@@ -33,7 +33,12 @@ public:
   template <typename B>
   llvm::Value *combine(SynthMetadata &m, B&& b, value_array args)
   {
-    return b.getInt64(value);
+    auto idx = b.getInt64(value);
+    auto mem = b.CreateAlloca(idx->getType(), b.getInt64(1));
+    b.CreateStore(idx, mem);
+    auto load = b.CreateLoad(mem);
+    m.set_index_bound(load, value);
+    return load;
   }
 
   const int64_t value;

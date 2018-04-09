@@ -90,5 +90,5 @@ int main()
 {
   /* test_synth_v2(); */
   /* test_dot_product(); */
-  test_fixed_dot(4);
+  test_fixed_dot(1);
 }
