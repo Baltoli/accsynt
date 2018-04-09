@@ -28,8 +28,12 @@ public:
   void make_oob_flag(llvm::Value *v);
   std::set<llvm::Value *> const& oob_flags() const { return oob_flags_; }
 
+  std::optional<size_t> size(llvm::Value *v) const;
+  bool has_size(llvm::Value *v) const;
+  void set_size(llvm::Value *v, size_t b);
 private:
   std::map<llvm::Value *, size_t> bounds_ = {};
+  std::map<llvm::Value *, size_t> sizes_ = {};
   std::set<llvm::Value *> live_set_ = {};
   std::set<llvm::Value *> oob_flags_ = {};
 };

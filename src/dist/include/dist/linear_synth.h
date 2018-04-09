@@ -131,7 +131,7 @@ llvm::Value *Linear<R, Args...>::create_return(Builder&& B,
   auto& meta = sampler.metadata();
   auto fn_ty = fn->getFunctionType();
 
-  auto possibles = meta.live_with( [fn_ty] (auto inst) {
+  auto possibles = meta.live_with( [&] (auto inst) {
     return inst->getType() == fn_ty->getReturnType();
   });
 
@@ -194,6 +194,10 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::generate_candidate(bool& done)
     index_for_each(arg_types_, [&](auto&& at, auto idx) {
       if constexpr(is_index(at)) {
         meta.set_index_bound(fn->arg_begin() + idx + 1, at.bound());
+      }
+      
+      if constexpr(is_array(at)) {
+        meta.set_size(fn->arg_begin() + idx + 1, at.array_size());
       }
     });
 

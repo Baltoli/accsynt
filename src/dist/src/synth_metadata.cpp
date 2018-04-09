@@ -13,7 +13,7 @@ std::optional<size_t> SynthMetadata::index_bound(llvm::Value *v) const
 
 bool SynthMetadata::is_index(llvm::Value *v) const
 {
-  return bounds_.find(v) != std::end(bounds_);
+  return bounds_.find(v) != end(bounds_);
 }
 
 void SynthMetadata::set_index_bound(llvm::Value *v, size_t b)
@@ -30,6 +30,25 @@ void SynthMetadata::make_live(llvm::Value *v)
 void SynthMetadata::make_oob_flag(llvm::Value *v)
 {
   oob_flags_.insert(v);
+}
+
+std::optional<size_t> SynthMetadata::size(llvm::Value *v) const
+{
+  if(auto s = sizes_.find(v); s != std::end(sizes_)) {
+    return s->second;
+  } else {
+    return {};
+  }
+}
+
+bool SynthMetadata::has_size(llvm::Value *v) const
+{
+  return sizes_.find(v) != end(sizes_);
+}
+
+void SynthMetadata::set_size(llvm::Value *v, size_t s)
+{
+  sizes_.insert_or_assign(v, s);
 }
 
 }

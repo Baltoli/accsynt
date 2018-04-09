@@ -33,15 +33,37 @@ public:
   template <typename B>
   llvm::Value *combine(SynthMetadata &m, B&& b, value_array args)
   {
-    auto idx = b.getInt64(value);
-    auto mem = b.CreateAlloca(idx->getType(), b.getInt64(1));
-    b.CreateStore(idx, mem);
-    auto load = b.CreateLoad(mem);
+    auto load = constant_instruction(b, value);
     m.set_index_bound(load, value);
     return load;
   }
 
   const int64_t value;
+};
+
+class RandomIndex {
+public:
+  bool validate(SynthMetadata &m, value_array args)
+  {
+    return args.size() > 0 && m.has_size(args[0]);
+  }
+  
+  template <typename B>
+  llvm::Value *combine(SynthMetadata &m, B&& b, value_array args)
+  {
+    if(!validate(m, args)) {
+      return nullptr;
+    }
+
+    auto size = m.size(args[0]).value();
+
+    auto rd = std::random_device{};
+    auto dist = std::uniform_int_distribution<uint64_t>{0, size - 1};
+
+    auto inst = constant_instruction(b, dist(rd));
+    m.set_index_bound(inst, size - 1);
+    return inst;
+  }
 };
 
 template <class F>
@@ -129,10 +151,10 @@ public:
   {
     return std::make_tuple(
       BinaryOp{[](auto &m, auto &b, auto* v1, auto* v2) { return b.CreateAdd(v1, v2); }},
-      BinaryOp{[](auto &m, auto &b, auto* v1, auto* v2) { return b.CreateSub(v1, v2); }},
+      /* BinaryOp{[](auto &m, auto &b, auto* v1, auto* v2) { return b.CreateSub(v1, v2); }}, */
       BinaryOp{[](auto &m, auto &b, auto* v1, auto* v2) { return b.CreateMul(v1, v2); }},
       CreateGEP{},
-      ConstantValue{0}
+      RandomIndex{}
     );
   }
 

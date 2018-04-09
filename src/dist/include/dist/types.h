@@ -196,11 +196,24 @@ struct is_index_type : std::false_type {};
 template <>
 struct is_index_type<Index> : std::true_type {};
 
+template <typename T>
+struct is_array_type : std::false_type {};
+
+template <typename T>
+struct is_array_type<Array<T>> : std::true_type {};
+
 }
 
 template <typename T>
-constexpr bool is_index(T&& ty) {
+constexpr bool is_index(T&& ty)
+{
   return is_index_type<std::decay_t<decltype(ty)>>::value;
+}
+
+template <typename T>
+constexpr bool is_array(T&& ty)
+{
+  return is_array_type<std::decay_t<decltype(ty)>>::value;
 }
 
 }

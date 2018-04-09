@@ -7,6 +7,7 @@
 #include <llvm/ADT/APInt.h>
 #include <llvm/ExecutionEngine/GenericValue.h>
 #include <llvm/IR/DerivedTypes.h>
+#include <llvm/IR/Instruction.h>
 
 #include <iterator>
 #include <memory>
@@ -167,6 +168,16 @@ llvm::IntegerType *get_llvm_type(llvm::LLVMContext& C)
   } else {
     static_assert(is_int, "Only integral types supported for LLVM so far");
   }
+}
+
+template <typename B>
+llvm::Instruction *constant_instruction(B&& b, uint64_t value)
+{
+  auto idx = b.getInt64(value);
+  auto mem = b.CreateAlloca(idx->getType(), b.getInt64(1));
+  b.CreateStore(idx, mem);
+  auto load = b.CreateLoad(mem);
+  return load;
 }
 
 template <typename T, typename = void>

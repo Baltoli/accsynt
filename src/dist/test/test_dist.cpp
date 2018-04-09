@@ -25,9 +25,7 @@ using namespace llvm;
 void test_synth_v2()
 {
   auto i64 = Integer{64};
-  auto arr = Array{i64, 16};
-  auto idx = Index{arr};
-  auto idx2 = Index{arr};
+  auto arr = Array{i64, 2};
 
   /* auto f = [](auto a, auto b, auto c, auto d) { */
   /*   return a * a; */
@@ -36,12 +34,11 @@ void test_synth_v2()
   /* auto o = synth::Oracle{f, i64, i64, i64, i64, i64}; */
   /* o()->print(llvm::outs(), nullptr); */
 
-  auto g = [](auto a, auto i, auto j) -> int64_t {
-    auto idx = 0;
-    return a.at(idx);
+  auto g = [](auto a, auto b) -> int64_t {
+    return (a.at(0) * b.at(0)) + (a.at(1) * b.at(1));
   };
   
-  auto p = Oracle{g, i64, arr, idx, idx2};
+  auto p = Oracle{g, i64, arr, arr};
   if(auto r = p()) {
     r->print(llvm::outs(), nullptr);
   }
@@ -75,7 +72,7 @@ void test_fixed_dot(uint64_t size)
   auto fun = [size](auto v1, auto v2) -> int64_t {
     auto sum = 0;
     for(auto i = 0u; i < size; ++i) {
-      sum += v1[i] * v2[i];
+      sum += v1.at(i) * v2.at(i);
     }
     return sum;
   };
@@ -90,5 +87,5 @@ int main()
 {
   /* test_synth_v2(); */
   /* test_dot_product(); */
-  test_fixed_dot(1);
+  test_fixed_dot(2);
 }
