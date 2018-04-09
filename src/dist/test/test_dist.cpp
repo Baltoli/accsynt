@@ -47,7 +47,48 @@ void test_synth_v2()
   }
 }
 
+void test_dot_product()
+{
+  auto i64 = Integer{64};
+  auto size = Size{};
+  auto ptr = SizedPointer(i64, size);
+
+  auto fun = [](int64_t s, auto v1, auto v2) -> int64_t {
+    auto sum = 0;
+    for(auto i = 0; i < s; ++i) {
+      sum += v1[i] * v2[i];
+    }
+    return sum;
+  };
+
+  auto p = Oracle(fun, i64, size, ptr, ptr);
+  if(auto r = p()) {
+    r->print(llvm::outs(), nullptr);
+  }
+}
+
+void test_fixed_dot(uint64_t size)
+{
+  auto i64 = Integer{64};
+  auto arr = Array{i64, size};
+  
+  auto fun = [size](auto v1, auto v2) -> int64_t {
+    auto sum = 0;
+    for(auto i = 0u; i < size; ++i) {
+      sum += v1[i] * v2[i];
+    }
+    return sum;
+  };
+
+  auto p = Oracle(fun, i64, arr, arr);
+  if(auto r = p()) {
+    r->print(llvm::outs(), nullptr);
+  }
+}
+
 int main()
 {
-  test_synth_v2();
+  /* test_synth_v2(); */
+  /* test_dot_product(); */
+  test_fixed_dot(4);
 }
