@@ -44,17 +44,26 @@ auto make_index_dispatcher() {
 
 namespace accsynt {
 
-template <typename Container>
-auto uniform_sample(Container c)
+template <typename Iterator>
+auto uniform_sample(Iterator begin, Iterator end)
 {
   auto rd = std::random_device{};
-  auto dist = std::uniform_int_distribution<size_t>{0, std::size(c) - 1};
+  auto dist = std::uniform_int_distribution<long>{0, std::distance(begin, end) - 1};
   auto idx = dist(rd);
 
-  auto it = std::begin(c);
+  auto it = begin;
   std::advance(it, idx);
 
   return *it;
+}
+
+template <typename Container>
+auto uniform_sample(Container c)
+{
+  using std::begin;
+  using std::end;
+
+  return uniform_sample(begin(c), end(c));
 }
 
 /**

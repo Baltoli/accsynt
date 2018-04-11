@@ -34,7 +34,7 @@ public:
   llvm::Value *combine(SynthMetadata &m, B&& b, value_array args)
   {
     auto load = constant_instruction(b, value);
-    m.set_index_bound(load, value);
+    m.index_bound(load) = value;
     return load;
   }
 
@@ -45,7 +45,7 @@ class RandomIndex {
 public:
   bool validate(SynthMetadata &m, value_array args)
   {
-    return args.size() > 0 && m.has_size(args[0]);
+    return args.size() > 0 && m.size(args[0]);
   }
   
   template <typename B>
@@ -55,13 +55,13 @@ public:
       return nullptr;
     }
 
-    auto size = m.size(args[0]).value();
+    auto size = *m.size(args[0]);
 
     auto rd = std::random_device{};
     auto dist = std::uniform_int_distribution<uint64_t>{0, size - 1};
 
     auto inst = constant_instruction(b, dist(rd));
-    m.set_index_bound(inst, size - 1);
+    m.index_bound(inst) = size - 1;
     return inst;
   }
 };
@@ -77,7 +77,7 @@ public:
   {
     return validate_types(2, args) && 
            llvm::isa<llvm::IntegerType>(args[0]->getType()) &&
-           !m.is_index(args[0]) && !m.is_index(args[1]);
+           !m.index_bound(args[0]) && !m.index_bound(args[1]);
   }
 
   template <typename B>
@@ -91,7 +91,7 @@ public:
 
     for(auto arg : {args[0], args[1]}) {
       if(auto b = m.index_bound(arg)) {
-        m.set_index_bound(result, *b);
+        m.index_bound(result) = *b;
       }
     }
 
@@ -116,7 +116,7 @@ public:
       return ptr_ty && llvm::isa<llvm::ArrayType>(ptr_ty->getElementType());
     };
 
-    return args.size() >= 2 && can_gep(args[0]) && m.is_index(args[1]);
+    return args.size() >= 2 && can_gep(args[0]) && m.index_bound(args[1]);
   }
 
   template <typename B>
@@ -125,7 +125,7 @@ public:
     if(!validate(m, args)) {
       return nullptr;
     }
-    assert(m.is_index(args[1]) && "Need an index to do array GEPs");
+    assert(m.index_bound(args[1]) && "Need an index to do array GEPs");
 
     auto ptr_ty = llvm::dyn_cast<llvm::PointerType>(args[0]->getType());
     assert(ptr_ty && "Need a pointer to GEP");
@@ -136,7 +136,7 @@ public:
     
     auto max = llvm::ConstantInt::get(args[1]->getType(), *m.index_bound(args[1]));
     auto upper_pred = b.CreateICmpUGT(args[1], max);
-    m.make_oob_flag(upper_pred);
+    m.oob(upper_pred) = true;
 
     auto zero = llvm::ConstantInt::get(z_ty, 0);
     auto gep = b.CreateInBoundsGEP(args[0], {zero, args[1]});

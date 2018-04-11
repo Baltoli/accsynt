@@ -22,10 +22,10 @@
 using namespace accsynt;
 using namespace llvm;
 
-void test_synth_v2()
+void test_synth_v2(size_t n)
 {
   auto i64 = Integer{64};
-  auto arr = Array{i64, 2};
+  auto arr = Array{i64, n};
 
   /* auto f = [](auto a, auto b, auto c, auto d) { */
   /*   return a * a; */
@@ -34,11 +34,15 @@ void test_synth_v2()
   /* auto o = synth::Oracle{f, i64, i64, i64, i64, i64}; */
   /* o()->print(llvm::outs(), nullptr); */
 
-  auto g = [](auto a, auto b) -> int64_t {
-    return (a.at(0) * b.at(0)) + (a.at(1) * b.at(1));
+  auto g = [n](auto a) -> int64_t {
+    auto sum = 0;
+    for(auto i = 0u; i < n; ++i) {
+      sum += a.at(i);
+    }
+    return sum;
   };
   
-  auto p = Oracle{g, i64, arr, arr};
+  auto p = Oracle(g, i64, arr);
   if(auto r = p()) {
     r->print(llvm::outs(), nullptr);
   }
@@ -85,7 +89,7 @@ void test_fixed_dot(uint64_t size)
 
 int main()
 {
-  /* test_synth_v2(); */
+  test_synth_v2(3);
   /* test_dot_product(); */
-  test_fixed_dot(2);
+  /* test_fixed_dot(1); */
 }
