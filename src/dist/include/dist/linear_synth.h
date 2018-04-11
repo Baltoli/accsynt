@@ -87,8 +87,8 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::operator()()
   };
 
   auto threads = std::forward_list<std::thread>{};
-  auto max_threads = 1;//std::max(1u, std::thread::hardware_concurrency() - 1);
-  for(auto i = 0; i < max_threads; ++i) {
+  auto max_threads = std::max(1u, std::thread::hardware_concurrency() - 1);
+  for(auto i = 0u; i < max_threads; ++i) {
     threads.emplace_front(work);
   }
 
@@ -109,15 +109,16 @@ void Linear<R, Args...>::populate_instructions(Builder&& B,
   auto& meta = sampler.metadata();
 
   for(auto arg = std::next(fn->arg_begin()); arg != fn->arg_end(); ++arg) {
-    meta.make_live(arg);
+    meta.live(arg) = true;
   }
 
   for(auto i = 0u; i < n; ++i) {
-    auto v1 = uniform_sample(meta.live_set());
-    auto v2 = uniform_sample(meta.live_set());
+    auto live = meta.live;
+    auto v1 = uniform_sample(std::begin(live), std::end(live));
+    auto v2 = uniform_sample(std::begin(live), std::end(live));
     
     if(auto next = sampler(B, {v1, v2})) {
-      meta.make_live(next);
+      meta.live(next) = true;
     }
   }
 }
@@ -131,9 +132,13 @@ llvm::Value *Linear<R, Args...>::create_return(Builder&& B,
   auto& meta = sampler.metadata();
   auto fn_ty = fn->getFunctionType();
 
-  auto possibles = meta.live_with( [&] (auto inst) {
-    return inst->getType() == fn_ty->getReturnType();
-  });
+  auto possibles = std::vector<llvm::Value*>{};
+  std::copy_if(std::begin(meta.live), std::end(meta.live), 
+               std::back_inserter(possibles), 
+    [&] (auto inst) {
+      return inst->getType() == fn_ty->getReturnType();
+    }
+  );
 
   if(possibles.empty()) {
     return nullptr;
@@ -159,7 +164,7 @@ void Linear<R, Args...>::create_oob_returns(Builder&& b,
   b.CreateStore(one, fn->arg_begin()); 
   b.CreateRet(zero);
 
-  for(auto oob_flag_val : meta.oob_flags()) {
+  for(auto oob_flag_val : meta.oob) {
     auto oob_flag = llvm::cast<llvm::Instruction>(oob_flag_val);
 
     auto old_bb = oob_flag->getParent();
@@ -193,11 +198,11 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::generate_candidate(bool& done)
 
     index_for_each(arg_types_, [&](auto&& at, auto idx) {
       if constexpr(is_index(at)) {
-        meta.set_index_bound(fn->arg_begin() + idx + 1, at.bound());
+        meta.index_bound(fn->arg_begin() + idx + 1) = at.bound();
       }
       
       if constexpr(is_array(at)) {
-        meta.set_size(fn->arg_begin() + idx + 1, at.array_size());
+        meta.size(fn->arg_begin() + idx + 1) =  at.array_size();
       }
     });
 

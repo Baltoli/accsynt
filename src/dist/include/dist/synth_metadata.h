@@ -11,46 +11,6 @@ namespace llvm {
 
 namespace accsynt {
 
-class SynthMetadata {
-public:
-  SynthMetadata() = default;
-
-  std::optional<size_t> index_bound(llvm::Value *v) const;
-  bool is_index(llvm::Value *v) const;
-  void set_index_bound(llvm::Value *v, size_t b);
-
-  void make_live(llvm::Value *v);
-  std::set<llvm::Value *> const& live_set() const { return live_set_; }
-
-  template <typename Pred>
-  std::set<llvm::Value *> live_with(Pred&& p);
-
-  void make_oob_flag(llvm::Value *v);
-  std::set<llvm::Value *> const& oob_flags() const { return oob_flags_; }
-
-  std::optional<size_t> size(llvm::Value *v) const;
-  bool has_size(llvm::Value *v) const;
-  void set_size(llvm::Value *v, size_t b);
-private:
-  std::map<llvm::Value *, size_t> bounds_ = {};
-  std::map<llvm::Value *, size_t> sizes_ = {};
-  std::set<llvm::Value *> live_set_ = {};
-  std::set<llvm::Value *> oob_flags_ = {};
-};
-
-template <typename Pred>
-std::set<llvm::Value *> SynthMetadata::live_with(Pred&& p)
-{
-  auto ret = std::set<llvm::Value *>{};
-
-  std::copy_if(std::begin(live_set_), std::end(live_set_), 
-               std::inserter(ret, std::end(ret)), p);
-
-  return ret;
-}
-
-namespace v2 {
-
 template <typename Value, typename Key>
 class LookupRef {
 public:
@@ -110,11 +70,13 @@ public:
   auto operator()(Key k) { return LookupRef<Value, Key>(data_, k); }
   void unset(Key k) { data_.erase(k); }
 
-  auto begin() { return std::begin(data_); }
-  auto end() { return std::end(data_); }
-
 private:
   std::map<Key, Value> data_ = {};
+
+public:
+  using iterator = typename decltype(data_)::iterator;
+  iterator begin() { return std::begin(data_); }
+  iterator end() { return std::end(data_); }
 };
 
 template <typename Key>
@@ -122,11 +84,13 @@ class MetadataEntry<bool, Key> {
 public:
   auto operator()(Key k) { return LookupRef<bool, Key>(data_, k); }
 
-  auto begin() { return std::begin(data_); }
-  auto end() { return std::end(data_); }
-
 private:
   std::set<Key> data_ = {};
+
+public:
+  using iterator = typename decltype(data_)::iterator;
+  iterator begin() { return std::begin(data_); }
+  iterator end() { return std::end(data_); }
 };
 
 struct SynthMetadata {
@@ -135,7 +99,5 @@ struct SynthMetadata {
   MetadataEntry<bool>   oob;
   MetadataEntry<bool>   live;
 };
-
-}
 
 }

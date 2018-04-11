@@ -11,7 +11,7 @@ TEST_CASE("can use entries on their own", "[metadata]") {
   int x = 0;
   int y = 1;
 
-  v2::MetadataEntry<int64_t, int*> entry;
+  MetadataEntry<int64_t, int*> entry;
   REQUIRE(!entry(&x));
 
   entry(&x) = 345;
@@ -28,7 +28,7 @@ TEST_CASE("can use entries on their own", "[metadata]") {
 
 TEST_CASE("can use the bool specialisation for entries", "[metadata]") {
   auto *v1 = FAKE_PTR(1);
-  v2::MetadataEntry<bool> entry;
+  MetadataEntry<bool> entry;
 
   REQUIRE(!entry(v1));
 
@@ -37,7 +37,7 @@ TEST_CASE("can use the bool specialisation for entries", "[metadata]") {
 }
 
 TEST_CASE("can use the synthesis object", "[metadata]") {
-  v2::SynthMetadata meta;
+  SynthMetadata meta;
 
   auto *v1 = FAKE_PTR(1);
   auto *v2 = FAKE_PTR(2);
@@ -54,7 +54,7 @@ TEST_CASE("can use lookup ref objects on their own", "[metadata]") {
   std::map<int *, int> m;
   m.insert_or_assign(&x, 2);
 
-  v2::LookupRef<int, int*> lr(m, &x);
+  LookupRef<int, int*> lr(m, &x);
   REQUIRE(*lr == 2);
 
   lr = 4;
@@ -63,7 +63,7 @@ TEST_CASE("can use lookup ref objects on their own", "[metadata]") {
 
 TEST_CASE("can iterate over entries", "[metadata]") {
   SECTION("bools") {
-    v2::MetadataEntry<bool> entry;
+    MetadataEntry<bool> entry;
 
     intptr_t prod = 1;
 
@@ -80,7 +80,7 @@ TEST_CASE("can iterate over entries", "[metadata]") {
   }
 
   SECTION("others") {
-    v2::MetadataEntry<int> entry;
+    MetadataEntry<int> entry;
 
     intptr_t prod = 1;
 
