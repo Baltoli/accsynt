@@ -76,7 +76,8 @@ public:
   bool validate(SynthMetadata &m, value_array args)
   {
     return validate_types(2, args) && 
-           llvm::isa<llvm::IntegerType>(args[0]->getType());
+           llvm::isa<llvm::IntegerType>(args[0]->getType()) &&
+           !m.is_index(args[0]) && !m.is_index(args[1]);
   }
 
   template <typename B>

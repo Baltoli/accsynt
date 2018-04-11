@@ -59,7 +59,7 @@ private:
 
   std::unique_ptr<llvm::Module> module_;
   llvm::Function *func_;
-  llvm::ExecutionEngine *engine_;
+  std::unique_ptr<llvm::ExecutionEngine> engine_;
 
   R return_val(llvm::GenericValue gv) const { 
     return R{gv.IntVal.getSExtValue()};
@@ -73,7 +73,7 @@ FunctionCallable<R>::FunctionCallable(llvm::Module *m, llvm::StringRef name, boo
   func_{module_->getFunction(name)}
 {
   auto eb = llvm::EngineBuilder{std::move(module_)};
-  engine_ = eb.create();
+  engine_.reset(eb.create());
 }
 
 template <typename R>

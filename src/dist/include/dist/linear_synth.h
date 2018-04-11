@@ -201,7 +201,7 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::generate_candidate(bool& done)
       }
     });
 
-    populate_instructions(B, sampler, fn, 20);
+    populate_instructions(B, sampler, fn, 50);
     auto ret = create_return(B, sampler, fn);
     if(!ret) {
       return nullptr;
