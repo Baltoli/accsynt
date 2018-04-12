@@ -40,11 +40,10 @@ public:
 
   Linear(R r, Args... args) : Synthesizer<R, Args...>(r, args...) {}
 
-  void add_example(ret_t ret, args_t args);
   std::unique_ptr<llvm::Module> operator()();
+  void add_example(ret_t ret, args_t args);
 
 private:
-  llvm::FunctionType *llvm_function_type() const;
   bool satisfies_examples(llvm::Function *f) const;
 
   void clear_functions(llvm::Module& module);
@@ -61,7 +60,7 @@ private:
   void create_oob_returns(Builder&& b, ValueSampler& sampler,
                           llvm::Function *fn) const;
 
-  std::unique_ptr<llvm::Module> generate_candidate(bool&);
+  std::unique_ptr<llvm::Module> generate_candidate(bool&) override;
 
   std::map<args_t, ret_t> examples_ = {};
 };
@@ -69,27 +68,7 @@ private:
 template <typename R, typename... Args>
 std::unique_ptr<llvm::Module> Linear<R, Args...>::operator()()
 {
-  auto ret = std::unique_ptr<llvm::Module>{};
-  bool done = false;
-
-  auto work = [&] {
-    auto cand = generate_candidate(done);
-    if(cand) {
-      ret = std::move(cand);
-    }
-  };
-
-  auto threads = std::forward_list<std::thread>{};
-  auto max_threads = std::max(1u, std::thread::hardware_concurrency() - 1);
-  for(auto i = 0u; i < max_threads; ++i) {
-    threads.emplace_front(work);
-  }
-
-  for(auto& t : threads) {
-    t.join();
-  }
-
-  return ret;
+  return this->threaded_generate();
 }
 
 template <typename R, typename... Args>
@@ -184,7 +163,7 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::generate_candidate(bool& done)
     auto sampler = ValueSampler{};
     auto& meta = sampler.metadata();
 
-    auto fn = llvm::Function::Create(llvm_function_type(), llvm::GlobalValue::ExternalLinkage, 
+    auto fn = llvm::Function::Create(this->llvm_function_type(), llvm::GlobalValue::ExternalLinkage, 
                                      "cand", mod.get());
     auto bb = llvm::BasicBlock::Create(fn->getContext(), "", fn);
     B.SetInsertPoint(bb);
@@ -220,23 +199,6 @@ template <typename R, typename... Args>
 void Linear<R, Args...>::add_example(Linear::ret_t r, Linear::args_t args)
 {
   examples_.insert_or_assign(args, r);
-}
-
-template <typename R, typename... Args>
-llvm::FunctionType *Linear<R, Args...>::llvm_function_type() const
-{
-  auto llvm_arg_tys = std::array<llvm::Type*, sizeof...(Args)>{};
-  zip_for_each(this->arg_types_, llvm_arg_tys, [] (auto a, auto& ll) {
-    ll = a.llvm_type();
-  });
-
-  auto i64_t = llvm::IntegerType::get(ThreadContext::get(), 64);
-  auto ptr_t = llvm::PointerType::getUnqual(i64_t);
-  auto arg_tys = std::array<llvm::Type*, sizeof...(Args) + 1>{};
-  std::copy(std::begin(llvm_arg_tys), std::end(llvm_arg_tys), std::next(std::begin(arg_tys)));
-  arg_tys[0] = ptr_t;
-
-  return llvm::FunctionType::get(this->return_type_.llvm_type(), arg_tys, false);
 }
 
 template <typename R, typename... Args>
