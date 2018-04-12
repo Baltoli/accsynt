@@ -1,5 +1,6 @@
 #pragma once
 
+#include <dist/function_callable.h>
 #include <dist/contexts.h>
 
 #include <llvm/IR/DerivedTypes.h>
@@ -8,6 +9,11 @@
 #include <forward_list>
 #include <thread>
 #include <tuple>
+
+namespace llvm {
+  class Function;
+  class Module;
+}
 
 namespace accsynt {
 
@@ -26,9 +32,13 @@ public:
     return nullptr;
   };
 
-  std::unique_ptr<llvm::Module> threaded_generate();
+  std::unique_ptr<llvm::Module> operator()()
+  {
+    return this->threaded_generate();
+  }
 
-  args_t example() const {
+  args_t example() const 
+  {
     auto ret = args_t{};
     zip_for_each(ret, arg_types_, [&](auto& ex, auto a) {
       ex = a.generate();
@@ -36,11 +46,21 @@ public:
     return ret;
   };
 
-  llvm::FunctionType *llvm_function_type() const;
+  void add_example(ret_t ret, args_t args) 
+  {
+    examples_.insert_or_assign(args, ret);
+  }
 
 protected:
+  llvm::FunctionType *llvm_function_type() const;
+  bool satisfies_examples(llvm::Function *f) const;
+  std::unique_ptr<llvm::Module> threaded_generate();
+
   R return_type_;
   std::tuple<Args...> arg_types_;
+
+private:
+  std::map<args_t, ret_t> examples_ = {};
 };
 
 template <typename R, typename... Args>
@@ -87,5 +107,14 @@ llvm::FunctionType *Synthesizer<R, Args...>::llvm_function_type() const
   return llvm::FunctionType::get(return_type_.llvm_type(), arg_tys, false);
 }
 
+template <typename R, typename... Args>
+bool Synthesizer<R, Args...>::satisfies_examples(llvm::Function *f) const
+{
+  auto fc = FunctionCallable<ret_t>{f, true};
+
+  return std::all_of(std::begin(examples_), std::end(examples_), [f,&fc](auto ex) {
+    return std::apply(fc, ex.first) == ex.second;
+  });
+}
 
 }

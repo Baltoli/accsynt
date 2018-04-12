@@ -34,18 +34,11 @@ namespace accsynt {
 template <typename R, typename... Args>
 class Linear : public Synthesizer<R, Args...> {
 public:
-  using ret_t = typename R::example_t;
-  using args_t = std::tuple<typename Args::example_t...>;
-  using io_pair_t = std::pair<ret_t, args_t>;
-
-  Linear(R r, Args... args) : Synthesizer<R, Args...>(r, args...) {}
-
-  std::unique_ptr<llvm::Module> operator()();
-  void add_example(ret_t ret, args_t args);
+  /* Linear(R r, Args... args) : Synthesizer<R, Args...>(r, args...) {} */
+  using Synthesizer<R, Args...>::Synthesizer;
+  using Synthesizer<R, Args...>::operator();
 
 private:
-  bool satisfies_examples(llvm::Function *f) const;
-
   void clear_functions(llvm::Module& module);
 
   template <typename Builder>
@@ -61,15 +54,10 @@ private:
                           llvm::Function *fn) const;
 
   std::unique_ptr<llvm::Module> generate_candidate(bool&) override;
-
-  std::map<args_t, ret_t> examples_ = {};
 };
 
 template <typename R, typename... Args>
-std::unique_ptr<llvm::Module> Linear<R, Args...>::operator()()
-{
-  return this->threaded_generate();
-}
+Linear(R, Args...) -> Linear<R, Args...>;
 
 template <typename R, typename... Args>
 template <typename Builder>
@@ -186,29 +174,13 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::generate_candidate(bool& done)
 
     create_oob_returns(B, sampler, fn);
 
-    if(satisfies_examples(fn)) {
+    if(this->satisfies_examples(fn)) {
       done = true;
       return std::move(mod);
     }
   }
 
   return nullptr;
-}
-
-template <typename R, typename... Args>
-void Linear<R, Args...>::add_example(Linear::ret_t r, Linear::args_t args)
-{
-  examples_.insert_or_assign(args, r);
-}
-
-template <typename R, typename... Args>
-bool Linear<R, Args...>::satisfies_examples(llvm::Function *f) const
-{
-  auto fc = FunctionCallable<ret_t>{f, true};
-
-  return std::all_of(std::begin(examples_), std::end(examples_), [f,&fc](auto ex) {
-    return std::apply(fc, ex.first) == ex.second;
-  });
 }
 
 template <typename R, typename... Args>
