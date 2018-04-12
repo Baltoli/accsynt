@@ -31,7 +31,7 @@ public:
   using return_t = decltype(std::apply(std::declval<F>(), std::declval<args_t>()));
   using counterexample_t = std::optional<Counterexample<return_t, args_t>>;
 
-  OracleDistinguisher(F& f, G& g, Synth const& s) :
+  OracleDistinguisher(F& f, G& g, Synth const* s) :
     f_(f), g_(g), synth_(s)
   {
     static_assert(std::is_same_v<return_t, typename Synth::ret_t>);
@@ -40,7 +40,7 @@ public:
   counterexample_t operator()() const
   {
     for(auto i = 0u; i < example_limit_; ++i) {
-      auto example = synth_.example();
+      auto example = synth_->example();
       auto&& [f_err, f_result] = try_apply(f_, example);
       auto&& [g_err, g_result] = try_apply(g_, example);
 
@@ -57,7 +57,7 @@ public:
 private:
   F& f_;
   G& g_;
-  Synth const& synth_;
+  Synth const* synth_;
 };
 
 }

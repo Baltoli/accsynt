@@ -32,6 +32,11 @@ public:
     return nullptr;
   };
 
+  virtual bool can_synthesize() const
+  {
+    return false;
+  }
+
   std::unique_ptr<llvm::Module> operator()()
   {
     return this->threaded_generate();

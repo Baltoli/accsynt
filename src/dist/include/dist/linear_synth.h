@@ -34,9 +34,15 @@ namespace accsynt {
 template <typename R, typename... Args>
 class Linear : public Synthesizer<R, Args...> {
 public:
-  /* Linear(R r, Args... args) : Synthesizer<R, Args...>(r, args...) {} */
-  using Synthesizer<R, Args...>::Synthesizer;
+  Linear(R r, Args... args) : Synthesizer<R, Args...>(r, args...) {}
   using Synthesizer<R, Args...>::operator();
+
+  // This synthesizer can try to synthesize anything, it just might not be the
+  // fastest way of doing it.
+  bool can_synthesize() const override
+  {
+    return true;
+  }
 
 private:
   void clear_functions(llvm::Module& module);
@@ -53,11 +59,8 @@ private:
   void create_oob_returns(Builder&& b, ValueSampler& sampler,
                           llvm::Function *fn) const;
 
-  std::unique_ptr<llvm::Module> generate_candidate(bool&) override;
+  virtual std::unique_ptr<llvm::Module> generate_candidate(bool&) override;
 };
-
-template <typename R, typename... Args>
-Linear(R, Args...) -> Linear<R, Args...>;
 
 template <typename R, typename... Args>
 template <typename Builder>
