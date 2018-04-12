@@ -38,6 +38,7 @@ add_executable(unit_tests
   test/unit/load_module.cpp
   test/unit/types.cpp
   test/unit/metadata.cpp
+  test/unit/synth.cpp
 )
 
 target_link_libraries(test_dist dist)

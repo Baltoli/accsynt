@@ -24,29 +24,23 @@ struct Counterexample {
   const Args args;
 };
 
-template <typename F, typename G, typename ArgsT>
+template <typename F, typename G, typename Synth>
 class OracleDistinguisher {
 public:
-  using args_tuple_t = typename example_ts<ArgsT>::type;
-  using return_t = decltype(std::apply(std::declval<F>(), std::declval<args_tuple_t>()));
-  using counterexample_t = std::optional<Counterexample<return_t, args_tuple_t>>;
+  using args_t = typename Synth::args_t;
+  using return_t = decltype(std::apply(std::declval<F>(), std::declval<args_t>()));
+  using counterexample_t = std::optional<Counterexample<return_t, args_t>>;
 
-  OracleDistinguisher(F& f, G& g, ArgsT args) :
-    f_(f), g_(g), args_(args)
-  {}
+  OracleDistinguisher(F& f, G& g, Synth const& s) :
+    f_(f), g_(g), synth_(s)
+  {
+    static_assert(std::is_same_v<return_t, typename Synth::ret_t>);
+  }
 
   counterexample_t operator()() const
   {
-    const auto gen = [this] {
-      auto ret = args_tuple_t{};
-      zip_for_each(ret, args_, [&](auto& ex, auto a) {
-        ex = a.generate();
-      });
-      return ret;
-    };
-
     for(auto i = 0u; i < example_limit_; ++i) {
-      auto example = gen();
+      auto example = synth_.example();
       auto&& [f_err, f_result] = try_apply(f_, example);
       auto&& [g_err, g_result] = try_apply(g_, example);
 
@@ -63,7 +57,7 @@ public:
 private:
   F& f_;
   G& g_;
-  ArgsT args_;
+  Synth const& synth_;
 };
 
 }

@@ -3,6 +3,7 @@
 #include <dist/distinguisher.h>
 #include <dist/function_callable.h>
 #include <dist/linear_synth.h>
+#include <dist/synth.h>
 
 #include <memory>
 
@@ -39,7 +40,7 @@ std::unique_ptr<llvm::Module> Oracle<F, R, Args...>::operator()()
     }
 
     auto fc = FunctionCallable<ret_t>{candidate.get(), "cand", true};
-    auto dist = OracleDistinguisher{reference_, fc, linear_.arg_types()};
+    auto dist = OracleDistinguisher{reference_, fc, linear_};
 
     auto example = dist();
     if(example) {

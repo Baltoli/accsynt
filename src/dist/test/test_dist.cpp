@@ -89,7 +89,7 @@ void test_fixed_dot(uint64_t size)
 
 int main()
 {
-  test_synth_v2(3);
+  test_synth_v2(2);
   /* test_dot_product(); */
   /* test_fixed_dot(1); */
 }

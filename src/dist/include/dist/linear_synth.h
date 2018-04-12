@@ -2,6 +2,7 @@
 
 #include <dist/function_callable.h>
 #include <dist/synth_op.h>
+#include <dist/synth.h>
 #include <dist/types.h>
 #include <dist/utils.h>
 
@@ -31,21 +32,16 @@ namespace llvm {
 namespace accsynt {
 
 template <typename R, typename... Args>
-class Linear {
+class Linear : public Synthesizer<R, Args...> {
 public:
   using ret_t = typename R::example_t;
   using args_t = std::tuple<typename Args::example_t...>;
   using io_pair_t = std::pair<ret_t, args_t>;
 
-  Linear(R r, Args... args) :
-    return_type_{r}, arg_types_{args...},
-    examples_{}
-  {}
+  Linear(R r, Args... args) : Synthesizer<R, Args...>(r, args...) {}
 
   void add_example(ret_t ret, args_t args);
   std::unique_ptr<llvm::Module> operator()();
-
-  std::tuple<Args...> arg_types() const { return arg_types_; }
 
 private:
   llvm::FunctionType *llvm_function_type() const;
@@ -67,10 +63,7 @@ private:
 
   std::unique_ptr<llvm::Module> generate_candidate(bool&);
 
-  R return_type_;
-  std::tuple<Args...> arg_types_;
-
-  std::map<args_t, ret_t> examples_;
+  std::map<args_t, ret_t> examples_ = {};
 };
 
 template <typename R, typename... Args>
@@ -196,7 +189,7 @@ std::unique_ptr<llvm::Module> Linear<R, Args...>::generate_candidate(bool& done)
     auto bb = llvm::BasicBlock::Create(fn->getContext(), "", fn);
     B.SetInsertPoint(bb);
 
-    index_for_each(arg_types_, [&](auto&& at, auto idx) {
+    index_for_each(this->arg_types_, [&](auto&& at, auto idx) {
       if constexpr(is_index(at)) {
         meta.index_bound(fn->arg_begin() + idx + 1) = at.bound();
       }
@@ -233,7 +226,7 @@ template <typename R, typename... Args>
 llvm::FunctionType *Linear<R, Args...>::llvm_function_type() const
 {
   auto llvm_arg_tys = std::array<llvm::Type*, sizeof...(Args)>{};
-  zip_for_each(arg_types_, llvm_arg_tys, [] (auto a, auto& ll) {
+  zip_for_each(this->arg_types_, llvm_arg_tys, [] (auto a, auto& ll) {
     ll = a.llvm_type();
   });
 
@@ -243,7 +236,7 @@ llvm::FunctionType *Linear<R, Args...>::llvm_function_type() const
   std::copy(std::begin(llvm_arg_tys), std::end(llvm_arg_tys), std::next(std::begin(arg_tys)));
   arg_tys[0] = ptr_t;
 
-  return llvm::FunctionType::get(return_type_.llvm_type(), arg_tys, false);
+  return llvm::FunctionType::get(this->return_type_.llvm_type(), arg_tys, false);
 }
 
 template <typename R, typename... Args>
