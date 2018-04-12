@@ -22,7 +22,7 @@
 using namespace accsynt;
 using namespace llvm;
 
-void test_synth_v2(size_t n)
+void test_sum(size_t n)
 {
   auto i64 = Integer{64};
   auto arr = Array{i64, n};
@@ -87,9 +87,24 @@ void test_fixed_dot(uint64_t size)
   }
 }
 
+void test_linear()
+{
+  auto i64 = Integer{64};
+  
+  auto fun = [](auto a, auto b) -> int64_t {
+    return a + b;
+  };
+
+  auto p = Oracle(fun, i64, i64, i64);
+  if(auto r = p()) {
+    r->print(llvm::outs(), nullptr);
+  }
+}
+
 int main()
 {
-  test_synth_v2(2);
+  /* test_linear(); */
+  test_sum(2);
   /* test_dot_product(); */
   /* test_fixed_dot(1); */
 }

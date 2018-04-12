@@ -25,7 +25,15 @@ public:
   using io_pair_t = std::pair<ret_t, args_t>;
 
   Synthesizer(R r, Args... args) :
-    return_type_(r), arg_types_(args...) {}
+    return_type_(r), arg_types_(args...) 
+  {
+    auto *ev = std::getenv("ACCSYNT_NUM_THREADS");
+    if(ev) {
+      max_threads_ = std::stoi(ev);
+    } else {
+      max_threads_ = 1;
+    }
+  }
 
   virtual std::unique_ptr<llvm::Module> generate_candidate(bool&) 
   {
@@ -65,6 +73,7 @@ protected:
   std::tuple<Args...> arg_types_;
 
 private:
+  size_t max_threads_;
   std::map<args_t, ret_t> examples_ = {};
 };
 
@@ -82,8 +91,7 @@ std::unique_ptr<llvm::Module> Synthesizer<R, Args...>::threaded_generate()
   };
 
   auto threads = std::forward_list<std::thread>{};
-  auto max_threads = std::max(1u, std::thread::hardware_concurrency() - 1);
-  for(auto i = 0u; i < max_threads; ++i) {
+  for(auto i = 0u; i < max_threads_; ++i) {
     threads.emplace_front(work);
   }
 
