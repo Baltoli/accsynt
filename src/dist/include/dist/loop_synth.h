@@ -32,33 +32,15 @@ public:
   }
 
 private:
-  std::unique_ptr<llvm::Module> generate_candidate(bool&) override;
+  void construct(llvm::Function *f, llvm::IRBuilder<>& b) const override;
   
   std::map<size_t, size_t> sizes_ = {};
 };
 
 template <typename R, typename... Args>
-std::unique_ptr<llvm::Module> Loop<R, Args...>::generate_candidate(bool& done)
+void Loop<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) const
 {
-  auto mod = std::make_unique<llvm::Module>("loop-candidate", ThreadContext::get());
-  auto B = llvm::IRBuilder<>{mod->getContext()};
-
-  while(!done) {
-    auto fn = llvm::Function::Create(this->llvm_function_type(), llvm::GlobalValue::ExternalLinkage, 
-                                     "cand", mod.get());
-    auto bb = llvm::BasicBlock::Create(fn->getContext(), "", fn);
-    B.SetInsertPoint(bb);
-
-    // Can we make this more general? Code repeated. Need to separate the loop
-    // from the generation of a single example
-
-    if(this->satisfies_examples(fn)) {
-      done = true;
-      return std::move(mod);
-    }
-  }
-
-  return nullptr;
+  b.CreateRet(b.getInt64(0));
 }
 
 }

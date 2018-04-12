@@ -35,8 +35,27 @@ public:
     }
   }
 
-  virtual std::unique_ptr<llvm::Module> generate_candidate(bool&) 
+  virtual void construct(llvm::Function *f, llvm::IRBuilder<>& b) const {}
+
+  std::unique_ptr<llvm::Module> generate_candidate(bool& done) 
   {
+    auto mod = std::make_unique<llvm::Module>("synth-candidate", ThreadContext::get());
+    auto B = llvm::IRBuilder<>{mod->getContext()};
+
+    while(!done) {
+      auto fn = llvm::Function::Create(this->llvm_function_type(), llvm::GlobalValue::ExternalLinkage, 
+                                       "cand", mod.get());
+      auto bb = llvm::BasicBlock::Create(fn->getContext(), "entry", fn);
+      B.SetInsertPoint(bb);
+
+      this->construct(fn, B);
+
+      if(this->satisfies_examples(fn)) {
+        done = true;
+        return std::move(mod);
+      }
+    }
+
     return nullptr;
   };
 
@@ -84,7 +103,7 @@ std::unique_ptr<llvm::Module> Synthesizer<R, Args...>::threaded_generate()
   bool done = false;
 
   auto work = [&] {
-    auto cand = this->generate_candidate(done);
+    auto cand = generate_candidate(done);
     if(cand) {
       ret = std::move(cand);
     }

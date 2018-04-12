@@ -59,8 +59,29 @@ private:
   void create_oob_returns(Builder&& b, ValueSampler& sampler,
                           llvm::Function *fn) const;
 
-  virtual std::unique_ptr<llvm::Module> generate_candidate(bool&) override;
+  virtual void construct(llvm::Function *f, llvm::IRBuilder<>& b) const override;
 };
+
+template <typename R, typename... Args>
+void Linear<R, Args...>::construct(llvm::Function *fn, llvm::IRBuilder<>& b) const
+{
+  auto sampler = ValueSampler{};
+  auto& meta = sampler.metadata();
+
+  index_for_each(this->arg_types_, [&](auto&& at, auto idx) {
+    if constexpr(is_index(at)) {
+      meta.index_bound(fn->arg_begin() + idx + 1) = at.bound();
+    }
+    
+    if constexpr(is_array(at)) {
+      meta.size(fn->arg_begin() + idx + 1) =  at.array_size();
+    }
+  });
+
+  populate_instructions(b, sampler, fn, 50);
+  create_return(b, sampler, fn);
+  create_oob_returns(b, sampler, fn);
+}
 
 template <typename R, typename... Args>
 template <typename Builder>
@@ -140,50 +161,6 @@ void Linear<R, Args...>::create_oob_returns(Builder&& b,
     oob_flag->moveBefore(br);
     old_term->eraseFromParent();
   }
-}
-
-template <typename R, typename... Args>
-std::unique_ptr<llvm::Module> Linear<R, Args...>::generate_candidate(bool& done)
-{
-  auto mod = std::make_unique<llvm::Module>("linear-candidate", ThreadContext::get());
-  auto B = llvm::IRBuilder<>{mod->getContext()};
-
-  while(!done) {
-    clear_functions(*mod);
-
-    auto sampler = ValueSampler{};
-    auto& meta = sampler.metadata();
-
-    auto fn = llvm::Function::Create(this->llvm_function_type(), llvm::GlobalValue::ExternalLinkage, 
-                                     "cand", mod.get());
-    auto bb = llvm::BasicBlock::Create(fn->getContext(), "", fn);
-    B.SetInsertPoint(bb);
-
-    index_for_each(this->arg_types_, [&](auto&& at, auto idx) {
-      if constexpr(is_index(at)) {
-        meta.index_bound(fn->arg_begin() + idx + 1) = at.bound();
-      }
-      
-      if constexpr(is_array(at)) {
-        meta.size(fn->arg_begin() + idx + 1) =  at.array_size();
-      }
-    });
-
-    populate_instructions(B, sampler, fn, 50);
-    auto ret = create_return(B, sampler, fn);
-    if(!ret) {
-      return nullptr;
-    }
-
-    create_oob_returns(B, sampler, fn);
-
-    if(this->satisfies_examples(fn)) {
-      done = true;
-      return std::move(mod);
-    }
-  }
-
-  return nullptr;
 }
 
 template <typename R, typename... Args>
