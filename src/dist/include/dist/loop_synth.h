@@ -2,7 +2,9 @@
 
 #include <llvm/IR/IRBuilder.h>
 
+#include <dist/block_gen.h>
 #include <dist/synth.h>
+#include <dist/synth_metadata.h>
 
 #include <memory>
 
@@ -37,12 +39,16 @@ private:
 template <typename Builder>
 void LoopBuilder<Builder>::construct_body(llvm::Value *i, llvm::Value *data)
 {
-  auto gep = b_.CreateGEP(data, {b_.getInt64(0), i});
-  auto value = b_.CreateLoad(gep);
+  auto meta = SynthMetadata{};
+  auto gen = BlockGenerator{b_, meta};
+  gen.populate(20);
 
-  auto current = b_.CreateLoad(return_loc_);
-  auto add = b_.CreateAdd(current, value);
-  b_.CreateStore(add, return_loc_);
+  /* auto gep = b_.CreateGEP(data, {b_.getInt64(0), i}); */
+  /* auto value = b_.CreateLoad(gep); */
+
+  /* auto current = b_.CreateLoad(return_loc_); */
+  /* auto add = b_.CreateAdd(current, value); */
+  /* b_.CreateStore(add, return_loc_); */
 }
 
 template <typename Builder>
@@ -108,8 +114,8 @@ void Loop<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) const
   auto&& [arg_i, len] = *begin(sizes_);
   loop_b.construct(arg_i, len);
 
-  /* f->print(llvm::errs()); */
-  /* std::exit(0); */
+  f->print(llvm::errs());
+  std::exit(0);
 }
 
 }
