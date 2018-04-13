@@ -34,7 +34,6 @@ public:
   OracleDistinguisher(F& f, G& g, Synth const* s) :
     f_(f), g_(g), synth_(s)
   {
-    static_assert(std::is_same_v<return_t, typename Synth::ret_t>);
   }
 
   counterexample_t operator()() const
