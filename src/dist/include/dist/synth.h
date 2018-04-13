@@ -65,6 +65,8 @@ protected:
   std::tuple<Args...> arg_types_;
 
 private:
+  void clear_functions(llvm::Module& module) const;
+
   size_t max_threads_;
   std::map<args_t, ret_t> examples_ = {};
 };
@@ -76,6 +78,8 @@ std::unique_ptr<llvm::Module> Synthesizer<R, Args...>::generate_candidate(bool& 
   auto B = llvm::IRBuilder<>{mod->getContext()};
 
   while(!done) {
+    clear_functions(*mod);
+
     auto fn = llvm::Function::Create(this->llvm_function_type(), llvm::GlobalValue::ExternalLinkage, 
                                      "cand", mod.get());
     auto bb = llvm::BasicBlock::Create(fn->getContext(), "entry", fn);
@@ -142,6 +146,22 @@ bool Synthesizer<R, Args...>::satisfies_examples(llvm::Function *f) const
   return std::all_of(std::begin(examples_), std::end(examples_), [f,&fc](auto ex) {
     return std::apply(fc, ex.first) == ex.second;
   });
+}
+
+template <typename R, typename... Args>
+void Synthesizer<R, Args...>::clear_functions(llvm::Module& module) const
+{
+  auto to_clear = std::forward_list<llvm::Function *>{};
+
+  for(auto& f : module) {
+    if(f.getName() == "cand") {
+      to_clear.push_front(&f);
+    }
+  }
+
+  for(auto* f : to_clear) {
+    f->eraseFromParent();
+  }
 }
 
 }

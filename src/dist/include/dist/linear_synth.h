@@ -45,8 +45,6 @@ public:
   }
 
 private:
-  void clear_functions(llvm::Module& module);
-
   template <typename Builder>
   void populate_instructions(Builder&& b, ValueSampler& sampler, 
                              llvm::Function *fn, size_t n) const;
@@ -160,22 +158,6 @@ void Linear<R, Args...>::create_oob_returns(Builder&& b,
     auto br = b.CreateCondBr(oob_flag_val, oob_bb, new_bb);
     oob_flag->moveBefore(br);
     old_term->eraseFromParent();
-  }
-}
-
-template <typename R, typename... Args>
-void Linear<R, Args...>::clear_functions(llvm::Module& module)
-{
-  auto to_clear = std::forward_list<llvm::Function *>{};
-
-  for(auto& f : module) {
-    if(f.getName() == "cand") {
-      to_clear.push_front(&f);
-    }
-  }
-
-  for(auto* f : to_clear) {
-    f->eraseFromParent();
   }
 }
 
