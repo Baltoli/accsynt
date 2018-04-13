@@ -27,13 +27,6 @@ void test_sum(size_t n)
   auto i64 = Integer{64};
   auto arr = Array{i64, n};
 
-  /* auto f = [](auto a, auto b, auto c, auto d) { */
-  /*   return a * a; */
-  /* }; */
-
-  /* auto o = synth::Oracle{f, i64, i64, i64, i64, i64}; */
-  /* o()->print(llvm::outs(), nullptr); */
-
   auto g = [n](auto a) -> int64_t {
     auto sum = 0;
     for(auto i = 0u; i < n; ++i) {
@@ -104,7 +97,7 @@ void test_linear()
 int main()
 {
   /* test_linear(); */
-  test_sum(2);
+  test_sum(100);
   /* test_dot_product(); */
   /* test_fixed_dot(1); */
 }
