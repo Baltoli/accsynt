@@ -75,8 +75,14 @@ private:
 
 public:
   using iterator = typename decltype(data_)::iterator;
-  iterator begin() { return std::begin(data_); }
-  iterator end() { return std::end(data_); }
+  using const_iterator = const iterator;
+
+  iterator begin() const noexcept { return std::begin(data_); }
+  iterator end() const noexcept { return std::end(data_); }
+  iterator begin() noexcept { return std::begin(data_); }
+  iterator end() noexcept { return std::end(data_); }
+  const_iterator cbegin() const noexcept { return std::begin(data_); }
+  const_iterator cend() const noexcept { return std::cend(data_); }
 };
 
 template <typename Key>
@@ -89,8 +95,14 @@ private:
 
 public:
   using iterator = typename decltype(data_)::iterator;
-  iterator begin() { return std::begin(data_); }
-  iterator end() { return std::end(data_); }
+  using const_iterator = const iterator;
+
+  iterator begin() const noexcept { return std::begin(data_); }
+  iterator end() const noexcept { return std::end(data_); }
+  iterator begin() noexcept { return std::begin(data_); }
+  iterator end() noexcept { return std::end(data_); }
+  const_iterator cbegin() const noexcept { return std::begin(data_); }
+  const_iterator cend() const noexcept { return std::cend(data_); }
 };
 
 struct SynthMetadata {

@@ -10,6 +10,7 @@
 #include <llvm/IR/Instruction.h>
 
 #include <iterator>
+#include <iostream>
 #include <memory>
 #include <random>
 
@@ -58,7 +59,7 @@ auto uniform_sample(Iterator begin, Iterator end)
 }
 
 template <typename Container>
-auto uniform_sample(Container c)
+auto uniform_sample(Container const& c)
 {
   using std::begin;
   using std::end;
@@ -75,18 +76,18 @@ auto uniform_sample_if(Iterator begin, Iterator end, UnaryPred p)
   }
 
   auto rd = std::random_device{};
-  auto dist = std::uniform_int_distribution<long>{0, count};
+  auto dist = std::uniform_int_distribution<long>{0, count-1};
   auto nth = dist(rd);
 
   auto ret = std::find_if(begin, end, p);
-  for(auto i = 1; i < nth; ++i) {
+  for(auto i = 0; i < nth; ++i) {
     ret = std::find_if(std::next(ret), end, p);
   }
   return ret;
 }
 
 template <typename Container, typename UnaryPred>
-auto uniform_sample_if(Container c, UnaryPred p)
+auto uniform_sample_if(Container const& c, UnaryPred p)
 {
   using std::begin;
   using std::end;
