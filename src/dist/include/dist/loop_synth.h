@@ -40,15 +40,17 @@ template <typename Builder>
 void LoopBuilder<Builder>::construct_body(llvm::Value *i, llvm::Value *data)
 {
   auto meta = SynthMetadata{};
+  auto item_ptr = b_.CreateGEP(data, {b_.getInt64(0), i});
+
+  meta.live(i) = true;
+  meta.live(b_.CreateLoad(item_ptr)) = true;
+  meta.live(b_.CreateLoad(return_loc_)) = true;
+
+  meta.output(return_loc_) = true;
+
   auto gen = BlockGenerator{b_, meta};
   gen.populate(20);
-
-  /* auto gep = b_.CreateGEP(data, {b_.getInt64(0), i}); */
-  /* auto value = b_.CreateLoad(gep); */
-
-  /* auto current = b_.CreateLoad(return_loc_); */
-  /* auto add = b_.CreateAdd(current, value); */
-  /* b_.CreateStore(add, return_loc_); */
+  gen.output();
 }
 
 template <typename Builder>

@@ -39,6 +39,7 @@ add_executable(unit_tests
   test/unit/types.cpp
   test/unit/metadata.cpp
   test/unit/synth.cpp
+  test/unit/utils.cpp
 )
 
 target_link_libraries(test_dist dist)

@@ -66,6 +66,34 @@ auto uniform_sample(Container c)
   return uniform_sample(begin(c), end(c));
 }
 
+template <typename Iterator, typename UnaryPred>
+auto uniform_sample_if(Iterator begin, Iterator end, UnaryPred p)
+{
+  auto count = std::count_if(begin, end, p);
+  if(count == 0) {
+    return end;
+  }
+
+  auto rd = std::random_device{};
+  auto dist = std::uniform_int_distribution<long>{0, count};
+  auto nth = dist(rd);
+
+  auto ret = std::find_if(begin, end, p);
+  for(auto i = 1; i < nth; ++i) {
+    ret = std::find_if(std::next(ret), end, p);
+  }
+  return ret;
+}
+
+template <typename Container, typename UnaryPred>
+auto uniform_sample_if(Container c, UnaryPred p)
+{
+  using std::begin;
+  using std::end;
+
+  return uniform_sample_if(begin(c), end(c), p);
+}
+
 /**
  * \brief Copy a function into another module.
  *
