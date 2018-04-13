@@ -97,7 +97,7 @@ void test_linear()
 int main()
 {
   /* test_linear(); */
-  test_sum(100);
+  test_sum(64);
   /* test_dot_product(); */
   /* test_fixed_dot(1); */
 }

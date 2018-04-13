@@ -19,10 +19,10 @@ public:
     return_loc_(b_.CreateAlloca(f->getReturnType()))
   {}
 
-  void construct(size_t length);
+  void construct(size_t data_i, size_t length);
 
 private:
-  void construct_body(llvm::Value *iter);
+  void construct_body(llvm::Value *i, llvm::Value *data);
 
   llvm::Function *func_;
   Builder &b_;
@@ -35,13 +35,21 @@ private:
 };
 
 template <typename Builder>
-void LoopBuilder<Builder>::construct_body(llvm::Value *iter)
+void LoopBuilder<Builder>::construct_body(llvm::Value *i, llvm::Value *data)
 {
+  auto gep = b_.CreateGEP(data, {b_.getInt64(0), i});
+  auto value = b_.CreateLoad(gep);
+
+  auto current = b_.CreateLoad(return_loc_);
+  auto add = b_.CreateAdd(current, value);
+  b_.CreateStore(add, return_loc_);
 }
 
 template <typename Builder>
-void LoopBuilder<Builder>::construct(size_t length)
+void LoopBuilder<Builder>::construct(size_t data_i, size_t length)
 {
+  auto data = func_->arg_begin() + data_i + 1;
+
   auto rt = func_->getReturnType();
   auto iter_t = llvm::IntegerType::get(func_->getContext(), 64);
 
@@ -51,11 +59,11 @@ void LoopBuilder<Builder>::construct(size_t length)
   b_.SetInsertPoint(loop_block_);
   auto iter = b_.CreatePHI(iter_t, 2);
   iter->addIncoming(b_.getInt64(0), entry_block_);
+
+  construct_body(iter, data);
+
   auto add = b_.CreateAdd(iter, b_.getInt64(1));
   iter->addIncoming(add, loop_block_);
-
-  construct_body(iter);
-
   auto end_test = b_.CreateICmpEQ(add, b_.getInt64(length));
   b_.CreateCondBr(end_test, exit_block_, loop_block_);
   b_.SetInsertPoint(exit_block_);
@@ -97,7 +105,11 @@ template <typename R, typename... Args>
 void Loop<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) const
 {
   auto loop_b = LoopBuilder(f, b);
-  loop_b.construct(begin(sizes_)->second);
+  auto&& [arg_i, len] = *begin(sizes_);
+  loop_b.construct(arg_i, len);
+
+  /* f->print(llvm::errs()); */
+  /* std::exit(0); */
 }
 
 }
