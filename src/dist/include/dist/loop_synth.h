@@ -116,8 +116,8 @@ void Loop<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) const
   auto&& [arg_i, len] = *begin(sizes_);
   loop_b.construct(arg_i, len);
 
-  f->print(llvm::errs());
-  std::exit(0);
+  /* f->print(llvm::errs()); */
+  /* std::exit(0); */
 }
 
 }
