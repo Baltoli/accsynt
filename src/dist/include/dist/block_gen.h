@@ -29,7 +29,11 @@ void BlockGenerator<Builder>::populate(size_t n_instrs)
   for(auto i = 0u; i < n_instrs; ++i) {
     auto v1 = uniform_sample(meta_.live);
     auto v2 = uniform_sample(meta_.live);
-    auto add = b_.CreateAdd(v1, v2);
+
+    assert(v1 != std::end(meta_.live) &&
+           v2 != std::end(meta_.live) &&
+           "Could not sample values to create add");
+    auto add = b_.CreateAdd(*v1, *v2);
     
     meta_.live(add) = true;
   }

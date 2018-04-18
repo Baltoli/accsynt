@@ -48,6 +48,10 @@ namespace accsynt {
 template <typename Iterator>
 auto uniform_sample(Iterator begin, Iterator end)
 {
+  if(begin == end) {
+    return end;
+  }
+
   auto rd = std::random_device{};
   auto dist = std::uniform_int_distribution<long>{0, std::distance(begin, end) - 1};
   auto idx = dist(rd);
@@ -55,7 +59,7 @@ auto uniform_sample(Iterator begin, Iterator end)
   auto it = begin;
   std::advance(it, idx);
 
-  return *it;
+  return it;
 }
 
 template <typename Container>

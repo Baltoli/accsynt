@@ -96,8 +96,8 @@ void Linear<R, Args...>::populate_instructions(Builder&& B,
 
   for(auto i = 0u; i < n; ++i) {
     auto live = meta.live;
-    auto v1 = uniform_sample(std::begin(live), std::end(live));
-    auto v2 = uniform_sample(std::begin(live), std::end(live));
+    auto v1 = *uniform_sample(std::begin(live), std::end(live));
+    auto v2 = *uniform_sample(std::begin(live), std::end(live));
     
     if(auto next = sampler(B, {v1, v2})) {
       meta.live(next) = true;
@@ -126,7 +126,7 @@ llvm::Value *Linear<R, Args...>::create_return(Builder&& B,
     return nullptr;
   }
 
-  return B.CreateRet(uniform_sample(possibles));
+  return B.CreateRet(*uniform_sample(possibles));
 }
 
 template <typename R, typename... Args>
