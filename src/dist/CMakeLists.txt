@@ -40,6 +40,7 @@ add_executable(unit_tests
   test/unit/metadata.cpp
   test/unit/synth.cpp
   test/unit/utils.cpp
+  test/unit/shapes.cpp
 )
 
 target_link_libraries(test_dist dist)

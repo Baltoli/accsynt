@@ -23,7 +23,7 @@ public:
   Oracle(F f, R r, Args... args) :
     reference_{f}
   {
-    options_.emplace_back(new Loop{r, args...});
+    options_.emplace_back(new LoopSynth{r, args...});
     options_.emplace_back(new Linear{r, args...});
   }
 

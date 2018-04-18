@@ -81,9 +81,9 @@ void LoopBuilder<Builder>::construct(size_t data_i, size_t length)
 }
 
 template <typename R, typename... Args>
-class Loop : public Synthesizer<R, Args...> {
+class LoopSynth : public Synthesizer<R, Args...> {
 public:
-  Loop(R r, Args... args) 
+  LoopSynth(R r, Args... args) 
     : Synthesizer<R, Args...>(r, args...) 
   {
     index_for_each(this->arg_types_, [this] (auto& ty, auto i) {
@@ -110,7 +110,7 @@ private:
 };
 
 template <typename R, typename... Args>
-void Loop<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) const
+void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) const
 {
   auto loop_b = LoopBuilder(f, b);
   auto&& [arg_i, len] = *begin(sizes_);
