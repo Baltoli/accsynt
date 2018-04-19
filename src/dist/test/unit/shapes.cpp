@@ -7,12 +7,15 @@
 using namespace accsynt;
 
 TEST_CASE("testing loop shapes", "[shapes]") {
-  auto s = Seq{
-    Hole{}, Nest{
-      Seq{Hole{}, Hole{}}
-    }
-  };
+  auto ids = std::vector<int>{0, 1, 2, 3, 4};
+  auto nested = make_nest(
+      Seq{
+        Hole{}, 
+        Seq{Hole{}, Hole{}}
+      }
+  );
 
-  std::cout << s << '\n';
-  std::cout << s.size() << '\n';
+  do {
+    std::cout << nested.instantiate(begin(ids)).first << '\n';
+  } while(std::next_permutation(begin(ids), begin(ids)+nested.size()));
 }
