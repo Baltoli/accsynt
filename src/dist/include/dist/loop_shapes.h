@@ -1,7 +1,13 @@
 #pragma once
 
+#include <dist/utils.h>
+
 #include <iostream>
 #include <memory>
+#include <numeric>
+#include <tuple>
+#include <variant>
+#include <vector>
 
 namespace accsynt {
 
@@ -121,8 +127,8 @@ struct Seq {
   template <typename Iterator>
   auto instantiate(Iterator it) const noexcept
   {
-    auto&& [first_i, f_it] = first.instantiate(it);
-    auto&& [second_i, s_it] = second.instantiate(f_it);
+    auto [first_i, f_it] = first.instantiate(it);
+    auto [second_i, s_it] = second.instantiate(f_it);
     return std::make_pair(
       Seq<decltype(first_i), decltype(second_i)>{first_i, second_i},
       s_it
@@ -141,6 +147,16 @@ std::ostream& operator<<(std::ostream& os, const T& s)
 {
   os << s.str();
   return os;
+}
+
+template <typename Shape>
+auto next_shapes(Shape s)
+{
+  return std::make_tuple(
+    Seq{Hole{}, s},
+    Seq{s, Hole{}},
+    make_nest(s)
+  );
 }
 
 }
