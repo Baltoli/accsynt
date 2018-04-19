@@ -9,6 +9,7 @@ struct Shape {
   virtual size_t size() const = 0;
   virtual Shape *copy() const = 0;
   virtual std::string str() const = 0;
+  virtual ~Shape() {}
 };
 
 struct Hole : public Shape {
@@ -19,7 +20,7 @@ struct Hole : public Shape {
 
   Shape *copy() const override
   {
-    return new Hole(*this);
+    return new Hole();
   }
 
   std::string str() const override
