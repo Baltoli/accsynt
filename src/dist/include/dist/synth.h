@@ -4,6 +4,7 @@
 #include <dist/contexts.h>
 
 #include <llvm/IR/DerivedTypes.h>
+#include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Module.h>
 
 #include <forward_list>
