@@ -7,7 +7,12 @@
 using namespace accsynt;
 
 TEST_CASE("testing loop shapes", "[shapes]") {
-  auto h = Hole{};
-  auto n = Nest{h};
-  auto nnn = Nest{n};
+  auto s = Seq{
+    Hole{}, Nest{
+      Seq{Hole{}, Hole{}}
+    }
+  };
+
+  std::cout << s << '\n';
+  std::cout << s.size() << '\n';
 }

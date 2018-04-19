@@ -5,53 +5,60 @@
 
 namespace accsynt {
 
-struct Shape {
-  virtual size_t size() const = 0;
-  virtual Shape *copy() const = 0;
-  virtual std::string str() const = 0;
-  virtual ~Shape() {}
+template <typename T>
+struct is_loop_shape : std::false_type {};
+
+template <typename T>
+constexpr bool is_loop_shape_v = is_loop_shape<T>::value;
+
+struct Hole {
+  size_t size() const { return 1; }
+  std::string str() const { return "()"; }
 };
 
-struct Hole : public Shape {
-  size_t size() const override 
-  { 
-    return 1; 
-  }
+template <>
+struct is_loop_shape<Hole> : std::true_type {};
 
-  Shape *copy() const override
-  {
-    return new Hole();
-  }
+template <
+  typename Inner, 
+  typename = std::enable_if_t<is_loop_shape_v<Inner>>
+>
+struct Nest {
+  Nest(Inner in) :
+    inner(in) {}
 
-  std::string str() const override
-  {
-    return "()";
-  }
+  size_t size() const { return 1 + inner.size(); }
+  std::string str() const { return "()[" + inner.str() + "]"; }
+
+  const Inner inner;
 };
 
-struct Nest : public Shape {
-  template <typename T>
-  Nest(T&& t) : inner(t.copy()) {}
+template <typename Inner>
+struct is_loop_shape<Nest<Inner>> : std::true_type {};
 
-  size_t size() const override
-  {
-    return 1 + inner->size();
-  }
+template <
+  typename First,
+  typename Second,
+  typename = std::enable_if_t<
+    is_loop_shape_v<First> && is_loop_shape_v<Second>
+  >
+>
+struct Seq {
+  Seq(First f, Second s) :
+    first(f), second(s) {}
 
-  Shape *copy() const override
-  {
-    return new Nest(*inner);
-  }
+  size_t size() const { return first.size() + second.size(); }
+  std::string str() const { return first.str() + " " + second.str(); }
 
-  std::string str() const override
-  {
-    return "(" + inner->str() + ")";
-  }
-
-  const std::unique_ptr<Shape> inner;
+  const First first;
+  const Second second;
 };
 
-std::ostream& operator<<(std::ostream& os, const Shape& s)
+template <typename First, typename Second>
+struct is_loop_shape<Seq<First, Second>> : std::true_type {};
+
+template <typename T, typename = std::enable_if_t<is_loop_shape_v<T>>>
+std::ostream& operator<<(std::ostream& os, const T& s)
 {
   os << s.str();
   return os;
