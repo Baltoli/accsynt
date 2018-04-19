@@ -12,8 +12,17 @@ template <typename T>
 constexpr bool is_loop_shape_v = is_loop_shape<T>::value;
 
 struct Hole {
-  size_t size() const { return 1; }
-  std::string str() const { return "()"; }
+  constexpr Hole() = default;
+
+  constexpr size_t size() const noexcept 
+  { 
+    return 1; 
+  }
+
+  std::string str() const noexcept 
+  { 
+    return "()";
+  }
 };
 
 template <>
@@ -24,11 +33,17 @@ template <
   typename = std::enable_if_t<is_loop_shape_v<Inner>>
 >
 struct Nest {
-  Nest(Inner in) :
+  constexpr Nest(Inner in) :
     inner(in) {}
 
-  size_t size() const { return 1 + inner.size(); }
-  std::string str() const { return "()[" + inner.str() + "]"; }
+  constexpr size_t size() const noexcept
+  { 
+    return 1 + inner.size(); 
+  }
+
+  std::string str() const noexcept { 
+    return "()[" + inner.str() + "]"; 
+  }
 
   const Inner inner;
 };
@@ -44,11 +59,16 @@ template <
   >
 >
 struct Seq {
-  Seq(First f, Second s) :
+  constexpr Seq(First f, Second s) :
     first(f), second(s) {}
 
-  size_t size() const { return first.size() + second.size(); }
-  std::string str() const { return first.str() + " " + second.str(); }
+  constexpr size_t size() const noexcept { 
+    return first.size() + second.size(); 
+  }
+  
+  std::string str() const noexcept { 
+    return first.str() + " " + second.str(); 
+  }
 
   const First first;
   const Second second;
