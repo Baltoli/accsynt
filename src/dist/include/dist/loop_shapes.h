@@ -59,6 +59,7 @@ public:
     for(auto& slot : shape.slots) {
       std::visit(printer, slot);
     }
+    os << '\b';
 
     return os;
   }
