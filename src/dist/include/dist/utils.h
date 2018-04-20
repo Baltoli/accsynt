@@ -237,4 +237,11 @@ constexpr inline bool is_tuple_v = is_tuple<T>::value;
 template<class... Ts> struct visitor: Ts... { using Ts::operator()...; };
 template<class... Ts> visitor(Ts...) -> visitor<Ts...>;
 
+template <class T>
+inline void hash_combine(std::size_t& seed, const T& v)
+{
+    std::hash<T> hasher;
+    seed ^= hasher(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
+}
+
 }
