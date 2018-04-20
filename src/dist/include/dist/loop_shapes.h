@@ -14,17 +14,26 @@ class Shape;
 struct Nest {
   Nest(int i, size_t n);
 
+  bool operator==(Nest const& other) const;
+
   int ID;
   Shape *shape;
 };
 
-struct EmptySlot {};
+struct EmptySlot {
+  bool operator==(EmptySlot const&) const { return true; }
+};
 
 using Slot = std::variant<
   int,
   Nest,
   EmptySlot
 >;
+
+bool slot_empty(Slot slot)
+{
+  return std::holds_alternative<EmptySlot>(slot);
+}
 
 class Shape {
 public:
@@ -64,7 +73,11 @@ public:
     return os;
   }
 
+  bool operator==(Shape const& other) const;
+
 private:
+  size_t empty_count() const;
+
   const size_t n_loops;
   std::vector<Slot> slots;
 };
@@ -99,9 +112,43 @@ void Shape::set_loop_id(int id, Iterator it)
   std::visit(setter, slot);
 }
 
+size_t Shape::empty_count() const
+{
+  return std::count_if(begin(slots), end(slots), slot_empty);
+}
+
+bool Shape::operator==(Shape const& other) const
+{
+  if(empty_count() != other.empty_count()) {
+    return false;
+  }
+
+  auto iter = begin(slots);
+  auto other_iter = begin(other.slots);
+
+  auto find_next = [](auto& it) {
+    while(slot_empty(*it)) { ++it; }
+  };
+
+  bool all = true;
+  for(auto i = 0u; i < (n_loops - empty_count()); ++i) {
+    find_next(iter);
+    find_next(other_iter);
+
+    all = all && (*iter == *other_iter);
+  }
+
+  return all;
+}
+
 Nest::Nest(int i, size_t n) :
   ID(i), shape(new Shape(n)) 
 {
+}
+
+bool Nest::operator==(Nest const& other) const
+{
+  return ID == other.ID && (*shape == *other.shape);
 }
 
 }
