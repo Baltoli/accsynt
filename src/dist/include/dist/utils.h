@@ -234,4 +234,7 @@ struct is_tuple<T, decltype(std::tuple_size_v<T>, void())> : std::true_type {};
 template <typename T>
 constexpr inline bool is_tuple_v = is_tuple<T>::value;
 
+template<class... Ts> struct visitor: Ts... { using Ts::operator()...; };
+template<class... Ts> visitor(Ts...) -> visitor<Ts...>;
+
 }
