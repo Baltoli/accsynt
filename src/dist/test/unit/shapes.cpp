@@ -8,10 +8,17 @@
 using namespace accsynt;
 
 TEST_CASE("testing loop shapes", "[shapes]") {
-  auto id = Indexer(3);
-  auto shapes = id.all_loops();
+  Loop l;
+  std::cout << l << '\n';
 
-  for(auto shape : shapes) {
-    std::cout << shape << '\n';
+  auto l2 = l;
+  l.add_child(Loop{});
+  l.add_child(Loop{});
+  std::cout << l << '\n';
+  std::cout << l2 << '\n';
+
+  for(const auto& lp : l) {
+    lp->add_child(Loop{});
   }
+  std::cout << l << '\n';
 }
