@@ -9,8 +9,4 @@
 using namespace accsynt;
 
 TEST_CASE("testing loop shapes", "[shapes]") {
-  auto all = Loop::loops(3);
-  for(auto var : all) {
-    std::cout << var << '\n';
-  }
 }
