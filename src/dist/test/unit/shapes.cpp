@@ -9,26 +9,19 @@
 using namespace accsynt;
 
 TEST_CASE("testing loop shapes", "[shapes]") {
-  Loop l;
-  std::cout << l << '\n';
-
-  auto l2 = l;
+  Loop l{};
   l.add_child(Loop{});
   l.add_child(Loop{});
-  std::cout << l << '\n';
-  std::cout << l2 << '\n';
 
-  for(const auto& lp : l) {
-    lp->add_child(Loop{});
-  }
+  auto& l2 = l.add_child(Loop{});
+  l2.add_child(Loop{});
+
   std::cout << l << '\n';
 
-  auto m = std::unordered_set<Loop>{};
-  m.insert(l);
-  m.insert(l2);
-
-  for(const auto& lp : m) {
-    std::cout << '\n' << lp;
+  for(auto i = 0u; i < l.size(); ++i) {
+    auto lc = l;
+    auto& ch = lc.nth_child(i);
+    ch = ch.nested();
+    std::cout << lc << '\n';
   }
-  std::cout << '\n';
 }

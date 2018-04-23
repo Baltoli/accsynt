@@ -21,9 +21,16 @@ Loop& Loop::operator=(Loop other)
   return *this;
 }
 
-void Loop::add_child(Loop const& l)
+Loop& Loop::add_child(Loop const& l)
 {
-  loops_.emplace_back(new Loop(l));
+  return *loops_.emplace_back(new Loop(l));
+}
+
+Loop Loop::nested() const
+{
+  auto ret = Loop{};
+  ret.add_child(*this);
+  return ret;
 }
 
 bool Loop::operator==(Loop const& other) const
@@ -75,14 +82,18 @@ std::ostream& operator<<(std::ostream& os, Slot const& slot)
 
 std::ostream& operator<<(std::ostream& os, Loop const& loop)
 {
-  os << loop.slot_;
+  auto nest = bool{loop.slot_};
+  if(nest) {
+    os << *loop.slot_;
+  }
 
   if(!loop.loops_.empty()) {
-    os << "[";
+    if(nest) { os << '['; }
     for(const auto& l : loop.loops_) {
       os << *l << " ";
     }
-    os << "\b]";
+    os << '\b';
+    if(nest) { os << ']'; }
   }
 
   return os;

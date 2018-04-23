@@ -2,6 +2,7 @@
 
 #include <iosfwd>
 #include <memory>
+#include <optional>
 #include <variant>
 #include <vector>
 
@@ -53,11 +54,13 @@ struct LoopID {
 };
 
 class Loop {
-  std::vector<std::unique_ptr<Loop>> loops_;
-  Slot slot_;
+  std::vector<std::unique_ptr<Loop>> loops_ = {};
+  std::optional<Slot> slot_ = Hole{};
 
 public:
   Loop() = default;
+  Loop(std::nullopt_t) : slot_{} {}
+
   ~Loop() = default;
 
   bool operator==(Loop const& other) const;
@@ -67,7 +70,8 @@ public:
   Loop(const Loop& other);
   Loop& operator=(Loop other);
 
-  void add_child(Loop const& l);
+  Loop& add_child(Loop const& l);
+  Loop nested() const;
 
   using iterator = decltype(loops_)::iterator;
   using const_iterator = decltype(loops_)::const_iterator;
@@ -79,6 +83,9 @@ public:
   iterator end() noexcept(noexcept(loops_.end())) { return loops_.end(); }
   const_iterator end() const noexcept(noexcept(loops_.end())) { return loops_.end(); }
   const_iterator cend() const noexcept(noexcept(loops_.end())) { return loops_.cend(); }
+
+  size_t size() const { return loops_.size(); }
+  Loop& nth_child(size_t n) const { return *loops_.at(n); }
 
   friend std::ostream& operator<<(std::ostream& os, Loop const& loop);
 };
