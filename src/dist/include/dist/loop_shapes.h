@@ -1,24 +1,56 @@
 #pragma once
 
-#include <dist/utils.h>
-
-#include <iostream>
+#include <iosfwd>
 #include <memory>
 #include <variant>
 #include <vector>
 
 namespace accsynt {
+  struct Hole;
+  struct LoopID;
+  using Slot = std::variant<Hole, LoopID>;
+  class Loop;
+}
 
-struct Hole {};
-struct LoopId { 
-  LoopId() = delete;
-  long id; 
+namespace std {
+  template <>
+  struct hash<accsynt::Hole> {
+    size_t operator()(accsynt::Hole const& h) const;
+  };
+
+  template <>
+  struct hash<accsynt::LoopID> {
+    size_t operator()(accsynt::LoopID const& h) const;
+  };
+
+  template <>
+  struct hash<accsynt::Loop> {
+    size_t operator()(accsynt::Loop const& h) const;
+  };
+}
+
+namespace accsynt {
+
+struct Hole {
+  bool operator==(Hole const& other) const { return true; }
+  bool operator!=(Hole const& other) const { return !(*this == other); }
 };
 
-using Slot = std::variant<
-  Hole,
-  LoopId
->;
+struct LoopID { 
+  LoopID() = delete;
+
+  bool operator==(LoopID const& other) const
+  {
+    return id == other.id;
+  }
+
+  bool operator!=(LoopID const& other) const
+  {
+    return !(*this == other);
+  }
+
+  long id;
+};
 
 class Loop {
   std::vector<std::unique_ptr<Loop>> loops_;
@@ -27,6 +59,10 @@ class Loop {
 public:
   Loop() = default;
   ~Loop() = default;
+
+  bool operator==(Loop const& other) const;
+  bool operator!=(Loop const& other) const;
+  size_t hash() const;
 
   Loop(const Loop& other);
   Loop& operator=(Loop other);
@@ -46,52 +82,5 @@ public:
 
   friend std::ostream& operator<<(std::ostream& os, Loop const& loop);
 };
-
-Loop::Loop(const Loop& other) :
-  slot_(other.slot_)
-{
-  for(const auto& child : other.loops_) {
-    loops_.emplace_back(new Loop(*child));
-  }
-}
-
-Loop& Loop::operator=(Loop other)
-{
-  using std::swap;
-  swap(slot_, other.slot_);
-  swap(loops_, other.loops_);
-  return *this;
-}
-
-void Loop::add_child(Loop const& l)
-{
-  loops_.emplace_back(new Loop(l));
-}
-
-std::ostream& operator<<(std::ostream& os, Slot const& slot)
-{
-  auto printer = visitor{
-    [&os] (Hole) { os << "()"; },
-    [&os] (LoopId l) { os << "L" << l.id; }
-  };
-
-  std::visit(printer, slot);
-  return os;
-}
-
-std::ostream& operator<<(std::ostream& os, Loop const& loop)
-{
-  os << loop.slot_;
-
-  if(!loop.loops_.empty()) {
-    os << "[";
-    for(const auto& l : loop.loops_) {
-      os << *l << " ";
-    }
-    os << "\b]";
-  }
-
-  return os;
-}
 
 }

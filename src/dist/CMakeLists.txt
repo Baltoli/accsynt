@@ -5,6 +5,7 @@ add_library(dist
   src/types.cpp
   src/utils.cpp
   src/synth_op.cpp
+  src/loop_shapes.cpp
 )
 
 target_include_directories(dist PUBLIC
