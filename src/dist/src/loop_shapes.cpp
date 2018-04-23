@@ -57,7 +57,7 @@ std::unordered_set<Loop> Loop::next_variants() const
   auto ret = std::unordered_set<Loop>{};
 
   // Recurse
-  for(auto i = 0u; i < size(); ++i) {
+  for(auto i = 0u; i < children_size(); ++i) {
     auto child = nth_child(i);
     for(auto var : child.next_variants()) {
       auto cp = *this;
@@ -153,6 +153,19 @@ std::unordered_set<Loop> Loop::loops(size_t n)
   } while(std::next_permutation(ids.begin(), ids.end()));
 
   return ret;
+}
+
+size_t Loop::count() const
+{
+  size_t count = 0;
+  if(slot_) {
+    count++;
+  }
+
+  for(auto const& ch : loops_) {
+    count += ch->count();
+  }
+  return count;
 }
 
 std::ostream& operator<<(std::ostream& os, Slot const& slot)

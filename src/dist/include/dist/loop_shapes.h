@@ -92,8 +92,10 @@ public:
   const_iterator end() const noexcept(noexcept(loops_.end())) { return loops_.end(); }
   const_iterator cend() const noexcept(noexcept(loops_.end())) { return loops_.cend(); }
 
-  size_t size() const { return loops_.size(); }
+  size_t children_size() const { return loops_.size(); }
   Loop& nth_child(size_t n) const { return *loops_.at(n); }
+
+  size_t count() const;
 
   friend std::ostream& operator<<(std::ostream& os, Loop const& loop);
 };
@@ -111,7 +113,7 @@ std::pair<Loop, Iterator> Loop::instantiated(Iterator begin, Iterator end) const
     ret.slot_ = LoopID{*it++};
   }
 
-  for(auto i = 0u; i < ret.size(); ++i) {
+  for(auto i = 0u; i < ret.children_size(); ++i) {
     auto& ch = ret.nth_child(i);
     auto pair = ch.instantiated(it++, end);
     ch = pair.first;
