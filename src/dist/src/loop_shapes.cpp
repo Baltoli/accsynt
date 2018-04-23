@@ -33,6 +33,75 @@ Loop Loop::nested() const
   return ret;
 }
 
+Loop Loop::normalised() const
+{
+  auto ret = Loop{{}};
+  if(slot_) {
+    ret.add_child(Loop{});
+  }
+
+  for(auto& ch : loops_) {
+    if(ch->slot_) {
+      ret.add_child(*ch);
+    } else {
+      for(auto& nest : *ch) {
+        ret.add_child(*nest);
+      }
+    }
+  }
+  return ret;
+}
+
+std::unordered_set<Loop> Loop::next_variants() const
+{
+  auto ret = std::unordered_set<Loop>{};
+
+  // Recurse
+  for(auto i = 0u; i < size(); ++i) {
+    auto child = nth_child(i);
+    for(auto var : child.next_variants()) {
+      auto cp = *this;
+      cp.nth_child(i) = var;
+      ret.insert(cp);
+    }
+  }
+
+  // Nest
+  ret.insert(nested());
+  
+  // Pre-/post-sequence
+  auto loop = Loop{{}};
+  auto l2 = loop;
+  loop.add_child(Loop{});
+  loop.add_child(*this);
+  l2.add_child(*this);
+  l2.add_child(Loop{});
+  ret.insert(loop);
+  ret.insert(l2);
+
+  return ret;
+}
+
+std::unordered_set<Loop> Loop::shapes(size_t n)
+{
+  auto ret = std::unordered_set<Loop>{};
+
+  if(n == 0) {
+  } else if(n == 1) {
+    ret.insert(Loop{});
+  } else {
+    auto prevs = shapes(n - 1);
+    for(auto p : prevs) {
+      auto vars = p.next_variants();
+      for(auto v : vars) {
+        ret.insert(v.normalised());
+      }
+    }
+  }
+
+  return ret;
+}
+
 bool Loop::operator==(Loop const& other) const
 {
   if(slot_ != other.slot_) {
@@ -46,7 +115,7 @@ bool Loop::operator==(Loop const& other) const
   for(auto it = begin(), o_it = other.begin();
       it != end() && o_it != other.end(); ++it, ++o_it) 
   {
-    if(*it != *o_it) {
+    if(**it != **o_it) {
       return false;
     }
   }

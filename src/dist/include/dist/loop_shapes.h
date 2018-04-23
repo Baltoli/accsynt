@@ -3,6 +3,7 @@
 #include <iosfwd>
 #include <memory>
 #include <optional>
+#include <unordered_set>
 #include <variant>
 #include <vector>
 
@@ -59,7 +60,7 @@ class Loop {
 
 public:
   Loop() = default;
-  Loop(std::nullopt_t) : slot_{} {}
+  Loop(std::optional<Slot> s) : slot_{s} {}
 
   ~Loop() = default;
 
@@ -72,6 +73,9 @@ public:
 
   Loop& add_child(Loop const& l);
   Loop nested() const;
+  Loop normalised() const;
+  std::unordered_set<Loop> next_variants() const;
+  static std::unordered_set<Loop> shapes(size_t n);
 
   using iterator = decltype(loops_)::iterator;
   using const_iterator = decltype(loops_)::const_iterator;
