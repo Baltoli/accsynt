@@ -77,6 +77,10 @@ public:
   std::unordered_set<Loop> next_variants() const;
   static std::unordered_set<Loop> shapes(size_t n);
 
+  template <typename Iterator>
+  std::pair<Loop, Iterator> instantiated(Iterator begin, Iterator end) const;
+  static std::unordered_set<Loop> loops(size_t n);
+
   using iterator = decltype(loops_)::iterator;
   using const_iterator = decltype(loops_)::const_iterator;
 
@@ -93,5 +97,28 @@ public:
 
   friend std::ostream& operator<<(std::ostream& os, Loop const& loop);
 };
+
+template <typename Iterator>
+std::pair<Loop, Iterator> Loop::instantiated(Iterator begin, Iterator end) const
+{
+  if(begin == end) {
+    return {*this, begin};
+  }
+
+  auto ret = *this;
+  auto it = begin;
+  if(ret.slot_) {
+    ret.slot_ = LoopID{*it++};
+  }
+
+  for(auto i = 0u; i < ret.size(); ++i) {
+    auto& ch = ret.nth_child(i);
+    auto pair = ch.instantiated(it++, end);
+    ch = pair.first;
+    it = pair.second;
+  }
+
+  return {ret, it};
+}
 
 }

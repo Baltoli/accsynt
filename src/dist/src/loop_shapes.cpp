@@ -37,7 +37,7 @@ Loop Loop::normalised() const
 {
   auto ret = Loop{{}};
   if(slot_) {
-    ret.add_child(Loop{});
+    ret = Loop{};
   }
 
   for(auto& ch : loops_) {
@@ -135,6 +135,23 @@ size_t Loop::hash() const
   for(const auto& loop : loops_) {
     hash_combine(ret, *loop);
   }
+  return ret;
+}
+
+std::unordered_set<Loop> Loop::loops(size_t n)
+{
+  auto ret = std::unordered_set<Loop>{};
+  auto ids = std::vector<long>(n);
+  std::iota(ids.begin(), ids.end(), 0);
+
+  auto all_shapes = shapes(n);
+  do {
+    for(const auto& shape : all_shapes) {
+      auto inst = shape.instantiated(ids.begin(), ids.end()).first;
+      ret.insert(inst);
+    }
+  } while(std::next_permutation(ids.begin(), ids.end()));
+
   return ret;
 }
 
