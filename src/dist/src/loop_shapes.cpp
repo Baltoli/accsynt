@@ -168,6 +168,17 @@ size_t Loop::count() const
   return count;
 }
 
+bool Loop::is_instantiated() const
+{
+  if(auto sl = slot_; !std::holds_alternative<LoopID>(*sl)) {
+    return false;
+  }
+
+  return std::all_of(begin(), end(), [](auto& loop) {
+    return loop->is_instantiated();
+  });
+}
+
 std::ostream& operator<<(std::ostream& os, Slot const& slot)
 {
   auto printer = visitor{

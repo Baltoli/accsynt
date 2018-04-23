@@ -80,6 +80,7 @@ public:
   template <typename Iterator>
   std::pair<Loop, Iterator> instantiated(Iterator begin, Iterator end) const;
   static std::unordered_set<Loop> loops(size_t n);
+  bool is_instantiated() const;
 
   using iterator = decltype(loops_)::iterator;
   using const_iterator = decltype(loops_)::const_iterator;
