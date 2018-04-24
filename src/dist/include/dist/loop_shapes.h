@@ -90,6 +90,8 @@ public:
 
   using iterator = decltype(loops_)::iterator;
   using const_iterator = decltype(loops_)::const_iterator;
+  using reverse_iterator = decltype(loops_)::reverse_iterator;
+  using const_reverse_iterator = decltype(loops_)::const_reverse_iterator;
 
   iterator begin() noexcept(noexcept(loops_.begin())) { return loops_.begin(); }
   const_iterator begin() const noexcept(noexcept(loops_.begin())) { return loops_.begin(); }
@@ -98,6 +100,14 @@ public:
   iterator end() noexcept(noexcept(loops_.end())) { return loops_.end(); }
   const_iterator end() const noexcept(noexcept(loops_.end())) { return loops_.end(); }
   const_iterator cend() const noexcept(noexcept(loops_.end())) { return loops_.cend(); }
+
+  reverse_iterator rbegin() noexcept(noexcept(loops_.rbegin())) { return loops_.rbegin(); }
+  const_reverse_iterator rbegin() const noexcept(noexcept(loops_.rbegin())) { return loops_.rbegin(); }
+  const_reverse_iterator crbegin() const noexcept(noexcept(loops_.rbegin())) { return loops_.crbegin(); }
+
+  reverse_iterator rend() noexcept(noexcept(loops_.rend())) { return loops_.rend(); }
+  const_reverse_iterator rend() const noexcept(noexcept(loops_.rend())) { return loops_.rend(); }
+  const_reverse_iterator crend() const noexcept(noexcept(loops_.rend())) { return loops_.crend(); }
 
   size_t children_size() const { return loops_.size(); }
   Loop& nth_child(size_t n) const { return *loops_.at(n); }

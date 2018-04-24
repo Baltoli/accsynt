@@ -16,7 +16,13 @@ IRLoop::IRLoop(Function *f, Loop const& l,
 {
   // set up the loop header
   B_.SetInsertPoint(header);
-  auto end_idx = B_.getInt64(extents_.at(shape_.ID()));
+  auto end_idx = [&] {
+    try {
+      return B_.getInt64(extents_.at(shape_.ID()));
+    } catch(...) {
+      return B_.getInt64(1);
+    }
+  }();
   B_.CreateBr(body);
 
   // set up the loop body
@@ -25,14 +31,12 @@ IRLoop::IRLoop(Function *f, Loop const& l,
   auto iter = B_.CreatePHI(iter_ty, 2, "iter");
   iter->addIncoming(B_.getInt64(0), header);
 
-  for(auto& child : shape_) {
-    auto irl = IRLoop(func_, *child, extents_, exit);
-    B_.CreateBr(irl.header);
+  auto next = exit;
+  for(auto it = shape_.rbegin(); it != shape_.rend(); ++it) {
+    auto irl = IRLoop(func_, **it, extents_, next);
+    next = irl.header;
   }
-
-  if(shape_.children_size() == 0) {
-    B_.CreateBr(exit);
-  }
+  B_.CreateBr(next);
 
   // Set up the loop exit and post-loop control flow
   B_.SetInsertPoint(exit);

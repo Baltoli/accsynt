@@ -30,11 +30,11 @@ TEST_CASE("can use loop builder", "[loopbuilder]") {
     {1, 5},
     {2, 3}
   };
-  auto l = Loop{};
-  auto& ch = l.add_child(Loop{});
-  ch.add_child(Loop{});
+  auto l = Loop{{}};
+  l.add_child(Loop{});
+  l.add_child(Loop{});
   l.instantiate(std::array{0, 1, 2, 3});
-  auto irl = IRLoop(fn, l, extents, ret_bb);
 
+  auto irl = IRLoop(fn, l, extents, ret_bb);
   mod->print(llvm::errs(), nullptr);
 }
