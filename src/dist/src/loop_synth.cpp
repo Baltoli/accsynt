@@ -24,7 +24,15 @@ IRLoop::IRLoop(Function *f, Loop const& l,
   B_.SetInsertPoint(body);
   auto iter = B_.CreatePHI(iter_ty, 2, "iter");
   iter->addIncoming(B_.getInt64(0), header);
-  B_.CreateBr(exit);
+
+  for(auto& child : shape_) {
+    auto irl = IRLoop(func_, *child, extents_, exit);
+    B_.CreateBr(irl.header);
+  }
+
+  if(shape_.children_size() == 0) {
+    B_.CreateBr(exit);
+  }
 
   // Set up the loop exit and post-loop control flow
   B_.SetInsertPoint(exit);
@@ -34,7 +42,6 @@ IRLoop::IRLoop(Function *f, Loop const& l,
   B_.CreateCondBr(cond, post_loop_, body);
 
   B_.SetInsertPoint(post_loop_);
-  B_.CreateRetVoid();
   post_loop_->moveAfter(exit);
 }
 

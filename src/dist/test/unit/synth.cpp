@@ -23,11 +23,16 @@ TEST_CASE("can use loop builder", "[loopbuilder]") {
   auto fn_ty = llvm::FunctionType::get(void_ty, {}, false);
   auto fn = llvm::Function::Create(fn_ty, llvm::GlobalValue::ExternalLinkage, "test", mod.get());
   auto ret_bb = llvm::BasicBlock::Create(ctx, "post", fn);
+  llvm::ReturnInst::Create(ctx, ret_bb);
 
   auto extents = std::map<long, long>{
-    {0, 10}
+    {0, 10},
+    {1, 5},
+    {2, 3}
   };
   auto l = Loop{};
+  auto& ch = l.add_child(Loop{});
+  ch.add_child(Loop{});
   l.instantiate(std::array{0, 1, 2, 3});
   auto irl = IRLoop(fn, l, extents, ret_bb);
 
