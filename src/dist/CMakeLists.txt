@@ -6,6 +6,7 @@ add_library(dist
   src/utils.cpp
   src/synth_op.cpp
   src/loop_shapes.cpp
+  src/loop_synth.cpp
 )
 
 target_include_directories(dist PUBLIC

@@ -21,6 +21,11 @@ Loop& Loop::operator=(Loop other)
   return *this;
 }
 
+long Loop::ID() const
+{
+  return std::get<LoopID>(*slot_).id;
+}
+
 Loop& Loop::add_child(Loop const& l)
 {
   return *loops_.emplace_back(new Loop(l));

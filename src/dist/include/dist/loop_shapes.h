@@ -71,6 +71,8 @@ public:
   Loop(const Loop& other);
   Loop& operator=(Loop other);
 
+  long ID() const;
+
   Loop& add_child(Loop const& l);
   Loop nested() const;
   Loop normalised() const;
@@ -79,6 +81,10 @@ public:
 
   template <typename Iterator>
   std::pair<Loop, Iterator> instantiated(Iterator begin, Iterator end) const;
+
+  template <typename Container>
+  void instantiate(Container c);
+
   static std::unordered_set<Loop> loops(size_t n);
   bool is_instantiated() const;
 
@@ -100,6 +106,13 @@ public:
 
   friend std::ostream& operator<<(std::ostream& os, Loop const& loop);
 };
+
+template <typename Container>
+void Loop::instantiate(Container c)
+{
+  using std::begin; using std::end;
+  *this = instantiated(begin(c), end(c)).first;
+}
 
 template <typename Iterator>
 std::pair<Loop, Iterator> Loop::instantiated(Iterator begin, Iterator end) const

@@ -3,6 +3,7 @@
 #include <llvm/IR/IRBuilder.h>
 
 #include <dist/block_gen.h>
+#include <dist/loop_shapes.h>
 #include <dist/synth.h>
 #include <dist/synth_metadata.h>
 
@@ -119,5 +120,23 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
   /* f->print(llvm::errs()); */
   /* std::exit(0); */
 }
+
+class IRLoop {
+private:
+  llvm::Function* func_;
+  llvm::BasicBlock* post_loop_;
+  Loop const& shape_;
+  std::map<long, long> const& extents_;
+  llvm::IRBuilder<> B_;
+
+public:
+  IRLoop(llvm::Function* f, Loop const& l, 
+         std::map<long, long> const& e,
+         llvm::BasicBlock* post);
+
+  llvm::BasicBlock *header;
+  llvm::BasicBlock *body;
+  llvm::BasicBlock *exit;
+};
 
 }

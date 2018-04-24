@@ -14,7 +14,22 @@ TEST_CASE("can use synth example generator", "[synth]") {
 }
 
 TEST_CASE("can use loop Synthesizer", "[loopsynth]") {
-  /* auto i4 = Integer{4}; */
-  /* auto arr = Array{i4, 4}; */
-  /* auto synth = Loop(i4, arr); */
+}
+
+TEST_CASE("can use loop builder", "[loopbuilder]") {
+  auto& ctx = ThreadContext::get();
+  auto mod = std::make_unique<llvm::Module>("builder-mod", ctx);
+  auto void_ty = llvm::Type::getVoidTy(ctx);
+  auto fn_ty = llvm::FunctionType::get(void_ty, {}, false);
+  auto fn = llvm::Function::Create(fn_ty, llvm::GlobalValue::ExternalLinkage, "test", mod.get());
+  auto ret_bb = llvm::BasicBlock::Create(ctx, "post", fn);
+
+  auto extents = std::map<long, long>{
+    {0, 10}
+  };
+  auto l = Loop{};
+  l.instantiate(std::array{0, 1, 2, 3});
+  auto irl = IRLoop(fn, l, extents, ret_bb);
+
+  mod->print(llvm::errs(), nullptr);
 }
