@@ -123,7 +123,7 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
 
 struct LoopBody {
   llvm::BasicBlock *body;
-  llvm::Value *loop_index;
+  std::vector<llvm::Value *> loop_indexes;
   llvm::Instruction *insert_point;
 };
 
@@ -133,6 +133,7 @@ private:
   llvm::BasicBlock* post_loop_;
   Loop const& shape_;
   std::map<long, long> const& extents_;
+  std::vector<llvm::Value *> parents_;
   llvm::IRBuilder<> B_;
 
   void build_sequence();
@@ -145,7 +146,8 @@ public:
   IRLoop(llvm::Function* f, Loop const& l, 
          std::map<long, long> const& e,
          llvm::BasicBlock* post,
-         std::map<long, LoopBody> *b = nullptr);
+         std::map<long, LoopBody> *b = nullptr,
+         std::vector<llvm::Value *> p = {});
 
   ~IRLoop()
   {
