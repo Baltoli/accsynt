@@ -129,6 +129,8 @@ private:
   std::map<long, long> const& extents_;
   llvm::IRBuilder<> B_;
 
+  void build_sequence();
+  void build_nested(long loop_id);
 public:
   IRLoop(llvm::Function* f, Loop const& l, 
          std::map<long, long> const& e,

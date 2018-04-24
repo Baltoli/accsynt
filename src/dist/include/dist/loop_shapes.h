@@ -71,7 +71,7 @@ public:
   Loop(const Loop& other);
   Loop& operator=(Loop other);
 
-  long ID() const;
+  std::optional<long> ID() const;
 
   Loop& add_child(Loop const& l);
   Loop nested() const;

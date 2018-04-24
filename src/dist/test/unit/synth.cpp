@@ -31,7 +31,8 @@ TEST_CASE("can use loop builder", "[loopbuilder]") {
     {2, 3}
   };
   auto l = Loop{{}};
-  l.add_child(Loop{});
+  auto& l2 = l.add_child(Loop{});
+  l2.add_child(Loop{});
   l.add_child(Loop{});
   l.instantiate(std::array{0, 1, 2, 3});
 

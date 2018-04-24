@@ -14,15 +14,42 @@ IRLoop::IRLoop(Function *f, Loop const& l,
   body(BasicBlock::Create(func_->getContext(), "body", func_)),
   exit(BasicBlock::Create(func_->getContext(), "exit", func_))
 {
+  if(auto id = shape_.ID()) {
+    build_nested(*id);
+  } else {
+    build_sequence();
+  }
+}
+
+void IRLoop::build_sequence()
+{
   // set up the loop header
   B_.SetInsertPoint(header);
-  auto end_idx = [&] {
-    try {
-      return B_.getInt64(extents_.at(shape_.ID()));
-    } catch(...) {
-      return B_.getInt64(1);
-    }
-  }();
+  B_.CreateBr(body);
+
+  // set up the loop body
+  B_.SetInsertPoint(body);
+
+  auto next = exit;
+  for(auto it = shape_.rbegin(); it != shape_.rend(); ++it) {
+    auto irl = IRLoop(func_, **it, extents_, next);
+    next = irl.header;
+  }
+  B_.CreateBr(next);
+
+  // Set up the loop exit and post-loop control flow
+  B_.SetInsertPoint(exit);
+  B_.CreateBr(post_loop_);
+
+  B_.SetInsertPoint(post_loop_);
+  post_loop_->moveAfter(exit);
+}
+
+void IRLoop::build_nested(long loop_id)
+{
+  // set up the loop header
+  B_.SetInsertPoint(header);
+  auto end_idx = B_.getInt64(extents_.at(loop_id));
   B_.CreateBr(body);
 
   // set up the loop body

@@ -21,9 +21,13 @@ Loop& Loop::operator=(Loop other)
   return *this;
 }
 
-long Loop::ID() const
+std::optional<long> Loop::ID() const
 {
-  return std::get<LoopID>(*slot_).id;
+  if(!slot_) { return {}; }
+  if(auto l_id = std::get_if<LoopID>(&*slot_)) {
+    return l_id->id;
+  }
+  return {};
 }
 
 Loop& Loop::add_child(Loop const& l)
