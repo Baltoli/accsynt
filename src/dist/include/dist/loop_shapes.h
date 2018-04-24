@@ -1,3 +1,7 @@
+/**
+ * \file: loop_shapes.h
+ */
+
 #pragma once
 
 #include <iosfwd>
@@ -33,24 +37,39 @@ namespace std {
 
 namespace accsynt {
 
+/**
+ * \brief Represents a slot in which a loop ID can be instantiated.
+ *
+ * These holes are used to build the unlabelled tree structure representing
+ * loops in the shape code.
+ */
 struct Hole {
+  /// Always returns true; all holes are equivalent.
   bool operator==(Hole const& other) const { return true; }
-  bool operator!=(Hole const& other) const { return !(*this == other); }
+
+  /// Always returns false; all holes are equivalent.
+  bool operator!=(Hole const& other) const { return false; }
 };
 
+/**
+ * \brief Small type-safe wrapper around a loop identifier.
+ */
 struct LoopID { 
   LoopID() = delete;
 
+  /// Comparisons use underlying id.
   bool operator==(LoopID const& other) const
   {
     return id == other.id;
   }
 
+  /// Comparisons use underlying id.
   bool operator!=(LoopID const& other) const
   {
     return !(*this == other);
   }
 
+  /// Underlying ID.
   long id;
 };
 
