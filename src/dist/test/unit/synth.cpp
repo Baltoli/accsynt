@@ -37,5 +37,4 @@ TEST_CASE("can use loop builder", "[loopbuilder]") {
   l.instantiate(std::array{0, 1, 2, 3});
 
   auto irl = IRLoop(fn, l, extents, ret_bb);
-  mod->print(llvm::errs(), nullptr);
 }

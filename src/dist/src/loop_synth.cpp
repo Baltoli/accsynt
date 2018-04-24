@@ -6,7 +6,8 @@ namespace accsynt {
 
 IRLoop::IRLoop(Function *f, Loop const& l, 
                std::map<long, long> const& e,
-               llvm::BasicBlock* post) :
+               llvm::BasicBlock* post,
+               std::map<long, LoopBody> *b) :
   func_(f), post_loop_(post),
   shape_(l), extents_(e),
   B_(func_->getContext()),
@@ -14,6 +15,13 @@ IRLoop::IRLoop(Function *f, Loop const& l,
   body(BasicBlock::Create(func_->getContext(), "body", func_)),
   exit(BasicBlock::Create(func_->getContext(), "exit", func_))
 {
+  if(!b) {
+    bodies_ = new std::map<long, LoopBody>{};
+    own_bodies_map = true;
+  } else {
+    bodies_ = b;
+  }
+
   if(auto id = shape_.ID()) {
     build_nested(*id);
   } else {
@@ -32,7 +40,7 @@ void IRLoop::build_sequence()
 
   auto next = exit;
   for(auto it = shape_.rbegin(); it != shape_.rend(); ++it) {
-    auto irl = IRLoop(func_, **it, extents_, next);
+    auto irl = IRLoop(func_, **it, extents_, next, bodies_);
     next = irl.header;
   }
   B_.CreateBr(next);
@@ -47,6 +55,7 @@ void IRLoop::build_sequence()
 
 void IRLoop::build_nested(long loop_id)
 {
+
   // set up the loop header
   B_.SetInsertPoint(header);
   auto end_idx = B_.getInt64(extents_.at(loop_id));
@@ -60,10 +69,11 @@ void IRLoop::build_nested(long loop_id)
 
   auto next = exit;
   for(auto it = shape_.rbegin(); it != shape_.rend(); ++it) {
-    auto irl = IRLoop(func_, **it, extents_, next);
+    auto irl = IRLoop(func_, **it, extents_, next, bodies_);
     next = irl.header;
   }
-  B_.CreateBr(next);
+  auto body_end = B_.CreateBr(next);
+  bodies_->insert_or_assign(loop_id, LoopBody{body, iter, body_end});
 
   // Set up the loop exit and post-loop control flow
   B_.SetInsertPoint(exit);
