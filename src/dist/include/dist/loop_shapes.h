@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <iosfwd>
 #include <memory>
 #include <optional>
@@ -92,7 +93,6 @@ public:
 
   bool operator==(Loop const& other) const;
   bool operator!=(Loop const& other) const;
-  bool operator<(Loop const& other) const;
   size_t hash() const;
 
   Loop(const Loop& other);
@@ -113,6 +113,10 @@ public:
   void instantiate(Container c);
 
   static std::unordered_set<Loop> loops(size_t n);
+
+  template <typename Iterator>
+  static std::unordered_set<Loop> loops(size_t n, Iterator begin, Iterator end);
+
   bool is_instantiated() const;
 
   using iterator = decltype(loops_)::iterator;
@@ -143,6 +147,21 @@ public:
 
   friend std::ostream& operator<<(std::ostream& os, Loop const& loop);
 };
+
+template <typename Iterator>
+std::unordered_set<Loop> Loop::loops(size_t n, Iterator begin, Iterator end)
+{
+  auto ret = std::unordered_set<Loop>{};
+  auto all_shapes = shapes(n);
+  do {
+    for(const auto& shape : all_shapes) {
+      auto inst = shape.instantiated(begin, end).first;
+      ret.insert(inst);
+    }
+  } while(std::next_permutation(begin, end));
+
+  return ret;
+}
 
 template <typename Container>
 void Loop::instantiate(Container c)

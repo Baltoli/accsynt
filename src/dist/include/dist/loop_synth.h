@@ -138,7 +138,12 @@ public:
       }
     });
 
-    auto loop_set = Loop::loops(sizes_.size());
+    auto ids = std::vector<long>{};
+    for(auto pair : sizes_) {
+      ids.emplace_back(pair.first);
+    }
+
+    auto loop_set = Loop::loops(sizes_.size(), ids.begin(), ids.end());
     std::copy(begin(loop_set), end(loop_set), std::back_inserter(loops_));
   }
 
@@ -155,7 +160,7 @@ public:
 private:
   void construct(llvm::Function *f, llvm::IRBuilder<>& b) override;
 
-  std::map<size_t, size_t> sizes_;
+  std::map<long, long> sizes_;
   std::vector<Loop> loops_;
 };
 
@@ -163,7 +168,9 @@ template <typename R, typename... Args>
 void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b)
 {
   auto entry = &f->getEntryBlock();
-  auto return_loc_ = b.CreateAlloca(f->getReturnType());
+  auto rt = f->getReturnType();
+  auto return_loc_ = b.CreateAlloca(rt);
+  b.CreateStore(llvm::ConstantInt::get(rt, 0), return_loc_);
 
   auto post_bb = llvm::BasicBlock::Create(f->getContext(), "post-loop", f);
   b.SetInsertPoint(post_bb);
@@ -171,26 +178,31 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b)
   b.CreateRet(ret_load);
 
   auto shape = *begin(loops_);
-  auto extents = std::map<long, long>{};
-  auto i = 0;
-  for(auto p : sizes_) {
-    extents.insert_or_assign(i++, p.second);
-  }
-  auto irl = IRLoop(f, shape, extents, post_bb);
+  auto irl = IRLoop(f, shape, sizes_, post_bb);
 
   b.SetInsertPoint(entry);
   b.CreateBr(irl.header);
 
-  f->print(llvm::errs());
-  std::exit(1);
-  /* auto loop_b = LoopBuilder(f, b); */
-  /* auto&& [arg_i, len] = *begin(sizes_); */
-  /* loop_b.construct(arg_i, len); */
+  for(auto [id, body] : irl.bodies()) {
+    b.SetInsertPoint(body.insert_point);
+    auto data = f->arg_begin() + id + 1;
+    auto i = *body.loop_indexes.rbegin();
 
-  /* f->print(llvm::errs()); */
-  /* std::exit(0); */
+    auto meta = SynthMetadata{};
+    auto item_ptr = b.CreateGEP(data, {b.getInt64(0), i});
 
-  std::next_permutation(begin(loops_), end(loops_));
+    meta.live(i) = true;
+    meta.live(b.CreateLoad(item_ptr)) = true;
+    meta.live(b.CreateLoad(return_loc_)) = true;
+
+    meta.output(return_loc_) = true;
+
+    auto gen = BlockGenerator{b, meta};
+    gen.populate(20);
+    gen.output();
+  }
+
+  std::rotate(begin(loops_), std::next(begin(loops_)), end(loops_));
 }
 
 }

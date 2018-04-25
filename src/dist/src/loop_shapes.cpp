@@ -137,27 +137,6 @@ bool Loop::operator!=(Loop const& other) const
   return !(*this == other);
 }
 
-bool Loop::operator<(Loop const& other) const
-{
-  if(slot_ < other.slot_) {
-    return true;
-  }
-
-  if(loops_.size() < other.loops_.size()) {
-    return true;
-  }
-
-  for(auto it = begin(), o_it = other.begin();
-      it != end() && o_it != other.end(); ++it, ++o_it)
-  {
-    if(**it < **o_it) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
 size_t Loop::hash() const
 {
   size_t ret = 0;
@@ -170,19 +149,9 @@ size_t Loop::hash() const
 
 std::unordered_set<Loop> Loop::loops(size_t n)
 {
-  auto ret = std::unordered_set<Loop>{};
   auto ids = std::vector<long>(n);
   std::iota(ids.begin(), ids.end(), 0);
-
-  auto all_shapes = shapes(n);
-  do {
-    for(const auto& shape : all_shapes) {
-      auto inst = shape.instantiated(ids.begin(), ids.end()).first;
-      ret.insert(inst);
-    }
-  } while(std::next_permutation(ids.begin(), ids.end()));
-
-  return ret;
+  return loops(n, ids.begin(), ids.end());
 }
 
 size_t Loop::count() const
