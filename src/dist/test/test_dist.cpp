@@ -99,5 +99,5 @@ int main()
   /* test_linear(); */
   /* test_sum(4); */
   /* test_dot_product(); */
-  test_fixed_dot(2);
+  test_fixed_dot(16);
 }
