@@ -57,11 +57,11 @@ private:
   void create_oob_returns(Builder&& b, ValueSampler& sampler,
                           llvm::Function *fn) const;
 
-  virtual void construct(llvm::Function *f, llvm::IRBuilder<>& b) const override;
+  virtual void construct(llvm::Function *f, llvm::IRBuilder<>& b) override;
 };
 
 template <typename R, typename... Args>
-void Linear<R, Args...>::construct(llvm::Function *fn, llvm::IRBuilder<>& b) const
+void Linear<R, Args...>::construct(llvm::Function *fn, llvm::IRBuilder<>& b)
 {
   auto sampler = ValueSampler{};
   auto& meta = sampler.metadata();

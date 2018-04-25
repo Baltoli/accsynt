@@ -49,6 +49,8 @@ struct Hole {
 
   /// Always returns false; all holes are equivalent.
   bool operator!=(Hole const& other) const { return false; }
+
+  bool operator<(Hole const& other) const { return false; }
 };
 
 /**
@@ -69,6 +71,11 @@ struct LoopID {
     return !(*this == other);
   }
 
+  bool operator<(LoopID const& other) const
+  {
+    return id < other.id;
+  }
+
   /// Underlying ID.
   long id;
 };
@@ -85,6 +92,7 @@ public:
 
   bool operator==(Loop const& other) const;
   bool operator!=(Loop const& other) const;
+  bool operator<(Loop const& other) const;
   size_t hash() const;
 
   Loop(const Loop& other);

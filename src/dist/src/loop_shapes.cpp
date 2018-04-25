@@ -137,6 +137,27 @@ bool Loop::operator!=(Loop const& other) const
   return !(*this == other);
 }
 
+bool Loop::operator<(Loop const& other) const
+{
+  if(slot_ < other.slot_) {
+    return true;
+  }
+
+  if(loops_.size() < other.loops_.size()) {
+    return true;
+  }
+
+  for(auto it = begin(), o_it = other.begin();
+      it != end() && o_it != other.end(); ++it, ++o_it)
+  {
+    if(**it < **o_it) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 size_t Loop::hash() const
 {
   size_t ret = 0;

@@ -35,13 +35,13 @@ public:
     }
   }
 
-  std::unique_ptr<llvm::Module> generate_candidate(bool& done) const;
+  std::unique_ptr<llvm::Module> generate_candidate(bool& done);
 
-  virtual void construct(llvm::Function *f, llvm::IRBuilder<>& b) const {}
+  virtual void construct(llvm::Function *f, llvm::IRBuilder<>& b) {}
 
   virtual bool can_synthesize() const { return false; }
 
-  std::unique_ptr<llvm::Module> operator()() const { return threaded_generate(); }
+  std::unique_ptr<llvm::Module> operator()() { return threaded_generate(); }
 
   args_t example() const
   {
@@ -60,7 +60,7 @@ public:
 protected:
   llvm::FunctionType *llvm_function_type() const;
   bool satisfies_examples(llvm::Function *f) const;
-  std::unique_ptr<llvm::Module> threaded_generate() const;
+  std::unique_ptr<llvm::Module> threaded_generate();
 
   R return_type_;
   std::tuple<Args...> arg_types_;
@@ -73,7 +73,7 @@ private:
 };
 
 template <typename R, typename... Args>
-std::unique_ptr<llvm::Module> Synthesizer<R, Args...>::generate_candidate(bool& done) const
+std::unique_ptr<llvm::Module> Synthesizer<R, Args...>::generate_candidate(bool& done)
 {
   auto mod = std::make_unique<llvm::Module>("synth-candidate", ThreadContext::get());
   auto B = llvm::IRBuilder<>{mod->getContext()};
@@ -98,7 +98,7 @@ std::unique_ptr<llvm::Module> Synthesizer<R, Args...>::generate_candidate(bool& 
 }
 
 template <typename R, typename... Args>
-std::unique_ptr<llvm::Module> Synthesizer<R, Args...>::threaded_generate() const
+std::unique_ptr<llvm::Module> Synthesizer<R, Args...>::threaded_generate()
 {
   auto ret = std::unique_ptr<llvm::Module>{};
   bool done = false;

@@ -81,46 +81,6 @@ void LoopBuilder<Builder>::construct(size_t data_i, size_t length)
   b_.CreateRet(ret_load);
 }
 
-template <typename R, typename... Args>
-class LoopSynth : public Synthesizer<R, Args...> {
-public:
-  LoopSynth(R r, Args... args) 
-    : Synthesizer<R, Args...>(r, args...) 
-  {
-    index_for_each(this->arg_types_, [this] (auto& ty, auto i) {
-      if constexpr(is_array(ty)) {
-        sizes_.insert_or_assign(i, ty.array_size());
-      }
-    });
-  }
-
-  using Synthesizer<R, Args...>::operator();
-
-  // We can use this synthesizer when at least one (for now, exactly one?) of
-  // the parameters is sized (i.e. is a fixed size array)
-  // extend to handle sized pointers next
-  virtual bool can_synthesize() const override
-  {
-    return !sizes_.empty();
-  }
-
-private:
-  void construct(llvm::Function *f, llvm::IRBuilder<>& b) const override;
-
-  std::map<size_t, size_t> sizes_ = {};
-};
-
-template <typename R, typename... Args>
-void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) const
-{
-  auto loop_b = LoopBuilder(f, b);
-  auto&& [arg_i, len] = *begin(sizes_);
-  loop_b.construct(arg_i, len);
-
-  /* f->print(llvm::errs()); */
-  /* std::exit(0); */
-}
-
 struct LoopBody {
   llvm::BasicBlock *body;
   std::vector<llvm::Value *> loop_indexes;
@@ -165,5 +125,72 @@ public:
   llvm::BasicBlock *body;
   llvm::BasicBlock *exit;
 };
+
+template <typename R, typename... Args>
+class LoopSynth : public Synthesizer<R, Args...> {
+public:
+  LoopSynth(R r, Args... args) 
+    : Synthesizer<R, Args...>(r, args...), sizes_{}
+  {
+    index_for_each(this->arg_types_, [this] (auto& ty, auto i) {
+      if constexpr(is_array(ty)) {
+        sizes_.insert_or_assign(i, ty.array_size());
+      }
+    });
+
+    auto loop_set = Loop::loops(sizes_.size());
+    std::copy(begin(loop_set), end(loop_set), std::back_inserter(loops_));
+  }
+
+  using Synthesizer<R, Args...>::operator();
+
+  // We can use this synthesizer when at least one (for now, exactly one?) of
+  // the parameters is sized (i.e. is a fixed size array)
+  // extend to handle sized pointers next
+  virtual bool can_synthesize() const override
+  {
+    return !sizes_.empty();
+  }
+
+private:
+  void construct(llvm::Function *f, llvm::IRBuilder<>& b) override;
+
+  std::map<size_t, size_t> sizes_;
+  std::vector<Loop> loops_;
+};
+
+template <typename R, typename... Args>
+void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b)
+{
+  auto entry = &f->getEntryBlock();
+  auto return_loc_ = b.CreateAlloca(f->getReturnType());
+
+  auto post_bb = llvm::BasicBlock::Create(f->getContext(), "post-loop", f);
+  b.SetInsertPoint(post_bb);
+  auto ret_load = b.CreateLoad(return_loc_);
+  b.CreateRet(ret_load);
+
+  auto shape = *begin(loops_);
+  auto extents = std::map<long, long>{};
+  auto i = 0;
+  for(auto p : sizes_) {
+    extents.insert_or_assign(i++, p.second);
+  }
+  auto irl = IRLoop(f, shape, extents, post_bb);
+
+  b.SetInsertPoint(entry);
+  b.CreateBr(irl.header);
+
+  f->print(llvm::errs());
+  std::exit(1);
+  /* auto loop_b = LoopBuilder(f, b); */
+  /* auto&& [arg_i, len] = *begin(sizes_); */
+  /* loop_b.construct(arg_i, len); */
+
+  /* f->print(llvm::errs()); */
+  /* std::exit(0); */
+
+  std::next_permutation(begin(loops_), end(loops_));
+}
 
 }
