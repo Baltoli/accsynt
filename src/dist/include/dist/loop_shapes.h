@@ -15,7 +15,6 @@
 namespace accsynt {
   struct Hole;
   struct LoopID;
-  using Slot = std::variant<Hole, LoopID>;
   class Loop;
 }
 
@@ -50,8 +49,6 @@ struct Hole {
 
   /// Always returns false; all holes are equivalent.
   bool operator!=(Hole const& other) const { return false; }
-
-  bool operator<(Hole const& other) const { return false; }
 };
 
 /**
@@ -72,79 +69,167 @@ struct LoopID {
     return !(*this == other);
   }
 
-  bool operator<(LoopID const& other) const
-  {
-    return id < other.id;
-  }
-
   /// Underlying ID.
   long id;
 };
 
+/**
+ * \brief Represents the positition of a loop iterator.
+ *
+ * If a Slot instance holds a Hole, it has not yet been instantiated with a loop
+ * identifier. Similarly, if it holds a LoopID, it represents a specific
+ * iterator within the loop structure (i.e. it has been instantiated).
+ */
+using Slot = std::variant<Hole, LoopID>;
+
+/**
+ * \brief Represents a node in a loop tree structure.
+ *
+ * Represents a sequence of loops, which are themselves optionally nested inside
+ * another loop.
+ *
+ * For example, consider the following loops:
+ *
+ * ```
+ * for(... : L0) {}
+ * for(... : L1) {}
+ * ```
+ *
+ * The loops `L0` and `L1` are not nested inside another loop. This class can
+ * also represent the following structure:
+ *
+ * ```
+ * for(... : L2) {
+ *   for(... : L3) {}
+ *   for(... : L4) {}
+ * }
+ * ```
+ *
+ * In this case, the loops `L3` and `L4` are nested inside another loop.
+ *
+ * Both structures above can be represented by this class, depending on whether
+ * an instance has an outer "slot". If it does, the instance represents a single
+ * loop (possibly with others nested inside). If it does not, the instance
+ * represents a (potentially empty) sequence of loops.
+ */
 class Loop {
+  // The sequence of child loops for this instance.
   std::vector<std::unique_ptr<Loop>> loops_ = {};
+
+  // If a loop has no slot, it represents a sequence of its children.
   std::optional<Slot> slot_ = Hole{};
 
 public:
+  /**
+   * \brief The default state for a Loop object is a Hole with no child loops.
+   *
+   * This default state represents the following loop structure:
+   * ```
+   * for(... : ?) {}
+   * ```
+   */
   Loop() = default;
+
+  /**
+   * \brief Construct a Loop using a slot.
+   *
+   * If the argument to this constructor is a Hole, it is equivalent to default
+   * constructing.
+   *
+   * This constructor can be used to construct a container Loop (one that does
+   * not have an outer iterator) by passing an empty optional.
+   */
   Loop(std::optional<Slot> s) : slot_{s} {}
 
-  ~Loop() = default;
-
-  bool operator==(Loop const& other) const;
-  bool operator!=(Loop const& other) const;
-  size_t hash() const;
-
+  /**
+   * \brief Copy-construct a Loop by copying all child loops.
+   */
   Loop(const Loop& other);
+
+  /**
+   * \brief Assignment operator uses copy-and swap.
+   */
   Loop& operator=(Loop other);
 
+  /**
+   * \name Comparison
+   *
+   * Equality is defined in terms of loop structure - if two loops have the same
+   * outer slot, and all their children compare equal, the loops are equal.
+   */
+  ///@{
+  bool operator==(Loop const& other) const;
+  bool operator!=(Loop const& other) const;
+  
+  /**
+   * \brief Public hash function that can access private state.
+   *
+   * This function is used by the `std::hash<Loop>` specialisation.
+   */
+  size_t hash() const;
+  ///@}
+
+  /**
+   * \brief Convenience function to access this loop's ID if it has one.
+   *
+   * Will return a value if this loop has a slot and it has been instantiated.
+   * Otherwise returns an empty optional.
+   */
   std::optional<long> ID() const;
 
-  Loop& add_child(Loop const& l);
-  Loop nested() const;
-  Loop normalised() const;
-  std::unordered_set<Loop> next_variants() const;
-  static std::unordered_set<Loop> shapes(size_t n);
+  bool is_instantiated() const;
 
-  template <typename Iterator>
-  std::pair<Loop, Iterator> instantiated(Iterator begin, Iterator end) const;
+  /**
+   * \name In-place manipulation
+   */
+  ///@{
+  Loop& add_child(Loop const& l);
 
   template <typename Container>
   void instantiate(Container c);
+  ///@}
+
+  /**
+   * \name Constructing new Loops
+   */
+  ///@{
+  Loop nested() const;
+  Loop normalised() const;
+  std::unordered_set<Loop> next_variants() const;
+
+  template <typename Iterator>
+  std::pair<Loop, Iterator> instantiated(Iterator begin, Iterator end) const;
+  ///@}
+
+  /**
+   * \name Iteration
+   */
+  ///@{
+  size_t children_size() const { return loops_.size(); }
+  Loop& nth_child(size_t n) const { return *loops_.at(n); }
+
+  auto begin() const { return loops_.begin(); }
+  auto end() const { return loops_.end(); }
+  auto rbegin() const { return loops_.rbegin(); }
+  auto rend() const { return loops_.rend(); }
+  ///@}
+  
+  /**
+   * \name Enumeration
+   *
+   * The methods in this group can be used to enumerate all possible loop
+   * structures for a given number of iterators.
+   */
+  ///@{
+  static std::unordered_set<Loop> shapes(size_t n);
 
   static std::unordered_set<Loop> loops(size_t n);
 
   template <typename Iterator>
   static std::unordered_set<Loop> loops(size_t n, Iterator begin, Iterator end);
+  ///@}
 
-  bool is_instantiated() const;
-
-  using iterator = decltype(loops_)::iterator;
-  using const_iterator = decltype(loops_)::const_iterator;
-  using reverse_iterator = decltype(loops_)::reverse_iterator;
-  using const_reverse_iterator = decltype(loops_)::const_reverse_iterator;
-
-  iterator begin() noexcept(noexcept(loops_.begin())) { return loops_.begin(); }
-  const_iterator begin() const noexcept(noexcept(loops_.begin())) { return loops_.begin(); }
-  const_iterator cbegin() const noexcept(noexcept(loops_.begin())) { return loops_.cbegin(); }
-
-  iterator end() noexcept(noexcept(loops_.end())) { return loops_.end(); }
-  const_iterator end() const noexcept(noexcept(loops_.end())) { return loops_.end(); }
-  const_iterator cend() const noexcept(noexcept(loops_.end())) { return loops_.cend(); }
-
-  reverse_iterator rbegin() noexcept(noexcept(loops_.rbegin())) { return loops_.rbegin(); }
-  const_reverse_iterator rbegin() const noexcept(noexcept(loops_.rbegin())) { return loops_.rbegin(); }
-  const_reverse_iterator crbegin() const noexcept(noexcept(loops_.rbegin())) { return loops_.crbegin(); }
-
-  reverse_iterator rend() noexcept(noexcept(loops_.rend())) { return loops_.rend(); }
-  const_reverse_iterator rend() const noexcept(noexcept(loops_.rend())) { return loops_.rend(); }
-  const_reverse_iterator crend() const noexcept(noexcept(loops_.rend())) { return loops_.crend(); }
-
-  size_t children_size() const { return loops_.size(); }
-  Loop& nth_child(size_t n) const { return *loops_.at(n); }
-
-  size_t count() const;
-
+  /// Print a human-readable representation of this object to a stream.
   friend std::ostream& operator<<(std::ostream& os, Loop const& loop);
 };
 

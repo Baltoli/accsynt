@@ -154,19 +154,6 @@ std::unordered_set<Loop> Loop::loops(size_t n)
   return loops(n, ids.begin(), ids.end());
 }
 
-size_t Loop::count() const
-{
-  size_t count = 0;
-  if(slot_) {
-    count++;
-  }
-
-  for(auto const& ch : loops_) {
-    count += ch->count();
-  }
-  return count;
-}
-
 bool Loop::is_instantiated() const
 {
   if(auto sl = slot_; !std::holds_alternative<LoopID>(*sl)) {
