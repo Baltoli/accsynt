@@ -126,6 +126,8 @@ public:
   llvm::BasicBlock *exit;
 };
 
+extern std::mutex loop_synth_mut;
+
 template <typename R, typename... Args>
 class LoopSynth : public Synthesizer<R, Args...> {
 public:
@@ -158,14 +160,16 @@ public:
   }
 
 private:
-  void construct(llvm::Function *f, llvm::IRBuilder<>& b) override;
+  void construct(llvm::Function *f, llvm::IRBuilder<>& b) const override;
 
   std::map<long, long> sizes_;
-  std::vector<Loop> loops_;
+
+  mutable std::mutex mut = {};
+  mutable std::vector<Loop> loops_;
 };
 
 template <typename R, typename... Args>
-void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b)
+void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) const
 {
   auto entry = &f->getEntryBlock();
   auto rt = f->getReturnType();
@@ -177,7 +181,10 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b)
   auto ret_load = b.CreateLoad(return_loc_);
   b.CreateRet(ret_load);
 
-  auto shape = *begin(loops_);
+  std::unique_lock ul{mut};
+  auto shape = loops_.at(0);
+  ul.unlock();
+
   auto irl = IRLoop(f, shape, sizes_, post_bb);
 
   b.SetInsertPoint(entry);
@@ -212,7 +219,9 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b)
     gen.output();
   }
 
+  ul.lock();
   std::rotate(begin(loops_), std::next(begin(loops_)), end(loops_));
+  ul.unlock();
 }
 
 }
