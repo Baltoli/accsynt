@@ -188,6 +188,65 @@ private:
   std::tuple<Types...> types_;
 };
 
+template <typename Type>
+class Output {
+public:
+  using example_t = typename Type::example_t;
+
+  Output(Type t) :
+    type_{t}
+  {}
+
+  auto llvm_type() const
+  {
+    return type_.llvm_type();
+  }
+
+  example_t generate() const
+  {
+    return type_.generate();
+  }
+private:
+  Type type_;
+};
+
+class Void {
+  auto llvm_type() const
+  {
+    return llvm::Type::getVoidTy(ThreadContext::get());
+  }
+};
+
+template <typename T>
+struct outputs {
+  using type = std::tuple<>;
+};
+
+template <typename T>
+struct outputs<Output<T>> {
+  using type = std::tuple<typename Output<T>::example_t>;
+};
+
+template <typename T>
+struct return_tuple {
+  using type = std::tuple<typename T::example_t>;
+};
+
+template <>
+struct return_tuple<Void> {
+  using type = std::tuple<>;
+};
+
+template <typename R, typename... Args>
+struct all_outputs {
+  using type = decltype(
+    std::tuple_cat(
+      std::declval<typename return_tuple<R>::type>(),
+      std::declval<typename outputs<Args>::type>()...
+    )
+  );
+};
+
 namespace {
 
 template <typename T>
@@ -202,6 +261,12 @@ struct is_array_type : std::false_type {};
 template <typename T>
 struct is_array_type<Array<T>> : std::true_type {};
 
+template <typename  T>
+struct is_output_type : std::false_type {};
+
+template <typename T>
+struct is_output_type<Output<T>> : std::true_type {};
+
 }
 
 template <typename T>
@@ -214,6 +279,12 @@ template <typename T>
 constexpr bool is_array(T&& ty)
 {
   return is_array_type<std::decay_t<decltype(ty)>>::value;
+}
+
+template <typename T>
+constexpr bool is_output(T&& ty)
+{
+  return is_output_type<std::decay_t<decltype(ty)>>::value;
 }
 
 }

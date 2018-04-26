@@ -94,10 +94,28 @@ void test_linear()
   }
 }
 
+void test_output(size_t size)
+{
+  auto i64 = Integer{64};
+  auto arr = Array{i64, size};
+  auto out_arr = Output{arr};
+
+  auto fun = [size] (auto a, auto o) {
+    for(auto i = 0u; i < size; ++i) {
+      o.at(i) = a.at(i);
+    }
+  };
+
+  /* auto p = Oracle(fun, Void{}, arr, out_arr); */
+  /* if(auto r = p()) { */
+  /*   r->print(llvm::outs(), nullptr); */
+  /* } */
+}
+
 int main()
 {
   /* test_linear(); */
   /* test_sum(4); */
   /* test_dot_product(); */
-  test_fixed_dot(16);
+  /* test_fixed_dot(16); */
 }

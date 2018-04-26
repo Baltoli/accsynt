@@ -22,3 +22,42 @@ TEST_CASE( "sized pointers respect their size", "[types]" ) {
     REQUIRE(gv.size() <= size.upper_bound);
   }
 }
+
+TEST_CASE( "metaprogramming for return types" ) {
+  using out_1 = all_outputs<
+    Integer
+  >::type;
+  REQUIRE(std::tuple_size_v<out_1> == 1);
+
+  using out_2 = all_outputs<
+    Void,
+    Output<Integer>
+  >::type;
+  REQUIRE(std::tuple_size_v<out_2> == 1);
+
+  using out_3 = all_outputs<
+    Integer,
+    Integer,
+    Integer,
+    Output<Array<Integer>>
+  >::type;
+  REQUIRE(std::tuple_size_v<out_3> == 2);
+
+  using as_out_p = all_outputs<
+    Void,
+    Output<Integer>
+  >::type;
+
+  using as_return = all_outputs<
+    Integer
+  >::type;
+  REQUIRE(std::is_same_v<as_out_p, as_return>);
+
+  using with_args = all_outputs<
+    Void,
+    Output<Integer>,
+    Integer,
+    Integer
+  >::type;
+  REQUIRE(std::is_same_v<with_args, as_out_p>);
+}
