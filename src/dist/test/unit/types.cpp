@@ -61,3 +61,38 @@ TEST_CASE( "metaprogramming for return types" ) {
   >::type;
   REQUIRE(std::is_same_v<with_args, as_out_p>);
 }
+
+TEST_CASE( "equality of examples" ) {
+  using return_t = all_outputs<
+    Integer,
+    Output<Array<Integer>>
+  >::type;
+
+  return_t a = {
+    0, { 1, 2, 3, 4 }
+  };
+
+  return_t b = {
+    0, { 2, 3, 4, 5 }
+  };
+
+  return_t c = {
+    1, { 1, 2, 3, 4 }
+  };
+
+  return_t ap = {
+    0, { 1, 2, 3, 4 }
+  };
+
+  return_t al = {
+    0, { 1, 2, 3, 4, 5 }
+  };
+
+  REQUIRE(a == ap);
+  REQUIRE(a != b);
+  REQUIRE(a != c);
+  REQUIRE(b != c);
+  REQUIRE(b != ap);
+  REQUIRE(c != ap);
+  REQUIRE(a != al);
+}
