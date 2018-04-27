@@ -247,8 +247,6 @@ struct all_outputs {
   );
 };
 
-namespace {
-
 template <typename T>
 struct is_index_type : std::false_type {};
 
@@ -266,8 +264,6 @@ struct is_output_type : std::false_type {};
 
 template <typename T>
 struct is_output_type<Output<T>> : std::true_type {};
-
-}
 
 template <typename T>
 constexpr bool is_index(T&& ty)

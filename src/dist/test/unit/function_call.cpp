@@ -71,3 +71,25 @@ define i64 @func([4 x i64]*, i64) {
     REQUIRE(fc(vec, 4) == 0);
   }
 }
+
+TEST_CASE( "using v2 function callable", "[function]" ) {
+  SECTION( "return types" ) {
+    using ret1 = v2::FunctionCallable<Void, Output<Integer>>::return_type;
+    REQUIRE(std::is_same_v<ret1, std::tuple<Integer::example_t>>);
+  }
+
+  SECTION( "running with output params" ) {
+    LOAD_MODULE(mod, R"(
+define void @func([4 x i64]*) {
+  %2 = getelementptr inbounds [4 x i64], [4 x i64]* %0, i64 0, i64 0
+  store i64 1, i64* %2
+  ret void
+}
+    )");
+
+    auto fc = v2::FunctionCallable<Void, Output<Array<Integer>>>(mod.get(), "func");
+
+    auto args = std::vector<long>{0, 1, 2, 3};
+    auto ret = fc(args);
+  }
+}

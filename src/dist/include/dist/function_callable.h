@@ -5,6 +5,7 @@
 #pragma once
 
 #include <dist/contexts.h>
+#include <dist/types.h>
 #include <dist/utils.h>
 
 #include <llvm/ADT/APInt.h>
@@ -24,6 +25,8 @@ namespace llvm {
 }
 
 namespace accsynt {
+
+inline namespace v1 {
 
 /**
  * \brief Wraps an LLVM function in a callable interface.
@@ -144,6 +147,99 @@ decltype(auto) try_apply(F&& f, Args&&... args)
   } catch(...) {
     return std::make_pair(true, result_t{});
   }
+}
+
+}
+
+namespace v2 {
+
+template <typename R, typename... Args>
+class FunctionCallable {
+public:
+  using return_type = typename all_outputs<R, Args...>::type;
+
+  FunctionCallable(llvm::Module *m, llvm::StringRef name, bool e = false);
+  FunctionCallable(llvm::Function *f, bool e = false);
+
+  return_type operator()(typename Args::example_t... args);
+
+private:
+  bool uses_error_;
+
+  std::unique_ptr<llvm::Module> module_;
+  llvm::Function *func_;
+  std::unique_ptr<llvm::ExecutionEngine> engine_;
+
+  template <typename Tuple, size_t idx>
+  auto collect_impl(Tuple t) {
+    using Arg = std::tuple_element_t<idx, std::tuple<Args...>>;
+
+    if constexpr(is_output_type<Arg>::value) {
+      return std::make_tuple(std::get<idx>(t));
+    } else {
+      return std::make_tuple();
+    }
+  }
+
+  template <typename Tuple, std::size_t... Is>
+  auto collect_impl2(Tuple t, std::index_sequence<Is...>) {
+    return std::tuple_cat(
+      collect_impl<Tuple, Is>(t)...
+    );
+  }
+
+  template <typename Tuple>
+  auto collect(Tuple t) {
+    return collect_impl2(t, std::make_index_sequence<sizeof...(Args)>());
+  }
+};
+
+template <typename R, typename... Args>
+FunctionCallable<R, Args...>::FunctionCallable(llvm::Module *m, llvm::StringRef name, bool e) :
+  uses_error_{e},
+  module_{copy_module_to(ThreadContext::get(), m)},
+  func_{module_->getFunction(name)}
+{
+  auto eb = llvm::EngineBuilder{std::move(module_)};
+  engine_.reset(eb.create());
+}
+
+template <typename R, typename... Args>
+FunctionCallable<R, Args...>::FunctionCallable(llvm::Function *f, bool e) :
+  FunctionCallable{f->getParent(), f->getName(), e}
+{
+}
+
+// Put these INSIDE the new function callable - that way they have access to
+template <typename R, typename... Args>
+typename FunctionCallable<R, Args...>::return_type
+FunctionCallable<R, Args...>::operator()(typename Args::example_t... args)
+{
+  assert(func_->arg_size() == sizeof...(args) + uses_error_ && "Argument count mismatch");
+
+  auto func_args = std::array<llvm::GenericValue, sizeof...(args)>{
+    { make_generic(args)... }
+  };
+    
+  auto ret = engine_->runFunction(func_, func_args);
+  for(auto arg : func_args) {
+    auto ptr = static_cast<long *>(arg.PointerVal);
+    std::vector<long> vec(ptr, ptr+4);
+    for(auto i : vec) {
+      llvm::errs() << i << " ";
+    }
+    llvm::errs() << '\n';
+    for(auto i : std::get<0>(std::make_tuple(args...))) {
+      llvm::errs() << i << " ";
+    }
+    llvm::errs() << '\n';
+  }
+
+  auto collected = collect(func_args);
+
+  return return_type{};
+}
+
 }
 
 }
