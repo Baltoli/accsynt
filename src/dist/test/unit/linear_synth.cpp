@@ -15,11 +15,11 @@ TEST_CASE( "arithmetic programs can be synthesized", "[linear]" ) {
     linear.add_example(-10, {-4, -6});
 
     auto candidate = linear();
-    auto c_func = v1::FunctionCallable<long>{candidate.get(), "cand", true};
+    auto c_func = v2::FunctionCallable{v2::with_error_code, candidate.get(), "cand", i64, i64, i64};
 
-    REQUIRE(c_func(1, 2) == 3);
-    REQUIRE(c_func(2, 1) == 3);
-    REQUIRE(c_func(-4, -6) == -10);
+    REQUIRE(std::get<0>(c_func(1, 2)) == 3);
+    REQUIRE(std::get<0>(c_func(2, 1)) == 3);
+    REQUIRE(std::get<0>(c_func(-4, -6)) == -10);
   }
 
   SECTION( "conflicting examples use the most recent value" ) {
@@ -27,9 +27,9 @@ TEST_CASE( "arithmetic programs can be synthesized", "[linear]" ) {
     linear.add_example(3, {1, 3});
 
     auto candidate = linear();
-    auto c_func = v1::FunctionCallable<long>{candidate.get(), "cand", true};
+    auto c_func = v2::FunctionCallable{v2::with_error_code, candidate.get(), "cand", i64, i64, i64};
 
-    REQUIRE(c_func(1, 3) == 3);
+    REQUIRE(std::get<0>(c_func(1, 3)) == 3);
   }
 }
 
@@ -47,9 +47,9 @@ TEST_CASE( "array access programs can be synthesized", "[linear]" ) {
     linear.add_example(-13, {vec2, 2});
 
     auto candidate = linear();
-    auto c_func = v1::FunctionCallable<long>{candidate.get(), "cand", true};
+    auto c_func = v2::FunctionCallable{v2::with_error_code, candidate.get(), "cand", i64, arr, idx};
 
-    REQUIRE(c_func(vec, 0) == 2);
-    REQUIRE(c_func(vec2, 2) == -13);
+    REQUIRE(std::get<0>(c_func(vec, 0)) == 2);
+    REQUIRE(std::get<0>(c_func(vec2, 2)) == -13);
   }
 }
