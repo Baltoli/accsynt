@@ -90,6 +90,7 @@ define i64 @func(i64) {
 
     auto ret = fc(23);
 
+    REQUIRE(fc.get_error() == std::nullopt);
     REQUIRE(std::get<0>(ret) == 23);
   }
 
@@ -110,6 +111,7 @@ define void @func([4 x i64]*) {
     auto args = std::vector<long>{0, 1, 2, 3};
     auto ret = fc(args);
 
+    REQUIRE(fc.get_error() == std::nullopt);
     REQUIRE(std::get<0>(ret).at(0) == 1);
   }
 
@@ -132,11 +134,13 @@ define i64 @func([4 x i64]*, i64) {
     auto arr = std::vector<long>{0, 1, 2, 23};
 
     auto ret1 = fc(arr, 0);
+    REQUIRE(fc.get_error() == std::nullopt);
     REQUIRE(arr.at(0) == 0);
     REQUIRE(std::get<0>(ret1) == 0);
     REQUIRE(std::get<1>(ret1).at(0) == 1);
 
     auto ret2 = fc(arr, 3);
+    REQUIRE(fc.get_error() == std::nullopt);
     REQUIRE(arr.at(3) == 23);
     REQUIRE(std::get<0>(ret2) == 23);
     REQUIRE(std::get<1>(ret2).at(3) == 24);
@@ -144,20 +148,16 @@ define i64 @func([4 x i64]*, i64) {
 
   SECTION( "running with an error code") {
     LOAD_MODULE(mod, R"(
-define void @func(i64*, [4 x i64]*) {
-  %3 = getelementptr inbounds [4 x i64], [4 x i64]* %1, i64 0, i64 0
-  store i64 1, i64* %3
+define void @func(i64*) {
+  store i64 1, i64* %0
   ret void
 }
     )");
 
-    auto ret_t = Void{};
-    auto arg_t = Output{Array{Integer{64}, 4}};
+    auto fc = v2::FunctionCallable(v2::with_error_code, mod.get(), "func", Void{});
 
-    auto fc = v2::FunctionCallable(v2::with_error_code, mod.get(), "func", ret_t, arg_t);
-
-    auto arr = std::vector<long>{0, 2, 5, 77};
-
-    auto ret1 = fc(arr);
+    fc();
+    REQUIRE(fc.get_error() != std::nullopt);
+    REQUIRE(*fc.get_error() == 1);
   }
 }

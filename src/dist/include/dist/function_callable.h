@@ -199,11 +199,14 @@ public:
 
   return_type operator()(typename Args::example_t... args);
 
+  std::optional<long> get_error() const { return error_code_; }
+
 private:
   R return_type_;
   std::tuple<Args...> arg_types_;
 
   bool uses_error_ = false;
+  std::optional<long> error_code_ = {};
 
   std::unique_ptr<llvm::Module> module_;
   llvm::Function *func_;
@@ -275,8 +278,6 @@ template <typename R, typename... Args>
 typename FunctionCallable<R, Args...>::return_type
 FunctionCallable<R, Args...>::operator()(typename Args::example_t... args)
 {
-  using return_t = typename FunctionCallable<R, Args...>::return_type;
-
   assert(func_->arg_size() == sizeof...(args) + uses_error_ && "Argument count mismatch");
 
   auto func_args = std::array<llvm::GenericValue, sizeof...(args)>{
@@ -295,10 +296,10 @@ FunctionCallable<R, Args...>::operator()(typename Args::example_t... args)
     auto ret = engine_->runFunction(func_, args_with_err);
     
     if(err != 0) {
-      /* error_ = err; */
-      return return_t{};
+      error_code_ = err;
+      return return_type{};
     } else {
-      /* error_ = {}; */
+      error_code_ = {};
       auto args_no_err = std::array<llvm::GenericValue, sizeof...(args)>{};
       std::copy(std::next(args_with_err.begin()), args_with_err.end(), args_no_err.begin());
       return collect(ret, args_no_err);
