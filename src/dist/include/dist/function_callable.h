@@ -178,14 +178,12 @@ class FunctionCallable {
 public:
   using return_type = typename all_outputs<R, Args...>::type;
 
-  FunctionCallable(llvm::Module *m, llvm::StringRef name, bool e = false);
-  FunctionCallable(llvm::Function *f, bool e = false);
+  FunctionCallable(llvm::Module *m, llvm::StringRef name);
+  FunctionCallable(llvm::Function *f);
 
   return_type operator()(typename Args::example_t... args);
 
 private:
-  bool uses_error_;
-
   std::unique_ptr<llvm::Module> module_;
   llvm::Function *func_;
   std::unique_ptr<llvm::ExecutionEngine> engine_;
@@ -216,8 +214,7 @@ private:
 };
 
 template <typename R, typename... Args>
-FunctionCallable<R, Args...>::FunctionCallable(llvm::Module *m, llvm::StringRef name, bool e) :
-  uses_error_{e},
+FunctionCallable<R, Args...>::FunctionCallable(llvm::Module *m, llvm::StringRef name) :
   module_{copy_module_to(ThreadContext::get(), m)},
   func_{module_->getFunction(name)}
 {
@@ -226,8 +223,8 @@ FunctionCallable<R, Args...>::FunctionCallable(llvm::Module *m, llvm::StringRef 
 }
 
 template <typename R, typename... Args>
-FunctionCallable<R, Args...>::FunctionCallable(llvm::Function *f, bool e) :
-  FunctionCallable{f->getParent(), f->getName(), e}
+FunctionCallable<R, Args...>::FunctionCallable(llvm::Function *f) :
+  FunctionCallable{f->getParent(), f->getName()}
 {
 }
 
@@ -235,7 +232,7 @@ template <typename R, typename... Args>
 typename FunctionCallable<R, Args...>::return_type
 FunctionCallable<R, Args...>::operator()(typename Args::example_t... args)
 {
-  assert(func_->arg_size() == sizeof...(args) + uses_error_ && "Argument count mismatch");
+  assert(func_->arg_size() == sizeof...(args) + 1 && "Argument count mismatch");
 
   auto func_args = std::array<llvm::GenericValue, sizeof...(args)>{
     { make_generic(args)... }
