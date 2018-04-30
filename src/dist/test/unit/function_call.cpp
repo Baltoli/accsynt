@@ -91,5 +91,7 @@ define void @func([4 x i64]*) {
 
     auto args = std::vector<long>{0, 1, 2, 3};
     auto ret = fc(args);
+
+    /* REQUIRE(std::get<0>(ret).at(0) == 1); */
   }
 }

@@ -25,7 +25,7 @@ using namespace llvm;
 void test_sum(size_t n)
 {
   auto i64 = Integer{64};
-  auto arr = Array{i64, n};
+  auto arr = Array(i64, n);
 
   auto g = [n](auto a) -> int64_t {
     auto sum = 0;
@@ -64,7 +64,7 @@ void test_dot_product()
 void test_fixed_dot(uint64_t size)
 {
   auto i64 = Integer{64};
-  auto arr = Array{i64, size};
+  auto arr = Array(i64, size);
   
   auto fun = [size](auto v1, auto v2) -> int64_t {
     auto sum = 0;

@@ -153,6 +153,26 @@ decltype(auto) try_apply(F&& f, Args&&... args)
 
 namespace v2 {
 
+template <typename> struct gv_to_val;
+
+template <typename T>
+struct gv_to_val<Output<T>> {
+  decltype(auto) operator()(llvm::GenericValue gv)
+  {
+    auto ch = gv_to_val<T>{};
+    return ch(gv);
+  }
+};
+
+template <typename T>
+struct gv_to_val<Array<T>> {
+  decltype(auto) operator()(llvm::GenericValue gv)
+  {
+    /* using element_type = typename T::example_t; */
+    return 0;
+  }
+};
+
 template <typename R, typename... Args>
 class FunctionCallable {
 public:
@@ -171,26 +191,27 @@ private:
   std::unique_ptr<llvm::ExecutionEngine> engine_;
 
   template <typename Tuple, size_t idx>
-  auto collect_impl(Tuple t) {
+  auto collect_impl(Tuple&& t) {
     using Arg = std::tuple_element_t<idx, std::tuple<Args...>>;
 
     if constexpr(is_output_type<Arg>::value) {
-      return std::make_tuple(std::get<idx>(t));
+      auto gtv = gv_to_val<Arg>{};
+      return std::make_tuple(gtv(std::get<idx>(t)));
     } else {
       return std::make_tuple();
     }
   }
 
   template <typename Tuple, std::size_t... Is>
-  auto collect_impl2(Tuple t, std::index_sequence<Is...>) {
+  auto collect_impl2(Tuple&& t, std::index_sequence<Is...>) {
     return std::tuple_cat(
-      collect_impl<Tuple, Is>(t)...
+      collect_impl<Tuple, Is>(std::forward<decltype(t)>(t))...
     );
   }
 
   template <typename Tuple>
-  auto collect(Tuple t) {
-    return collect_impl2(t, std::make_index_sequence<sizeof...(Args)>());
+  auto collect(Tuple&& t) {
+    return collect_impl2(std::forward<decltype(t)>(t), std::make_index_sequence<sizeof...(Args)>());
   }
 };
 
@@ -210,7 +231,6 @@ FunctionCallable<R, Args...>::FunctionCallable(llvm::Function *f, bool e) :
 {
 }
 
-// Put these INSIDE the new function callable - that way they have access to
 template <typename R, typename... Args>
 typename FunctionCallable<R, Args...>::return_type
 FunctionCallable<R, Args...>::operator()(typename Args::example_t... args)

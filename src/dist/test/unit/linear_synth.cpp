@@ -35,7 +35,7 @@ TEST_CASE( "arithmetic programs can be synthesized", "[linear]" ) {
 
 TEST_CASE( "array access programs can be synthesized", "[linear]" ) {
   auto i64 = Integer{};
-  auto arr = Array{i64, 4};
+  auto arr = Array(i64, 4);
   auto idx = Index{arr};
   auto linear = Linear{i64, arr, idx};
 
