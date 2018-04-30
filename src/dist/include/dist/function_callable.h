@@ -183,7 +183,7 @@ struct gv_to_val<Integer> {
   }
 };
 
-template <typename R, typename... Args>
+template <template <typename> class F, typename R, typename... Args>
 class output_collector {
 public:
   output_collector(R r, Args... args) :
@@ -196,8 +196,8 @@ public:
     using Arg = std::tuple_element_t<idx, std::tuple<Args...>>;
 
     if constexpr(is_output_type<Arg>::value) {
-      auto gtv = gv_to_val<Arg>{};
-      return std::make_tuple(gtv(std::get<idx>(arg_types_), std::get<idx>(std::forward<decltype(t)>(t))));
+      auto f = F<Arg>{};
+      return std::make_tuple(f(std::get<idx>(arg_types_), std::get<idx>(std::forward<decltype(t)>(t))));
     } else {
       return std::make_tuple();
     }
@@ -210,14 +210,14 @@ public:
     );
   }
 
-  template <typename Tuple>
-  auto collect(llvm::GenericValue return_val, Tuple&& t) {
+  template <typename RV, typename Tuple>
+  auto collect(RV return_val, Tuple&& t) {
     auto ret = collect_impl2(std::forward<decltype(t)>(t), std::make_index_sequence<sizeof...(Args)>());
     if constexpr(std::is_same_v<R, Void>) {
       return ret;
     } else {
-      auto gtv = gv_to_val<R>{};
-      return std::tuple_cat(std::tuple(gtv(return_type_, return_val)), ret);
+      auto f = F<R>{};
+      return std::tuple_cat(std::tuple(f(return_type_, return_val)), ret);
     }
   }
 
@@ -245,7 +245,7 @@ public:
   std::optional<long> get_error() const { return error_code_; }
 
 private:
-  output_collector<R, Args...> collector_;
+  output_collector<gv_to_val, R, Args...> collector_;
 
   bool uses_error_ = false;
   std::optional<long> error_code_ = {};
@@ -253,7 +253,6 @@ private:
   std::unique_ptr<llvm::Module> module_;
   llvm::Function *func_;
   std::unique_ptr<llvm::ExecutionEngine> engine_;
-
 };
 
 template <typename R, typename... Args>
