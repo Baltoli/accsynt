@@ -9,7 +9,7 @@ using namespace accsynt;
 
 TEST_CASE( "using v2 function callable", "[function]" ) {
   SECTION( "return types" ) {
-    using ret1 = v2::FunctionCallable<Void, Output<Integer>>::return_type;
+    using ret1 = FunctionCallable<Void, Output<Integer>>::return_type;
     REQUIRE(std::is_same_v<ret1, std::tuple<Integer::example_t>>);
   }
 
@@ -21,7 +21,7 @@ define i64 @func(i64) {
     )");
 
     auto ret_t = Integer{64};
-    auto fc = v2::FunctionCallable(v2::no_error_code, mod.get(), "func", ret_t, ret_t);
+    auto fc = FunctionCallable(no_error_code, mod.get(), "func", ret_t, ret_t);
 
     auto ret = fc(23);
 
@@ -41,7 +41,7 @@ define void @func([4 x i64]*) {
     auto ret_t = Void{};
     auto arg_t = Output{Array{Integer{64}, 4}};
 
-    auto fc = v2::FunctionCallable(v2::no_error_code, mod.get(), "func", ret_t, arg_t);
+    auto fc = FunctionCallable(no_error_code, mod.get(), "func", ret_t, arg_t);
 
     auto args = std::vector<long>{0, 1, 2, 3};
     auto ret = fc(args);
@@ -64,7 +64,7 @@ define i64 @func([4 x i64]*, i64) {
     auto ret_t = Integer{64};
     auto arg_t = Output{Array{Integer{64}, 4}};
     
-    auto fc = v2::FunctionCallable(v2::no_error_code, mod.get(), "func", ret_t, arg_t, ret_t);
+    auto fc = FunctionCallable(no_error_code, mod.get(), "func", ret_t, arg_t, ret_t);
 
     auto arr = std::vector<long>{0, 1, 2, 23};
 
@@ -89,7 +89,7 @@ define void @func(i64*) {
 }
     )");
 
-    auto fc = v2::FunctionCallable(v2::with_error_code, mod.get(), "func", Void{});
+    auto fc = FunctionCallable(with_error_code, mod.get(), "func", Void{});
 
     fc();
     REQUIRE(fc.get_error() != std::nullopt);

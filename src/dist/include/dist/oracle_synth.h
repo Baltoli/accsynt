@@ -58,7 +58,7 @@ std::unique_ptr<llvm::Module> Oracle<F, R, Args...>::operator()()
     }
 
     auto fc = std::apply([&](auto&&... args) {
-      return v2::FunctionCallable(v2::with_error_code, candidate.get(), "cand", return_type_, args...);
+      return FunctionCallable(with_error_code, candidate.get(), "cand", return_type_, args...);
     }, arg_types_);
     /* auto dist = OracleDistinguisher{reference_, fc, synth}; */
 

@@ -143,7 +143,7 @@ template <typename R, typename... Args>
 bool Synthesizer<R, Args...>::satisfies_examples(llvm::Function *f) const
 {
   auto fc = std::apply([&](auto&&... args) {
-    return v2::FunctionCallable{v2::with_error_code, f, return_type_, args...};
+    return FunctionCallable{with_error_code, f, return_type_, args...};
   }, arg_types_);
 
   return std::all_of(std::begin(examples_), std::end(examples_), [f,&fc](auto ex) {

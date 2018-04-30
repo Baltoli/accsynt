@@ -27,8 +27,6 @@ namespace llvm {
 
 namespace accsynt {
 
-namespace v2 {
-
 template <typename> struct gv_to_val;
 
 template <typename T>
@@ -153,8 +151,6 @@ FunctionCallable<R, Args...>::operator()(typename Args::example_t... args)
     auto ret = engine_->runFunction(func_, func_args);
     return collector_.collect(ret, func_args);
   }
-}
-
 }
 
 }

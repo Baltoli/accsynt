@@ -2,7 +2,7 @@
 
 #include <dist/types.h>
 
-namespace accsynt::v2 {
+namespace accsynt {
 
 template <template <typename> class F, typename R, typename... Args>
 class output_collector {
