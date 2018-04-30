@@ -21,6 +21,7 @@ public:
   using ret_t = typename synth_t::ret_t;
 
   Oracle(F f, R r, Args... args) :
+    return_type_(r), arg_types_(args...),
     reference_{f}
   {
     options_.emplace_back(new LoopSynth{r, args...});
@@ -30,6 +31,9 @@ public:
   std::unique_ptr<llvm::Module> operator()();
 
 private:
+  R return_type_;
+  std::tuple<Args...> arg_types_;
+
   std::vector<std::unique_ptr<synth_t>> options_ = {};
   F reference_;
 };
@@ -53,15 +57,17 @@ std::unique_ptr<llvm::Module> Oracle<F, R, Args...>::operator()()
       return nullptr;
     }
 
-    auto fc = v1::FunctionCallable<ret_t>{candidate.get(), "cand", true};
-    auto dist = OracleDistinguisher{reference_, fc, synth};
+    auto fc = std::apply([&](auto&&... args) {
+      return v2::FunctionCallable(v2::with_error_code, candidate.get(), "cand", return_type_, args...);
+    }, arg_types_);
+    /* auto dist = OracleDistinguisher{reference_, fc, synth}; */
 
-    auto example = dist();
-    if(example) {
-      synth->add_example(example->f_return, example->args);
-    } else {
-      return candidate;
-    }
+    /* auto example = dist(); */
+    /* if(example) { */
+    /*   synth->add_example(example->f_return, example->args); */
+    /* } else { */
+    /*   return candidate; */
+    /* } */
   }
 }
 

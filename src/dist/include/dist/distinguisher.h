@@ -41,13 +41,13 @@ public:
   counterexample_t operator()() const
   {
     for(auto i = 0u; i < example_limit_; ++i) {
-      /* auto example = synth_->example(); */
-      /* auto&& [f_err, f_result] = try_apply(f_, example); */
-      /* auto&& [g_err, g_result] = try_apply(g_, example); */
+      auto example = synth_->example();
+      auto&& [f_err, f_result] = try_apply(f_, example);
+      auto&& [g_err, g_result] = try_apply(g_, example);
 
-      /* if((f_err != g_err) || (f_result != g_result)) { */
-      /*   return {{f_result, g_result, f_err, g_err, example}}; */
-      /* } */
+      if((f_err != g_err) || (f_result != g_result)) {
+        return {{f_result, g_result, f_err, g_err, example}};
+      }
     }
 
     return {};
