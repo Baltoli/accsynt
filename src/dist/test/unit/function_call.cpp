@@ -78,6 +78,21 @@ TEST_CASE( "using v2 function callable", "[function]" ) {
     REQUIRE(std::is_same_v<ret1, std::tuple<Integer::example_t>>);
   }
 
+  SECTION( "running with return values" ) {
+    LOAD_MODULE(mod, R"(
+define i64 @func(i64) {
+  ret i64 %0
+}
+    )");
+
+    auto ret_t = Integer{64};
+    auto fc = v2::FunctionCallable(mod.get(), "func", ret_t, ret_t);
+
+    auto ret = fc(23);
+
+    REQUIRE(std::get<0>(ret) == 23);
+  }
+
   SECTION( "running with output params" ) {
     LOAD_MODULE(mod, R"(
 define void @func([4 x i64]*) {
@@ -95,6 +110,6 @@ define void @func([4 x i64]*) {
     auto args = std::vector<long>{0, 1, 2, 3};
     auto ret = fc(args);
 
-    /* REQUIRE(std::get<0>(ret).at(0) == 1); */
+    REQUIRE(std::get<0>(ret).at(0) == 1);
   }
 }

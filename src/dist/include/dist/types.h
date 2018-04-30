@@ -70,6 +70,11 @@ public:
     return size_; 
   }
 
+  Type type() const
+  {
+    return type_;
+  }
+
 private:
   Type type_;
   size_t size_;
@@ -205,6 +210,11 @@ public:
   example_t generate() const
   {
     return type_.generate();
+  }
+
+  Type type() const
+  {
+    return type_;
   }
 private:
   Type type_;
