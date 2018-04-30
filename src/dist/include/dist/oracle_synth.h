@@ -4,6 +4,7 @@
 #include <dist/function_callable.h>
 #include <dist/linear_synth.h>
 #include <dist/loop_synth.h>
+#include <dist/output_collector.h>
 #include <dist/synth.h>
 
 #include <memory>
@@ -60,14 +61,19 @@ std::unique_ptr<llvm::Module> Oracle<F, R, Args...>::operator()()
     auto fc = std::apply([&](auto&&... args) {
       return FunctionCallable(with_error_code, candidate.get(), "cand", return_type_, args...);
     }, arg_types_);
-    /* auto dist = OracleDistinguisher{reference_, fc, synth}; */
 
-    /* auto example = dist(); */
-    /* if(example) { */
-    /*   synth->add_example(example->f_return, example->args); */
-    /* } else { */
-    /*   return candidate; */
-    /* } */
+    auto rc = std::apply([&](auto&&... args) {
+      return CollectCallable(reference_, return_type_, args...);
+    }, arg_types_);
+
+    auto dist = OracleDistinguisher{rc, fc, synth};
+
+    auto example = dist();
+    if(example) {
+      synth->add_example(example->f_return, example->args);
+    } else {
+      return candidate;
+    }
   }
 }
 

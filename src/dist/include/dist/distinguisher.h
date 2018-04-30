@@ -17,6 +17,35 @@ namespace accsynt {
 
 inline namespace v1 {
 
+template <typename T>		
+struct has_error_code_st : std::false_type {};		
+		
+template <typename T>		
+struct has_error_code_st<FunctionCallable<T>> : std::true_type {};		
+		
+template <typename T>		
+constexpr inline bool has_error_code_v = has_error_code_st<std::decay_t<T>>::value;
+
+template <typename F, typename... Args>		
+decltype(auto) try_apply(F&& f, Args&&... args)		
+{		
+  using result_t = decltype(std::apply(std::forward<F>(f), std::forward<Args...>(args...)));		
+		
+  try {		
+    auto result = std::apply(std::forward<F>(f), std::forward<Args...>(args...));		
+		
+    if constexpr(has_error_code_v<F>) {		
+      if(auto err = f.get_error()) {		
+        return std::make_pair(true, result);		
+      }		
+    }
+		
+    return std::make_pair(false, result);		
+  } catch(...) {		
+    return std::make_pair(true, result_t{});		
+  }		
+}		
+
 template <typename R, typename Args>
 struct Counterexample {
   const R f_return;
