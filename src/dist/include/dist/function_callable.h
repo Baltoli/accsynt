@@ -183,34 +183,13 @@ struct gv_to_val<Integer> {
   }
 };
 
-static constexpr struct with_error_code_tag{} with_error_code = {};
-static constexpr struct no_error_code_tag{} no_error_code = {};
-
 template <typename R, typename... Args>
-class FunctionCallable {
+class output_collector {
 public:
-  using return_type = typename all_outputs<R, Args...>::type;
-
-  template <typename Tag>
-  FunctionCallable(Tag, llvm::Module *m, llvm::StringRef name, R r, Args... as);
-
-  template <typename Tag>
-  FunctionCallable(Tag, llvm::Function *f, R r, Args... as);
-
-  return_type operator()(typename Args::example_t... args);
-
-  std::optional<long> get_error() const { return error_code_; }
-
-private:
-  R return_type_;
-  std::tuple<Args...> arg_types_;
-
-  bool uses_error_ = false;
-  std::optional<long> error_code_ = {};
-
-  std::unique_ptr<llvm::Module> module_;
-  llvm::Function *func_;
-  std::unique_ptr<llvm::ExecutionEngine> engine_;
+  output_collector(R r, Args... args) :
+    return_type_(r), arg_types_(args...)
+  {
+  }
 
   template <typename Tuple, size_t idx>
   auto collect_impl(Tuple&& t) {
@@ -241,6 +220,40 @@ private:
       return std::tuple_cat(std::tuple(gtv(return_type_, return_val)), ret);
     }
   }
+
+private:
+  R return_type_;
+  std::tuple<Args...> arg_types_;
+};
+
+static constexpr struct with_error_code_tag{} with_error_code = {};
+static constexpr struct no_error_code_tag{} no_error_code = {};
+
+template <typename R, typename... Args>
+class FunctionCallable {
+public:
+  using return_type = typename all_outputs<R, Args...>::type;
+
+  template <typename Tag>
+  FunctionCallable(Tag, llvm::Module *m, llvm::StringRef name, R r, Args... as);
+
+  template <typename Tag>
+  FunctionCallable(Tag, llvm::Function *f, R r, Args... as);
+
+  return_type operator()(typename Args::example_t... args);
+
+  std::optional<long> get_error() const { return error_code_; }
+
+private:
+  output_collector<R, Args...> collector_;
+
+  bool uses_error_ = false;
+  std::optional<long> error_code_ = {};
+
+  std::unique_ptr<llvm::Module> module_;
+  llvm::Function *func_;
+  std::unique_ptr<llvm::ExecutionEngine> engine_;
+
 };
 
 template <typename R, typename... Args>
@@ -249,7 +262,7 @@ FunctionCallable<R, Args...>::FunctionCallable(
     Tag,
     llvm::Module *m, llvm::StringRef name,
     R r, Args... args) :
-  return_type_(r), arg_types_(args...),
+  collector_(r, args...),
   module_{copy_module_to(ThreadContext::get(), m)},
   func_{module_->getFunction(name)}
 {
@@ -302,11 +315,11 @@ FunctionCallable<R, Args...>::operator()(typename Args::example_t... args)
       error_code_ = {};
       auto args_no_err = std::array<llvm::GenericValue, sizeof...(args)>{};
       std::copy(std::next(args_with_err.begin()), args_with_err.end(), args_no_err.begin());
-      return collect(ret, args_no_err);
+      return collector_.collect(ret, args_no_err);
     }
   } else {
     auto ret = engine_->runFunction(func_, func_args);
-    return collect(ret, func_args);
+    return collector_.collect(ret, func_args);
   }
 }
 
