@@ -141,4 +141,23 @@ define i64 @func([4 x i64]*, i64) {
     REQUIRE(std::get<0>(ret2) == 23);
     REQUIRE(std::get<1>(ret2).at(3) == 24);
   }
+
+  SECTION( "running with an error code") {
+    LOAD_MODULE(mod, R"(
+define void @func(i64*, [4 x i64]*) {
+  %3 = getelementptr inbounds [4 x i64], [4 x i64]* %1, i64 0, i64 0
+  store i64 1, i64* %3
+  ret void
+}
+    )");
+
+    auto ret_t = Void{};
+    auto arg_t = Output{Array{Integer{64}, 4}};
+
+    auto fc = v2::FunctionCallable(v2::with_error_code, mod.get(), "func", ret_t, arg_t);
+
+    auto arr = std::vector<long>{0, 2, 5, 77};
+
+    auto ret1 = fc(arr);
+  }
 }

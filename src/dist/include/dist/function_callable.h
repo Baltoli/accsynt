@@ -275,14 +275,38 @@ template <typename R, typename... Args>
 typename FunctionCallable<R, Args...>::return_type
 FunctionCallable<R, Args...>::operator()(typename Args::example_t... args)
 {
+  using return_t = typename FunctionCallable<R, Args...>::return_type;
+
   assert(func_->arg_size() == sizeof...(args) + uses_error_ && "Argument count mismatch");
 
   auto func_args = std::array<llvm::GenericValue, sizeof...(args)>{
     { make_generic(args)... }
   };
+
+  if(uses_error_) {
+    auto args_with_err = std::array<llvm::GenericValue, sizeof...(args) + 1>{};
+    std::copy(std::begin(func_args), std::end(func_args), std::next(std::begin(args_with_err)));
+
+    auto err = int64_t{0};
+    auto err_v = llvm::GenericValue{};
+    err_v.PointerVal = &err;
+
+    args_with_err[0] = err_v;
+    auto ret = engine_->runFunction(func_, args_with_err);
     
-  auto ret = engine_->runFunction(func_, func_args);
-  return collect(ret, func_args);
+    if(err != 0) {
+      /* error_ = err; */
+      return return_t{};
+    } else {
+      /* error_ = {}; */
+      auto args_no_err = std::array<llvm::GenericValue, sizeof...(args)>{};
+      std::copy(std::next(args_with_err.begin()), args_with_err.end(), args_no_err.begin());
+      return collect(ret, args_no_err);
+    }
+  } else {
+    auto ret = engine_->runFunction(func_, func_args);
+    return collect(ret, func_args);
+  }
 }
 
 }
