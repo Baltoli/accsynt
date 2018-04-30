@@ -157,19 +157,29 @@ template <typename> struct gv_to_val;
 
 template <typename T>
 struct gv_to_val<Output<T>> {
-  decltype(auto) operator()(llvm::GenericValue gv)
+  decltype(auto) operator()(Output<T> arg, llvm::GenericValue gv)
   {
     auto ch = gv_to_val<T>{};
-    return ch(gv);
+    return ch(arg.type(), gv);
   }
 };
 
 template <typename T>
 struct gv_to_val<Array<T>> {
-  decltype(auto) operator()(llvm::GenericValue gv)
+  decltype(auto) operator()(Array<T> arg, llvm::GenericValue gv)
   {
-    /* using element_type = typename T::example_t; */
-    return 0;
+    using element_type = typename T::example_t;
+    auto size = arg.array_size();
+    auto ptr = static_cast<element_type *>(gv.PointerVal);
+    return std::vector<element_type>(ptr, ptr + size);
+  }
+};
+
+template <>
+struct gv_to_val<Integer> {
+  decltype(auto) operator()(Integer i, llvm::GenericValue gv)
+  {
+    return long{gv.IntVal.getSExtValue()};
   }
 };
 
@@ -178,13 +188,18 @@ class FunctionCallable {
 public:
   using return_type = typename all_outputs<R, Args...>::type;
 
-  FunctionCallable(llvm::Module *m, llvm::StringRef name, bool e = false);
-  FunctionCallable(llvm::Function *f, bool e = false);
+  static struct with_error_code_st{} with_error_code;
+
+  FunctionCallable(llvm::Module *m, llvm::StringRef name, R r, Args... as);
+  FunctionCallable(llvm::Function *f, R r, Args... as);
 
   return_type operator()(typename Args::example_t... args);
 
 private:
-  bool uses_error_;
+  R return_type_;
+  std::tuple<Args...> arg_types_;
+
+  bool uses_error_ = false;
 
   std::unique_ptr<llvm::Module> module_;
   llvm::Function *func_;
@@ -196,7 +211,7 @@ private:
 
     if constexpr(is_output_type<Arg>::value) {
       auto gtv = gv_to_val<Arg>{};
-      return std::make_tuple(gtv(std::get<idx>(t)));
+      return std::make_tuple(gtv(std::get<idx>(arg_types_), std::get<idx>(std::forward<decltype(t)>(t))));
     } else {
       return std::make_tuple();
     }
@@ -210,14 +225,22 @@ private:
   }
 
   template <typename Tuple>
-  auto collect(Tuple&& t) {
-    return collect_impl2(std::forward<decltype(t)>(t), std::make_index_sequence<sizeof...(Args)>());
+  auto collect(llvm::GenericValue return_val, Tuple&& t) {
+    auto ret = collect_impl2(std::forward<decltype(t)>(t), std::make_index_sequence<sizeof...(Args)>());
+    if constexpr(std::is_same_v<R, Void>) {
+      return ret;
+    } else {
+      auto gtv = gv_to_val<R>{};
+      return std::tuple_cat(std::tuple(gtv(return_type_, return_val)), ret);
+    }
   }
 };
 
 template <typename R, typename... Args>
-FunctionCallable<R, Args...>::FunctionCallable(llvm::Module *m, llvm::StringRef name, bool e) :
-  uses_error_{e},
+FunctionCallable<R, Args...>::FunctionCallable(
+    llvm::Module *m, llvm::StringRef name,
+    R r, Args... args) :
+  return_type_(r), arg_types_(args...),
   module_{copy_module_to(ThreadContext::get(), m)},
   func_{module_->getFunction(name)}
 {
@@ -226,8 +249,10 @@ FunctionCallable<R, Args...>::FunctionCallable(llvm::Module *m, llvm::StringRef 
 }
 
 template <typename R, typename... Args>
-FunctionCallable<R, Args...>::FunctionCallable(llvm::Function *f, bool e) :
-  FunctionCallable{f->getParent(), f->getName(), e}
+FunctionCallable<R, Args...>::FunctionCallable(
+    llvm::Function *f,
+    R r, Args... args) :
+  FunctionCallable(f->getParent(), f->getName(), r, args...)
 {
 }
 
@@ -242,22 +267,7 @@ FunctionCallable<R, Args...>::operator()(typename Args::example_t... args)
   };
     
   auto ret = engine_->runFunction(func_, func_args);
-  for(auto arg : func_args) {
-    auto ptr = static_cast<long *>(arg.PointerVal);
-    std::vector<long> vec(ptr, ptr+4);
-    for(auto i : vec) {
-      llvm::errs() << i << " ";
-    }
-    llvm::errs() << '\n';
-    for(auto i : std::get<0>(std::make_tuple(args...))) {
-      llvm::errs() << i << " ";
-    }
-    llvm::errs() << '\n';
-  }
-
-  auto collected = collect(func_args);
-
-  return return_type{};
+  return collect(ret, func_args);
 }
 
 }
