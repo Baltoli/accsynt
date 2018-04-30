@@ -178,12 +178,19 @@ class FunctionCallable {
 public:
   using return_type = typename all_outputs<R, Args...>::type;
 
-  FunctionCallable(llvm::Module *m, llvm::StringRef name);
-  FunctionCallable(llvm::Function *f);
+  static struct with_error_code_st{} with_error_code;
+
+  FunctionCallable(llvm::Module *m, llvm::StringRef name, R r, Args... as);
+  FunctionCallable(llvm::Function *f, R r, Args... as);
 
   return_type operator()(typename Args::example_t... args);
 
 private:
+  R return_type_;
+  std::tuple<Args...> arg_types_;
+
+  bool uses_error_ = false;
+
   std::unique_ptr<llvm::Module> module_;
   llvm::Function *func_;
   std::unique_ptr<llvm::ExecutionEngine> engine_;
@@ -194,7 +201,7 @@ private:
 
     if constexpr(is_output_type<Arg>::value) {
       auto gtv = gv_to_val<Arg>{};
-      return std::make_tuple(gtv(std::get<idx>(t)));
+      return std::make_tuple(gtv(std::get<idx>(std::forward<decltype(t)>(t))));
     } else {
       return std::make_tuple();
     }
@@ -214,7 +221,10 @@ private:
 };
 
 template <typename R, typename... Args>
-FunctionCallable<R, Args...>::FunctionCallable(llvm::Module *m, llvm::StringRef name) :
+FunctionCallable<R, Args...>::FunctionCallable(
+    llvm::Module *m, llvm::StringRef name,
+    R r, Args... args) :
+  return_type_(r), arg_types_(args...),
   module_{copy_module_to(ThreadContext::get(), m)},
   func_{module_->getFunction(name)}
 {
@@ -223,8 +233,10 @@ FunctionCallable<R, Args...>::FunctionCallable(llvm::Module *m, llvm::StringRef 
 }
 
 template <typename R, typename... Args>
-FunctionCallable<R, Args...>::FunctionCallable(llvm::Function *f) :
-  FunctionCallable{f->getParent(), f->getName()}
+FunctionCallable<R, Args...>::FunctionCallable(
+    llvm::Function *f,
+    R r, Args... args) :
+  FunctionCallable(f->getParent(), f->getName(), r, args...)
 {
 }
 
@@ -232,7 +244,7 @@ template <typename R, typename... Args>
 typename FunctionCallable<R, Args...>::return_type
 FunctionCallable<R, Args...>::operator()(typename Args::example_t... args)
 {
-  assert(func_->arg_size() == sizeof...(args) + 1 && "Argument count mismatch");
+  assert(func_->arg_size() == sizeof...(args) + uses_error_ && "Argument count mismatch");
 
   auto func_args = std::array<llvm::GenericValue, sizeof...(args)>{
     { make_generic(args)... }

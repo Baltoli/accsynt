@@ -87,7 +87,10 @@ define void @func([4 x i64]*) {
 }
     )");
 
-    auto fc = v2::FunctionCallable<Void, Output<Array<Integer>>>(mod.get(), "func");
+    auto ret_t = Void{};
+    auto arg_t = Output{Array{Integer{64}, 4}};
+
+    auto fc = v2::FunctionCallable(mod.get(), "func", ret_t, arg_t);
 
     auto args = std::vector<long>{0, 1, 2, 3};
     auto ret = fc(args);
