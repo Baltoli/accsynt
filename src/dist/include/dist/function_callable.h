@@ -183,15 +183,19 @@ struct gv_to_val<Integer> {
   }
 };
 
+static constexpr struct with_error_code_tag{} with_error_code = {};
+static constexpr struct no_error_code_tag{} no_error_code = {};
+
 template <typename R, typename... Args>
 class FunctionCallable {
 public:
   using return_type = typename all_outputs<R, Args...>::type;
 
-  static struct with_error_code_st{} with_error_code;
+  template <typename Tag>
+  FunctionCallable(Tag, llvm::Module *m, llvm::StringRef name, R r, Args... as);
 
-  FunctionCallable(llvm::Module *m, llvm::StringRef name, R r, Args... as);
-  FunctionCallable(llvm::Function *f, R r, Args... as);
+  template <typename Tag>
+  FunctionCallable(Tag, llvm::Function *f, R r, Args... as);
 
   return_type operator()(typename Args::example_t... args);
 
@@ -237,22 +241,33 @@ private:
 };
 
 template <typename R, typename... Args>
+template <typename Tag>
 FunctionCallable<R, Args...>::FunctionCallable(
+    Tag,
     llvm::Module *m, llvm::StringRef name,
     R r, Args... args) :
   return_type_(r), arg_types_(args...),
   module_{copy_module_to(ThreadContext::get(), m)},
   func_{module_->getFunction(name)}
 {
+  static_assert(
+    std::is_same_v<Tag, no_error_code_tag> ||
+    std::is_same_v<Tag, with_error_code_tag>,
+    "Unsupported tag type for function callable");
+
+  uses_error_ = std::is_same_v<Tag, with_error_code_tag>;
+
   auto eb = llvm::EngineBuilder{std::move(module_)};
   engine_.reset(eb.create());
 }
 
 template <typename R, typename... Args>
+template <typename Tag>
 FunctionCallable<R, Args...>::FunctionCallable(
+    Tag t,
     llvm::Function *f,
     R r, Args... args) :
-  FunctionCallable(f->getParent(), f->getName(), r, args...)
+  FunctionCallable(t, f->getParent(), f->getName(), r, args...)
 {
 }
 

@@ -86,7 +86,7 @@ define i64 @func(i64) {
     )");
 
     auto ret_t = Integer{64};
-    auto fc = v2::FunctionCallable(mod.get(), "func", ret_t, ret_t);
+    auto fc = v2::FunctionCallable(v2::no_error_code, mod.get(), "func", ret_t, ret_t);
 
     auto ret = fc(23);
 
@@ -105,7 +105,7 @@ define void @func([4 x i64]*) {
     auto ret_t = Void{};
     auto arg_t = Output{Array{Integer{64}, 4}};
 
-    auto fc = v2::FunctionCallable(mod.get(), "func", ret_t, arg_t);
+    auto fc = v2::FunctionCallable(v2::no_error_code, mod.get(), "func", ret_t, arg_t);
 
     auto args = std::vector<long>{0, 1, 2, 3};
     auto ret = fc(args);
@@ -127,7 +127,7 @@ define i64 @func([4 x i64]*, i64) {
     auto ret_t = Integer{64};
     auto arg_t = Output{Array{Integer{64}, 4}};
     
-    auto fc = v2::FunctionCallable(mod.get(), "func", ret_t, arg_t, ret_t);
+    auto fc = v2::FunctionCallable(v2::no_error_code, mod.get(), "func", ret_t, arg_t, ret_t);
 
     auto arr = std::vector<long>{0, 1, 2, 23};
 
