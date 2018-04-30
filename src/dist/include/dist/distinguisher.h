@@ -65,15 +65,6 @@ private:
 
 namespace v2 {
 
-template <typename Type>
-struct val_to_val {
-  template <typename Arg>
-  decltype(auto) operator()(Type, Arg a)
-  {
-    return a;
-  }
-};
-
 template <typename RefFn, typename LLVMFn, typename Synth>
 class OracleDistinguisher {
 public:

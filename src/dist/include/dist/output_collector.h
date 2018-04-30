@@ -42,9 +42,59 @@ public:
     }
   }
 
+  template <typename Tuple>
+  auto collect(Tuple&& t) {
+    return collect_impl2(std::forward<decltype(t)>(t), std::make_index_sequence<sizeof...(Args)>());
+  }
+
 private:
   R return_type_;
   std::tuple<Args...> arg_types_;
 };
+
+template <typename Type>
+struct val_to_val {
+  template <typename Arg>
+  Arg operator()(Type, Arg a)
+  {
+    return a;
+  }
+};
+
+template <typename F, typename R, typename... Args>
+class CollectCallable {
+public:
+  using return_type = typename all_outputs<R, Args...>::type;
+
+  CollectCallable(F const& f, R r, Args... args) :
+    func_(f),
+    return_type_(r), arg_types_(args...)
+  {
+  }
+
+  return_type operator()(typename Args::example_t... args);
+private:
+  F const& func_;
+
+  R return_type_;
+  std::tuple<Args...> arg_types_;
+};
+
+template <typename F, typename R, typename... Args>
+typename CollectCallable<F, R, Args...>::return_type
+CollectCallable<F, R, Args...>::operator()(typename Args::example_t... args)
+{
+  auto collector = std::apply([&](auto&&... ats) {
+    return output_collector<val_to_val, R, Args...>(return_type_, ats...);
+  }, arg_types_);
+
+  if constexpr(std::is_same_v<R, Void>) {
+    func_(args...);
+    return collector.collect(std::tuple(args...));
+  } else {
+    auto ret = func_(args...);
+    return collector.collect(ret, std::tuple(args...));
+  }
+}
 
 }

@@ -44,6 +44,7 @@ add_executable(unit_tests
   test/unit/utils.cpp
   test/unit/shapes.cpp
   test/unit/distinguisher.cpp
+  test/unit/collect_call.cpp
 )
 
 target_link_libraries(test_dist dist)
