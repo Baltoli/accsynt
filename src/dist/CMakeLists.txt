@@ -43,6 +43,7 @@ add_executable(unit_tests
   test/unit/synth.cpp
   test/unit/utils.cpp
   test/unit/shapes.cpp
+  test/unit/distinguisher.cpp
 )
 
 target_link_libraries(test_dist dist)

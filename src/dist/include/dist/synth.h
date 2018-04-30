@@ -21,7 +21,7 @@ namespace accsynt {
 template <typename R, typename... Args>
 class Synthesizer {
 public:
-  using ret_t = typename R::example_t;
+  using ret_t = typename all_outputs<R, Args...>::type;
   using args_t = std::tuple<typename Args::example_t...>;
 
   Synthesizer(R r, Args... args) :
@@ -142,7 +142,9 @@ llvm::FunctionType *Synthesizer<R, Args...>::llvm_function_type() const
 template <typename R, typename... Args>
 bool Synthesizer<R, Args...>::satisfies_examples(llvm::Function *f) const
 {
-  auto fc = v1::FunctionCallable<ret_t>{f, true};
+  auto fc = std::apply([&](auto&&... args) {
+    return v2::FunctionCallable{v2::with_error_code, f, return_type_, args...};
+  }, arg_types_);
 
   return std::all_of(std::begin(examples_), std::end(examples_), [f,&fc](auto ex) {
     return std::apply(fc, ex.first) == ex.second;

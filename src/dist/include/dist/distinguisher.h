@@ -15,6 +15,8 @@
 
 namespace accsynt {
 
+inline namespace v1 {
+
 template <typename R, typename Args>
 struct Counterexample {
   const R f_return;
@@ -39,13 +41,13 @@ public:
   counterexample_t operator()() const
   {
     for(auto i = 0u; i < example_limit_; ++i) {
-      auto example = synth_->example();
-      auto&& [f_err, f_result] = try_apply(f_, example);
-      auto&& [g_err, g_result] = try_apply(g_, example);
+      /* auto example = synth_->example(); */
+      /* auto&& [f_err, f_result] = try_apply(f_, example); */
+      /* auto&& [g_err, g_result] = try_apply(g_, example); */
 
-      if((f_err != g_err) || (f_result != g_result)) {
-        return {{f_result, g_result, f_err, g_err, example}};
-      }
+      /* if((f_err != g_err) || (f_result != g_result)) { */
+      /*   return {{f_result, g_result, f_err, g_err, example}}; */
+      /* } */
     }
 
     return {};
@@ -58,5 +60,28 @@ private:
   G& g_;
   Synth const* synth_;
 };
+
+}
+
+namespace v2 {
+
+template <typename Type>
+struct val_to_val {
+  template <typename Arg>
+  decltype(auto) operator()(Type, Arg a)
+  {
+    return a;
+  }
+};
+
+template <typename RefFn, typename LLVMFn, typename Synth>
+class OracleDistinguisher {
+public:
+private:
+  RefFn&& ref_fn_;
+  LLVMFn&& llvm_fn_;
+};
+
+}
 
 }
