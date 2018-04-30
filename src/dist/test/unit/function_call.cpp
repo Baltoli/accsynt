@@ -112,4 +112,33 @@ define void @func([4 x i64]*) {
 
     REQUIRE(std::get<0>(ret).at(0) == 1);
   }
+
+  SECTION( "running with both" ) {
+    LOAD_MODULE(mod, R"(
+define i64 @func([4 x i64]*, i64) {
+  %3 = getelementptr inbounds [4 x i64], [4 x i64]* %0, i64 0, i64 %1
+  %4 = load i64, i64* %3
+  %5 = add i64 %4, 1
+  store i64 %5, i64* %3
+  ret i64 %4
+}
+    )");
+
+    auto ret_t = Integer{64};
+    auto arg_t = Output{Array{Integer{64}, 4}};
+    
+    auto fc = v2::FunctionCallable(mod.get(), "func", ret_t, arg_t, ret_t);
+
+    auto arr = std::vector<long>{0, 1, 2, 23};
+
+    auto ret1 = fc(arr, 0);
+    REQUIRE(arr.at(0) == 0);
+    REQUIRE(std::get<0>(ret1) == 0);
+    REQUIRE(std::get<1>(ret1).at(0) == 1);
+
+    auto ret2 = fc(arr, 3);
+    REQUIRE(arr.at(3) == 23);
+    REQUIRE(std::get<0>(ret2) == 23);
+    REQUIRE(std::get<1>(ret2).at(3) == 24);
+  }
 }
