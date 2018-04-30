@@ -15,7 +15,7 @@ define i64 @func(i64) {
 }
   )");
 
-  auto fc = FunctionCallable<long>(mod.get(), "func");
+  auto fc = v1::FunctionCallable<long>(mod.get(), "func");
 
   SECTION( "error is not used by default" ) {
     REQUIRE(!fc.get_error());
@@ -38,7 +38,7 @@ define i64 @func(i64*) {
 }
   )");
 
-  auto fc = FunctionCallable<long>(mod.get(), "func", true);
+  auto fc = v1::FunctionCallable<long>(mod.get(), "func", true);
 
   SECTION( "error is not set initially" ) {
     REQUIRE(!fc.get_error());
@@ -60,7 +60,7 @@ define i64 @func([4 x i64]*, i64) {
 }
   )");
 
-  auto fc = FunctionCallable<long>(mod.get(), "func");
+  auto fc = v1::FunctionCallable<long>(mod.get(), "func");
   auto vec = std::vector<long>{2, 4, -1, -6, 0};
 
   SECTION( "valid indices yield the correct values" ) {

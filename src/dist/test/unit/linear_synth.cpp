@@ -15,7 +15,7 @@ TEST_CASE( "arithmetic programs can be synthesized", "[linear]" ) {
     linear.add_example(-10, {-4, -6});
 
     auto candidate = linear();
-    auto c_func = FunctionCallable<long>{candidate.get(), "cand", true};
+    auto c_func = v1::FunctionCallable<long>{candidate.get(), "cand", true};
 
     REQUIRE(c_func(1, 2) == 3);
     REQUIRE(c_func(2, 1) == 3);
@@ -27,7 +27,7 @@ TEST_CASE( "arithmetic programs can be synthesized", "[linear]" ) {
     linear.add_example(3, {1, 3});
 
     auto candidate = linear();
-    auto c_func = FunctionCallable<long>{candidate.get(), "cand", true};
+    auto c_func = v1::FunctionCallable<long>{candidate.get(), "cand", true};
 
     REQUIRE(c_func(1, 3) == 3);
   }
@@ -47,7 +47,7 @@ TEST_CASE( "array access programs can be synthesized", "[linear]" ) {
     linear.add_example(-13, {vec2, 2});
 
     auto candidate = linear();
-    auto c_func = FunctionCallable<long>{candidate.get(), "cand", true};
+    auto c_func = v1::FunctionCallable<long>{candidate.get(), "cand", true};
 
     REQUIRE(c_func(vec, 0) == 2);
     REQUIRE(c_func(vec2, 2) == -13);

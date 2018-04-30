@@ -142,7 +142,7 @@ llvm::FunctionType *Synthesizer<R, Args...>::llvm_function_type() const
 template <typename R, typename... Args>
 bool Synthesizer<R, Args...>::satisfies_examples(llvm::Function *f) const
 {
-  auto fc = FunctionCallable<ret_t>{f, true};
+  auto fc = v1::FunctionCallable<ret_t>{f, true};
 
   return std::all_of(std::begin(examples_), std::end(examples_), [f,&fc](auto ex) {
     return std::apply(fc, ex.first) == ex.second;

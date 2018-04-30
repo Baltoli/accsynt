@@ -53,7 +53,7 @@ std::unique_ptr<llvm::Module> Oracle<F, R, Args...>::operator()()
       return nullptr;
     }
 
-    auto fc = FunctionCallable<ret_t>{candidate.get(), "cand", true};
+    auto fc = v1::FunctionCallable<ret_t>{candidate.get(), "cand", true};
     auto dist = OracleDistinguisher{reference_, fc, synth};
 
     auto example = dist();
