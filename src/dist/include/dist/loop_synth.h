@@ -165,16 +165,21 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
 
   for(auto [id, body] : irl.bodies()) {
     auto meta = func_meta;
-
+    
     b.SetInsertPoint(body.insert_point);
 
     auto i = *body.loop_indexes.rbegin();
     meta.live(i) = true;
 
-    for(auto [arg, size] : meta.size) {
+    for(auto& [arg, size] : meta.size) {
       if(size == sizes_.at(id)) {
         auto item_ptr = b.CreateGEP(arg, {b.getInt64(0), i});
         meta.live(b.CreateLoad(item_ptr)) = true;
+
+        if(meta.output(arg)) {
+          auto output_ptr = b.CreateGEP(arg, {b.getInt64(0), i});
+          meta.output(output_ptr) = true;
+        }
       }
     }
 
