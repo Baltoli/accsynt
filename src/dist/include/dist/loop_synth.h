@@ -66,8 +66,6 @@ public:
       register_arg(ty, i);
     });
 
-    std::cout << sizes_.size() << '\n';
-
     auto ids = std::vector<long>{};
     for(auto pair : sizes_) {
       ids.emplace_back(pair.first);
@@ -85,6 +83,7 @@ public:
     }
 
     if constexpr(is_output(ty)) {
+      outputs_.emplace_back(i);
       register_arg(ty.type(), i);
     }
   }
@@ -104,6 +103,7 @@ private:
   llvm::Value *construct_return(llvm::Type *rt, llvm::BasicBlock *where, 
                                 llvm::IRBuilder<>& b) const;
 
+  std::vector<long> outputs_;
   std::map<long, long> sizes_;
 
   mutable std::mutex mut = {};
@@ -142,6 +142,8 @@ LoopSynth<R, Args...>::construct_return(
 template <typename R, typename... Args>
 void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) const
 {
+  auto func_meta = SynthMetadata{};
+
   auto entry = &f->getEntryBlock();
   auto rt = f->getReturnType();
 
@@ -158,6 +160,8 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
   b.CreateBr(irl.header);
 
   for(auto [id, body] : irl.bodies()) {
+    auto meta = func_meta;
+
     b.SetInsertPoint(body.insert_point);
 
     auto datas = std::vector<llvm::Value *>{};
@@ -168,8 +172,6 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
     }
 
     auto i = *body.loop_indexes.rbegin();
-
-    auto meta = SynthMetadata{};
 
     for(auto data : datas) {
       auto item_ptr = b.CreateGEP(data, {b.getInt64(0), i});
