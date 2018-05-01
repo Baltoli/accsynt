@@ -111,6 +111,7 @@ struct SynthMetadata {
   MetadataEntry<bool>   oob;
   MetadataEntry<bool>   live;
   MetadataEntry<bool>   output;
+  llvm::Value*          return_loc = nullptr;
 };
 
 }

@@ -89,6 +89,8 @@ public:
 
 private:
   void construct(llvm::Function *f, llvm::IRBuilder<>& b) const override;
+  llvm::Value *construct_return(llvm::Type *rt, llvm::BasicBlock *where, 
+                                llvm::IRBuilder<>& b) const;
 
   std::map<long, long> sizes_;
 
@@ -97,17 +99,42 @@ private:
 };
 
 template <typename R, typename... Args>
+llvm::Value *
+LoopSynth<R, Args...>::construct_return(
+    llvm::Type *rt, llvm::BasicBlock *where, 
+    llvm::IRBuilder<>& b) const
+{
+  auto insert = b.saveIP();
+
+  auto ret = [&] () -> llvm::Value* {
+    if(rt->isVoidTy()) {
+      b.SetInsertPoint(where);
+      b.CreateRetVoid();
+      return nullptr;
+    } else {
+      auto loc = b.CreateAlloca(rt);
+      b.CreateStore(llvm::ConstantInt::get(rt, 0), loc);
+
+      b.SetInsertPoint(where);
+      auto ret_load = b.CreateLoad(loc);
+      b.CreateRet(ret_load);
+
+      return loc;
+    }
+  }();
+
+  b.restoreIP(insert);
+  return ret;
+}
+
+template <typename R, typename... Args>
 void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) const
 {
   auto entry = &f->getEntryBlock();
   auto rt = f->getReturnType();
-  auto return_loc_ = b.CreateAlloca(rt);
-  b.CreateStore(llvm::ConstantInt::get(rt, 0), return_loc_);
 
   auto post_bb = llvm::BasicBlock::Create(f->getContext(), "post-loop", f);
-  b.SetInsertPoint(post_bb);
-  auto ret_load = b.CreateLoad(return_loc_);
-  b.CreateRet(ret_load);
+  auto return_loc = construct_return(rt, post_bb, b);
 
   std::unique_lock ul{mut};
   auto shape = loops_.at(0);
@@ -138,9 +165,11 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
     }
 
     meta.live(i) = true;
-    meta.live(b.CreateLoad(return_loc_)) = true;
 
-    meta.output(return_loc_) = true;
+    if(return_loc) {
+      meta.live(b.CreateLoad(return_loc)) = true;
+      meta.return_loc = return_loc;
+    }
 
     auto gen = BlockGenerator{b, meta};
     gen.populate(20);
