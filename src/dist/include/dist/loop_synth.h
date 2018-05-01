@@ -66,6 +66,9 @@ public:
       if constexpr(is_array(ty)) {
         sizes_.insert_or_assign(i, ty.array_size());
       }
+
+      if constexpr(is_output(ty)) {
+      }
     });
 
     auto ids = std::vector<long>{};
