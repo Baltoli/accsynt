@@ -58,7 +58,7 @@ public:
     auto size = *m.size(args[0]);
 
     auto rd = std::random_device{};
-    auto dist = std::uniform_int_distribution<uint64_t>{0, size - 1};
+    auto dist = std::uniform_int_distribution<long>{0, size - 1};
 
     auto inst = constant_instruction(b, dist(rd));
     m.index_bound(inst) = size - 1;

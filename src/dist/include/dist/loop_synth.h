@@ -143,12 +143,16 @@ template <typename R, typename... Args>
 void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) const
 {
   auto func_meta = SynthMetadata{};
+  for(auto [idx, size] : sizes_) {
+    func_meta.size(f->arg_begin() + idx + 1) = size;
+  }
 
-  auto entry = &f->getEntryBlock();
-  auto rt = f->getReturnType();
+  for(auto idx : outputs_) {
+    func_meta.output(f->arg_begin() + idx + 1) = true;
+  }
 
   auto post_bb = llvm::BasicBlock::Create(f->getContext(), "post-loop", f);
-  auto return_loc = construct_return(rt, post_bb, b);
+  func_meta.return_loc = construct_return(f->getReturnType(), post_bb, b);
 
   std::unique_lock ul{mut};
   auto shape = loops_.at(0);
@@ -156,7 +160,7 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
 
   auto irl = IRLoop(f, shape, sizes_, post_bb);
 
-  b.SetInsertPoint(entry);
+  b.SetInsertPoint(&f->getEntryBlock());
   b.CreateBr(irl.header);
 
   for(auto [id, body] : irl.bodies()) {
@@ -164,25 +168,18 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
 
     b.SetInsertPoint(body.insert_point);
 
-    auto datas = std::vector<llvm::Value *>{};
-    for(auto pair : sizes_) {
-      if(pair.second == sizes_.at(id)) {
-        datas.push_back(f->arg_begin() + pair.first + 1);
+    auto i = *body.loop_indexes.rbegin();
+    meta.live(i) = true;
+
+    for(auto [arg, size] : meta.size) {
+      if(size == sizes_.at(id)) {
+        auto item_ptr = b.CreateGEP(arg, {b.getInt64(0), i});
+        meta.live(b.CreateLoad(item_ptr)) = true;
       }
     }
 
-    auto i = *body.loop_indexes.rbegin();
-
-    for(auto data : datas) {
-      auto item_ptr = b.CreateGEP(data, {b.getInt64(0), i});
-      meta.live(b.CreateLoad(item_ptr)) = true;
-    }
-
-    meta.live(i) = true;
-
-    if(return_loc) {
-      meta.live(b.CreateLoad(return_loc)) = true;
-      meta.return_loc = return_loc;
+    if(meta.return_loc) {
+      meta.live(b.CreateLoad(meta.return_loc)) = true;
     }
 
     auto gen = BlockGenerator{b, meta};
