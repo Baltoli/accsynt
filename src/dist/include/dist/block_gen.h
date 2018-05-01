@@ -44,7 +44,7 @@ void BlockGenerator<Builder>::populate(size_t n_instrs)
 template <typename Builder>
 void BlockGenerator<Builder>::output()
 {
-  for(auto v : meta_.output) {
+  auto store_output = [&](auto v) {
     // fix later perhaps if this might not be a pointer - any other way to
     // enforce responsible usage?
     auto ptr_ty = llvm::cast<llvm::PointerType>(v->getType());
@@ -57,6 +57,14 @@ void BlockGenerator<Builder>::output()
       auto value = *sample;
       b_.CreateStore(value, v);
     }
+  };
+
+  for(auto v : meta_.output) {
+    store_output(v);
+  }
+
+  if(meta_.return_loc) {
+    store_output(meta_.return_loc);
   }
 }
 

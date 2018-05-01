@@ -95,3 +95,19 @@ TEST_CASE("can iterate over entries", "[metadata]") {
     REQUIRE(prod == 30);
   }
 }
+
+TEST_CASE("can copy metadata if we need to", "[metadata]") {
+  auto s1 = SynthMetadata{};
+  auto* v1 = FAKE_PTR(1);
+  s1.size(v1) = 10;
+  
+  auto s2 = s1;
+  REQUIRE(*s1.size(v1) == *s2.size(v1));
+
+  s1.size(v1) = 9;
+  REQUIRE(*s1.size(v1) != *s2.size(v1));
+
+  s2.size.unset(v1);
+  REQUIRE(*s1.size(v1) == 9);
+  REQUIRE(!s2.size(v1));
+}

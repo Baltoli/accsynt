@@ -221,6 +221,7 @@ private:
 };
 
 class Void {
+public:
   auto llvm_type() const
   {
     return llvm::Type::getVoidTy(ThreadContext::get());
