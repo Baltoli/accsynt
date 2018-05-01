@@ -62,14 +62,11 @@ public:
   LoopSynth(R r, Args... args) 
     : Synthesizer<R, Args...>(r, args...), sizes_{}
   {
-    index_for_each(this->arg_types_, [this] (auto& ty, auto i) {
-      if constexpr(is_array(ty)) {
-        sizes_.insert_or_assign(i, ty.array_size());
-      }
-
-      if constexpr(is_output(ty)) {
-      }
+    index_for_each(this->arg_types_, [&] (auto& ty, auto i) {
+      register_arg(ty, i);
     });
+
+    std::cout << sizes_.size() << '\n';
 
     auto ids = std::vector<long>{};
     for(auto pair : sizes_) {
@@ -78,6 +75,18 @@ public:
 
     auto loop_set = Loop::loops(sizes_.size(), ids.begin(), ids.end());
     std::copy(begin(loop_set), end(loop_set), std::back_inserter(loops_));
+  }
+
+  template <typename ArgTy>
+  void register_arg(ArgTy ty, int i)
+  {
+    if constexpr(is_array(ty)) {
+      sizes_.insert_or_assign(i, ty.array_size());
+    }
+
+    if constexpr(is_output(ty)) {
+      register_arg(ty.type(), i);
+    }
   }
 
   using Synthesizer<R, Args...>::operator();
