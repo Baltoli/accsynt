@@ -75,7 +75,9 @@ public:
       ids.emplace_back(pair.first);
     }
 
-    auto loop_set = Loop::loops(ids.size(), ids.begin(), ids.end());
+    coalesced_ids_ = ids_to_coalesce();
+
+    auto loop_set = Loop::loops(coalesced_ids_.size());
     std::copy(begin(loop_set), end(loop_set), std::back_inserter(loops_));
   }
 
@@ -111,9 +113,14 @@ private:
   llvm::Value *construct_return(llvm::Type *rt, llvm::BasicBlock *where, 
                                 llvm::IRBuilder<>& b) const;
 
+  auto next_shape() const;
+  SynthMetadata initial_metadata(llvm::Function *) const;
+  std::vector<std::set<long>> ids_to_coalesce() const;
+
   std::vector<long> outputs_;
   std::map<long, long> const_sizes_;
   std::map<long, long> rt_size_offsets_;
+  std::vector<std::set<long>> coalesced_ids_;
 
   mutable std::mutex mut = {};
   mutable std::vector<Loop> loops_;
@@ -151,35 +158,32 @@ LoopSynth<R, Args...>::construct_return(
 template <typename R, typename... Args>
 void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) const
 {
-  auto func_meta = SynthMetadata{};
-  for(auto [idx, size] : const_sizes_) {
-    func_meta.const_size(f->arg_begin() + idx + 1) = size;
-  }
-
-  for(auto idx : outputs_) {
-    func_meta.output(f->arg_begin() + idx + 1) = true;
-  }
+  auto func_meta = initial_metadata(f);
 
   auto post_bb = llvm::BasicBlock::Create(f->getContext(), "post-loop", f);
   func_meta.return_loc = construct_return(f->getReturnType(), post_bb, b);
 
-  std::unique_lock ul{mut};
-  auto shape = loops_.at(0);
-  ul.unlock();
-
   auto all_sizes = std::map<long, llvm::Value *>{};
-  for(auto [idx, size] : const_sizes_) {
-    all_sizes.insert_or_assign(idx, b.getInt64(size));
-  }
-  for(auto [idx, size_idx] : rt_size_offsets_) {
-    all_sizes.insert_or_assign(idx, f->arg_begin() + size_idx + 1);
-  }
-  auto irl = IRLoop(f, shape, all_sizes, post_bb);
+  auto i = 0l;
+  for(auto const& group : coalesced_ids_) {
+    auto rep_id = *group.begin();
+    
+    if(auto ct_it = const_sizes_.find(rep_id);
+       ct_it != const_sizes_.end()) {
+      all_sizes.insert({i++, b.getInt64(ct_it->second)});
+    }
 
+    if(auto rt_it = rt_size_offsets_.find(rep_id);
+       rt_it != rt_size_offsets_.end()) {
+      all_sizes.insert({i++, f->arg_begin() + rt_it->second + 1});
+    }
+  }
+
+  auto irl = IRLoop(f, next_shape(), all_sizes, post_bb);
   b.SetInsertPoint(&f->getEntryBlock());
   b.CreateBr(irl.header);
 
-  for(auto [id, body] : irl.bodies()) {
+  for(auto [loop_id, body] : irl.bodies()) {
     auto meta = func_meta;
     
     b.SetInsertPoint(body.insert_point);
@@ -187,25 +191,14 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
     auto i = *body.loop_indexes.rbegin();
     meta.live(i) = true;
 
-    auto arg = f->arg_begin() + id + 1;
-    // distinguish array vs. ptr
-    auto item_ptr = b.CreateGEP(arg, i);
-    meta.live(b.CreateLoad(item_ptr)) = true;
-    if(meta.output(arg)) {
-      meta.output(item_ptr) = true;
+    for(auto id : coalesced_ids_.at(loop_id)) {
+      auto arg = f->arg_begin() + id + 1;
+      auto item_ptr = b.CreateGEP(arg, i);
+      meta.live(b.CreateLoad(item_ptr)) = true;
+      if(meta.output(arg)) {
+        meta.output(item_ptr) = true;
+      }
     }
-
-    /* for(auto& [arg, size] : meta.const_size) { */
-    /*   if(size == const_sizes_.at(id)) { */
-    /*     auto item_ptr = b.CreateGEP(arg, {b.getInt64(0), i}); */
-    /*     meta.live(b.CreateLoad(item_ptr)) = true; */
-
-    /*     if(meta.output(arg)) { */
-    /*       auto output_ptr = b.CreateGEP(arg, {b.getInt64(0), i}); */
-    /*       meta.output(output_ptr) = true; */
-    /*     } */
-    /*   } */
-    /* } */
 
     if(meta.return_loc) {
       meta.live(b.CreateLoad(meta.return_loc)) = true;
@@ -215,10 +208,57 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
     gen.populate(20);
     gen.output();
   }
+}
 
-  ul.lock();
+template <typename R, typename... Args>
+auto LoopSynth<R, Args...>::next_shape() const
+{
+  std::unique_lock ul{mut};
+  auto shape = loops_.at(0);
   std::rotate(begin(loops_), std::next(begin(loops_)), end(loops_));
-  ul.unlock();
+  return shape;
+}
+
+template <typename R, typename... Args>
+SynthMetadata LoopSynth<R, Args...>::initial_metadata(llvm::Function *f) const
+{
+  auto meta = SynthMetadata{};
+
+  for(auto [idx, size] : const_sizes_) {
+    meta.const_size(f->arg_begin() + idx + 1) = size;
+  }
+
+  for(auto idx : outputs_) {
+    meta.output(f->arg_begin() + idx + 1) = true;
+  }
+
+  return meta;
+}
+
+template <typename R, typename... Args>
+std::vector<std::set<long>> LoopSynth<R, Args...>::ids_to_coalesce() const
+{
+  auto ret_set = std::set<std::set<long>>{};
+
+  auto insert_equivs = [&] (auto& container) {
+    for(auto pair : container) {
+      auto key = pair.second;
+      auto equiv = std::set<long>{};
+      for(auto [other_idx, other_key] : container) {
+        if(key == other_key) {
+          equiv.insert(other_idx);
+        }
+      }
+      ret_set.insert(equiv);
+    }
+  };
+
+  insert_equivs(const_sizes_);
+  insert_equivs(rt_size_offsets_);
+
+  auto ret = std::vector<std::set<long>>{};
+  std::copy(ret_set.begin(), ret_set.end(), std::back_inserter(ret));
+  return ret;
 }
 
 }
