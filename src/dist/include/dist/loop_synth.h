@@ -112,6 +112,7 @@ private:
                                 llvm::IRBuilder<>& b) const;
 
   auto next_shape() const;
+  SynthMetadata initial_metadata(llvm::Function *) const;
 
   std::vector<long> outputs_;
   std::map<long, long> const_sizes_;
@@ -153,14 +154,7 @@ LoopSynth<R, Args...>::construct_return(
 template <typename R, typename... Args>
 void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) const
 {
-  auto func_meta = SynthMetadata{};
-  for(auto [idx, size] : const_sizes_) {
-    func_meta.const_size(f->arg_begin() + idx + 1) = size;
-  }
-
-  for(auto idx : outputs_) {
-    func_meta.output(f->arg_begin() + idx + 1) = true;
-  }
+  auto func_meta = initial_metadata(f);
 
   auto post_bb = llvm::BasicBlock::Create(f->getContext(), "post-loop", f);
   func_meta.return_loc = construct_return(f->getReturnType(), post_bb, b);
@@ -172,8 +166,8 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
   for(auto [idx, size_idx] : rt_size_offsets_) {
     all_sizes.insert_or_assign(idx, f->arg_begin() + size_idx + 1);
   }
-  auto irl = IRLoop(f, next_shape(), all_sizes, post_bb);
 
+  auto irl = IRLoop(f, next_shape(), all_sizes, post_bb);
   b.SetInsertPoint(&f->getEntryBlock());
   b.CreateBr(irl.header);
 
@@ -209,6 +203,22 @@ auto LoopSynth<R, Args...>::next_shape() const
   auto shape = loops_.at(0);
   std::rotate(begin(loops_), std::next(begin(loops_)), end(loops_));
   return shape;
+}
+
+template <typename R, typename... Args>
+SynthMetadata LoopSynth<R, Args...>::initial_metadata(llvm::Function *f) const
+{
+  auto meta = SynthMetadata{};
+
+  for(auto [idx, size] : const_sizes_) {
+    meta.const_size(f->arg_begin() + idx + 1) = size;
+  }
+
+  for(auto idx : outputs_) {
+    meta.output(f->arg_begin() + idx + 1) = true;
+  }
+
+  return meta;
 }
 
 }
