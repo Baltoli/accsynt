@@ -75,6 +75,8 @@ public:
       ids.emplace_back(pair.first);
     }
 
+    auto to_c = ids_to_coalesce();
+
     auto loop_set = Loop::loops(ids.size(), ids.begin(), ids.end());
     std::copy(begin(loop_set), end(loop_set), std::back_inserter(loops_));
   }
@@ -113,6 +115,7 @@ private:
 
   auto next_shape() const;
   SynthMetadata initial_metadata(llvm::Function *) const;
+  std::set<std::set<long>> ids_to_coalesce() const;
 
   std::vector<long> outputs_;
   std::map<long, long> const_sizes_;
@@ -219,6 +222,30 @@ SynthMetadata LoopSynth<R, Args...>::initial_metadata(llvm::Function *f) const
   }
 
   return meta;
+}
+
+template <typename R, typename... Args>
+std::set<std::set<long>> LoopSynth<R, Args...>::ids_to_coalesce() const
+{
+  auto ret = std::set<std::set<long>>{};
+
+  auto insert_equivs = [&] (auto& container) {
+    for(auto pair : container) {
+      auto key = pair.second;
+      auto equiv = std::set<long>{};
+      for(auto [other_idx, other_key] : container) {
+        if(key == other_key) {
+          equiv.insert(other_idx);
+        }
+      }
+      ret.insert(equiv);
+    }
+  };
+
+  insert_equivs(const_sizes_);
+  insert_equivs(rt_size_offsets_);
+
+  return ret;
 }
 
 }
