@@ -116,6 +116,7 @@ private:
   auto next_shape() const;
   SynthMetadata initial_metadata(llvm::Function *) const;
   std::vector<std::set<long>> ids_to_coalesce() const;
+  std::map<long, llvm::Value *> runtime_sizes(llvm::Function *) const;
 
   std::vector<long> outputs_;
   std::map<long, long> const_sizes_;
@@ -163,21 +164,7 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
   auto post_bb = llvm::BasicBlock::Create(f->getContext(), "post-loop", f);
   func_meta.return_loc = construct_return(f->getReturnType(), post_bb, b);
 
-  auto all_sizes = std::map<long, llvm::Value *>{};
-  auto i = 0l;
-  for(auto const& group : coalesced_ids_) {
-    auto rep_id = *group.begin();
-    
-    if(auto ct_it = const_sizes_.find(rep_id);
-       ct_it != const_sizes_.end()) {
-      all_sizes.insert({i++, b.getInt64(ct_it->second)});
-    }
-
-    if(auto rt_it = rt_size_offsets_.find(rep_id);
-       rt_it != rt_size_offsets_.end()) {
-      all_sizes.insert({i++, f->arg_begin() + rt_it->second + 1});
-    }
-  }
+  auto all_sizes = runtime_sizes(f);
 
   auto irl = IRLoop(f, next_shape(), all_sizes, post_bb);
   b.SetInsertPoint(&f->getEntryBlock());
@@ -258,6 +245,31 @@ std::vector<std::set<long>> LoopSynth<R, Args...>::ids_to_coalesce() const
 
   auto last = std::unique(ret.begin(), ret.end());
   ret.erase(last, ret.end());
+
+  return ret;
+}
+
+template <typename R, typename... Args>
+std::map<long, llvm::Value *> LoopSynth<R, Args...>::runtime_sizes(llvm::Function *f) const
+{
+  auto ret = std::map<long, llvm::Value *>{};
+
+  auto i = 0l;
+  for(auto const& group : coalesced_ids_) {
+    auto rep_id = *group.begin();
+    
+    if(auto ct_it = const_sizes_.find(rep_id);
+       ct_it != const_sizes_.end()) {
+      auto i64_ty = llvm::IntegerType::get(f->getContext(), 64);
+      auto size = llvm::ConstantInt::get(i64_ty, ct_it->second);
+      ret.insert({i++, size});
+    }
+
+    if(auto rt_it = rt_size_offsets_.find(rep_id);
+       rt_it != rt_size_offsets_.end()) {
+      ret.insert({i++, f->arg_begin() + rt_it->second + 1});
+    }
+  }
 
   return ret;
 }
