@@ -238,7 +238,7 @@ SynthMetadata LoopSynth<R, Args...>::initial_metadata(llvm::Function *f) const
 template <typename R, typename... Args>
 std::vector<std::set<long>> LoopSynth<R, Args...>::ids_to_coalesce() const
 {
-  auto ret_set = std::set<std::set<long>>{};
+  auto ret = std::vector<std::set<long>>{};
 
   auto insert_equivs = [&] (auto& container) {
     for(auto pair : container) {
@@ -249,15 +249,16 @@ std::vector<std::set<long>> LoopSynth<R, Args...>::ids_to_coalesce() const
           equiv.insert(other_idx);
         }
       }
-      ret_set.insert(equiv);
+      ret.push_back(equiv);
     }
   };
 
   insert_equivs(const_sizes_);
   insert_equivs(rt_size_offsets_);
 
-  auto ret = std::vector<std::set<long>>{};
-  std::copy(ret_set.begin(), ret_set.end(), std::back_inserter(ret));
+  auto last = std::unique(ret.begin(), ret.end());
+  ret.erase(last, ret.end());
+
   return ret;
 }
 
