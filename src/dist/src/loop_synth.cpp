@@ -5,7 +5,7 @@ using namespace llvm;
 namespace accsynt {
 
 IRLoop::IRLoop(Function *f, Loop const& l, 
-               std::map<long, long> const& e,
+               std::map<long, llvm::Value *> const& e,
                llvm::BasicBlock* post,
                std::map<long, LoopBody> *b,
                std::vector<llvm::Value *> p) :
@@ -60,7 +60,7 @@ void IRLoop::build_nested(long loop_id)
 
   // set up the loop header
   B_.SetInsertPoint(header);
-  auto end_idx = B_.getInt64(extents_.at(loop_id));
+  auto end_idx = extents_.at(loop_id);
   B_.CreateBr(body);
 
   // set up the loop body

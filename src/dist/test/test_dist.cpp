@@ -45,17 +45,17 @@ void test_dot_product()
 {
   auto i64 = Integer{64};
   auto size = Size{};
-  auto ptr = SizedPointer(i64, size);
+  auto ptr = SizedPointer(i64, 0);
 
-  auto fun = [](int64_t s, auto v1, auto v2) -> int64_t {
+  auto fun = [](int64_t s, auto v1) -> int64_t {
     auto sum = 0;
     for(auto i = 0; i < s; ++i) {
-      sum += v1[i] * v2[i];
+      sum += v1.at(i);
     }
     return sum;
   };
 
-  auto p = Oracle(fun, i64, size, ptr, ptr);
+  auto p = Oracle(fun, i64, size, ptr);
   if(auto r = p()) {
     r->print(llvm::outs(), nullptr);
   }
@@ -134,8 +134,8 @@ int main()
 {
   /* test_linear(); */
   /* test_sum(4); */
-  /* test_dot_product(); */
+  test_dot_product();
   /* test_fixed_dot(16); */
   /* test_output(64); */
-  test_vsum(4);
+  /* test_vsum(4); */
 }

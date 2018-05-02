@@ -141,8 +141,8 @@ class SizedPointer {
 public:
   using example_t = std::vector<typename Type::example_t>;
 
-  SizedPointer(Type t, Size s) :
-    type(t), size(s) {}
+  SizedPointer(Type t, long idx) :
+    type(t), size_index(idx) {}
 
   llvm::PointerType *llvm_type() const
   {
@@ -151,7 +151,7 @@ public:
 
   example_t generate() const
   {
-    auto vec = example_t(size.upper_bound);
+    auto vec = example_t(upper_bound);
     std::for_each(std::begin(vec), std::end(vec), [this](auto &ex) {
       ex = type.generate();
     });
@@ -159,7 +159,8 @@ public:
   }
 
   const Type type;
-  const Size size;
+  const long size_index;
+  const long upper_bound = 64;
 };
 
 template <typename... Types>
@@ -277,6 +278,12 @@ template <typename T>
 struct is_output_type<Output<T>> : std::true_type {};
 
 template <typename T>
+struct is_sized_pointer_type : std::false_type {};
+
+template <typename T>
+struct is_sized_pointer_type<SizedPointer<T>> : std::true_type {};
+
+template <typename T>
 constexpr bool is_index(T&& ty)
 {
   return is_index_type<std::decay_t<decltype(ty)>>::value;
@@ -292,6 +299,12 @@ template <typename T>
 constexpr bool is_output(T&& ty)
 {
   return is_output_type<std::decay_t<decltype(ty)>>::value;
+}
+
+template <typename T>
+constexpr bool is_sized_pointer(T&& ty)
+{
+  return is_sized_pointer_type<std::decay_t<decltype(ty)>>::value;
 }
 
 }

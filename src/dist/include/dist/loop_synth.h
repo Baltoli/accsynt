@@ -22,7 +22,7 @@ private:
   llvm::Function* func_;
   llvm::BasicBlock* post_loop_;
   Loop const& shape_;
-  std::map<long, long> const& extents_;
+  std::map<long, llvm::Value *> const& extents_;
   std::vector<llvm::Value *> parents_;
   llvm::IRBuilder<> B_;
 
@@ -34,7 +34,7 @@ private:
 
 public:
   IRLoop(llvm::Function* f, Loop const& l, 
-         std::map<long, long> const& e,
+         std::map<long, llvm::Value *> const& e,
          llvm::BasicBlock* post,
          std::map<long, LoopBody> *b = nullptr,
          std::vector<llvm::Value *> p = {});
@@ -60,18 +60,22 @@ template <typename R, typename... Args>
 class LoopSynth : public Synthesizer<R, Args...> {
 public:
   LoopSynth(R r, Args... args) 
-    : Synthesizer<R, Args...>(r, args...), sizes_{}
+    : Synthesizer<R, Args...>(r, args...),
+      const_sizes_{}, rt_size_offsets_{}
   {
     index_for_each(this->arg_types_, [&] (auto& ty, auto i) {
       register_arg(ty, i);
     });
 
     auto ids = std::vector<long>{};
-    for(auto pair : sizes_) {
+    for(auto pair : const_sizes_) {
+      ids.emplace_back(pair.first);
+    }
+    for(auto pair : rt_size_offsets_) {
       ids.emplace_back(pair.first);
     }
 
-    auto loop_set = Loop::loops(sizes_.size(), ids.begin(), ids.end());
+    auto loop_set = Loop::loops(ids.size(), ids.begin(), ids.end());
     std::copy(begin(loop_set), end(loop_set), std::back_inserter(loops_));
   }
 
@@ -79,12 +83,16 @@ public:
   void register_arg(ArgTy ty, int i)
   {
     if constexpr(is_array(ty)) {
-      sizes_.insert_or_assign(i, ty.array_size());
+      const_sizes_.insert_or_assign(i, ty.array_size());
     }
 
     if constexpr(is_output(ty)) {
       outputs_.emplace_back(i);
       register_arg(ty.type(), i);
+    }
+
+    if constexpr(is_sized_pointer(ty)) {
+      rt_size_offsets_.insert_or_assign(i, ty.size_index);
     }
   }
 
@@ -95,7 +103,7 @@ public:
   // extend to handle sized pointers next
   virtual bool can_synthesize() const override
   {
-    return !sizes_.empty();
+    return !const_sizes_.empty() || !rt_size_offsets_.empty();
   }
 
 private:
@@ -104,7 +112,8 @@ private:
                                 llvm::IRBuilder<>& b) const;
 
   std::vector<long> outputs_;
-  std::map<long, long> sizes_;
+  std::map<long, long> const_sizes_;
+  std::map<long, long> rt_size_offsets_;
 
   mutable std::mutex mut = {};
   mutable std::vector<Loop> loops_;
@@ -143,7 +152,7 @@ template <typename R, typename... Args>
 void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) const
 {
   auto func_meta = SynthMetadata{};
-  for(auto [idx, size] : sizes_) {
+  for(auto [idx, size] : const_sizes_) {
     func_meta.const_size(f->arg_begin() + idx + 1) = size;
   }
 
@@ -158,7 +167,14 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
   auto shape = loops_.at(0);
   ul.unlock();
 
-  auto irl = IRLoop(f, shape, sizes_, post_bb);
+  auto all_sizes = std::map<long, llvm::Value *>{};
+  for(auto [idx, size] : const_sizes_) {
+    all_sizes.insert_or_assign(idx, b.getInt64(size));
+  }
+  for(auto [idx, size_idx] : rt_size_offsets_) {
+    all_sizes.insert_or_assign(idx, f->arg_begin() + size_idx + 1);
+  }
+  auto irl = IRLoop(f, shape, all_sizes, post_bb);
 
   b.SetInsertPoint(&f->getEntryBlock());
   b.CreateBr(irl.header);
@@ -171,8 +187,9 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
     auto i = *body.loop_indexes.rbegin();
     meta.live(i) = true;
 
+    // load from runtime values as well!
     for(auto& [arg, size] : meta.const_size) {
-      if(size == sizes_.at(id)) {
+      if(size == const_sizes_.at(id)) {
         auto item_ptr = b.CreateGEP(arg, {b.getInt64(0), i});
         meta.live(b.CreateLoad(item_ptr)) = true;
 
@@ -191,6 +208,7 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
     gen.populate(20);
     gen.output();
   }
+  llvm::errs() << *f << '\n';
 
   ul.lock();
   std::rotate(begin(loops_), std::next(begin(loops_)), end(loops_));
