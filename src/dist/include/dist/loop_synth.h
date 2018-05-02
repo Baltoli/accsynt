@@ -187,18 +187,25 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
     auto i = *body.loop_indexes.rbegin();
     meta.live(i) = true;
 
-    // load from runtime values as well!
-    for(auto& [arg, size] : meta.const_size) {
-      if(size == const_sizes_.at(id)) {
-        auto item_ptr = b.CreateGEP(arg, {b.getInt64(0), i});
-        meta.live(b.CreateLoad(item_ptr)) = true;
-
-        if(meta.output(arg)) {
-          auto output_ptr = b.CreateGEP(arg, {b.getInt64(0), i});
-          meta.output(output_ptr) = true;
-        }
-      }
+    auto arg = f->arg_begin() + id + 1;
+    // distinguish array vs. ptr
+    auto item_ptr = b.CreateGEP(arg, i);
+    meta.live(b.CreateLoad(item_ptr)) = true;
+    if(meta.output(arg)) {
+      meta.output(item_ptr) = true;
     }
+
+    /* for(auto& [arg, size] : meta.const_size) { */
+    /*   if(size == const_sizes_.at(id)) { */
+    /*     auto item_ptr = b.CreateGEP(arg, {b.getInt64(0), i}); */
+    /*     meta.live(b.CreateLoad(item_ptr)) = true; */
+
+    /*     if(meta.output(arg)) { */
+    /*       auto output_ptr = b.CreateGEP(arg, {b.getInt64(0), i}); */
+    /*       meta.output(output_ptr) = true; */
+    /*     } */
+    /*   } */
+    /* } */
 
     if(meta.return_loc) {
       meta.live(b.CreateLoad(meta.return_loc)) = true;
@@ -208,7 +215,6 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
     gen.populate(20);
     gen.output();
   }
-  llvm::errs() << *f << '\n';
 
   ul.lock();
   std::rotate(begin(loops_), std::next(begin(loops_)), end(loops_));

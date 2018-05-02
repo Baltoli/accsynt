@@ -44,10 +44,10 @@ void test_sum(size_t n)
 void test_dot_product()
 {
   auto i64 = Integer{64};
-  auto size = Size{};
   auto ptr = SizedPointer(i64, 0);
+  auto size = Size(ptr);
 
-  auto fun = [](int64_t s, auto v1) -> int64_t {
+  auto fun = [](int64_t s, auto v1, auto v2) -> int64_t {
     auto sum = 0;
     for(auto i = 0; i < s; ++i) {
       sum += v1.at(i);
@@ -55,7 +55,7 @@ void test_dot_product()
     return sum;
   };
 
-  auto p = Oracle(fun, i64, size, ptr);
+  auto p = Oracle(fun, i64, size, ptr, ptr);
   if(auto r = p()) {
     r->print(llvm::outs(), nullptr);
   }

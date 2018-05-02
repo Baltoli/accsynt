@@ -41,7 +41,7 @@ decltype(auto) try_apply(F&& f, Args&&... args)
     }
 		
     return std::make_pair(false, result);		
-  } catch(...) {		
+  } catch(...) {
     return std::make_pair(true, result_t{});		
   }		
 }		

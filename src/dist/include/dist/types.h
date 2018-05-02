@@ -114,28 +114,6 @@ private:
   size_t bound_;
 };
 
-class Size {
-public:
-  using example_t = size_t;
-
-  Size() = default;
-  Size(size_t ub) : upper_bound(ub) {}
-
-  llvm::IntegerType *llvm_type() const
-  {
-    return llvm::IntegerType::get(ThreadContext::get(), 64);
-  }
-
-  example_t generate() const
-  {
-    auto rd = std::random_device{};
-    auto dis = std::uniform_int_distribution<example_t>{1, upper_bound};
-    return dis(rd);
-  }
-
-  const size_t upper_bound = 1024;
-};
-
 template <typename Type>
 class SizedPointer {
 public:
@@ -161,6 +139,31 @@ public:
   const Type type;
   const long size_index;
   const long upper_bound = 64;
+};
+
+class Size {
+public:
+  using example_t = size_t;
+
+  Size() = default;
+  Size(size_t ub) : upper_bound(ub) {}
+
+  template <typename T>
+  Size(SizedPointer<T> const& sp) : upper_bound(sp.upper_bound) {}
+
+  llvm::IntegerType *llvm_type() const
+  {
+    return llvm::IntegerType::get(ThreadContext::get(), 64);
+  }
+
+  example_t generate() const
+  {
+    auto rd = std::random_device{};
+    auto dis = std::uniform_int_distribution<example_t>{1, upper_bound};
+    return dis(rd);
+  }
+
+  const size_t upper_bound = 1024;
 };
 
 template <typename... Types>
