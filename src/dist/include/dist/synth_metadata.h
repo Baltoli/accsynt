@@ -106,12 +106,13 @@ public:
 };
 
 struct SynthMetadata {
-  MetadataEntry<long> size;
-  MetadataEntry<long> index_bound;
-  MetadataEntry<bool>   oob;
-  MetadataEntry<bool>   live;
-  MetadataEntry<bool>   output;
-  llvm::Value*          return_loc = nullptr;
+  MetadataEntry<long>           const_size;
+  MetadataEntry<llvm::Value *>  runtime_size;
+  MetadataEntry<long>           index_bound;
+  MetadataEntry<bool>           oob;
+  MetadataEntry<bool>           live;
+  MetadataEntry<bool>           output;
+  llvm::Value*                  return_loc = nullptr;
 };
 
 }

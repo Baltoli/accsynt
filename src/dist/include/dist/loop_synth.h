@@ -144,7 +144,7 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
 {
   auto func_meta = SynthMetadata{};
   for(auto [idx, size] : sizes_) {
-    func_meta.size(f->arg_begin() + idx + 1) = size;
+    func_meta.const_size(f->arg_begin() + idx + 1) = size;
   }
 
   for(auto idx : outputs_) {
@@ -171,7 +171,7 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
     auto i = *body.loop_indexes.rbegin();
     meta.live(i) = true;
 
-    for(auto& [arg, size] : meta.size) {
+    for(auto& [arg, size] : meta.const_size) {
       if(size == sizes_.at(id)) {
         auto item_ptr = b.CreateGEP(arg, {b.getInt64(0), i});
         meta.live(b.CreateLoad(item_ptr)) = true;

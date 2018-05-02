@@ -72,7 +72,7 @@ void Linear<R, Args...>::construct(llvm::Function *fn, llvm::IRBuilder<>& b) con
     }
     
     if constexpr(is_array(at)) {
-      meta.size(fn->arg_begin() + idx + 1) =  at.array_size();
+      meta.const_size(fn->arg_begin() + idx + 1) =  at.array_size();
     }
   });
 
