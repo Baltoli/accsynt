@@ -75,9 +75,9 @@ public:
       ids.emplace_back(pair.first);
     }
 
-    auto to_c = ids_to_coalesce();
+    coalesced_ids_ = ids_to_coalesce();
 
-    auto loop_set = Loop::loops(ids.size(), ids.begin(), ids.end());
+    auto loop_set = Loop::loops(coalesced_ids_.size());
     std::copy(begin(loop_set), end(loop_set), std::back_inserter(loops_));
   }
 
@@ -115,11 +115,12 @@ private:
 
   auto next_shape() const;
   SynthMetadata initial_metadata(llvm::Function *) const;
-  std::set<std::set<long>> ids_to_coalesce() const;
+  std::vector<std::set<long>> ids_to_coalesce() const;
 
   std::vector<long> outputs_;
   std::map<long, long> const_sizes_;
   std::map<long, long> rt_size_offsets_;
+  std::vector<std::set<long>> coalesced_ids_;
 
   mutable std::mutex mut = {};
   mutable std::vector<Loop> loops_;
@@ -163,18 +164,26 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
   func_meta.return_loc = construct_return(f->getReturnType(), post_bb, b);
 
   auto all_sizes = std::map<long, llvm::Value *>{};
-  for(auto [idx, size] : const_sizes_) {
-    all_sizes.insert_or_assign(idx, b.getInt64(size));
-  }
-  for(auto [idx, size_idx] : rt_size_offsets_) {
-    all_sizes.insert_or_assign(idx, f->arg_begin() + size_idx + 1);
+  auto i = 0l;
+  for(auto const& group : coalesced_ids_) {
+    auto rep_id = *group.begin();
+    
+    if(auto ct_it = const_sizes_.find(rep_id);
+       ct_it != const_sizes_.end()) {
+      all_sizes.insert({i++, b.getInt64(ct_it->second)});
+    }
+
+    if(auto rt_it = rt_size_offsets_.find(rep_id);
+       rt_it != rt_size_offsets_.end()) {
+      all_sizes.insert({i++, f->arg_begin() + rt_it->second + 1});
+    }
   }
 
   auto irl = IRLoop(f, next_shape(), all_sizes, post_bb);
   b.SetInsertPoint(&f->getEntryBlock());
   b.CreateBr(irl.header);
 
-  for(auto [id, body] : irl.bodies()) {
+  for(auto [loop_id, body] : irl.bodies()) {
     auto meta = func_meta;
     
     b.SetInsertPoint(body.insert_point);
@@ -182,11 +191,13 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
     auto i = *body.loop_indexes.rbegin();
     meta.live(i) = true;
 
-    auto arg = f->arg_begin() + id + 1;
-    auto item_ptr = b.CreateGEP(arg, i);
-    meta.live(b.CreateLoad(item_ptr)) = true;
-    if(meta.output(arg)) {
-      meta.output(item_ptr) = true;
+    for(auto id : coalesced_ids_.at(loop_id)) {
+      auto arg = f->arg_begin() + id + 1;
+      auto item_ptr = b.CreateGEP(arg, i);
+      meta.live(b.CreateLoad(item_ptr)) = true;
+      if(meta.output(arg)) {
+        meta.output(item_ptr) = true;
+      }
     }
 
     if(meta.return_loc) {
@@ -225,9 +236,9 @@ SynthMetadata LoopSynth<R, Args...>::initial_metadata(llvm::Function *f) const
 }
 
 template <typename R, typename... Args>
-std::set<std::set<long>> LoopSynth<R, Args...>::ids_to_coalesce() const
+std::vector<std::set<long>> LoopSynth<R, Args...>::ids_to_coalesce() const
 {
-  auto ret = std::set<std::set<long>>{};
+  auto ret_set = std::set<std::set<long>>{};
 
   auto insert_equivs = [&] (auto& container) {
     for(auto pair : container) {
@@ -238,13 +249,15 @@ std::set<std::set<long>> LoopSynth<R, Args...>::ids_to_coalesce() const
           equiv.insert(other_idx);
         }
       }
-      ret.insert(equiv);
+      ret_set.insert(equiv);
     }
   };
 
   insert_equivs(const_sizes_);
   insert_equivs(rt_size_offsets_);
 
+  auto ret = std::vector<std::set<long>>{};
+  std::copy(ret_set.begin(), ret_set.end(), std::back_inserter(ret));
   return ret;
 }
 

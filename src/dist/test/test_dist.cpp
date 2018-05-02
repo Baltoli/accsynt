@@ -50,7 +50,7 @@ void test_dot_product()
   auto fun = [](int64_t s, auto v1, auto v2) -> int64_t {
     auto sum = 0;
     for(auto i = 0; i < s; ++i) {
-      sum += v1.at(i);
+      sum += v1.at(i) * v2.at(i);
     }
     return sum;
   };
