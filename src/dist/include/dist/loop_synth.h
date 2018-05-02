@@ -111,6 +111,8 @@ private:
   llvm::Value *construct_return(llvm::Type *rt, llvm::BasicBlock *where, 
                                 llvm::IRBuilder<>& b) const;
 
+  auto next_shape() const;
+
   std::vector<long> outputs_;
   std::map<long, long> const_sizes_;
   std::map<long, long> rt_size_offsets_;
@@ -163,10 +165,6 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
   auto post_bb = llvm::BasicBlock::Create(f->getContext(), "post-loop", f);
   func_meta.return_loc = construct_return(f->getReturnType(), post_bb, b);
 
-  std::unique_lock ul{mut};
-  auto shape = loops_.at(0);
-  ul.unlock();
-
   auto all_sizes = std::map<long, llvm::Value *>{};
   for(auto [idx, size] : const_sizes_) {
     all_sizes.insert_or_assign(idx, b.getInt64(size));
@@ -174,7 +172,7 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
   for(auto [idx, size_idx] : rt_size_offsets_) {
     all_sizes.insert_or_assign(idx, f->arg_begin() + size_idx + 1);
   }
-  auto irl = IRLoop(f, shape, all_sizes, post_bb);
+  auto irl = IRLoop(f, next_shape(), all_sizes, post_bb);
 
   b.SetInsertPoint(&f->getEntryBlock());
   b.CreateBr(irl.header);
@@ -188,24 +186,11 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
     meta.live(i) = true;
 
     auto arg = f->arg_begin() + id + 1;
-    // distinguish array vs. ptr
     auto item_ptr = b.CreateGEP(arg, i);
     meta.live(b.CreateLoad(item_ptr)) = true;
     if(meta.output(arg)) {
       meta.output(item_ptr) = true;
     }
-
-    /* for(auto& [arg, size] : meta.const_size) { */
-    /*   if(size == const_sizes_.at(id)) { */
-    /*     auto item_ptr = b.CreateGEP(arg, {b.getInt64(0), i}); */
-    /*     meta.live(b.CreateLoad(item_ptr)) = true; */
-
-    /*     if(meta.output(arg)) { */
-    /*       auto output_ptr = b.CreateGEP(arg, {b.getInt64(0), i}); */
-    /*       meta.output(output_ptr) = true; */
-    /*     } */
-    /*   } */
-    /* } */
 
     if(meta.return_loc) {
       meta.live(b.CreateLoad(meta.return_loc)) = true;
@@ -215,10 +200,15 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
     gen.populate(20);
     gen.output();
   }
+}
 
-  ul.lock();
+template <typename R, typename... Args>
+auto LoopSynth<R, Args...>::next_shape() const
+{
+  std::unique_lock ul{mut};
+  auto shape = loops_.at(0);
   std::rotate(begin(loops_), std::next(begin(loops_)), end(loops_));
-  ul.unlock();
+  return shape;
 }
 
 }
