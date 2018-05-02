@@ -25,10 +25,11 @@ TEST_CASE("can use loop builder", "[loopbuilder]") {
   auto ret_bb = llvm::BasicBlock::Create(ctx, "post", fn);
   llvm::ReturnInst::Create(ctx, ret_bb);
 
-  auto extents = std::map<long, long>{
-    {0, 10},
-    {1, 5},
-    {2, 3}
+  auto i64_ty = llvm::IntegerType::get(ctx, 64);
+  auto extents = std::map<long, llvm::Value *>{
+    {0, llvm::ConstantInt::get(i64_ty, 10)},
+    {1, llvm::ConstantInt::get(i64_ty, 5)},
+    {2, llvm::ConstantInt::get(i64_ty, 3)}
   };
   auto l = Loop{{}};
   auto& l2 = l.add_child(Loop{});

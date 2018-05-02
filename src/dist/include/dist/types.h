@@ -114,12 +114,42 @@ private:
   size_t bound_;
 };
 
+template <typename Type>
+class SizedPointer {
+public:
+  using example_t = std::vector<typename Type::example_t>;
+
+  SizedPointer(Type t, long idx) :
+    type(t), size_index(idx) {}
+
+  llvm::PointerType *llvm_type() const
+  {
+    return llvm::PointerType::getUnqual(type.llvm_type());
+  }
+
+  example_t generate() const
+  {
+    auto vec = example_t(upper_bound);
+    std::for_each(std::begin(vec), std::end(vec), [this](auto &ex) {
+      ex = type.generate();
+    });
+    return vec;
+  }
+
+  const Type type;
+  const long size_index;
+  const long upper_bound = 64;
+};
+
 class Size {
 public:
   using example_t = size_t;
 
   Size() = default;
   Size(size_t ub) : upper_bound(ub) {}
+
+  template <typename T>
+  Size(SizedPointer<T> const& sp) : upper_bound(sp.upper_bound) {}
 
   llvm::IntegerType *llvm_type() const
   {
@@ -134,32 +164,6 @@ public:
   }
 
   const size_t upper_bound = 1024;
-};
-
-template <typename Type>
-class SizedPointer {
-public:
-  using example_t = std::vector<typename Type::example_t>;
-
-  SizedPointer(Type t, Size s) :
-    type(t), size(s) {}
-
-  llvm::PointerType *llvm_type() const
-  {
-    return llvm::PointerType::getUnqual(type.llvm_type());
-  }
-
-  example_t generate() const
-  {
-    auto vec = example_t(size.upper_bound);
-    std::for_each(std::begin(vec), std::end(vec), [this](auto &ex) {
-      ex = type.generate();
-    });
-    return vec;
-  }
-
-  const Type type;
-  const Size size;
 };
 
 template <typename... Types>
@@ -277,6 +281,12 @@ template <typename T>
 struct is_output_type<Output<T>> : std::true_type {};
 
 template <typename T>
+struct is_sized_pointer_type : std::false_type {};
+
+template <typename T>
+struct is_sized_pointer_type<SizedPointer<T>> : std::true_type {};
+
+template <typename T>
 constexpr bool is_index(T&& ty)
 {
   return is_index_type<std::decay_t<decltype(ty)>>::value;
@@ -292,6 +302,12 @@ template <typename T>
 constexpr bool is_output(T&& ty)
 {
   return is_output_type<std::decay_t<decltype(ty)>>::value;
+}
+
+template <typename T>
+constexpr bool is_sized_pointer(T&& ty)
+{
+  return is_sized_pointer_type<std::decay_t<decltype(ty)>>::value;
 }
 
 }

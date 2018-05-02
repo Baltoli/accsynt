@@ -41,31 +41,6 @@ public:
   const int64_t value;
 };
 
-class RandomIndex {
-public:
-  bool validate(SynthMetadata &m, value_array args)
-  {
-    return args.size() > 0 && m.size(args[0]);
-  }
-  
-  template <typename B>
-  llvm::Value *combine(SynthMetadata &m, B&& b, value_array args)
-  {
-    if(!validate(m, args)) {
-      return nullptr;
-    }
-
-    auto size = *m.size(args[0]);
-
-    auto rd = std::random_device{};
-    auto dist = std::uniform_int_distribution<long>{0, size - 1};
-
-    auto inst = constant_instruction(b, dist(rd));
-    m.index_bound(inst) = size - 1;
-    return inst;
-  }
-};
-
 template <class F>
 class BinaryOp {
 public:
@@ -154,8 +129,7 @@ public:
       BinaryOp{[](auto &m, auto &b, auto* v1, auto* v2) { return b.CreateAdd(v1, v2); }},
       /* BinaryOp{[](auto &m, auto &b, auto* v1, auto* v2) { return b.CreateSub(v1, v2); }}, */
       BinaryOp{[](auto &m, auto &b, auto* v1, auto* v2) { return b.CreateMul(v1, v2); }},
-      CreateGEP{},
-      RandomIndex{}
+      CreateGEP{}
     );
   }
 
