@@ -117,6 +117,7 @@ private:
   SynthMetadata initial_metadata(llvm::Function *) const;
   std::vector<std::set<long>> ids_to_coalesce() const;
   std::map<long, llvm::Value *> runtime_sizes(llvm::Function *) const;
+  llvm::Value *create_valid_gep(llvm::IRBuilder<> b, llvm::Value *data, llvm::Value *idx) const;
 
   std::vector<long> outputs_;
   std::map<long, long> const_sizes_;
@@ -180,7 +181,7 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
 
     for(auto id : coalesced_ids_.at(loop_id)) {
       auto arg = f->arg_begin() + id + 1;
-      auto item_ptr = b.CreateGEP(arg, i);
+      auto item_ptr = create_valid_gep(b, arg, i);
       meta.live(b.CreateLoad(item_ptr)) = true;
       if(meta.output(arg)) {
         meta.output(item_ptr) = true;
@@ -272,6 +273,19 @@ std::map<long, llvm::Value *> LoopSynth<R, Args...>::runtime_sizes(llvm::Functio
   }
 
   return ret;
+}
+
+template <typename R, typename... Args>
+llvm::Value *LoopSynth<R, Args...>::create_valid_gep(
+  llvm::IRBuilder<> b, llvm::Value *data, llvm::Value *idx) const
+{
+  auto ptr_ty = llvm::cast<llvm::PointerType>(data->getType());
+  auto el_ty = ptr_ty->getElementType();
+  if(auto at = llvm::dyn_cast<llvm::ArrayType>(el_ty)) {
+    return b.CreateGEP(data, {b.getInt64(0), idx});
+  } else {
+    return b.CreateGEP(data, idx);
+  }
 }
 
 }
