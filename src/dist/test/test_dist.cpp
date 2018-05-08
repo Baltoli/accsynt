@@ -130,12 +130,34 @@ void test_vsum(size_t size)
   }
 }
 
+void test_pointer()
+{
+  auto i64 = Integer(64);
+  auto ptr = Pointer(i64);
+  auto s_ptr = SizedPointer(i64, 0);
+  auto size = Size(s_ptr);
+
+  auto fun = [] (auto s, auto v, auto p) {
+    int64_t sum = 0;
+    for(auto i = 0; i < s; ++i) {
+      sum += v.at(i) + p.at(i);
+    }
+    return sum;
+  };
+
+  auto p = Oracle(fun, i64, i64, s_ptr, ptr);
+  if(auto r = p()) {
+    r->print(llvm::outs(), nullptr);
+  }
+}
+
 int main()
 {
   /* test_linear(); */
   /* test_sum(4); */
-  test_dot_product();
+  /* test_dot_product(); */
   /* test_fixed_dot(4); */
   /* test_output(64); */
   /* test_vsum(4); */
+  test_pointer();
 }
