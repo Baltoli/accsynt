@@ -139,13 +139,13 @@ void test_pointer()
 
   auto fun = [] (auto s, auto v, auto p) {
     int64_t sum = 0;
-    for(auto i = 0; i < s; ++i) {
+    for(auto i = 0u; i < s; ++i) {
       sum += v.at(i) + p.at(i);
     }
     return sum;
   };
 
-  auto p = Oracle(fun, i64, i64, s_ptr, ptr);
+  auto p = Oracle(fun, i64, size, s_ptr, ptr);
   if(auto r = p()) {
     r->print(llvm::outs(), nullptr);
   }

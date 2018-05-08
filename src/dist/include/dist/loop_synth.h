@@ -98,7 +98,7 @@ public:
     }
 
     if constexpr(is_pointer(ty)) {
-      const_sizes_.insert_or_assign(i, ty.physical_size);
+      physical_sizes_.insert_or_assign(i, ty.physical_size);
     }
   }
 
@@ -130,6 +130,7 @@ private:
 
   std::vector<long> outputs_;
   std::map<long, long> const_sizes_;
+  std::map<long, long> physical_sizes_;
   std::map<long, long> rt_size_offsets_;
   std::vector<std::set<long>> coalesced_ids_;
 
@@ -196,6 +197,17 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
 
       // TODO: sized GEP
       auto item_ptr = create_valid_sized_gep(b, arg, i, size, err_bb);
+      meta.live(b.CreateLoad(item_ptr)) = true;
+      if(meta.output(arg)) {
+        meta.output(item_ptr) = true;
+      }
+    }
+
+    for(auto [id, size] : physical_sizes_) {
+      auto arg = f->arg_begin() + id + 1;
+      auto size_val = b.getInt64(size);
+      auto item_ptr = create_valid_sized_gep(b, arg, i, size_val, err_bb);
+
       meta.live(b.CreateLoad(item_ptr)) = true;
       if(meta.output(arg)) {
         meta.output(item_ptr) = true;

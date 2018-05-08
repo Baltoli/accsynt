@@ -107,6 +107,7 @@ public:
 
 struct SynthMetadata {
   MetadataEntry<long>           const_size;
+  MetadataEntry<long>           physical_size;
   MetadataEntry<llvm::Value *>  runtime_size;
   MetadataEntry<long>           index_bound;
   MetadataEntry<bool>           oob;
