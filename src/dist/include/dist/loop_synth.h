@@ -302,38 +302,10 @@ std::map<long, llvm::Value *> LoopSynth<R, Args...>::runtime_sizes(llvm::Functio
 }
 
 template <typename R, typename... Args>
-llvm::Value *LoopSynth<R, Args...>::create_valid_gep(
-  llvm::IRBuilder<>& b, llvm::Value *data, llvm::Value *idx) const
-{
-  auto ptr_ty = llvm::cast<llvm::PointerType>(data->getType());
-  auto el_ty = ptr_ty->getElementType();
-  if(auto at = llvm::dyn_cast<llvm::ArrayType>(el_ty)) {
-    return b.CreateGEP(data, {b.getInt64(0), idx});
-  } else {
-    return b.CreateGEP(data, idx);
-  }
-}
-
-template <typename R, typename... Args>
 llvm::Value *LoopSynth<R, Args...>::create_valid_sized_gep(
   llvm::IRBuilder<>& b, llvm::Value *data, llvm::Value *idx, 
   llvm::Value *size, llvm::BasicBlock *err) const
 {
-  if(!size || !err) {
-    llvm::errs() << "Deprecated behaviour - size all values!\n";
-    return create_valid_gep(b, data, idx);
-  }
-
-
-  /* current_block->getTerminator()->eraseFromParent(); */
-  /* b.SetInsertPoint(current_block); */
-
-  /* auto f = b.GetInsertBlock()->getParent(); */
-  /* auto valid_bb = llvm::BasicBlock::Create(f->getContext(), "valid-gep", f); */
-
-
-  /* b.SetInsertPoint(valid_bb); */
-
   auto ptr_ty = llvm::cast<llvm::PointerType>(data->getType());
   auto el_ty = ptr_ty->getElementType();
 
