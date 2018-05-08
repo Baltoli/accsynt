@@ -96,6 +96,10 @@ public:
     if constexpr(is_sized_pointer(ty)) {
       rt_size_offsets_.insert_or_assign(i, ty.size_index);
     }
+
+    if constexpr(is_pointer(ty)) {
+      const_sizes_.insert_or_assign(i, ty.physical_size);
+    }
   }
 
   using Synthesizer<R, Args...>::operator();
