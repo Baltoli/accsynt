@@ -232,6 +232,32 @@ public:
   }
 };
 
+template <typename Type>
+class Pointer {
+public:
+  using example_t = std::vector<typename Type::example_t>;
+
+  Pointer(Type t) :
+    type(t) {}
+
+  llvm::PointerType *llvm_type() const
+  {
+    return llvm::PointerType::getUnqual(type.llvm_type());
+  }
+
+  example_t generate() const
+  {
+    auto vec = example_t(physical_size);
+    std::for_each(std::begin(vec), std::end(vec), [this](auto &ex) {
+      ex = type.generate();
+    });
+    return vec;
+  }
+
+  const Type type;
+  const long physical_size = 4096;
+};
+
 template <typename T>
 struct outputs {
   using type = std::tuple<>;
@@ -287,6 +313,12 @@ template <typename T>
 struct is_sized_pointer_type<SizedPointer<T>> : std::true_type {};
 
 template <typename T>
+struct is_pointer_type : std::false_type {};
+
+template <typename T>
+struct is_pointer_type<Pointer<T>> : std::true_type {};
+
+template <typename T>
 constexpr bool is_index(T&& ty)
 {
   return is_index_type<std::decay_t<decltype(ty)>>::value;
@@ -308,6 +340,12 @@ template <typename T>
 constexpr bool is_sized_pointer(T&& ty)
 {
   return is_sized_pointer_type<std::decay_t<decltype(ty)>>::value;
+}
+
+template <typename T>
+constexpr bool is_pointer(T&& ty)
+{
+  return is_pointer_type<std::decay_t<decltype(ty)>>::value;
 }
 
 }
