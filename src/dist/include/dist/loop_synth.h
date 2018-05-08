@@ -195,7 +195,6 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
     for(auto id : coalesced_ids_.at(loop_id)) {
       auto arg = f->arg_begin() + id + 1;
 
-      // TODO: sized GEP
       auto item_ptr = create_valid_sized_gep(b, arg, i, size, err_bb);
       meta.live(b.CreateLoad(item_ptr)) = true;
       if(meta.output(arg)) {
