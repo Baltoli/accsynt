@@ -12,6 +12,7 @@ include(GNUInstallDirs)
 enable_testing()
 
 add_subdirectory(dist)
+add_subdirectory(passes)
 
 option(BUILD_DOC "Build documentation" ON)
 
