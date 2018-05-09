@@ -151,6 +151,24 @@ void test_pointer()
   }
 }
 
+void test_matvec()
+{
+  auto i64 = Integer(64);
+  auto col_ptr = SizedPointer(i64, 0);
+  auto row_ptr = SizedPointer(i64, 1);
+  auto cols = Size(col_ptr);
+  auto rows = Size(row_ptr);
+  auto ptr = Pointer(i64);
+
+  auto fun = [] (auto cols, auto rows, auto vec, auto mat, auto& out) {
+  };
+
+  auto p = Oracle(fun, Void{}, cols, rows, col_ptr, ptr, Output(row_ptr));
+  if(auto r = p()) {
+    r->print(llvm::outs(), nullptr);
+  }
+}
+
 int main()
 {
   /* test_linear(); */
@@ -159,5 +177,6 @@ int main()
   /* test_fixed_dot(4); */
   /* test_output(64); */
   /* test_vsum(4); */
-  test_pointer();
+  /* test_pointer(); */
+  test_matvec();
 }

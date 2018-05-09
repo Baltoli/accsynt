@@ -217,6 +217,10 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
       meta.live(b.CreateLoad(meta.return_loc)) = true;
     }
 
+    for(auto it = f->arg_begin(); it != f->arg_end(); ++it) {
+      meta.output(it) = false;
+    }
+
     auto gen = BlockGenerator{b, meta};
     gen.populate(20);
     gen.output();

@@ -49,6 +49,17 @@ struct gv_to_val<Array<T>> {
   }
 };
 
+template <typename T>
+struct gv_to_val<SizedPointer<T>> {
+  decltype(auto) operator()(SizedPointer<T> arg, llvm::GenericValue gv)
+  {
+    using element_type = typename T::example_t;
+    auto size = arg.upper_bound;
+    auto ptr = static_cast<element_type *>(gv.PointerVal);
+    return std::vector<element_type>(ptr, ptr + size);
+  }
+};
+
 template <>
 struct gv_to_val<Integer> {
   decltype(auto) operator()(Integer i, llvm::GenericValue gv)

@@ -82,7 +82,7 @@ public:
     return {};
   }
 
-  size_t example_limit_ = 10'000;
+  const size_t example_limit_ = 100;
 
 private:
   F& f_;
