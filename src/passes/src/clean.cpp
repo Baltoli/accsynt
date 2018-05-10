@@ -1,9 +1,11 @@
 #include <llvm/Pass.h>
 #include <llvm/IR/BasicBlock.h>
+#include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/Function.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Module.h>
 #include <llvm/Support/raw_ostream.h>
+#include <llvm/Transforms/Utils/Cloning.h>
 
 #include <algorithm>
 
@@ -21,17 +23,23 @@ struct Clean : public ModulePass {
   bool hasErrorParameter(Function const &F) const;
 
   void removeBlock(BasicBlock *BB) const;
+  void cloneRetyped(Function &F) const;
 };
 
 bool Clean::runOnModule(Module &M)
 {
-  for(auto &F : M) {
-    auto err_block = errorBlock(F);
+  auto to_clean = std::vector<Function *>{};
 
-    if(err_block && hasErrorParameter(F)) {
-      removeBlock(err_block);
-      llvm::errs() << F.getName() << " to be cleaned!\n";
+  for(auto &F : M) {
+    if(errorBlock(F) && hasErrorParameter(F)) {
+      to_clean.push_back(&F);
     }
+  }
+
+  for(auto F : to_clean) {
+    auto err_block = errorBlock(*F);
+    removeBlock(err_block);
+    cloneRetyped(*F);
   }
 
   return true;
@@ -80,6 +88,37 @@ void Clean::removeBlock(BasicBlock *BB) const
     branch->eraseFromParent();
     BranchInst::Create(other_dest, parent);
   }
+}
+
+void Clean::cloneRetyped(Function &F) const
+{
+  auto name = F.getName();
+  auto old_fn_ty = F.getFunctionType();
+
+  auto arg = F.arg_begin();
+  arg->replaceAllUsesWith(UndefValue::get(arg->getType()));
+
+  auto actual_args = std::vector<Type *>{};
+  std::copy(std::next(old_fn_ty->param_begin()), old_fn_ty->param_end(), 
+            std::back_inserter(actual_args));
+  auto fn_ty = FunctionType::get(old_fn_ty->getReturnType(), actual_args, false);
+
+  auto func = Function::Create(fn_ty, F.getLinkage(), name, F.getParent());
+
+  auto v_map = ValueToValueMapTy{};
+  auto returns = SmallVector<ReturnInst*, 8>{};
+
+  func->getBasicBlockList().splice(func->begin(), F.getBasicBlockList());
+
+  for(auto I = std::next(F.arg_begin()), E = F.arg_end(), 
+      I2 = func->arg_begin(); I != E; ++I, ++I2)
+  {
+    I->replaceAllUsesWith(&*I2);
+    I2->takeName(&*I);
+  }
+
+  F.eraseFromParent();
+  func->setName(name);
 }
 
 char Clean::ID = 0;
