@@ -7,6 +7,7 @@ add_library(dist
   src/synth_op.cpp
   src/loop_shapes.cpp
   src/loop_synth.cpp
+  src/index_synth.cpp
 )
 
 target_include_directories(dist PUBLIC
@@ -45,6 +46,7 @@ add_executable(unit_tests
   test/unit/shapes.cpp
   test/unit/distinguisher.cpp
   test/unit/collect_call.cpp
+  test/unit/index_synth.cpp
 )
 
 target_link_libraries(test_dist dist)
