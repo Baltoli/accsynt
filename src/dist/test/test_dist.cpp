@@ -176,7 +176,7 @@ int main()
   /* test_dot_product(); */
   /* test_fixed_dot(4); */
   /* test_output(64); */
-  /* test_vsum(4); */
+  test_vsum(4);
   /* test_pointer(); */
-  test_matvec();
+  /* test_matvec(); */
 }

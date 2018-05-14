@@ -3,6 +3,7 @@
 #include <llvm/IR/IRBuilder.h>
 
 #include <dist/block_gen.h>
+#include <dist/index_synth.h>
 #include <dist/loop_shapes.h>
 #include <dist/synth.h>
 #include <dist/synth_metadata.h>
@@ -189,7 +190,11 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
     
     b.SetInsertPoint(body.insert_point);
 
-    auto i = *body.loop_indexes.rbegin();
+    auto indexer = IndexSynth(b);
+    for(auto idx : body.loop_indexes) {
+      indexer.add_index(idx);
+    }
+    auto i = indexer.generate();
     meta.live(i) = true;
 
     for(auto id : coalesced_ids_.at(loop_id)) {
