@@ -194,6 +194,9 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
     for(auto idx : body.loop_indexes) {
       indexer.add_index(idx);
     }
+    for(auto [id, size] : all_sizes) {
+      indexer.add_const(size);
+    }
     auto i = indexer.generate();
     meta.live(i) = true;
 

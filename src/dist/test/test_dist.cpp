@@ -151,6 +151,30 @@ void test_pointer()
   }
 }
 
+void test_nested()
+{
+  auto i64 = Integer(64);
+  auto s_ptr = SizedPointer(i64, 0);
+  auto size = Size(s_ptr);
+  auto s_ptr2 = SizedPointer(i64, 2);
+  auto size2 = Size(s_ptr2);
+
+  auto fun = [] (auto s, auto ptr, auto s2, auto ptr2) {
+    auto sum = 0;
+    for(auto i = 0u; i < s; ++i) {
+      for(auto j = 0u; j < s2; ++j) {
+        sum += i;
+      }
+    }
+    return sum;
+  };
+
+  auto p = Oracle(fun, i64, size, s_ptr, size2, s_ptr2);
+  if(auto r = p()) {
+    r->print(llvm::outs(), nullptr);
+  }
+}
+
 void test_matvec()
 {
   auto i64 = Integer(64);
@@ -176,7 +200,8 @@ int main()
   /* test_dot_product(); */
   /* test_fixed_dot(4); */
   /* test_output(64); */
-  test_vsum(4);
+  /* test_vsum(4); */
   /* test_pointer(); */
+  test_nested();
   /* test_matvec(); */
 }
