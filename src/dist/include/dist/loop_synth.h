@@ -197,10 +197,11 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
     for(auto [id, size] : all_sizes) {
       indexer.add_const(size);
     }
-    auto i = indexer.generate();
-    meta.live(i) = true;
 
     for(auto id : coalesced_ids_.at(loop_id)) {
+      auto i = indexer.generate();
+      meta.live(i) = true;
+
       auto arg = f->arg_begin() + id + 1;
 
       auto item_ptr = create_valid_sized_gep(b, arg, i, size, err_bb);
@@ -211,6 +212,9 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
     }
 
     for(auto [id, size] : physical_sizes_) {
+      auto i = indexer.generate();
+      meta.live(i) = true;
+
       auto arg = f->arg_begin() + id + 1;
       auto size_val = b.getInt64(size);
       auto item_ptr = create_valid_sized_gep(b, arg, i, size_val, err_bb);
@@ -269,7 +273,9 @@ std::vector<std::set<long>> LoopSynth<R, Args...>::ids_to_coalesce() const
     for(auto pair : container) {
       auto key = pair.second;
       auto equiv = std::set<long>{};
-      for(auto [other_idx, other_key] : container) {
+      for(auto pair : container) {
+        auto other_idx = pair.first;
+        auto other_key = pair.second;
         if(key == other_key) {
           equiv.insert(other_idx);
         }

@@ -16,7 +16,7 @@ Loop::Loop(const Loop& other) :
 Loop& Loop::operator=(Loop other)
 {
   using std::swap;
-  swap(slot_, other.slot_);
+  slot_ = other.slot_;
   swap(loops_, other.loops_);
   return *this;
 }
