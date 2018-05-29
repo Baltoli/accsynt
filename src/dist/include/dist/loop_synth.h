@@ -20,41 +20,8 @@ struct LoopBody {
 
 class IRLoop {
 private:
-  llvm::Function* func_;
-  llvm::BasicBlock* post_loop_;
-  Loop const& shape_;
-  std::map<long, llvm::Value *> const& extents_;
-  std::vector<llvm::Value *> parents_;
-  llvm::IRBuilder<> B_;
-
-  void build_sequence();
-  void build_nested(long loop_id);
-
-  bool own_bodies_map = false;
-  std::map<long, LoopBody> *bodies_;
-
 public:
-  IRLoop(llvm::Function* f, Loop const& l, 
-         std::map<long, llvm::Value *> const& e,
-         llvm::BasicBlock* post,
-         std::map<long, LoopBody> *b = nullptr,
-         std::vector<llvm::Value *> p = {});
-
-  ~IRLoop()
-  {
-    if(own_bodies_map && bodies_) {
-      delete bodies_;
-    }
-  }
-
-  std::map<long, LoopBody> const& bodies() const
-  {
-    return *bodies_;
-  }
-
-  llvm::BasicBlock *header;
-  llvm::BasicBlock *body;
-  llvm::BasicBlock *exit;
+  IRLoop(Loop l);
 };
 
 template <typename R, typename... Args>
@@ -171,72 +138,7 @@ LoopSynth<R, Args...>::construct_return(
 template <typename R, typename... Args>
 void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) const
 {
-  auto func_meta = initial_metadata(f);
-
-  auto post_bb = llvm::BasicBlock::Create(f->getContext(), "post-loop", f);
-  func_meta.return_loc = construct_return(f->getReturnType(), post_bb, b);
-
-  auto err_bb = create_error_block(f, b, post_bb);
-
-  auto all_sizes = runtime_sizes(f);
-
-  auto irl = IRLoop(f, next_shape(), all_sizes, post_bb);
-  b.SetInsertPoint(&f->getEntryBlock());
-  b.CreateBr(irl.header);
-
-  for(auto [loop_id, body] : irl.bodies()) {
-    auto meta = func_meta;
-    auto size = all_sizes.at(loop_id);
-    
-    b.SetInsertPoint(body.insert_point);
-
-    auto indexer = IndexSynth(b);
-    for(auto idx : body.loop_indexes) {
-      indexer.add_index(idx);
-    }
-    for(auto [id, size] : all_sizes) {
-      indexer.add_const(size);
-    }
-
-    for(auto id : coalesced_ids_.at(loop_id)) {
-      auto i = indexer.generate();
-      meta.live(i) = true;
-
-      auto arg = f->arg_begin() + id + 1;
-
-      auto item_ptr = create_valid_sized_gep(b, arg, i, size, err_bb);
-      meta.live(b.CreateLoad(item_ptr)) = true;
-      if(meta.output(arg)) {
-        meta.output(item_ptr) = true;
-      }
-    }
-
-    for(auto [id, size] : physical_sizes_) {
-      auto i = indexer.generate();
-      meta.live(i) = true;
-
-      auto arg = f->arg_begin() + id + 1;
-      auto size_val = b.getInt64(size);
-      auto item_ptr = create_valid_sized_gep(b, arg, i, size_val, err_bb);
-
-      meta.live(b.CreateLoad(item_ptr)) = true;
-      if(meta.output(arg)) {
-        meta.output(item_ptr) = true;
-      }
-    }
-
-    if(meta.return_loc) {
-      meta.live(b.CreateLoad(meta.return_loc)) = true;
-    }
-
-    for(auto it = f->arg_begin(); it != f->arg_end(); ++it) {
-      meta.output(it) = false;
-    }
-
-    auto gen = BlockGenerator{b, meta};
-    gen.populate(20);
-    gen.output();
-  }
+  auto shape = next_shape();
 }
 
 template <typename R, typename... Args>
