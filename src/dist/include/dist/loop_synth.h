@@ -154,9 +154,14 @@ template <typename R, typename... Args>
 void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) const
 {
   auto shape = next_shape();
+  shape = next_shape();
 
   IRLoop irl(f, shape, {});
+  b.CreateBr(irl.header());
+  b.SetInsertPoint(irl.header());
+  construct_return(f->getReturnType(), irl.exit(), b);
 
+  std::cerr << shape << '\n';
   llvm::errs() << *f << '\n';
   std::exit(23);
 }
