@@ -30,6 +30,9 @@ public:
   llvm::BasicBlock *const exit() const;
 
 private:
+  void construct_control_flow(llvm::Function *f, long id);
+
+  std::map<long, llvm::Value *> const& sizes_;
   std::set<llvm::Value *> available_ = {};
 
   llvm::BasicBlock *header_ = nullptr;
