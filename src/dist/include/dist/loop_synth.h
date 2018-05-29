@@ -20,7 +20,7 @@ struct LoopBody {
 
 class IRLoop {
 public:
-  IRLoop(llvm::Function *f, Loop l, std::set<llvm::Value *> a);
+  IRLoop(llvm::Function *f, Loop l, std::set<llvm::Value *> a, std::map<long, llvm::Value *> const& sizes);
 
   std::set<llvm::Value *> const& available_values() const;
   llvm::BasicBlock *const header() const;
@@ -156,7 +156,7 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
   auto shape = next_shape();
   shape = next_shape();
 
-  IRLoop irl(f, shape, {});
+  IRLoop irl(f, shape, {}, runtime_sizes(f));
   b.CreateBr(irl.header());
   b.SetInsertPoint(irl.header());
   construct_return(f->getReturnType(), irl.exit(), b);

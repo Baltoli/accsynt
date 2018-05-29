@@ -4,23 +4,36 @@ using namespace llvm;
 
 namespace accsynt {
 
-IRLoop::IRLoop(llvm::Function *f, Loop l, std::set<Value *> avail) :
+IRLoop::IRLoop(llvm::Function *f, Loop l, std::set<Value *> avail, std::map<long, Value *> const& sizes) :
   available_(avail)
 {
   for(auto const& child : l) {
-    auto const& last = children_.emplace_back(f, *child, available_);
+    auto const& last = children_.emplace_back(f, *child, available_, sizes);
     std::copy(last.available_.begin(), last.available_.end(), 
               std::inserter(available_, available_.begin()));
   }
 
   if(l.is_instantiated()) {
-    auto str_id = std::to_string(*l.ID());
+    auto id = *l.ID();
+    auto str_id = std::to_string(id);
     // We have an outer loop ID here, so we need to create header blocks etc for
     // ourself using the information provided.
     header_ = BasicBlock::Create(f->getContext(), "header_" + str_id, f);
     pre_body_ = BasicBlock::Create(f->getContext(), "pre_body_" + str_id, f);
     post_body_ = BasicBlock::Create(f->getContext(), "post_body_" + str_id, f);
     exit_ = BasicBlock::Create(f->getContext(), "exit_" + str_id, f);
+
+    auto iter_ty = IntegerType::get(f->getContext(), 64);
+    auto B = IRBuilder<>(pre_body_);
+    auto iter = B.CreatePHI(iter_ty, 2);
+    iter->addIncoming(B.getInt64(0), header_);
+
+    B.SetInsertPoint(post_body_);
+    auto next = B.CreateAdd(iter, B.getInt64(1));
+    iter->addIncoming(next, post_body_);
+    auto size = sizes.at(id);
+    auto cmp = B.CreateICmpEQ(next, size);
+    B.CreateCondBr(cmp, exit_, pre_body_);
 
     BranchInst::Create(pre_body_, header_);
     if(children_.empty()) {
