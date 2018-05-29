@@ -19,9 +19,24 @@ struct LoopBody {
 };
 
 class IRLoop {
-private:
 public:
-  IRLoop(Loop l);
+  IRLoop(llvm::Function *f, Loop l, std::set<llvm::Value *> a);
+
+  std::set<llvm::Value *> const& available_values() const;
+  llvm::BasicBlock *const header() const;
+  llvm::BasicBlock *const pre_body() const;
+  std::vector<IRLoop> const& children() const;
+  llvm::BasicBlock *const post_body() const;
+  llvm::BasicBlock *const exit() const;
+
+private:
+  std::set<llvm::Value *> available_ = {};
+
+  llvm::BasicBlock *header_ = nullptr;
+  llvm::BasicBlock *pre_body_ = nullptr;
+  std::vector<IRLoop> children_ = {};
+  llvm::BasicBlock *post_body_ = nullptr;
+  llvm::BasicBlock *exit_ = nullptr;
 };
 
 template <typename R, typename... Args>
@@ -139,6 +154,11 @@ template <typename R, typename... Args>
 void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) const
 {
   auto shape = next_shape();
+
+  IRLoop irl(f, shape, {});
+
+  llvm::errs() << *f << '\n';
+  std::exit(23);
 }
 
 template <typename R, typename... Args>
