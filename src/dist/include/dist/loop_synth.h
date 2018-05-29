@@ -20,7 +20,12 @@ struct LoopBody {
 
 class IRLoop {
 public:
-  IRLoop(llvm::Function *f, Loop l, std::set<llvm::Value *> a, std::map<long, llvm::Value *> const& sizes);
+  IRLoop(
+      llvm::Function *f, 
+      Loop l, 
+      std::set<llvm::Value *> a, 
+      std::map<long, llvm::Value *> const& sizes, 
+      std::vector<std::set<long>> const& coalesced);
 
   std::set<llvm::Value *> const& available_values() const;
   llvm::BasicBlock *const header() const;
@@ -30,9 +35,10 @@ public:
   llvm::BasicBlock *const exit() const;
 
 private:
-  void construct_control_flow(llvm::Function *f, long id);
+  llvm::Value* construct_control_flow(llvm::Function *f, long id);
 
   std::map<long, llvm::Value *> const& sizes_;
+  std::vector<std::set<long>> const& coalesced_;
   std::set<llvm::Value *> available_ = {};
 
   llvm::BasicBlock *header_ = nullptr;
@@ -159,7 +165,7 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
   auto shape = next_shape();
   shape = next_shape();
 
-  IRLoop irl(f, shape, {}, runtime_sizes(f));
+  IRLoop irl(f, shape, {}, runtime_sizes(f), coalesced_ids_);
   b.CreateBr(irl.header());
   b.SetInsertPoint(irl.header());
   construct_return(f->getReturnType(), irl.exit(), b);

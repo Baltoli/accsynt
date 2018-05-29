@@ -4,17 +4,29 @@ using namespace llvm;
 
 namespace accsynt {
 
-IRLoop::IRLoop(llvm::Function *f, Loop l, std::set<Value *> avail, std::map<long, Value *> const& sizes) :
-  sizes_(sizes), available_(avail)
+IRLoop::IRLoop(
+    llvm::Function *f, 
+    Loop l, 
+    std::set<Value *> avail, 
+    std::map<long, Value *> const& sizes,
+    std::vector<std::set<long>> const& c
+) 
+  : sizes_(sizes), coalesced_(c), available_(avail)
 {
   for(auto const& child : l) {
-    auto const& last = children_.emplace_back(f, *child, available_, sizes);
+    auto const& last = children_.emplace_back(f, *child, available_, sizes, coalesced_);
     std::copy(last.available_.begin(), last.available_.end(), 
               std::inserter(available_, available_.begin()));
   }
 
   if(l.is_instantiated()) {
-    construct_control_flow(f, *l.ID());
+    auto iter = construct_control_flow(f, *l.ID());
+
+    auto meta = SynthMetadata{};
+    meta.live(iter) = true;
+
+    auto B = IRBuilder<>(pre_body_->getTerminator());
+    BlockGenerator(B, meta).populate(3);
   } else {
     // We don't have an outer loop ID, so we just lay out all the children in
     // sequence and set the header and exit to the respective blocks on the
@@ -37,7 +49,7 @@ IRLoop::IRLoop(llvm::Function *f, Loop l, std::set<Value *> avail, std::map<long
   }
 }
 
-void IRLoop::construct_control_flow(Function *f, long id)
+Value* IRLoop::construct_control_flow(Function *f, long id)
 {
   auto str_id = std::to_string(id);
   // We have an outer loop ID here, so we need to create header blocks etc for
@@ -66,6 +78,8 @@ void IRLoop::construct_control_flow(Function *f, long id)
     BranchInst::Create(children_.begin()->header(), pre_body_);
     BranchInst::Create(post_body_, children_.rbegin()->exit());
   }
+
+  return iter;
 }
 
 std::set<Value *> const& IRLoop::available_values() const
