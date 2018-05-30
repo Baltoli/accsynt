@@ -24,7 +24,7 @@ public:
       llvm::Function *f, 
       Loop l, 
       std::set<llvm::Value *> a, 
-      llvm::BasicBlock *err,
+      const llvm::BasicBlock *err,
       std::map<long, llvm::Value *> const& sizes, 
       std::vector<std::set<long>> const& coalesced);
 
@@ -36,16 +36,22 @@ public:
   llvm::BasicBlock *const exit() const;
 
 private:
-  llvm::Value* construct_control_flow(llvm::Function *f, long id);
+  void layout_children();
+  void construct_loop();
+  void construct_sequence();
 
   llvm::Value *create_valid_sized_gep(
       llvm::IRBuilder<>& b, llvm::Value *data, llvm::Value *idx, 
       llvm::Value *size, llvm::BasicBlock *bb) const;
 
+  llvm::Function *func_;
+  Loop loop_;
+
   std::map<long, llvm::Value *> const& sizes_;
   std::vector<std::set<long>> const& coalesced_;
   std::set<llvm::Value *> available_ = {};
 
+  const llvm::BasicBlock *error_block_;
   llvm::BasicBlock *header_ = nullptr;
   llvm::BasicBlock *pre_body_ = nullptr;
   std::vector<IRLoop> children_ = {};
@@ -170,9 +176,8 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
   auto err_bb = create_error_block(f, b, post_loop_bb);
 
   IRLoop irl(f, shape, {}, err_bb, runtime_sizes(f), coalesced_ids_);
-  b.CreateBr(irl.header());
-  b.SetInsertPoint(irl.header());
   construct_return(f->getReturnType(), post_loop_bb, b);
+  b.CreateBr(irl.header());
 
   b.SetInsertPoint(irl.exit());
   b.CreateBr(post_loop_bb);
