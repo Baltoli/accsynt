@@ -38,6 +38,10 @@ public:
 private:
   llvm::Value* construct_control_flow(llvm::Function *f, long id);
 
+  llvm::Value *create_valid_sized_gep(
+      llvm::IRBuilder<>& b, llvm::Value *data, llvm::Value *idx, 
+      llvm::Value *size, llvm::BasicBlock *bb) const;
+
   std::map<long, llvm::Value *> const& sizes_;
   std::vector<std::set<long>> const& coalesced_;
   std::set<llvm::Value *> available_ = {};
@@ -114,10 +118,6 @@ private:
   SynthMetadata initial_metadata(llvm::Function *) const;
   std::vector<std::set<long>> ids_to_coalesce() const;
   std::map<long, llvm::Value *> runtime_sizes(llvm::Function *) const;
-  llvm::Value *create_valid_gep(llvm::IRBuilder<>& b, llvm::Value *data, llvm::Value *idx) const;
-  llvm::Value *create_valid_sized_gep(
-      llvm::IRBuilder<>& b, llvm::Value *data, llvm::Value *idx, 
-      llvm::Value *size, llvm::BasicBlock *bb) const;
   llvm::BasicBlock *create_error_block(
       llvm::Function *f, llvm::IRBuilder<>& b, llvm::BasicBlock *post) const;
 
@@ -258,35 +258,6 @@ std::map<long, llvm::Value *> LoopSynth<R, Args...>::runtime_sizes(llvm::Functio
     }
   }
 
-  return ret;
-}
-
-template <typename R, typename... Args>
-llvm::Value *LoopSynth<R, Args...>::create_valid_sized_gep(
-  llvm::IRBuilder<>& b, llvm::Value *data, llvm::Value *idx, 
-  llvm::Value *size, llvm::BasicBlock *err) const
-{
-  auto ptr_ty = llvm::cast<llvm::PointerType>(data->getType());
-  auto el_ty = ptr_ty->getElementType();
-
-  auto ret = [&] {
-    if(auto at = llvm::dyn_cast<llvm::ArrayType>(el_ty)) {
-      return b.CreateGEP(data, {b.getInt64(0), idx});
-    } else {
-      return b.CreateGEP(data, idx);
-    }
-  }();
-
-  auto current_block = b.GetInsertBlock();
-  auto post_gep = current_block->splitBasicBlock(current_block->getTerminator());
-
-  current_block->getTerminator()->eraseFromParent();
-  b.SetInsertPoint(current_block);
-  auto cond = b.CreateICmpUGE(idx, size);
-  b.CreateCondBr(cond, err, post_gep);
-
-  b.SetInsertPoint(post_gep->getTerminator());
-  
   return ret;
 }
 

@@ -99,6 +99,35 @@ IRLoop::IRLoop(
   }
 }
 
+Value *IRLoop::create_valid_sized_gep(
+  IRBuilder<>& b, Value *data, Value *idx, 
+  Value *size, BasicBlock *err) const
+{
+  auto ptr_ty = cast<PointerType>(data->getType());
+  auto el_ty = ptr_ty->getElementType();
+
+  auto ret = [&] {
+    if(isa<ArrayType>(el_ty)) {
+      return b.CreateGEP(data, {b.getInt64(0), idx});
+    } else {
+      return b.CreateGEP(data, idx);
+    }
+  }();
+
+  auto current_block = b.GetInsertBlock();
+  auto post_gep = current_block->splitBasicBlock(current_block->getTerminator());
+
+  current_block->getTerminator()->eraseFromParent();
+  b.SetInsertPoint(current_block);
+  auto cond = b.CreateICmpUGE(idx, size);
+  b.CreateCondBr(cond, err, post_gep);
+
+  b.SetInsertPoint(post_gep->getTerminator());
+  
+  return ret;
+}
+
+
 Value* IRLoop::construct_control_flow(Function *f, long id)
 {
   return nullptr;
