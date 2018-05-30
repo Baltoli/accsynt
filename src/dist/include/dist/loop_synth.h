@@ -24,6 +24,7 @@ public:
       llvm::Function *f, 
       Loop l, 
       std::set<llvm::Value *> a, 
+      llvm::BasicBlock *err,
       std::map<long, llvm::Value *> const& sizes, 
       std::vector<std::set<long>> const& coalesced);
 
@@ -165,10 +166,16 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
   auto shape = next_shape();
   shape = next_shape();
 
-  IRLoop irl(f, shape, {}, runtime_sizes(f), coalesced_ids_);
+  auto post_loop_bb = llvm::BasicBlock::Create(f->getContext(), "post-loop", f);
+  auto err_bb = create_error_block(f, b, post_loop_bb);
+
+  IRLoop irl(f, shape, {}, err_bb, runtime_sizes(f), coalesced_ids_);
   b.CreateBr(irl.header());
   b.SetInsertPoint(irl.header());
-  construct_return(f->getReturnType(), irl.exit(), b);
+  construct_return(f->getReturnType(), post_loop_bb, b);
+
+  b.SetInsertPoint(irl.exit());
+  b.CreateBr(post_loop_bb);
 
   /* std::cerr << shape << '\n'; */
   llvm::errs() << *f << '\n';

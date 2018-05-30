@@ -5,9 +5,10 @@ using namespace llvm;
 namespace accsynt {
 
 IRLoop::IRLoop(
-    llvm::Function *f, 
+    Function *f, 
     Loop l, 
     std::set<Value *> avail, 
+    BasicBlock *err_block,
     std::map<long, Value *> const& sizes,
     std::vector<std::set<long>> const& c
 ) 
@@ -52,7 +53,7 @@ IRLoop::IRLoop(
     }
 
     for(auto const& child : l) {
-      auto const& last = children_.emplace_back(f, *child, available_, sizes, coalesced_);
+      auto const& last = children_.emplace_back(f, *child, available_, err_block, sizes, coalesced_);
       std::copy(last.available_.begin(), last.available_.end(), 
                 std::inserter(available_, available_.begin()));
     }
@@ -72,7 +73,7 @@ IRLoop::IRLoop(
     }
   } else {
     for(auto const& child : l) {
-      auto const& last = children_.emplace_back(f, *child, available_, sizes, coalesced_);
+      auto const& last = children_.emplace_back(f, *child, available_, err_block, sizes, coalesced_);
       std::copy(last.available_.begin(), last.available_.end(), 
                 std::inserter(available_, available_.begin()));
     }
