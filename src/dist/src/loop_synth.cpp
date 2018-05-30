@@ -13,21 +13,70 @@ IRLoop::IRLoop(
 ) 
   : sizes_(sizes), coalesced_(c), available_(avail)
 {
-  for(auto const& child : l) {
-    auto const& last = children_.emplace_back(f, *child, available_, sizes, coalesced_);
-    std::copy(last.available_.begin(), last.available_.end(), 
-              std::inserter(available_, available_.begin()));
-  }
-
+  // Need to lay out the first half of the loop body before laying out the
+  // children! Then the contents of the pre-body can be available to the
+  // children properly when they're laid out.
   if(l.is_instantiated()) {
-    auto iter = construct_control_flow(f, *l.ID());
+    auto id = *l.ID();
+    auto str_id = std::to_string(id);
+    // We have an outer loop ID here, so we need to create header blocks etc for
+    // ourself using the information provided.
+    header_ = BasicBlock::Create(f->getContext(), "header_" + str_id, f);
+    pre_body_ = BasicBlock::Create(f->getContext(), "pre_body_" + str_id, f);
+    post_body_ = BasicBlock::Create(f->getContext(), "post_body_" + str_id, f);
+    exit_ = BasicBlock::Create(f->getContext(), "exit_" + str_id, f);
+
+    auto iter_ty = IntegerType::get(f->getContext(), 64);
+    auto B = IRBuilder<>(pre_body_);
+    auto iter = B.CreatePHI(iter_ty, 2);
+    iter->addIncoming(B.getInt64(0), header_);
+
+    B.SetInsertPoint(post_body_);
+    auto next = B.CreateAdd(iter, B.getInt64(1));
+    iter->addIncoming(next, post_body_);
+    auto size = sizes_.at(id);
+    auto cmp = B.CreateICmpEQ(next, size);
+    B.CreateCondBr(cmp, exit_, pre_body_);
 
     auto meta = SynthMetadata{};
     meta.live(iter) = true;
+    for(auto v : available_) {
+      meta.live(v) = true;
+    }
 
-    auto B = IRBuilder<>(pre_body_->getTerminator());
+    B.SetInsertPoint(pre_body_);
     BlockGenerator(B, meta).populate(3);
+
+    for(auto v : meta.live) {
+      available_.insert(v);
+    }
+
+    for(auto const& child : l) {
+      auto const& last = children_.emplace_back(f, *child, available_, sizes, coalesced_);
+      std::copy(last.available_.begin(), last.available_.end(), 
+                std::inserter(available_, available_.begin()));
+    }
+
+    for(auto v : available_) {
+      meta.live(v) = true;
+    }
+    B.SetInsertPoint(post_body_->getTerminator());
+    BlockGenerator(B, meta).populate(3);
+
+    BranchInst::Create(pre_body_, header_);
+    if(children_.empty()) {
+      BranchInst::Create(post_body_, pre_body_);
+    } else {
+      BranchInst::Create(children_.begin()->header(), pre_body_);
+      BranchInst::Create(post_body_, children_.rbegin()->exit());
+    }
   } else {
+    for(auto const& child : l) {
+      auto const& last = children_.emplace_back(f, *child, available_, sizes, coalesced_);
+      std::copy(last.available_.begin(), last.available_.end(), 
+                std::inserter(available_, available_.begin()));
+    }
+
     // We don't have an outer loop ID, so we just lay out all the children in
     // sequence and set the header and exit to the respective blocks on the
     // first / last child.
@@ -51,35 +100,7 @@ IRLoop::IRLoop(
 
 Value* IRLoop::construct_control_flow(Function *f, long id)
 {
-  auto str_id = std::to_string(id);
-  // We have an outer loop ID here, so we need to create header blocks etc for
-  // ourself using the information provided.
-  header_ = BasicBlock::Create(f->getContext(), "header_" + str_id, f);
-  pre_body_ = BasicBlock::Create(f->getContext(), "pre_body_" + str_id, f);
-  post_body_ = BasicBlock::Create(f->getContext(), "post_body_" + str_id, f);
-  exit_ = BasicBlock::Create(f->getContext(), "exit_" + str_id, f);
-
-  auto iter_ty = IntegerType::get(f->getContext(), 64);
-  auto B = IRBuilder<>(pre_body_);
-  auto iter = B.CreatePHI(iter_ty, 2);
-  iter->addIncoming(B.getInt64(0), header_);
-
-  B.SetInsertPoint(post_body_);
-  auto next = B.CreateAdd(iter, B.getInt64(1));
-  iter->addIncoming(next, post_body_);
-  auto size = sizes_.at(id);
-  auto cmp = B.CreateICmpEQ(next, size);
-  B.CreateCondBr(cmp, exit_, pre_body_);
-
-  BranchInst::Create(pre_body_, header_);
-  if(children_.empty()) {
-    BranchInst::Create(post_body_, pre_body_);
-  } else {
-    BranchInst::Create(children_.begin()->header(), pre_body_);
-    BranchInst::Create(post_body_, children_.rbegin()->exit());
-  }
-
-  return iter;
+  return nullptr;
 }
 
 std::set<Value *> const& IRLoop::available_values() const
