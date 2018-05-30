@@ -8,7 +8,7 @@ IRLoop::IRLoop(
     Function *f, 
     Loop l, 
     std::set<Value *> avail, 
-    const BasicBlock *err,
+    BasicBlock *err,
     std::map<long, Value *> const& sizes,
     std::vector<std::set<long>> const& c,
     std::vector<Value *> p
@@ -122,7 +122,7 @@ void IRLoop::construct_sequence()
   }
 }
 
-Value *IRLoop::create_valid_sized_gep(
+std::pair<Value *, Value *> IRLoop::create_valid_sized_gep(
   IRBuilder<>& b, Value *data, Value *idx, 
   Value *size, BasicBlock *err) const
 {
@@ -137,17 +137,8 @@ Value *IRLoop::create_valid_sized_gep(
     }
   }();
 
-  auto current_block = b.GetInsertBlock();
-  auto post_gep = current_block->splitBasicBlock(current_block->getTerminator());
-
-  current_block->getTerminator()->eraseFromParent();
-  b.SetInsertPoint(current_block);
   auto cond = b.CreateICmpUGE(idx, size);
-  b.CreateCondBr(cond, err, post_gep);
-
-  b.SetInsertPoint(post_gep->getTerminator());
-  
-  return ret;
+  return {ret, cond};
 }
 
 
