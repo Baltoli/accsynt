@@ -10,10 +10,12 @@ IRLoop::IRLoop(
     std::set<Value *> avail, 
     const BasicBlock *err,
     std::map<long, Value *> const& sizes,
-    std::vector<std::set<long>> const& c
+    std::vector<std::set<long>> const& c,
+    std::vector<Value *> p
 ) 
   : func_(f), loop_(l), sizes_(sizes), 
-    coalesced_(c), available_(avail), error_block_(err)
+    coalesced_(c), available_(avail), parent_iters_(p),
+    error_block_(err)
 {
   // Need to lay out the first half of the loop body before laying out the
   // children! Then the contents of the pre-body can be available to the
@@ -36,11 +38,21 @@ IRLoop::IRLoop(
   }
 }
 
-void IRLoop::layout_children()
+void IRLoop::layout_children(Value *parent_iter)
 {
+  auto iters = [&] {
+    if(parent_iter) {
+      auto prev = parent_iters_;
+      prev.push_back(parent_iter);
+      return prev;
+    } else {
+      return parent_iters_;
+    }
+  }();
+
   for(auto const& child : loop_) {
     auto const& last = children_.emplace_back(
-      func_, *child, available_, error_block_, sizes_, coalesced_
+      func_, *child, available_, error_block_, sizes_, coalesced_, iters
     );
 
     std::copy(last.available_.begin(), last.available_.end(), 
@@ -48,16 +60,9 @@ void IRLoop::layout_children()
   }
 }
 
-void IRLoop::construct_loop()
+Value *IRLoop::make_iterator()
 {
   auto id = *loop_.ID();
-  auto str_id = std::to_string(id);
-  // We have an outer loop ID here, so we need to create header blocks etc for
-  // ourself using the information provided.
-  header_ = BasicBlock::Create(func_->getContext(), "header_" + str_id, func_);
-  pre_body_ = BasicBlock::Create(func_->getContext(), "pre_body_" + str_id, func_);
-  post_body_ = BasicBlock::Create(func_->getContext(), "post_body_" + str_id, func_);
-  exit_ = BasicBlock::Create(func_->getContext(), "exit_" + str_id, func_);
 
   auto iter_ty = IntegerType::get(func_->getContext(), 64);
   auto B = IRBuilder<>(pre_body_);
@@ -71,20 +76,40 @@ void IRLoop::construct_loop()
   auto cmp = B.CreateICmpEQ(next, size);
   B.CreateCondBr(cmp, exit_, pre_body_);
 
+  return iter;
+}
+
+void IRLoop::construct_loop()
+{
+  auto id = *loop_.ID();
+  
+  // We have an outer loop ID here, so we need to create header blocks etc for
+  // ourself using the information provided.
+  auto make_block = [&] (std::string name) {
+    return BasicBlock::Create(func_->getContext(), name + "_" + std::to_string(id), func_);
+  };
+
+  header_ = make_block("header");
+  pre_body_ = make_block("pre_body");
+  post_body_ = make_block("post_body");
+  exit_ = make_block("exit");
+
+  auto iter = make_iterator();
+
   auto meta = SynthMetadata{};
   meta.live(iter) = true;
   for(auto v : available_) {
     meta.live(v) = true;
   }
 
-  B.SetInsertPoint(pre_body_);
+  auto B = IRBuilder<>(pre_body_);
   BlockGenerator(B, meta).populate(3);
 
   for(auto v : meta.live) {
     available_.insert(v);
   }
 
-  layout_children();
+  layout_children(iter);
 
   for(auto v : available_) {
     meta.live(v) = true;
