@@ -4,90 +4,172 @@ using namespace llvm;
 
 namespace accsynt {
 
-IRLoop::IRLoop(Function *f, Loop const& l, 
-               std::map<long, llvm::Value *> const& e,
-               llvm::BasicBlock* post,
-               std::map<long, LoopBody> *b,
-               std::vector<llvm::Value *> p) :
-  func_(f), post_loop_(post),
-  shape_(l), extents_(e),
-  parents_(p),
-  B_(func_->getContext()),
-  header(BasicBlock::Create(func_->getContext(), "header", func_)),
-  body(BasicBlock::Create(func_->getContext(), "body", func_)),
-  exit(BasicBlock::Create(func_->getContext(), "exit", func_))
+IRLoop::IRLoop(
+    Function *f, 
+    Loop l, 
+    std::set<Value *> avail, 
+    BasicBlock *err,
+    std::map<long, Value *> const& sizes,
+    std::vector<std::set<long>> const& c,
+    std::vector<Value *> p
+) 
+  : func_(f), loop_(l), sizes_(sizes), 
+    coalesced_(c), available_(avail), parent_iters_(p),
+    error_block_(err)
 {
-  if(!b) {
-    bodies_ = new std::map<long, LoopBody>{};
-    own_bodies_map = true;
+  // Need to lay out the first half of the loop body before laying out the
+  // children! Then the contents of the pre-body can be available to the
+  // children properly when they're laid out.
+  if(l.is_instantiated()) {
+    construct_loop();
   } else {
-    bodies_ = b;
+    construct_sequence();
   }
 
-  if(auto id = shape_.ID()) {
-    build_nested(*id);
-  } else {
-    build_sequence();
+  // Link sequential children together - create an unconditional branch from
+  // each one to its successor.
+  if(children_.size() > 1) {
+    for(auto i = 0u; i < children_.size() - 1; ++i) {
+      auto& first = children_.at(i);
+      auto& second = children_.at(i + 1);
+
+      BranchInst::Create(second.header(), first.exit());
+    }
   }
 }
 
-void IRLoop::build_sequence()
+void IRLoop::layout_children(Value *parent_iter)
 {
-  // set up the loop header
-  B_.SetInsertPoint(header);
-  B_.CreateBr(body);
+  auto iters = [&] {
+    if(parent_iter) {
+      auto prev = parent_iters_;
+      prev.push_back(parent_iter);
+      return prev;
+    } else {
+      return parent_iters_;
+    }
+  }();
 
-  // set up the loop body
-  B_.SetInsertPoint(body);
+  for(auto const& child : loop_) {
+    auto const& last = children_.emplace_back(
+      func_, *child, available_, error_block_, sizes_, coalesced_, iters
+    );
 
-  auto next = exit;
-  for(auto it = shape_.rbegin(); it != shape_.rend(); ++it) {
-    auto irl = IRLoop(func_, **it, extents_, next, bodies_, parents_);
-    next = irl.header;
+    std::copy(last.available_.begin(), last.available_.end(), 
+              std::inserter(available_, available_.begin()));
   }
-  B_.CreateBr(next);
-
-  // Set up the loop exit and post-loop control flow
-  B_.SetInsertPoint(exit);
-  B_.CreateBr(post_loop_);
-
-  B_.SetInsertPoint(post_loop_);
-  post_loop_->moveAfter(exit);
 }
 
-void IRLoop::build_nested(long loop_id)
+Value *IRLoop::make_iterator()
 {
+  auto id = *loop_.ID();
 
-  // set up the loop header
-  B_.SetInsertPoint(header);
-  auto end_idx = extents_.at(loop_id);
-  B_.CreateBr(body);
+  auto iter_ty = IntegerType::get(func_->getContext(), 64);
+  auto B = IRBuilder<>(pre_body_);
+  auto iter = B.CreatePHI(iter_ty, 2);
+  iter->addIncoming(B.getInt64(0), header_);
 
-  // set up the loop body
-  auto iter_ty = llvm::IntegerType::get(func_->getContext(), 64);
-  B_.SetInsertPoint(body);
-  auto iter = B_.CreatePHI(iter_ty, 2, "iter");
-  iter->addIncoming(B_.getInt64(0), header);
+  B.SetInsertPoint(post_body_);
+  auto next = B.CreateAdd(iter, B.getInt64(1));
+  iter->addIncoming(next, post_body_);
+  auto size = sizes_.at(id);
+  auto cmp = B.CreateICmpEQ(next, size);
+  B.CreateCondBr(cmp, exit_, pre_body_);
 
-  auto next = exit;
-  auto nest_parents = parents_;
-  nest_parents.push_back(iter);
-  for(auto it = shape_.rbegin(); it != shape_.rend(); ++it) {
-    auto irl = IRLoop(func_, **it, extents_, next, bodies_, nest_parents);
-    next = irl.header;
+  return iter;
+}
+
+void IRLoop::construct_loop()
+{
+  auto id = *loop_.ID();
+  
+  // We have an outer loop ID here, so we need to create header blocks etc for
+  // ourself using the information provided.
+  auto make_block = [&] (std::string name) {
+    return BasicBlock::Create(func_->getContext(), name + "_" + std::to_string(id), func_);
+  };
+
+  header_ = make_block("header");
+  pre_body_ = make_block("pre_body");
+  post_body_ = make_block("post_body");
+  exit_ = make_block("exit");
+
+  auto iter = make_iterator();
+  auto meta = SynthMetadata{};
+
+  generate_body(iter, meta, pre_body_);
+  layout_children(iter);
+  generate_body(iter, meta, post_body_->getTerminator());
+
+  BranchInst::Create(pre_body_, header_);
+  if(children_.empty()) {
+    BranchInst::Create(post_body_, pre_body_);
+  } else {
+    BranchInst::Create(children_.begin()->header(), pre_body_);
+    BranchInst::Create(post_body_, children_.rbegin()->exit());
   }
-  auto body_end = B_.CreateBr(next);
-  bodies_->insert_or_assign(loop_id, LoopBody{body, nest_parents, body_end});
+}
 
-  // Set up the loop exit and post-loop control flow
-  B_.SetInsertPoint(exit);
-  auto incr = B_.CreateAdd(iter, B_.getInt64(1));
-  iter->addIncoming(incr, exit);
-  auto cond = B_.CreateICmpEQ(incr, end_idx);
-  B_.CreateCondBr(cond, post_loop_, body);
+void IRLoop::construct_sequence()
+{
+  layout_children();
+  // We don't have an outer loop ID, so we just lay out all the children in
+  // sequence and set the header and exit to the respective blocks on the
+  // first / last child.
+  if(!children_.empty()) {
+    header_ = children_.begin()->header_;
+    exit_ = children_.rbegin()->exit_;
+  }
+}
 
-  B_.SetInsertPoint(post_loop_);
-  post_loop_->moveAfter(exit);
+std::pair<Value *, Value *> IRLoop::create_valid_sized_gep(
+  IRBuilder<>& b, Value *data, Value *idx, 
+  Value *size, BasicBlock *err) const
+{
+  auto ptr_ty = cast<PointerType>(data->getType());
+  auto el_ty = ptr_ty->getElementType();
+
+  auto ret = [&] {
+    if(isa<ArrayType>(el_ty)) {
+      return b.CreateGEP(data, {b.getInt64(0), idx});
+    } else {
+      return b.CreateGEP(data, idx);
+    }
+  }();
+
+  auto cond = b.CreateICmpUGE(idx, size);
+  return {ret, cond};
+}
+
+
+std::set<Value *> const& IRLoop::available_values() const
+{
+  return available_;
+}
+
+llvm::BasicBlock *const IRLoop::header() const
+{
+  return header_;
+}
+
+llvm::BasicBlock *const IRLoop::pre_body() const
+{
+  return pre_body_;
+}
+
+std::vector<IRLoop> const& IRLoop::children() const
+{
+  return children_;
+}
+
+llvm::BasicBlock *const IRLoop::post_body() const
+{
+  return post_body_;
+}
+
+llvm::BasicBlock *const IRLoop::exit() const
+{
+  return exit_;
 }
 
 }

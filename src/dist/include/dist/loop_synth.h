@@ -19,43 +19,91 @@ struct LoopBody {
 };
 
 class IRLoop {
-private:
-  llvm::Function* func_;
-  llvm::BasicBlock* post_loop_;
-  Loop const& shape_;
-  std::map<long, llvm::Value *> const& extents_;
-  std::vector<llvm::Value *> parents_;
-  llvm::IRBuilder<> B_;
-
-  void build_sequence();
-  void build_nested(long loop_id);
-
-  bool own_bodies_map = false;
-  std::map<long, LoopBody> *bodies_;
-
 public:
-  IRLoop(llvm::Function* f, Loop const& l, 
-         std::map<long, llvm::Value *> const& e,
-         llvm::BasicBlock* post,
-         std::map<long, LoopBody> *b = nullptr,
-         std::vector<llvm::Value *> p = {});
+  IRLoop(
+      llvm::Function *f, 
+      Loop l, 
+      std::set<llvm::Value *> a, 
+      llvm::BasicBlock *err,
+      std::map<long, llvm::Value *> const& sizes, 
+      std::vector<std::set<long>> const& coalesced,
+      std::vector<llvm::Value *> parent_iters);
 
-  ~IRLoop()
-  {
-    if(own_bodies_map && bodies_) {
-      delete bodies_;
-    }
-  }
+  std::set<llvm::Value *> const& available_values() const;
+  llvm::BasicBlock *const header() const;
+  llvm::BasicBlock *const pre_body() const;
+  std::vector<IRLoop> const& children() const;
+  llvm::BasicBlock *const post_body() const;
+  llvm::BasicBlock *const exit() const;
 
-  std::map<long, LoopBody> const& bodies() const
-  {
-    return *bodies_;
-  }
+private:
+  void layout_children(llvm::Value *parent = nullptr);
+  void construct_loop();
+  llvm::Value *make_iterator();
+  void construct_sequence();
 
-  llvm::BasicBlock *header;
-  llvm::BasicBlock *body;
-  llvm::BasicBlock *exit;
+  template <typename Loc>
+  void generate_body(llvm::Value *iter, SynthMetadata& meta, Loc loc);
+
+  std::pair<llvm::Value *, llvm::Value *> 
+  create_valid_sized_gep(
+    llvm::IRBuilder<>& b, llvm::Value *data, llvm::Value *idx, 
+    llvm::Value *size, llvm::BasicBlock *bb) const;
+
+  llvm::Function *func_;
+  Loop loop_;
+
+  std::map<long, llvm::Value *> const& sizes_;
+  std::vector<std::set<long>> const& coalesced_;
+  std::set<llvm::Value *> available_ = {};
+  std::vector<llvm::Value *> parent_iters_;
+
+  llvm::BasicBlock *error_block_;
+  llvm::BasicBlock *header_ = nullptr;
+  llvm::BasicBlock *pre_body_ = nullptr;
+  std::vector<IRLoop> children_ = {};
+  llvm::BasicBlock *post_body_ = nullptr;
+  llvm::BasicBlock *exit_ = nullptr;
 };
+
+template <typename Loc>
+void IRLoop::generate_body(llvm::Value *iter, SynthMetadata& meta, Loc loc)
+{
+  auto id = *loop_.ID();
+
+  meta.live(iter) = true;
+
+  auto B = llvm::IRBuilder<>(loc);
+  for(auto v : available_) {
+    meta.live(v) = true;
+  }
+
+  for(auto lid : coalesced_.at(id)) {
+    auto data_ptr = func_->arg_begin() + lid + 1;
+    auto [item_ptr, cond] = create_valid_sized_gep(B, data_ptr, iter, sizes_.at(id), error_block_);
+    meta.live(B.CreateLoad(item_ptr)) = true;
+
+    meta.output(item_ptr) = static_cast<bool>(meta.output(data_ptr));
+  }
+  
+  // TODO: access things with physical sizes?
+
+  if(meta.return_loc) {
+    meta.live(B.CreateLoad(meta.return_loc)) = true;
+  }
+
+  for(auto it = func_->arg_begin(); it != func_->arg_end(); ++it) {
+    meta.output(it) = false;
+  }
+
+  auto gen = BlockGenerator(B, meta);
+  gen.populate(3);
+  gen.output();
+
+  for(auto v : meta.live) {
+    available_.insert(v);
+  }
+}
 
 template <typename R, typename... Args>
 class LoopSynth : public Synthesizer<R, Args...> {
@@ -122,10 +170,6 @@ private:
   SynthMetadata initial_metadata(llvm::Function *) const;
   std::vector<std::set<long>> ids_to_coalesce() const;
   std::map<long, llvm::Value *> runtime_sizes(llvm::Function *) const;
-  llvm::Value *create_valid_gep(llvm::IRBuilder<>& b, llvm::Value *data, llvm::Value *idx) const;
-  llvm::Value *create_valid_sized_gep(
-      llvm::IRBuilder<>& b, llvm::Value *data, llvm::Value *idx, 
-      llvm::Value *size, llvm::BasicBlock *bb) const;
   llvm::BasicBlock *create_error_block(
       llvm::Function *f, llvm::IRBuilder<>& b, llvm::BasicBlock *post) const;
 
@@ -171,72 +215,23 @@ LoopSynth<R, Args...>::construct_return(
 template <typename R, typename... Args>
 void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) const
 {
-  auto func_meta = initial_metadata(f);
+  auto shape = next_shape();
+  shape = next_shape();
 
-  auto post_bb = llvm::BasicBlock::Create(f->getContext(), "post-loop", f);
-  func_meta.return_loc = construct_return(f->getReturnType(), post_bb, b);
+  auto post_loop_bb = llvm::BasicBlock::Create(f->getContext(), "post-loop", f);
+  auto err_bb = create_error_block(f, b, post_loop_bb);
 
-  auto err_bb = create_error_block(f, b, post_bb);
+  construct_return(f->getReturnType(), post_loop_bb, b);
+  IRLoop irl(f, shape, {}, err_bb, runtime_sizes(f), coalesced_ids_, {});
 
-  auto all_sizes = runtime_sizes(f);
+  b.CreateBr(irl.header());
 
-  auto irl = IRLoop(f, next_shape(), all_sizes, post_bb);
-  b.SetInsertPoint(&f->getEntryBlock());
-  b.CreateBr(irl.header);
+  b.SetInsertPoint(irl.exit());
+  b.CreateBr(post_loop_bb);
 
-  for(auto [loop_id, body] : irl.bodies()) {
-    auto meta = func_meta;
-    auto size = all_sizes.at(loop_id);
-    
-    b.SetInsertPoint(body.insert_point);
-
-    auto indexer = IndexSynth(b);
-    for(auto idx : body.loop_indexes) {
-      indexer.add_index(idx);
-    }
-    for(auto [id, size] : all_sizes) {
-      indexer.add_const(size);
-    }
-
-    for(auto id : coalesced_ids_.at(loop_id)) {
-      auto i = indexer.generate();
-      meta.live(i) = true;
-
-      auto arg = f->arg_begin() + id + 1;
-
-      auto item_ptr = create_valid_sized_gep(b, arg, i, size, err_bb);
-      meta.live(b.CreateLoad(item_ptr)) = true;
-      if(meta.output(arg)) {
-        meta.output(item_ptr) = true;
-      }
-    }
-
-    for(auto [id, size] : physical_sizes_) {
-      auto i = indexer.generate();
-      meta.live(i) = true;
-
-      auto arg = f->arg_begin() + id + 1;
-      auto size_val = b.getInt64(size);
-      auto item_ptr = create_valid_sized_gep(b, arg, i, size_val, err_bb);
-
-      meta.live(b.CreateLoad(item_ptr)) = true;
-      if(meta.output(arg)) {
-        meta.output(item_ptr) = true;
-      }
-    }
-
-    if(meta.return_loc) {
-      meta.live(b.CreateLoad(meta.return_loc)) = true;
-    }
-
-    for(auto it = f->arg_begin(); it != f->arg_end(); ++it) {
-      meta.output(it) = false;
-    }
-
-    auto gen = BlockGenerator{b, meta};
-    gen.populate(20);
-    gen.output();
-  }
+  /* std::cerr << shape << '\n'; */
+  llvm::errs() << *f << '\n';
+  std::exit(23);
 }
 
 template <typename R, typename... Args>
@@ -315,35 +310,6 @@ std::map<long, llvm::Value *> LoopSynth<R, Args...>::runtime_sizes(llvm::Functio
     }
   }
 
-  return ret;
-}
-
-template <typename R, typename... Args>
-llvm::Value *LoopSynth<R, Args...>::create_valid_sized_gep(
-  llvm::IRBuilder<>& b, llvm::Value *data, llvm::Value *idx, 
-  llvm::Value *size, llvm::BasicBlock *err) const
-{
-  auto ptr_ty = llvm::cast<llvm::PointerType>(data->getType());
-  auto el_ty = ptr_ty->getElementType();
-
-  auto ret = [&] {
-    if(auto at = llvm::dyn_cast<llvm::ArrayType>(el_ty)) {
-      return b.CreateGEP(data, {b.getInt64(0), idx});
-    } else {
-      return b.CreateGEP(data, idx);
-    }
-  }();
-
-  auto current_block = b.GetInsertBlock();
-  auto post_gep = current_block->splitBasicBlock(current_block->getTerminator());
-
-  current_block->getTerminator()->eraseFromParent();
-  b.SetInsertPoint(current_block);
-  auto cond = b.CreateICmpUGE(idx, size);
-  b.CreateCondBr(cond, err, post_gep);
-
-  b.SetInsertPoint(post_gep->getTerminator());
-  
   return ret;
 }
 
