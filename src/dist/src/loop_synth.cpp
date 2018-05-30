@@ -95,27 +95,11 @@ void IRLoop::construct_loop()
   exit_ = make_block("exit");
 
   auto iter = make_iterator();
-
   auto meta = SynthMetadata{};
-  meta.live(iter) = true;
-  for(auto v : available_) {
-    meta.live(v) = true;
-  }
 
-  auto B = IRBuilder<>(pre_body_);
-  BlockGenerator(B, meta).populate(3);
-
-  for(auto v : meta.live) {
-    available_.insert(v);
-  }
-
+  generate_body(iter, meta, pre_body_);
   layout_children(iter);
-
-  for(auto v : available_) {
-    meta.live(v) = true;
-  }
-  B.SetInsertPoint(post_body_->getTerminator());
-  BlockGenerator(B, meta).populate(3);
+  generate_body(iter, meta, post_body_->getTerminator());
 
   BranchInst::Create(pre_body_, header_);
   if(children_.empty()) {

@@ -42,6 +42,9 @@ private:
   llvm::Value *make_iterator();
   void construct_sequence();
 
+  template <typename Loc>
+  void generate_body(llvm::Value *iter, SynthMetadata& meta, Loc loc);
+
   llvm::Value *create_valid_sized_gep(
       llvm::IRBuilder<>& b, llvm::Value *data, llvm::Value *idx, 
       llvm::Value *size, llvm::BasicBlock *bb) const;
@@ -61,6 +64,23 @@ private:
   llvm::BasicBlock *post_body_ = nullptr;
   llvm::BasicBlock *exit_ = nullptr;
 };
+
+template <typename Loc>
+void IRLoop::generate_body(llvm::Value *iter, SynthMetadata& meta, Loc loc)
+{
+  meta.live(iter) = true;
+
+  auto B = llvm::IRBuilder<>(loc);
+  for(auto v : available_) {
+    meta.live(v) = true;
+  }
+
+  BlockGenerator(B, meta).populate(3);
+
+  for(auto v : meta.live) {
+    available_.insert(v);
+  }
+}
 
 template <typename R, typename... Args>
 class LoopSynth : public Synthesizer<R, Args...> {
