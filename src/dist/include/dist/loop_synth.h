@@ -91,6 +91,16 @@ void IRLoop::generate_body(llvm::Value *iter, SynthMetadata& meta, Loc loc)
     indexer.add_const(size);
   }
 
+  for(auto [ptr, size] : meta.physical_size) {
+    auto actual_iter = indexer.generate();
+    meta.live(actual_iter) = true;
+
+    auto item_ptr = create_valid_sized_gep(B, ptr, actual_iter, B.getInt64(size), error_block_);
+    meta.live(B.CreateLoad(item_ptr)) = true;
+
+    meta.output(item_ptr) = static_cast<bool>(meta.output(ptr));
+  }
+
   for(auto lid : coalesced_.at(id)) {
     auto actual_iter = indexer.generate();
     meta.live(actual_iter) = true;
@@ -262,6 +272,10 @@ template <typename R, typename... Args>
 SynthMetadata LoopSynth<R, Args...>::initial_metadata(llvm::Function *f) const
 {
   auto meta = SynthMetadata{};
+
+  for(auto [idx, size] : physical_sizes_) {
+    meta.physical_size(f->arg_begin() + idx + 1) = size;
+  }
 
   for(auto [idx, size] : const_sizes_) {
     meta.const_size(f->arg_begin() + idx + 1) = size;
