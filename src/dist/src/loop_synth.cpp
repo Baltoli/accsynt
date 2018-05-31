@@ -98,6 +98,20 @@ void IRLoop::construct_loop()
   auto iter = make_iterator();
   auto meta = meta_;
 
+  IRBuilder<> B(pre_body_);
+  auto types = available_types();
+
+  auto loop_state_phis = std::vector<llvm::PHINode *>{};
+  for(auto i = 0; i < 5; ++i) {
+    auto type = *uniform_sample(types.begin(), types.end());
+    auto zero = Constant::getNullValue(type);
+    auto phi = B.CreatePHI(type, 2);
+    phi->addIncoming(zero, header_);
+
+    loop_state_phis.push_back(phi);
+    available_.insert(phi);
+  }
+
   generate_body(iter, meta, pre_body_);
   layout_children(iter);
   generate_body(iter, meta, post_body_->getTerminator());
@@ -109,8 +123,16 @@ void IRLoop::construct_loop()
     BranchInst::Create(children_.begin()->header(), pre_body_);
     BranchInst::Create(post_body_, children_.rbegin()->exit());
   }
+  
+  for(auto phi : loop_state_phis) {
+    auto sample = *uniform_sample_if(available_.begin(), available_.end(), [phi] (auto val) {
+      return phi->getType() == val->getType();
+    });
 
-  construct_error_checks();
+    phi->addIncoming(sample, post_body_);
+  }
+
+  /* construct_error_checks(); */
 }
 
 void IRLoop::construct_sequence()
@@ -158,6 +180,34 @@ void IRLoop::construct_error_checks()
     IRBuilder<> B(current_block);
     B.CreateCondBr(instr, error_block_, post_gep);
   }
+}
+
+std::set<Type *> IRLoop::available_types() const
+{
+  auto ret = std::set<Type *>{};
+
+  for(auto val : available_) {
+    ret.insert(val->getType());
+  }
+
+  auto get_type_or_element = [] (auto ty) {
+    if(auto ptr_ty = dyn_cast<PointerType>(ty)) {
+      return ptr_ty->getElementType();
+    } else {
+      return ty;
+    }
+  };
+
+  for(auto it = func_->arg_begin(); it != func_->arg_end(); ++it) {
+    ret.insert(get_type_or_element(it->getType()));
+  }
+
+  auto ret_ty = func_->getReturnType();
+  if(!ret_ty->isVoidTy()) {
+    ret.insert(func_->getReturnType());
+  }
+
+  return ret;
 }
 
 std::set<Value *> const& IRLoop::available_values() const

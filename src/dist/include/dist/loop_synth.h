@@ -47,6 +47,8 @@ private:
   template <typename Loc>
   void generate_body(llvm::Value *iter, SynthMetadata& meta, Loc loc);
 
+  std::set<llvm::Type *> available_types() const;
+
   llvm::Value *create_valid_sized_gep(
     llvm::IRBuilder<>& b, llvm::Value *data, llvm::Value *idx, 
     llvm::Value *size, llvm::BasicBlock *bb);
@@ -115,7 +117,7 @@ void IRLoop::generate_body(llvm::Value *iter, SynthMetadata& meta, Loc loc)
   // TODO: access things with physical sizes?
 
   if(meta.return_loc) {
-    meta.live(B.CreateLoad(meta.return_loc)) = true;
+    /* meta.live(B.CreateLoad(meta.return_loc)) = true; */
   }
 
   for(auto it = func_->arg_begin(); it != func_->arg_end(); ++it) {
@@ -123,7 +125,7 @@ void IRLoop::generate_body(llvm::Value *iter, SynthMetadata& meta, Loc loc)
   }
 
   auto gen = BlockGenerator(B, meta);
-  gen.populate(20);
+  gen.populate(3);
   gen.output();
 
   for(auto v : meta.live) {
@@ -257,6 +259,7 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
   b.CreateBr(post_loop_bb);
 
   /* llvm::errs() << *f << '\n'; */
+  /* std::exit(23); */
 }
 
 template <typename R, typename... Args>
