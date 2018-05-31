@@ -27,7 +27,8 @@ public:
       llvm::BasicBlock *err,
       std::map<long, llvm::Value *> const& sizes, 
       std::vector<std::set<long>> const& coalesced,
-      std::vector<llvm::Value *> parent_iters);
+      std::vector<llvm::Value *> parent_iters,
+      SynthMetadata m);
 
   std::set<llvm::Value *> const& available_values() const;
   llvm::BasicBlock *header() const;
@@ -65,6 +66,8 @@ private:
   std::vector<IRLoop> children_ = {};
   llvm::BasicBlock *post_body_ = nullptr;
   llvm::BasicBlock *exit_ = nullptr;
+
+  SynthMetadata meta_;
 };
 
 template <typename Loc>
@@ -98,7 +101,7 @@ void IRLoop::generate_body(llvm::Value *iter, SynthMetadata& meta, Loc loc)
   }
 
   auto gen = BlockGenerator(B, meta);
-  gen.populate(3);
+  gen.populate(20);
   gen.output();
 
   for(auto v : meta.live) {
@@ -222,8 +225,9 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
   auto post_loop_bb = llvm::BasicBlock::Create(f->getContext(), "post-loop", f);
   auto err_bb = create_error_block(f, b, post_loop_bb);
 
-  construct_return(f->getReturnType(), post_loop_bb, b);
-  IRLoop irl(f, shape, {}, err_bb, runtime_sizes(f), coalesced_ids_, {});
+  auto function_meta = SynthMetadata{};
+  function_meta.return_loc = construct_return(f->getReturnType(), post_loop_bb, b);
+  IRLoop irl(f, shape, {}, err_bb, runtime_sizes(f), coalesced_ids_, {}, function_meta);
 
   b.CreateBr(irl.header());
 
@@ -231,8 +235,8 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
   b.CreateBr(post_loop_bb);
 
   /* std::cerr << shape << '\n'; */
-  llvm::errs() << *f << '\n';
-  std::exit(23);
+  /* llvm::errs() << *f << '\n'; */
+  /* std::exit(23); */
 }
 
 template <typename R, typename... Args>

@@ -11,11 +11,12 @@ IRLoop::IRLoop(
     BasicBlock *err,
     std::map<long, Value *> const& sizes,
     std::vector<std::set<long>> const& c,
-    std::vector<Value *> p
+    std::vector<Value *> p,
+    SynthMetadata m
 ) 
   : func_(f), loop_(l), sizes_(sizes), 
     coalesced_(c), available_(avail), parent_iters_(p),
-    error_block_(err)
+    error_block_(err), meta_(m)
 {
   // Need to lay out the first half of the loop body before laying out the
   // children! Then the contents of the pre-body can be available to the
@@ -52,7 +53,7 @@ void IRLoop::layout_children(Value *parent_iter)
 
   for(auto const& child : loop_) {
     auto const& last = children_.emplace_back(
-      func_, *child, available_, error_block_, sizes_, coalesced_, iters
+      func_, *child, available_, error_block_, sizes_, coalesced_, iters, meta_
     );
 
     std::copy(last.available_.begin(), last.available_.end(), 
@@ -95,7 +96,7 @@ void IRLoop::construct_loop()
   exit_ = make_block("exit");
 
   auto iter = make_iterator();
-  auto meta = SynthMetadata{};
+  auto meta = meta_;
 
   generate_body(iter, meta, pre_body_);
   layout_children(iter);
