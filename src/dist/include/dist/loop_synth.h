@@ -225,7 +225,7 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
   auto post_loop_bb = llvm::BasicBlock::Create(f->getContext(), "post-loop", f);
   auto err_bb = create_error_block(f, b, post_loop_bb);
 
-  auto function_meta = SynthMetadata{};
+  auto function_meta = initial_metadata(f);
   function_meta.return_loc = construct_return(f->getReturnType(), post_loop_bb, b);
   IRLoop irl(f, shape, {}, err_bb, runtime_sizes(f), coalesced_ids_, {}, function_meta);
 
@@ -234,9 +234,7 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
   b.SetInsertPoint(irl.exit());
   b.CreateBr(post_loop_bb);
 
-  /* std::cerr << shape << '\n'; */
   /* llvm::errs() << *f << '\n'; */
-  /* std::exit(23); */
 }
 
 template <typename R, typename... Args>
