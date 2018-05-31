@@ -67,7 +67,7 @@ Value *IRLoop::make_iterator()
 
   auto iter_ty = IntegerType::get(func_->getContext(), 64);
   auto B = IRBuilder<>(pre_body_);
-  auto iter = B.CreatePHI(iter_ty, 2);
+  auto iter = B.CreatePHI(iter_ty, 2, "iter_" + std::to_string(id));
   iter->addIncoming(B.getInt64(0), header_);
 
   B.SetInsertPoint(post_body_);
