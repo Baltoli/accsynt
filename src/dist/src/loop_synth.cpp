@@ -108,6 +108,8 @@ void IRLoop::construct_loop()
     BranchInst::Create(children_.begin()->header(), pre_body_);
     BranchInst::Create(post_body_, children_.rbegin()->exit());
   }
+
+  construct_error_checks();
 }
 
 void IRLoop::construct_sequence()
@@ -122,9 +124,9 @@ void IRLoop::construct_sequence()
   }
 }
 
-std::pair<Value *, Value *> IRLoop::create_valid_sized_gep(
+Value *IRLoop::create_valid_sized_gep(
   IRBuilder<>& b, Value *data, Value *idx, 
-  Value *size, BasicBlock *err) const
+  Value *size, BasicBlock *err)
 {
   auto ptr_ty = cast<PointerType>(data->getType());
   auto el_ty = ptr_ty->getElementType();
@@ -138,9 +140,24 @@ std::pair<Value *, Value *> IRLoop::create_valid_sized_gep(
   }();
 
   auto cond = b.CreateICmpUGE(idx, size);
-  return {ret, cond};
+  if(auto inst = dyn_cast<Instruction>(cond)) {
+    gep_check_instrs_.insert(inst);
+  }
+
+  return ret;
 }
 
+void IRLoop::construct_error_checks()
+{
+  for(auto instr : gep_check_instrs_) {
+    auto current_block = instr->getParent();
+    auto post_gep = current_block->splitBasicBlock(instr->getNextNode());
+
+    current_block->getTerminator()->eraseFromParent();
+    IRBuilder<> B(current_block);
+    B.CreateCondBr(instr, error_block_, post_gep);
+  }
+}
 
 std::set<Value *> const& IRLoop::available_values() const
 {

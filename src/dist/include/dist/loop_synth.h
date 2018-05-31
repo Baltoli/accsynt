@@ -41,14 +41,14 @@ private:
   void construct_loop();
   llvm::Value *make_iterator();
   void construct_sequence();
+  void construct_error_checks();
 
   template <typename Loc>
   void generate_body(llvm::Value *iter, SynthMetadata& meta, Loc loc);
 
-  std::pair<llvm::Value *, llvm::Value *> 
-  create_valid_sized_gep(
+  llvm::Value *create_valid_sized_gep(
     llvm::IRBuilder<>& b, llvm::Value *data, llvm::Value *idx, 
-    llvm::Value *size, llvm::BasicBlock *bb) const;
+    llvm::Value *size, llvm::BasicBlock *bb);
 
   llvm::Function *func_;
   Loop loop_;
@@ -57,6 +57,7 @@ private:
   std::vector<std::set<long>> const& coalesced_;
   std::set<llvm::Value *> available_ = {};
   std::vector<llvm::Value *> parent_iters_;
+  std::set<llvm::Instruction *> gep_check_instrs_ = {};
 
   llvm::BasicBlock *error_block_;
   llvm::BasicBlock *header_ = nullptr;
@@ -80,7 +81,7 @@ void IRLoop::generate_body(llvm::Value *iter, SynthMetadata& meta, Loc loc)
 
   for(auto lid : coalesced_.at(id)) {
     auto data_ptr = func_->arg_begin() + lid + 1;
-    auto [item_ptr, cond] = create_valid_sized_gep(B, data_ptr, iter, sizes_.at(id), error_block_);
+    auto item_ptr = create_valid_sized_gep(B, data_ptr, iter, sizes_.at(id), error_block_);
     meta.live(B.CreateLoad(item_ptr)) = true;
 
     meta.output(item_ptr) = static_cast<bool>(meta.output(data_ptr));
