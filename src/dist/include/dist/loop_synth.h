@@ -75,16 +75,28 @@ void IRLoop::generate_body(llvm::Value *iter, SynthMetadata& meta, Loc loc)
 {
   auto id = *loop_.ID();
 
-  meta.live(iter) = true;
-
   auto B = llvm::IRBuilder<>(loc);
   for(auto v : available_) {
     meta.live(v) = true;
   }
 
+  auto indexer = IndexSynth(B);
+
+  indexer.add_index(iter);
+  for(auto parent_iter : parent_iters_) {
+    indexer.add_index(parent_iter);
+  }
+
+  for(auto [id, size] : sizes_) {
+    indexer.add_const(size);
+  }
+
   for(auto lid : coalesced_.at(id)) {
+    auto actual_iter = indexer.generate();
+    meta.live(actual_iter) = true;
+
     auto data_ptr = func_->arg_begin() + lid + 1;
-    auto item_ptr = create_valid_sized_gep(B, data_ptr, iter, sizes_.at(id), error_block_);
+    auto item_ptr = create_valid_sized_gep(B, data_ptr, actual_iter, sizes_.at(id), error_block_);
     meta.live(B.CreateLoad(item_ptr)) = true;
 
     meta.output(item_ptr) = static_cast<bool>(meta.output(data_ptr));
