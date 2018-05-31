@@ -186,9 +186,9 @@ void test_matvec()
     for(auto row = 0u; row < rows; ++row) {
       long sum = 0;
       for(auto col = 0u; col < cols; ++col) {
-        sum += vec.at(col);
+        sum += mat.at(col) + vec.at(col);
       }
-      out.at(row) = row;
+      out.at(row) = sum;
     }
   };
 
@@ -202,11 +202,11 @@ int main()
 {
   /* test_linear(); */
   /* test_sum(256); */
-  test_dot_product();
+  /* test_dot_product(); */
   /* test_fixed_dot(4); */
   /* test_output(64); */
   /* test_vsum(4); */
   /* test_pointer(); */
   /* test_nested(); */
-  /* test_matvec(); */
+  test_matvec();
 }

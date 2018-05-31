@@ -132,7 +132,7 @@ void IRLoop::construct_loop()
     phi->addIncoming(sample, post_body_);
   }
 
-  /* construct_error_checks(); */
+  construct_error_checks();
 }
 
 void IRLoop::construct_sequence()

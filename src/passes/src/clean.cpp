@@ -72,21 +72,20 @@ void Clean::removeBlock(BasicBlock *BB) const
   assert(BB && "Can't remove null basic block!");
 
   for(auto user : BB->users()) {
-    auto branch = dyn_cast<BranchInst>(user);
-    assert(branch && "Basic block user is not a branch");
-
-    BasicBlock *other_dest = nullptr;
-    for(auto i = 0u; i < branch->getNumSuccessors(); ++i) {
-      auto succ = branch->getSuccessor(i);
-      if(succ != BB) {
-        other_dest = succ;
-        break;
+    if(auto branch = dyn_cast<BranchInst>(user)) {
+      BasicBlock *other_dest = nullptr;
+      for(auto i = 0u; i < branch->getNumSuccessors(); ++i) {
+        auto succ = branch->getSuccessor(i);
+        if(succ != BB) {
+          other_dest = succ;
+          break;
+        }
       }
-    }
 
-    auto parent = branch->getParent();
-    branch->eraseFromParent();
-    BranchInst::Create(other_dest, parent);
+      auto parent = branch->getParent();
+      branch->eraseFromParent();
+      BranchInst::Create(other_dest, parent);
+    }
   }
 }
 
