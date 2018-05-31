@@ -30,11 +30,11 @@ public:
       std::vector<llvm::Value *> parent_iters);
 
   std::set<llvm::Value *> const& available_values() const;
-  llvm::BasicBlock *const header() const;
-  llvm::BasicBlock *const pre_body() const;
+  llvm::BasicBlock *header() const;
+  llvm::BasicBlock *pre_body() const;
   std::vector<IRLoop> const& children() const;
-  llvm::BasicBlock *const post_body() const;
-  llvm::BasicBlock *const exit() const;
+  llvm::BasicBlock *post_body() const;
+  llvm::BasicBlock * exit() const;
 
 private:
   void layout_children(llvm::Value *parent = nullptr);

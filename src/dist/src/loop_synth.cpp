@@ -164,12 +164,12 @@ std::set<Value *> const& IRLoop::available_values() const
   return available_;
 }
 
-llvm::BasicBlock *const IRLoop::header() const
+llvm::BasicBlock *IRLoop::header() const
 {
   return header_;
 }
 
-llvm::BasicBlock *const IRLoop::pre_body() const
+llvm::BasicBlock *IRLoop::pre_body() const
 {
   return pre_body_;
 }
@@ -179,12 +179,12 @@ std::vector<IRLoop> const& IRLoop::children() const
   return children_;
 }
 
-llvm::BasicBlock *const IRLoop::post_body() const
+llvm::BasicBlock *IRLoop::post_body() const
 {
   return post_body_;
 }
 
-llvm::BasicBlock *const IRLoop::exit() const
+llvm::BasicBlock *IRLoop::exit() const
 {
   return exit_;
 }
