@@ -8,6 +8,7 @@ add_library(dist
   src/loop_shapes.cpp
   src/loop_synth.cpp
   src/index_synth.cpp
+  src/logging.cpp
 )
 
 target_include_directories(dist PUBLIC
