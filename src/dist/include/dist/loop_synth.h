@@ -141,7 +141,7 @@ public:
     : Synthesizer<R, Args...>(r, args...),
       const_sizes_{}, rt_size_offsets_{}
   {
-    as_log();
+    as_log("Constructing loop synthesizer");
 
     index_for_each(this->arg_types_, [&] (auto& ty, auto i) {
       register_arg(ty, i);

@@ -1,11 +1,14 @@
 #pragma once
 
+#include <dist/utils.h>
+
 #include <iostream>
 #include <mutex>
+#include <thread>
 
 #define as_log(...) \
   do { \
-    log_impl(__FILE__, __LINE__)(); \
+    log_impl(__FILE__, __LINE__)(__VA_ARGS__); \
   } while(0);
 
 std::mutex& global_log_mutex();
@@ -18,7 +21,16 @@ template <typename... Args>
 decltype(auto) log_impl(std::string file, int line)
 {
   return [file,line] (auto&&... args) {
-    std::cerr << "[" << get_file_from_path(file) << ":" << line << "]" << '\n';
+    auto id = std::this_thread::get_id();
+    auto args_tuple = std::make_tuple(args...);
+
+    std::cerr << "[" << id << " " << get_file_from_path(file) << ":" << line << "] ";
+
+    for_each(args_tuple, [](auto&& arg) {
+      std::cerr << arg << " ";
+    });
+
+    std::cerr << '\n';
   };
 }
 
