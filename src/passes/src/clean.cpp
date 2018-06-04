@@ -71,6 +71,8 @@ void Clean::removeBlock(BasicBlock *BB) const
 {
   assert(BB && "Can't remove null basic block!");
 
+  auto to_remove = std::map<BranchInst *, BasicBlock *>{};
+
   for(auto user : BB->users()) {
     if(auto branch = dyn_cast<BranchInst>(user)) {
       BasicBlock *other_dest = nullptr;
@@ -82,10 +84,14 @@ void Clean::removeBlock(BasicBlock *BB) const
         }
       }
 
-      auto parent = branch->getParent();
-      branch->eraseFromParent();
-      BranchInst::Create(other_dest, parent);
+      to_remove.insert_or_assign(branch, other_dest);
     }
+  }
+
+  for(auto [branch, dest] : to_remove) {
+    auto parent = branch->getParent();
+    branch->eraseFromParent();
+    BranchInst::Create(dest, parent);
   }
 }
 
