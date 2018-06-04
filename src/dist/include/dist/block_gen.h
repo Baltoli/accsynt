@@ -34,10 +34,10 @@ void BlockGenerator<Builder>::populate(size_t n_instrs)
            v2 != std::end(meta_.live) &&
            "Could not sample values to create add");
     auto add = b_.CreateAdd(*v1, *v2);
-    /* auto mul = b_.CreateMul(*v1, *v2); */
+    auto mul = b_.CreateMul(*v1, *v2);
     
     meta_.live(add) = true;
-    /* meta_.live(mul) = true; */
+    meta_.live(mul) = true;
   }
 }
 

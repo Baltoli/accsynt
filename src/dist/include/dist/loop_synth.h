@@ -125,7 +125,7 @@ void IRLoop::generate_body(llvm::Value *iter, SynthMetadata& meta, Loc loc)
   }
 
   auto gen = BlockGenerator(B, meta);
-  gen.populate(2);
+  gen.populate(5);
   gen.output();
 
   for(auto v : meta.live) {
@@ -243,9 +243,9 @@ LoopSynth<R, Args...>::construct_return(
 template <typename R, typename... Args>
 void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) const
 {
-  /* auto shape = next_shape(); */
-  auto shape = Loop{}.nested();
-  shape.instantiate(std::array{1,0});
+  auto shape = next_shape();
+  /* auto shape = Loop{}.nested(); */
+  /* shape.instantiate(std::array{1,0}); */
 
   auto post_loop_bb = llvm::BasicBlock::Create(f->getContext(), "post-loop", f);
   auto err_bb = create_error_block(f, b, post_loop_bb);
