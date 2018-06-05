@@ -159,6 +159,8 @@ public:
 
     auto loop_set = Loop::loops(coalesced_ids_.size());
     std::copy(begin(loop_set), end(loop_set), std::back_inserter(loops_));
+
+    as_log("synth:loop:construct", "Finished constructing loop synthesizer");
   }
 
   template <typename ArgTy>
@@ -247,8 +249,6 @@ template <typename R, typename... Args>
 void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) const
 {
   auto shape = next_shape();
-  /* auto shape = Loop{}.nested(); */
-  /* shape.instantiate(std::array{1,0}); */
 
   auto post_loop_bb = llvm::BasicBlock::Create(f->getContext(), "post-loop", f);
   auto err_bb = create_error_block(f, b, post_loop_bb);

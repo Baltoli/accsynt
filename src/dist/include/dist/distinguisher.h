@@ -2,6 +2,7 @@
 
 #include <dist/function_callable.h>
 #include <dist/generators.h>
+#include <dist/logging.h>
 #include <dist/types.h>
 
 #include <llvm/Support/raw_ostream.h>
@@ -70,7 +71,9 @@ public:
   counterexample_t operator()() const
   {
     for(auto i = 0u; i < example_limit_; ++i) {
+      as_log("dist:example", "Generating example", i);
       auto example = synth_->example();
+
       auto&& [f_err, f_result] = try_apply(f_, example);
       auto&& [g_err, g_result] = try_apply(g_, example);
 
@@ -79,10 +82,11 @@ public:
       }
     }
 
+    as_log("dist:example:sat", "No counterexample found");
     return {};
   }
 
-  const size_t example_limit_ = 100;
+  const size_t example_limit_ = 10;
 
 private:
   F& f_;
