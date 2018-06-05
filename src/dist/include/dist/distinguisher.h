@@ -78,6 +78,7 @@ public:
       auto&& [g_err, g_result] = try_apply(g_, example);
 
       if((f_err != g_err) || (f_result != g_result)) {
+        as_log("dist:example:unsat", "Counterexample found");
         return {{f_result, g_result, f_err, g_err, example}};
       }
     }

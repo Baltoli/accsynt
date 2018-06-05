@@ -5,6 +5,7 @@
 #pragma once
 
 #include <dist/contexts.h>
+#include <dist/logging.h>
 #include <dist/output_collector.h>
 #include <dist/types.h>
 #include <dist/utils.h>

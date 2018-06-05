@@ -1,7 +1,8 @@
 #pragma once
 
-#include <dist/function_callable.h>
 #include <dist/contexts.h>
+#include <dist/function_callable.h>
+#include <dist/logging.h>
 
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/IRBuilder.h>
@@ -104,10 +105,14 @@ std::unique_ptr<llvm::Module> Synthesizer<R, Args...>::threaded_generate() const
   bool done = false;
 
   auto work = [&] {
+    as_log("synth:thread:start", "Thread starting to generate");
+
     auto cand = generate_candidate(done);
     if(cand) {
       ret = std::move(cand);
     }
+
+    as_log("synth:thread:done", "Thread finished");
   };
 
   auto threads = std::forward_list<std::thread>{};
