@@ -1,5 +1,6 @@
 #pragma once
 
+#include <dist/logging.h>
 #include <dist/utils.h>
 
 #include <llvm/IR/Value.h>
@@ -15,7 +16,10 @@ class IndexSynth {
 public:
   IndexSynth(Builder &b) :
     B_(b)
-  {}
+  {
+    consts_.insert(b.getInt64(0));
+    consts_.insert(b.getInt64(1));
+  }
 
   void add_index(llvm::Value *idx)
   {
@@ -24,7 +28,7 @@ public:
 
   void add_const(llvm::Value *cst)
   {
-    consts_.insert(cst);
+    /* consts_.insert(cst); */
   }
 
   llvm::Value *generate()
@@ -33,15 +37,12 @@ public:
 
     for(auto idx : indexes_) {
       auto use_type = index_use_type();
-      if(use_type == 0) {
-        // Use this index directly
-        summands.push_back(idx);
-      } else if(use_type == 1 && !consts_.empty()) {
-        // Multiply by a constant
-        auto factor = uniform_sample(consts_);
-        auto mult = B_.CreateMul(idx, *factor);
-        summands.push_back(mult);
-      } // else ignore this one
+
+      /* summands.push_back(idx); */
+      // Multiply by a constant
+      auto factor = uniform_sample(consts_);
+      auto mult = B_.CreateMul(idx, *factor);
+      summands.push_back(mult);
     }
 
     if(summands.empty()) {
@@ -51,9 +52,13 @@ public:
       auto end = summands.end();
 
       auto sum = *begin;
+      as_log("synth:index:sum", "Summand ", *sum);
       for(auto it = std::next(begin); it != end; ++it) {
+        as_log("synth:index:sum", "Summand ", **it);
         sum = B_.CreateAdd(sum, *it);
       }
+
+      as_log("synth:index:sum", "Final ", *sum);
       return sum;
     }
   }

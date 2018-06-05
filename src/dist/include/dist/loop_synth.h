@@ -95,11 +95,13 @@ void IRLoop::generate_body(llvm::Value *iter, SynthMetadata& meta, Loc loc)
   }
 
   for(auto [ptr, size] : meta.physical_size) {
-    auto actual_iter = iter;//indexer.generate();
-    meta.live(actual_iter) = true;
+    for(int i = 0; i < 5; ++i) {
+      auto actual_iter = indexer.generate();
+      meta.live(actual_iter) = true;
 
-    auto item_ptr = create_valid_sized_gep(B, ptr, actual_iter, B.getInt64(size), error_block_);
-    meta.live(B.CreateLoad(item_ptr)) = true;
+      auto item_ptr = create_valid_sized_gep(B, ptr, actual_iter, B.getInt64(size), error_block_);
+      meta.live(B.CreateLoad(item_ptr)) = true;
+    }
 
     /* meta.output(item_ptr) = static_cast<bool>(meta.output(ptr)); */
   }
@@ -126,7 +128,7 @@ void IRLoop::generate_body(llvm::Value *iter, SynthMetadata& meta, Loc loc)
   }
 
   auto gen = BlockGenerator(B, meta);
-  gen.populate(5);
+  gen.populate(2);
   gen.output();
 
   for(auto v : meta.live) {

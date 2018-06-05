@@ -2,6 +2,8 @@
 
 #include <dist/utils.h>
 
+#include <llvm/Support/raw_ostream.h>
+
 #include <iostream>
 #include <mutex>
 #include <thread>
@@ -23,23 +25,23 @@ std::mutex& global_log_mutex();
 }
 
 template <typename... Args>
-decltype(auto) log_impl(std::string file, int line, std::string tag, Args... args)
+decltype(auto) log_impl(std::string file, int line, std::string tag, Args&&... args)
 {
   if(detail::tag_is_active(tag)) {
     auto lock = std::scoped_lock{detail::global_log_mutex()};
 
     auto id = std::this_thread::get_id();
-    auto args_tuple = std::make_tuple(args...);
+    auto&& args_tuple = std::forward_as_tuple(args...);
 
-    std::cerr << "[" << "T" << detail::readable_id(id) << ""
+    llvm::errs() << "[" << "T" << detail::readable_id(id) << ""
               << " " << detail::get_file_from_path(file) << ":" << line 
               << "] ";
 
-    for_each(args_tuple, [](auto&& arg) {
-      std::cerr << arg << " ";
+    accsynt::for_each(args_tuple, [](auto&& arg) {
+      llvm::errs() << std::forward<decltype(arg)>(arg) << " ";
     });
 
-    std::cerr << '\n';
+    llvm::errs() << '\n';
   }
 }
 
