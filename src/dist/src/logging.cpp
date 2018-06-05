@@ -2,6 +2,8 @@
 
 #include <unordered_map>
 
+namespace accsynt::detail {
+
 int readable_id(std::thread::id id)
 {
   static std::unordered_map<std::thread::id, int> mapping = {};
@@ -19,8 +21,6 @@ std::mutex& global_log_mutex()
   static auto mut = std::mutex{};
   return mut;
 }
-
-namespace accsynt {
 
 std::string get_file_from_path(std::string path)
 {
