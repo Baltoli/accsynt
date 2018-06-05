@@ -11,6 +11,7 @@
     log_impl(__FILE__, __LINE__, __VA_ARGS__); \
   } while(0);
 
+int readable_id(std::thread::id id);
 std::mutex& global_log_mutex();
 
 namespace accsynt {
@@ -27,7 +28,7 @@ decltype(auto) log_impl(std::string file, int line, std::string tag, Args... arg
     auto id = std::this_thread::get_id();
     auto args_tuple = std::make_tuple(args...);
 
-    std::cerr << "[" << id
+    std::cerr << "[" << "T" << readable_id(id) << ""
               << " " << get_file_from_path(file) << ":" << line 
               << "] ";
 

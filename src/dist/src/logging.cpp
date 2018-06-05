@@ -1,5 +1,19 @@
 #include <dist/logging.h>
 
+#include <unordered_map>
+
+int readable_id(std::thread::id id)
+{
+  static std::unordered_map<std::thread::id, int> mapping = {};
+  static int i = 0;
+
+  if(mapping.find(id) == mapping.end()) {
+    mapping.insert({id, i++});
+  }
+
+  return mapping.at(id);
+}
+
 std::mutex& global_log_mutex()
 {
   static auto mut = std::mutex{};
