@@ -266,7 +266,7 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
   b.SetInsertPoint(irl.exit());
   b.CreateBr(post_loop_bb);
 
-  /* llvm::errs() << *f << '\n'; */
+  llvm::errs() << *f << '\n';
   /* std::exit(23); */
 }
 

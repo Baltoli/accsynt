@@ -13,6 +13,7 @@
 #include <iostream>
 #include <memory>
 #include <random>
+#include <set>
 
 namespace llvm {
   class ExecutionEngine;
@@ -98,6 +99,8 @@ auto uniform_sample_if(Container const& c, UnaryPred p)
 
   return uniform_sample_if(begin(c), end(c), p);
 }
+
+std::set<llvm::Value *> all_uses(llvm::Value *v);
 
 /**
  * \brief Copy a function into another module.

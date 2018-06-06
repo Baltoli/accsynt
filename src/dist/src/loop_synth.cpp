@@ -125,11 +125,18 @@ void IRLoop::construct_loop()
   }
   
   for(auto phi : loop_state_phis) {
-    auto sample = *uniform_sample_if(available_.begin(), available_.end(), [phi] (auto val) {
-      return (phi->getType() == val->getType()) && !isa<PHINode>(val);
+    auto uses = all_uses(phi);
+
+    auto sample = uniform_sample_if(available_.begin(), available_.end(), [phi,&uses] (auto val) {
+      auto found = uses.find(val) != uses.end();
+      return (phi->getType() == val->getType()) && !isa<PHINode>(val) && found;
     });
 
-    phi->addIncoming(sample, post_body_);
+    if(sample != uses.end()) {
+      phi->addIncoming(*sample, post_body_);
+    } else {
+      /* phi->eraseFromParent(); */
+    }
   }
 
   construct_error_checks();
