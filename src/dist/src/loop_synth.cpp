@@ -126,7 +126,7 @@ void IRLoop::construct_loop()
   
   for(auto phi : loop_state_phis) {
     auto sample = *uniform_sample_if(available_.begin(), available_.end(), [phi] (auto val) {
-      return phi->getType() == val->getType();
+      return (phi->getType() == val->getType()) && !isa<PHINode>(val);
     });
 
     phi->addIncoming(sample, post_body_);

@@ -94,17 +94,17 @@ void IRLoop::generate_body(llvm::Value *iter, SynthMetadata& meta, Loc loc)
     indexer.add_const(size);
   }
 
-  for(auto [ptr, size] : meta.physical_size) {
-    for(int i = 0; i < 5; ++i) {
-      auto actual_iter = indexer.generate();
-      meta.live(actual_iter) = true;
+  /* for(auto [ptr, size] : meta.physical_size) { */
+  /*   for(int i = 0; i < 5; ++i) { */
+  /*     auto actual_iter = indexer.generate(); */
+  /*     meta.live(actual_iter) = true; */
 
-      auto item_ptr = create_valid_sized_gep(B, ptr, actual_iter, B.getInt64(size), error_block_);
-      meta.live(B.CreateLoad(item_ptr)) = true;
-    }
+  /*     auto item_ptr = create_valid_sized_gep(B, ptr, actual_iter, B.getInt64(size), error_block_); */
+  /*     meta.live(B.CreateLoad(item_ptr)) = true; */
+  /*   } */
 
-    /* meta.output(item_ptr) = static_cast<bool>(meta.output(ptr)); */
-  }
+  /*   /1* meta.output(item_ptr) = static_cast<bool>(meta.output(ptr)); *1/ */
+  /* } */
 
   for(auto lid : coalesced_.at(id)) {
     auto actual_iter = iter;//indexer.generate();
@@ -128,7 +128,7 @@ void IRLoop::generate_body(llvm::Value *iter, SynthMetadata& meta, Loc loc)
   }
 
   auto gen = BlockGenerator(B, meta);
-  gen.populate(2);
+  gen.populate(5);
   gen.output();
 
   for(auto v : meta.live) {
@@ -250,7 +250,9 @@ LoopSynth<R, Args...>::construct_return(
 template <typename R, typename... Args>
 void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) const
 {
-  auto shape = next_shape();
+  /* auto shape = next_shape(); */
+  auto shape = Loop{}.nested();
+  shape.instantiate(std::array{1,0});
 
   auto post_loop_bb = llvm::BasicBlock::Create(f->getContext(), "post-loop", f);
   auto err_bb = create_error_block(f, b, post_loop_bb);
