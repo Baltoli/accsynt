@@ -64,19 +64,26 @@ std::unique_ptr<Module> copy_module_to(LLVMContext& ctx, Module *m)
 std::set<Value *> all_uses(Value *v)
 {
   auto work = std::queue<Value *>{};
-  for(auto user : v->users()) {
-    work.push(user);
-  }
+  work.push(v);
 
   auto ret = std::set<Value *>{};
   while(!work.empty()) {
     auto use = work.front();
     work.pop();
-
-    ret.insert(use);
-    for(auto user : use->users()) {
-      work.push(user);
+    if(isa<StoreInst>(use)) {
+      continue;
     }
+
+    auto [it, inserted] = ret.insert(use);
+    if(inserted) {
+      for(auto user : use->users()) {
+        work.push(user);
+      }
+    }
+  }
+
+  if(ret.size() > 1) {
+    ret.erase(v);
   }
 
   return ret;

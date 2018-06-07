@@ -128,7 +128,7 @@ void IRLoop::generate_body(llvm::Value *iter, SynthMetadata& meta, Loc loc)
   }
 
   auto gen = BlockGenerator(B, meta);
-  gen.populate(5);
+  gen.populate(4);
   gen.output();
 
   for(auto v : meta.live) {
@@ -259,6 +259,7 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
 
   auto function_meta = initial_metadata(f);
   function_meta.return_loc = construct_return(f->getReturnType(), post_loop_bb, b);
+
   IRLoop irl(f, shape, {}, err_bb, runtime_sizes(f), coalesced_ids_, {}, function_meta);
 
   b.CreateBr(irl.header());
@@ -266,7 +267,7 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
   b.SetInsertPoint(irl.exit());
   b.CreateBr(post_loop_bb);
 
-  llvm::errs() << *f << '\n';
+  llvm::errs() << "Normal log " << *f << '\n';
   /* std::exit(23); */
 }
 

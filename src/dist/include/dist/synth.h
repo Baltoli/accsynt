@@ -87,7 +87,9 @@ std::unique_ptr<llvm::Module> Synthesizer<R, Args...>::generate_candidate(bool& 
     auto bb = llvm::BasicBlock::Create(fn->getContext(), "entry", fn);
     B.SetInsertPoint(bb);
 
+    as_log("synth:thread:construct", "Trying to construct");
     this->construct(fn, B);
+    as_log("synth:thread:construct", "Constructed");
 
     if(satisfies_examples(fn)) {
       done = true;

@@ -129,14 +129,11 @@ void IRLoop::construct_loop()
 
     auto sample = uniform_sample_if(available_.begin(), available_.end(), [phi,&uses] (auto val) {
       auto found = uses.find(val) != uses.end();
-      return (phi->getType() == val->getType()) && !isa<PHINode>(val) && found;
+      return (phi->getType() == val->getType()) && found;
     });
 
-    if(sample != uses.end()) {
-      phi->addIncoming(*sample, post_body_);
-    } else {
-      /* phi->eraseFromParent(); */
-    }
+    assert(sample != available_.end());
+    phi->addIncoming(*sample, post_body_);
   }
 
   construct_error_checks();
@@ -181,7 +178,7 @@ void IRLoop::construct_error_checks()
 {
   for(auto instr : gep_check_instrs_) {
     auto current_block = instr->getParent();
-    auto post_gep = current_block->splitBasicBlock(instr->getNextNode());
+    auto post_gep = current_block->splitBasicBlock(instr->getNextNode(), "error_split");
 
     current_block->getTerminator()->eraseFromParent();
     IRBuilder<> B(current_block);
