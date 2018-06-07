@@ -186,7 +186,7 @@ void test_matvec()
     for(auto row = 0u; row < rows; ++row) {
       long sum = 0;
       for(auto col = 0u; col < cols; ++col) {
-        sum += col + col;//mat.at(col + row);// + vec.at(col);
+        sum += col + vec.at(col);//mat.at(col + row);// + vec.at(col);
       }
       out.at(row) = sum;
     }

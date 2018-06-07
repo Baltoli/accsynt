@@ -128,7 +128,7 @@ void IRLoop::generate_body(llvm::Value *iter, SynthMetadata& meta, Loc loc)
   }
 
   auto gen = BlockGenerator(B, meta);
-  gen.populate(4);
+  gen.populate(1);
   gen.output();
 
   for(auto v : meta.live) {
@@ -267,7 +267,7 @@ void LoopSynth<R, Args...>::construct(llvm::Function *f, llvm::IRBuilder<>& b) c
   b.SetInsertPoint(irl.exit());
   b.CreateBr(post_loop_bb);
 
-  llvm::errs() << "Normal log " << *f << '\n';
+  /* llvm::errs() << *f << '\n'; */
   /* std::exit(23); */
 }
 

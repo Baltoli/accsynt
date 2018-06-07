@@ -69,11 +69,6 @@ void BlockGenerator<Builder>::output()
     // enforce responsible usage?
     auto ptr_ty = llvm::cast<llvm::PointerType>(v->getType());
 
-    /* llvm::errs() << "Possible outputs:\n"; */
-    /* for(auto v : meta_.live) { */
-    /*   llvm::errs() << *v << '\n'; */
-    /* } */
-
     auto sample = uniform_sample_if(meta_.live, [&](auto val) {
       return val->getType() == ptr_ty->getElementType();
     });
@@ -81,13 +76,10 @@ void BlockGenerator<Builder>::output()
     if(sample != std::end(meta_.live)) {
       auto value = *sample;
       b_.CreateStore(value, v);
-
-      /* llvm::errs() << "Chosen was " << *value << '\n'; */
     }
   };
 
   for(auto v : meta_.output) {
-    /* llvm::errs() << "Outputting to " << *v << '\n'; */
     store_output(v);
   }
 

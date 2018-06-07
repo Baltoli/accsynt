@@ -102,7 +102,7 @@ void IRLoop::construct_loop()
   auto types = available_types();
 
   auto loop_state_phis = std::vector<llvm::PHINode *>{};
-  for(auto i = 0; i < 5; ++i) {
+  for(auto i = 0; i < 2; ++i) {
     auto type = *uniform_sample(types.begin(), types.end());
     auto zero = Constant::getNullValue(type);
     auto phi = B.CreatePHI(type, 2);
