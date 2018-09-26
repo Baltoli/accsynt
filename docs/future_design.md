@@ -126,4 +126,17 @@ showing simple loop control flow:
 
 Obviously the syntax can and will change as I work out more of what this
 language needs to support. The main ideas are here apart from subsumption - how
-could another loop be nested inside this one?
+could another loop be nested inside this one? The real question is the interface
+between nested forms of control - if we built the control flow above, then where
+are the customisation points?
+
+One idea is that we can specify "regions" which have an entry and an exit
+block, and specify attachment points within which other regions can be attached.
+Then the rule set above is the specification for a region, with the
+specification being given a name that can be referenced by other strategies.
+
+Key design point here is that regions are different to heuristics - a heuristic
+/ matcher as given above will invoke a type of region. So for every rule that
+gets matched, we try a region - then we can use a similar method to the loop
+synthesis from the existing paper to work out all the possible ways to attach
+another region!
