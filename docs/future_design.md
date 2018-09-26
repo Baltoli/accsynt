@@ -62,6 +62,21 @@ interface. This entails giving the synthesiser:
   * The type signature of the symbol.
   * A set of properties to be used in the synthesis process.
 
+### In Code
+
+Provide a library that can parse a signature and list of properties as specified
+above into a usable data structure. The core operation is that a property set
+has a set of key-value associations which can be explored - e.g. checking
+whether or not the set has a particular key, what the set of associated values
+for a key is etc.
+
+Keys are just strings, and associated values can be:
+* Number (float, int)
+* String with : prefix for now
+* Parameters extracted from the signature (name, index?)
+
+The associated values for a key are ordered.
+
 ## Synthesis Techniques
 
 A synthesis technique describes how LLVM should be generated in some situation.
