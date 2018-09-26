@@ -3,19 +3,25 @@ cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 set(CXX_PROJECT_FLAGS "-std=c++17 -Wall -Werror -pedantic -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=unused-function")
 set(CMAKE_CXX_FLAGS "${CXX_PROJECT_FLAGS} ${CMAKE_CXX_FLAGS}")
 
-find_package(LLVM 7 REQUIRED CONFIG)
-include_directories(${LLVM_INCLUDE_DIRS})
-add_definitions(${LLVM_DEFINITIONS})
-llvm_map_components_to_libnames(llvm_libs support core irreader interpreter)
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup(TARGETS)
+
+#find_package(LLVM 7 REQUIRED CONFIG)
+#include_directories(${LLVM_INCLUDE_DIRS})
+#add_definitions(${LLVM_DEFINITIONS})
+#llvm_map_components_to_libnames(llvm_libs support core irreader interpreter)
 
 include(GNUInstallDirs)
 enable_testing()
 
-add_subdirectory(dist)
-add_subdirectory(passes)
+#add_subdirectory(dist)
+#add_subdirectory(passes)
+add_subdirectory(props)
 
-option(BUILD_DOC "Build documentation" ON)
+#add_subdirectory(libs/Catch2)
+#add_subdirectory(libs/PEGTL)
 
+option(BUILD_DOC "Build documentation" OFF)
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
   if(BUILD_DOC)
