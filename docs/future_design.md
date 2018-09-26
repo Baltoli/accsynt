@@ -86,3 +86,44 @@ generated. To do this we need to be able to describe:
   sub-rule as well).
 * Randomness and sampling from possibilities - synthesis is not a deterministic
   process and variation needs to be included for it to be useful.
+
+These capabilities are everything that the current version of AccSynt is capable
+of doing in a hard-coded way (it can synthesise one limited form of control
+flow, and can only do random filling of data flow).
+
+Another thing that it needs to be able to do is maintenance of sets of
+instructions with specific semantics - for example, keeping track of all the
+values that are tagged as indexes. The simplest way to do this that I can see is
+basically to have the generation process allow for values to be added to any
+number of sets when they are generated, and to allow for sampling using set
+operations.
+
+The synthesiser needs to be able to specify where instructions and control flow
+should be generated (i.e. the insertion point). This means tagging basic blocks
+with names, and specifying that generated instructions are to be put at the
+beginning or end of blocks, or after other labelled instructions.
+
+An example of how this specification might look is below, with the example
+showing simple loop control flow:
+```
+  bound <= param(0)
+
+  entry <= block
+  body <= block
+  exit <= block
+
+  ind_var <= PHI in body {live, index}
+  next <= add ind_var, 1
+  value <= sample arithmetic, {live} in body
+
+  phi ind_var(entry: 0, body: next)
+
+  entry to body
+  body to exit(next == bound), body
+  
+  return void in exit
+```
+
+Obviously the syntax can and will change as I work out more of what this
+language needs to support. The main ideas are here apart from subsumption - how
+could another loop be nested inside this one?
