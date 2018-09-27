@@ -52,4 +52,6 @@ add_executable(unit_tests
 
 target_link_libraries(test_dist dist)
 target_link_libraries(unit_tests dist)
-add_test(unit_tests test_dist)
+
+add_test(NAME dist_unit
+         COMMAND $<TARGET_FILE:unit_tests>)
