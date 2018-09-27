@@ -1,4 +1,4 @@
-#include "catch.h"
+#include <catch2/catch.hpp>
 
 #include <dist/utils.h>
 

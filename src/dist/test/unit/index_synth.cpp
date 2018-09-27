@@ -1,4 +1,4 @@
-#include "catch.h"
+#include <catch2/catch.hpp>
 
 #include <dist/contexts.h>
 #include <dist/function_callable.h>

@@ -1,5 +1,6 @@
-#include "catch.h"
 #include "load_module.h"
+
+#include <catch2/catch.hpp>
 
 #include <dist/function_callable.h>
 

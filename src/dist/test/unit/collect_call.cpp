@@ -1,4 +1,4 @@
-#include "catch.h"
+#include <catch2/catch.hpp>
 
 #include <dist/output_collector.h>
 #include <dist/types.h>

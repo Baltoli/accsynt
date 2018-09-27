@@ -34,7 +34,7 @@ add_executable(test_dist
   test/test_dist.cpp
 )
 
-add_executable(unit_tests
+add_executable(dist_unit
   test/unit/main.cpp
   test/unit/function_call.cpp
   test/unit/linear_synth.cpp
@@ -51,7 +51,9 @@ add_executable(unit_tests
 )
 
 target_link_libraries(test_dist dist)
-target_link_libraries(unit_tests dist)
+target_link_libraries(dist_unit
+  dist
+  CONAN_PKG::catch2)
 
 add_test(NAME dist_unit
-         COMMAND $<TARGET_FILE:unit_tests>)
+         COMMAND $<TARGET_FILE:dist_unit>)
