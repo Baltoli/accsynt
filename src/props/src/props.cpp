@@ -29,10 +29,17 @@ struct interface_name
   : pegtl::identifier
 {};
 
+struct pointers
+  : pegtl::star<
+      pegtl::string<'*'>
+    >
+{};
+
 struct param_spec
   : pegtl::seq<
       type_name,
       pegtl::plus<pegtl::space>,
+      pointers,
       interface_name
     >
 {};
@@ -88,6 +95,14 @@ struct param_action<interface_name> {
 };
 
 template <>
+struct param_action<pointers> {
+  template <typename Input>
+  static void apply(Input const& in, signature& sig) {
+    sig.parameters.back().pointer_depth = in.string().length();
+  }
+};
+
+template <>
 struct param_action<type_name> {
   template <typename Input>
   static void apply(Input const& in, signature& sig) {
@@ -109,7 +124,7 @@ std::optional<data_type> data_type_from_string(std::string const& str)
 void test()
 {
   signature s;
-  pegtl::parse<grammar, signature_action>(pegtl::string_input("float wooo(float   x,int y)", ""), s);
+  pegtl::parse<grammar, signature_action>(pegtl::string_input("float wooo(float *x,int y)", ""), s);
   std::cout << s << '\n';
 }
 
@@ -128,7 +143,11 @@ std::ostream& operator <<(std::ostream& os, const data_type& dt)
 
 std::ostream& operator <<(std::ostream& os, const param& p)
 {
-  os << p.type << " " << p.name;
+  os << p.type << " ";
+  for(auto i = 0; i < p.pointer_depth; ++i) {
+    os << '*';
+  }
+  os << p.name;
   return os;
 }
 
