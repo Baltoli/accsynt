@@ -20,7 +20,8 @@ install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 install(EXPORT PropsConfig DESTINATION share/Props/cmake)
 
 add_executable(props_unit
-  test/main.cpp)
+  test/main.cpp
+  test/parsing.cpp)
 
 target_link_libraries(props_unit
   props
