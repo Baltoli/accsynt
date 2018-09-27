@@ -1,7 +1,10 @@
 project(libprops VERSION 0.1 LANGUAGES CXX)
 
 add_library(props
-  src/lib.cpp)
+  src/props.cpp)
+
+target_link_libraries(props
+  CONAN_PKG::pegtl)
 
 target_include_directories(props PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
