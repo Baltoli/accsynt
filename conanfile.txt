@@ -1,0 +1,6 @@
+[requires]
+catch2/2.4.0@bincrafters/stable
+pegtl/2.7.0@taocpp/stable
+
+[generators]
+cmake

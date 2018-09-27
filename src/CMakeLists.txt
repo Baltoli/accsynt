@@ -1,7 +1,18 @@
 cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 
-set(CXX_PROJECT_FLAGS "-std=c++17 -Wall -Werror -pedantic -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=unused-function")
+set(CXX_PROJECT_FLAGS "-std=c++17 -Wall -Werror -pedantic -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=unused-function -fno-rtti")
 set(CMAKE_CXX_FLAGS "${CXX_PROJECT_FLAGS} ${CMAKE_CXX_FLAGS}")
+
+if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
+  message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
+  file(DOWNLOAD "https://raw.githubusercontent.com/conan-io/cmake-conan/v0.12/conan.cmake"
+                "${CMAKE_BINARY_DIR}/conan.cmake")
+endif()
+
+include(${CMAKE_BINARY_DIR}/conan.cmake)
+conan_cmake_run(CONANFILE "../conanfile.txt"
+                BASIC_SETUP CMAKE_TARGETS
+                BUILD missing)
 
 find_package(LLVM 7 REQUIRED CONFIG)
 include_directories(${LLVM_INCLUDE_DIRS})
@@ -13,9 +24,9 @@ enable_testing()
 
 add_subdirectory(dist)
 add_subdirectory(passes)
+add_subdirectory(props)
 
-option(BUILD_DOC "Build documentation" ON)
-
+option(BUILD_DOC "Build documentation" OFF)
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
   if(BUILD_DOC)
