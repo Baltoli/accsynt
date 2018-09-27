@@ -4,6 +4,32 @@
 
 #include <iostream>
 
+using namespace props;
+
 TEST_CASE("signatures can be parsed") {
-  props::test();
+  SECTION("with valid signatures") {
+    auto s = signature::parse("float x()");
+    REQUIRE(s.name == "x");
+    REQUIRE(s.return_type);
+    REQUIRE(s.return_type.value() == data_type::floating);
+    REQUIRE(s.parameters.empty());
+
+    auto s2 = signature::parse("int na_me(int   x,  float zz_)");
+    REQUIRE(s2.name == "na_me");
+    REQUIRE(s2.return_type);
+    REQUIRE(s2.return_type.value() == data_type::integer);
+    REQUIRE(s2.parameters.at(0).name == "x");
+    REQUIRE(s2.parameters.at(0).type == data_type::integer);
+    REQUIRE(s2.parameters.at(0).pointer_depth == 0);
+    REQUIRE(s2.parameters.at(1).name == "zz_");
+    REQUIRE(s2.parameters.at(1).type == data_type::floating);
+    REQUIRE(s2.parameters.at(1).pointer_depth == 0);
+    
+    auto s3 = signature::parse("void fwio(int ***woo)");
+    REQUIRE(s3.name == "fwio");
+    REQUIRE(!s3.return_type);
+    REQUIRE(s3.parameters.at(0).name == "woo");
+    REQUIRE(s3.parameters.at(0).type == data_type::integer);
+    REQUIRE(s3.parameters.at(0).pointer_depth == 3);
+  }
 }

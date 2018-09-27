@@ -1,6 +1,8 @@
 project(libprops VERSION 0.1 LANGUAGES CXX)
 
 add_library(props
+  src/parsing.cpp
+  src/printing.cpp
   src/props.cpp)
 
 target_link_libraries(props

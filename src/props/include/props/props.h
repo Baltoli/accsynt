@@ -2,6 +2,7 @@
 
 #include <iosfwd>
 #include <string>
+#include <string_view>
 #include <optional>
 #include <vector>
 
@@ -22,12 +23,12 @@ struct signature {
   std::optional<data_type> return_type;
   std::string name;
   std::vector<param> parameters;
+
+  static signature parse(std::string_view str);
 };
 
 class property_set {
 };
-
-std::optional<data_type> data_type_from_string(std::string const& str);
 
 void test();
 
