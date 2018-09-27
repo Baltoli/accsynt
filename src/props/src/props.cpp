@@ -66,30 +66,94 @@ struct grammar
 template <>
 struct signature_action<interface_name> {
   template <typename Input>
-  static void apply(Input const& in) {
-    std::cout << "Name in sig mode " << in.string() << '\n';
+  static void apply(Input const& in, signature& sig) {
+    sig.name = in.string();
+  }
+};
+
+template <>
+struct signature_action<type_name> {
+  template <typename Input>
+  static void apply(Input const& in, signature& sig) {
+    sig.return_type = data_type_from_string(in.string());
   }
 };
 
 template <>
 struct param_action<interface_name> {
   template <typename Input>
-  static void apply(Input const& in) {
-    std::cout << "Name in param mode " << in.string() << '\n';
+  static void apply(Input const& in, signature& sig) {
+    sig.parameters.back().name = in.string();
   }
 };
 
 template <>
 struct param_action<type_name> {
   template <typename Input>
-  static void apply(Input const& in) {
-    std::cout << "Type in param mode " << in.string() << '\n';
+  static void apply(Input const& in, signature& sig) {
+    sig.parameters.emplace_back();
+    auto type = data_type_from_string(in.string());
+    if(type) {
+      sig.parameters.back().type = type.value();
+    }
   }
 };
 
+std::optional<data_type> data_type_from_string(std::string const& str)
+{
+  if(str == "int") { return data_type::integer; }
+  else if(str == "float") { return data_type::floating; }
+  else { return std::nullopt; }
+}
+
 void test()
 {
-  pegtl::parse<grammar, signature_action>(pegtl::string_input("float wooo(float   x,int y)", ""));
+  signature s;
+  pegtl::parse<grammar, signature_action>(pegtl::string_input("float wooo(float   x,int y)", ""), s);
+  std::cout << s << '\n';
+}
+
+std::ostream& operator <<(std::ostream& os, const data_type& dt)
+{
+  switch(dt) {
+    case data_type::integer:
+      os << "int";
+      break;
+    case data_type::floating:
+      os << "float";
+      break;
+  }
+  return os;
+}
+
+std::ostream& operator <<(std::ostream& os, const param& p)
+{
+  os << p.type << " " << p.name;
+  return os;
+}
+
+std::ostream& operator <<(std::ostream& os, const signature& sig)
+{
+  if(auto rt = sig.return_type) {
+    os << rt.value();
+  } else {
+    os << "void";
+  }
+
+  os << " " << sig.name << "(";
+
+  for(auto it = sig.parameters.begin(); 
+      it != sig.parameters.end(); 
+      ++it)
+  {
+    os << *it;
+    if(std::next(it) != sig.parameters.end()) {
+      os << ", ";
+    }
+  }
+
+  os << ")";
+  return os;
 }
 
 }
