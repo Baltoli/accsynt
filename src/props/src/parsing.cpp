@@ -3,6 +3,8 @@
 #define TAO_PEGTL_NAMESPACE props_pegtl
 #include <tao/pegtl.hpp>
 
+#include <iostream>
+
 namespace props {
 
 namespace pegtl = tao::props_pegtl;
@@ -24,9 +26,9 @@ struct param_action : pegtl::nothing<Rule>
 
 struct type_name
   : pegtl::sor<
-      pegtl::string<'v', 'o', 'i', 'd'>,
-      pegtl::string<'i', 'n', 't'>,
-      pegtl::string<'f', 'l', 'o', 'a', 't'>
+      TAO_PEGTL_STRING("void"),
+      TAO_PEGTL_STRING("int"),
+      TAO_PEGTL_STRING("float")
     >
 {};
 
@@ -60,8 +62,8 @@ struct params
     >
 {};
 
-struct grammar
-  : pegtl::must<
+struct signature_grammar
+  : pegtl::seq<
       type_name,
       pegtl::plus<pegtl::space>,
       interface_name,
@@ -71,7 +73,39 @@ struct grammar
         pegtl::opt<params>
       >,
       pegtl::string<')'>,
-      pegtl::eof
+      pegtl::eolf
+    >
+{};
+
+struct comment_grammar
+  : pegtl::seq<
+      pegtl::bol,
+      pegtl::string<';'>,
+      pegtl::star<pegtl::any>,
+      pegtl::eolf
+    >
+{};
+
+struct property_grammar
+  : pegtl::seq<
+      TAO_PEGTL_STRING("prop"),
+      pegtl::eolf
+    >
+{};
+
+struct file_grammar
+  : pegtl::seq<
+      pegtl::star<comment_grammar>,
+      pegtl::state<
+        signature,
+        signature_grammar
+      >
+      /* pegtl::star< */
+      /*   pegtl::sor< */
+      /*     comment_grammar, */
+      /*     property_grammar */
+      /*   > */
+      /* > */
     >
 {};
 
@@ -122,8 +156,15 @@ struct param_action<type_name> {
 signature signature::parse(std::string_view str)
 {
   signature sig;
-  pegtl::parse<grammar, signature_action>(pegtl::string_input(str, ""), sig);
+  pegtl::parse<pegtl::must<signature_grammar>, signature_action>(pegtl::string_input(str, ""), sig);
   return sig;
+}
+
+property_set property_set::parse(std::string_view str)
+{
+  property_set pset;
+  pegtl::parse<pegtl::must<file_grammar>>(pegtl::string_input(str, ""), pset);
+  return pset;
 }
 
 }

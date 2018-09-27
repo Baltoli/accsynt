@@ -44,3 +44,8 @@ TEST_CASE("signatures can be parsed") {
     REQUIRE_THROWS(signature::parse("int(int, float)"));
   }
 }
+
+TEST_CASE("files can be parsed") {
+  auto file = ";hello\n;no\nint f(int x)";
+  auto ps = property_set::parse(file);
+}
