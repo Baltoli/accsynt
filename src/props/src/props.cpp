@@ -22,7 +22,11 @@ struct interface_name
 {};
 
 struct param_spec
-  : pegtl::string<'p', 'a', 'r'>
+  : pegtl::seq<
+      type_name,
+      pegtl::plus<pegtl::space>,
+      interface_name
+    >
 {};
 
 struct params
@@ -42,7 +46,7 @@ struct grammar
       pegtl::plus<pegtl::space>,
       interface_name,
       pegtl::string<'('>,
-      params,
+      pegtl::opt<params>,
       pegtl::string<')'>,
       pegtl::eof
     >
@@ -50,7 +54,7 @@ struct grammar
 
 void test()
 {
-  pegtl::parse<grammar>(pegtl::string_input("float wooo(par, par , par,par)", ""));
+  pegtl::parse<grammar>(pegtl::string_input("float wooo(float   x,int y)", ""));
 }
 
 }
