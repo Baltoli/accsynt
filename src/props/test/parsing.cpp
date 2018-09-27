@@ -32,4 +32,15 @@ TEST_CASE("signatures can be parsed") {
     REQUIRE(s3.parameters.at(0).type == data_type::integer);
     REQUIRE(s3.parameters.at(0).pointer_depth == 3);
   }
+
+  SECTION("without valid signatures") {
+    REQUIRE_THROWS(signature::parse("aefjio"));
+    REQUIRE_THROWS(signature::parse(""));
+    REQUIRE_THROWS(signature::parse("int *woo()"));
+    REQUIRE_THROWS(signature::parse("int f("));
+    REQUIRE_THROWS(signature::parse("double d()"));
+    REQUIRE_THROWS(signature::parse("int)"));
+    REQUIRE_THROWS(signature::parse("int woo()  fef"));
+    REQUIRE_THROWS(signature::parse("int(int, float)"));
+  }
 }
