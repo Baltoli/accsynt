@@ -8,5 +8,4 @@ add_executable(testprops
 
 target_link_libraries(testprops
   props
-  CONAN_PKG::catch2
-  CONAN_PKG::pegtl)
+  CONAN_PKG::catch2)
