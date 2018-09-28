@@ -8,6 +8,7 @@
 namespace props {
 
 namespace pegtl = tao::props_pegtl;
+using namespace pegtl;
 
 std::optional<data_type> data_type_from_string(std::string const& str)
 {
@@ -17,19 +18,19 @@ std::optional<data_type> data_type_from_string(std::string const& str)
 }
 
 template <typename Rule>
-struct signature_action : pegtl::nothing<Rule>
+struct signature_action : nothing<Rule>
 {};
 
 template <typename Rule>
-struct param_action : pegtl::nothing<Rule>
+struct param_action : nothing<Rule>
 {};
 
 template <typename Rule>
-struct property_action : pegtl::nothing<Rule>
+struct property_action : nothing<Rule>
 {};
 
 struct type_name
-  : pegtl::sor<
+  : sor<
       TAO_PEGTL_STRING("void"),
       TAO_PEGTL_STRING("int"),
       TAO_PEGTL_STRING("float")
@@ -37,73 +38,73 @@ struct type_name
 {};
 
 struct interface_name
-  : pegtl::identifier
+  : identifier
 {};
 
 struct pointers
-  : pegtl::star<
-      pegtl::string<'*'>
+  : star<
+      string<'*'>
     >
 {};
 
 struct param_spec
-  : pegtl::seq<
+  : seq<
       type_name,
-      pegtl::plus<pegtl::space>,
+      plus<space>,
       pointers,
       interface_name
     >
 {};
 
 struct params
-  : pegtl::list<
+  : list<
       param_spec,
-      pegtl::seq<
-        pegtl::star<pegtl::space>,
-        pegtl::string<','>,
-        pegtl::star<pegtl::space>
+      seq<
+        star<space>,
+        string<','>,
+        star<space>
       >
     >
 {};
 
 struct signature_grammar
-  : pegtl::seq<
+  : seq<
       type_name,
-      pegtl::plus<pegtl::space>,
+      plus<space>,
       interface_name,
-      pegtl::string<'('>,
-      pegtl::action<
+      string<'('>,
+      action<
         param_action,
-        pegtl::opt<params>
+        opt<params>
       >,
-      pegtl::string<')'>
+      string<')'>
     >
 {};
 
 struct any_in_line
-  : pegtl::seq<
-      pegtl::not_at<pegtl::eol>,
-      pegtl::any
+  : seq<
+      not_at<eol>,
+      any
     >
 {};
 
 struct comment_grammar
-  : pegtl::seq<
-      pegtl::bol,
-      pegtl::string<';'>,
-      pegtl::star<any_in_line>
+  : seq<
+      bol,
+      string<';'>,
+      star<any_in_line>
     >
 {};
 
 struct ignore_line
-  : pegtl::sor<
+  : sor<
       comment_grammar,
-      pegtl::bol
+      bol
     >
 {};
 
 struct property_name
-  : pegtl::identifier
+  : identifier
 {};
 
 struct property_value
@@ -111,47 +112,47 @@ struct property_value
 {};
 
 struct property_list
-  : pegtl::list<
+  : list<
       property_value,
-      pegtl::seq<
-        pegtl::star<pegtl::space>,
-        pegtl::string<','>,
-        pegtl::star<pegtl::space>
+      seq<
+        star<space>,
+        string<','>,
+        star<space>
       >
     >
 {};
 
 struct property_grammar
-  : pegtl::seq<
+  : seq<
       property_name,
-      pegtl::opt<
-        pegtl::star<pegtl::space>,
+      opt<
+        star<space>,
         property_list
       >
     >
 {};
 
 struct file_grammar
-  : pegtl::seq<
-      pegtl::star<
+  : seq<
+      star<
         ignore_line,
-        pegtl::eol
+        eol
       >,
-      pegtl::action<
+      action<
         signature_action,
-        pegtl::state<
+        state<
           signature,
           signature_grammar
         >
-      >, pegtl::eol,
-      pegtl::action<
+      >, eol,
+      action<
         property_action,
-        pegtl::star<
-          pegtl::state<
+        star<
+          state<
             property,
             property_grammar
           >,
-          pegtl::eolf
+          eolf
         >
       >
     >
@@ -211,10 +212,10 @@ struct param_action<type_name> {
 signature signature::parse(std::string_view str)
 {
   signature sig;
-  pegtl::parse<pegtl::must<signature_grammar, pegtl::eof>, 
+  pegtl::parse<must<signature_grammar, eof>, 
                signature_action>
   (
-    pegtl::string_input(str, ""), sig
+    string_input(str, ""), sig
   );
   return sig;
 }
@@ -222,10 +223,10 @@ signature signature::parse(std::string_view str)
 property property::parse(std::string_view str)
 {
   property prop;
-  pegtl::parse<pegtl::must<property_grammar, pegtl::eolf>
+  pegtl::parse<must<property_grammar, eolf>
               >
   (
-    pegtl::string_input(str, ""), prop
+    string_input(str, ""), prop
   );
   return prop;
 }
@@ -233,10 +234,10 @@ property property::parse(std::string_view str)
 property_set property_set::parse(std::string_view str)
 {
   property_set pset;
-  pegtl::parse<pegtl::must<file_grammar>
+  pegtl::parse<must<file_grammar>
               >
   (
-    pegtl::string_input(str, ""), pset
+    string_input(str, ""), pset
   );
   return pset;
 }
