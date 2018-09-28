@@ -50,7 +50,7 @@ struct pointers
 struct param_spec
   : seq<
       type_name,
-      plus<space>,
+      plus<blank>,
       pointers,
       interface_name
     >
@@ -60,9 +60,9 @@ struct params
   : list<
       param_spec,
       seq<
-        star<space>,
+        star<blank>,
         string<','>,
-        star<space>
+        star<blank>
       >
     >
 {};
@@ -70,7 +70,7 @@ struct params
 struct signature_grammar
   : seq<
       type_name,
-      plus<space>,
+      plus<blank>,
       interface_name,
       string<'('>,
       action<
@@ -130,8 +130,8 @@ struct property_value
   : sor<
       value_string,
       value_param,
-      value_int,
-      value_float
+      value_float,
+      value_int
     >
 {};
 
@@ -139,9 +139,9 @@ struct property_list
   : list<
       property_value,
       seq<
-        star<space>,
+        star<blank>,
         string<','>,
-        star<space>
+        star<blank>
       >
     >
 {};
@@ -150,7 +150,7 @@ struct property_grammar
   : seq<
       property_name,
       opt<
-        star<space>, ///// NEEDS TO BE LINE SPACES ONLY
+        star<blank>,
         property_list
       >
     >
@@ -259,7 +259,7 @@ property property::parse(std::string_view str)
 property_set property_set::parse(std::string_view str)
 {
   property_set pset;
-  pegtl::parse<must<file_grammar>
+  pegtl::parse<must<file_grammar, eof>
               >
   (
     string_input(str, ""), pset
