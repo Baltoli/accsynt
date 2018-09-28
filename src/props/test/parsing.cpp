@@ -46,6 +46,20 @@ TEST_CASE("signatures can be parsed") {
 }
 
 TEST_CASE("files can be parsed") {
-  auto file = ";hello\n;no\nint f(int x)";
+  auto file = R"(;hello
+
+
+
+;qwd
+
+
+;werjio
+
+
+int main()
+prop
+;wefjio
+prop
+)";
   auto ps = property_set::parse(file);
 }

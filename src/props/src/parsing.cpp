@@ -72,8 +72,14 @@ struct signature_grammar
         param_action,
         pegtl::opt<params>
       >,
-      pegtl::string<')'>,
-      pegtl::eolf
+      pegtl::string<')'>
+    >
+{};
+
+struct any_in_line
+  : pegtl::seq<
+      pegtl::not_at<pegtl::eol>,
+      pegtl::any
     >
 {};
 
@@ -81,33 +87,52 @@ struct comment_grammar
   : pegtl::seq<
       pegtl::bol,
       pegtl::string<';'>,
-      pegtl::star<pegtl::any>,
-      pegtl::eolf
+      pegtl::star<any_in_line>
+    >
+{};
+
+struct ignore_line
+  : pegtl::sor<
+      comment_grammar,
+      pegtl::bol
     >
 {};
 
 struct property_grammar
   : pegtl::seq<
-      TAO_PEGTL_STRING("prop"),
-      pegtl::eolf
+      TAO_PEGTL_STRING("prop")
     >
 {};
 
 struct file_grammar
   : pegtl::seq<
-      pegtl::star<comment_grammar>,
+      pegtl::star<
+        ignore_line,
+        pegtl::eol
+      >,
       pegtl::state<
         signature,
         signature_grammar
+      >,
+      pegtl::star<
+        pegtl::sor<
+          ignore_line,
+          property_grammar
+        >
       >
-      /* pegtl::star< */
-      /*   pegtl::sor< */
-      /*     comment_grammar, */
-      /*     property_grammar */
-      /*   > */
-      /* > */
     >
 {};
+
+template <typename Rule>
+struct debug_action : pegtl::nothing<Rule> {};
+
+template <>
+struct debug_action<comment_grammar> {
+  template <typename Input>
+  static void apply(Input const& in, property_set& pset) {
+    std::cout << in.string() << '\n';
+  }
+};
 
 template <>
 struct signature_action<interface_name> {
@@ -156,14 +181,22 @@ struct param_action<type_name> {
 signature signature::parse(std::string_view str)
 {
   signature sig;
-  pegtl::parse<pegtl::must<signature_grammar>, signature_action>(pegtl::string_input(str, ""), sig);
+  pegtl::parse<pegtl::must<signature_grammar, pegtl::eof>, 
+               signature_action>
+  (
+    pegtl::string_input(str, ""), sig
+  );
   return sig;
 }
 
 property_set property_set::parse(std::string_view str)
 {
   property_set pset;
-  pegtl::parse<pegtl::must<file_grammar>>(pegtl::string_input(str, ""), pset);
+  pegtl::parse<pegtl::must<file_grammar>,
+               debug_action>
+  (
+    pegtl::string_input(str, ""), pset
+  );
   return pset;
 }
 
