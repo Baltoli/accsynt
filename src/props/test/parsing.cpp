@@ -58,9 +58,9 @@ TEST_CASE("files can be parsed") {
 
 
 int main(int s, float *d)
-name value, value,    value   ,value
-another_name
-and_1_more_pr0p
+name
+fjio
+wefjop
 )";
   auto ps = property_set::parse(file);
 

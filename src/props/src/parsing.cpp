@@ -107,8 +107,32 @@ struct property_name
   : identifier
 {};
 
+struct value_string
+  : seq<
+      TAO_PEGTL_STRING(":"),
+      identifier
+    >
+{};
+
+struct value_param
+  : identifier
+{};
+
+struct value_int
+  : TAO_PEGTL_STRING("0")
+{};
+
+struct value_float
+  : TAO_PEGTL_STRING("0.0")
+{};
+
 struct property_value
-  : TAO_PEGTL_STRING("value")
+  : sor<
+      value_string,
+      value_param,
+      value_int,
+      value_float
+    >
 {};
 
 struct property_list
@@ -126,7 +150,7 @@ struct property_grammar
   : seq<
       property_name,
       opt<
-        star<space>,
+        star<space>, ///// NEEDS TO BE LINE SPACES ONLY
         property_list
       >
     >
@@ -159,9 +183,10 @@ struct file_grammar
 {};
 
 template <>
-struct property_action<property_grammar> {
+struct property_action<property_name> {
   template <typename Input>
   static void apply(Input const& in, property& prop) {
+    std::cout << "woo: " << in.string() << '\n';
   }
 };
 
