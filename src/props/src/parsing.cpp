@@ -24,6 +24,10 @@ template <typename Rule>
 struct param_action : pegtl::nothing<Rule>
 {};
 
+template <typename Rule>
+struct property_action : pegtl::nothing<Rule>
+{};
+
 struct type_name
   : pegtl::sor<
       TAO_PEGTL_STRING("void"),
@@ -98,9 +102,32 @@ struct ignore_line
     >
 {};
 
+struct property_name
+  : pegtl::identifier
+{};
+
+struct property_value
+  : TAO_PEGTL_STRING("value")
+{};
+
+struct property_list
+  : pegtl::list<
+      property_value,
+      pegtl::seq<
+        pegtl::star<pegtl::space>,
+        pegtl::string<','>,
+        pegtl::star<pegtl::space>
+      >
+    >
+{};
+
 struct property_grammar
   : pegtl::seq<
-      TAO_PEGTL_STRING("prop")
+      property_name,
+      pegtl::opt<
+        pegtl::star<pegtl::space>,
+        property_list
+      >
     >
 {};
 
@@ -110,27 +137,30 @@ struct file_grammar
         ignore_line,
         pegtl::eol
       >,
-      pegtl::state<
-        signature,
-        signature_grammar
-      >,
-      pegtl::star<
-        pegtl::sor<
-          ignore_line,
-          property_grammar
+      pegtl::action<
+        signature_action,
+        pegtl::state<
+          signature,
+          signature_grammar
+        >
+      >, pegtl::eol,
+      pegtl::action<
+        property_action,
+        pegtl::star<
+          pegtl::state<
+            property,
+            property_grammar
+          >,
+          pegtl::eolf
         >
       >
     >
 {};
 
-template <typename Rule>
-struct debug_action : pegtl::nothing<Rule> {};
-
 template <>
-struct debug_action<comment_grammar> {
+struct property_action<property_grammar> {
   template <typename Input>
-  static void apply(Input const& in, property_set& pset) {
-    std::cout << in.string() << '\n';
+  static void apply(Input const& in, property& prop) {
   }
 };
 
@@ -189,11 +219,22 @@ signature signature::parse(std::string_view str)
   return sig;
 }
 
+property property::parse(std::string_view str)
+{
+  property prop;
+  pegtl::parse<pegtl::must<property_grammar, pegtl::eolf>
+              >
+  (
+    pegtl::string_input(str, ""), prop
+  );
+  return prop;
+}
+
 property_set property_set::parse(std::string_view str)
 {
   property_set pset;
-  pegtl::parse<pegtl::must<file_grammar>,
-               debug_action>
+  pegtl::parse<pegtl::must<file_grammar>
+              >
   (
     pegtl::string_input(str, ""), pset
   );

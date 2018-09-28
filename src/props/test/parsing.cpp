@@ -45,10 +45,11 @@ TEST_CASE("signatures can be parsed") {
   }
 }
 
+TEST_CASE("properties can be parsed") {
+}
+
 TEST_CASE("files can be parsed") {
   auto file = R"(;hello
-
-
 
 ;qwd
 
@@ -56,10 +57,22 @@ TEST_CASE("files can be parsed") {
 ;werjio
 
 
-int main()
-prop
-;wefjio
-prop
+int main(int s, float *d)
+name value, value,    value   ,value
+another_name
+and_1_more_pr0p
 )";
   auto ps = property_set::parse(file);
+
+  REQUIRE(ps.sig.return_type == data_type::integer);
+
+  REQUIRE(ps.sig.parameters.at(0).type == data_type::integer);
+  REQUIRE(ps.sig.parameters.at(0).name == "s");
+  REQUIRE(ps.sig.parameters.at(0).pointer_depth == 0);
+
+  REQUIRE(ps.sig.parameters.at(1).type == data_type::floating);
+  REQUIRE(ps.sig.parameters.at(1).name == "d");
+  REQUIRE(ps.sig.parameters.at(1).pointer_depth == 1);
+
+  REQUIRE(ps.properties.size() == 3);
 }
