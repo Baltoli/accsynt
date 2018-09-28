@@ -186,7 +186,39 @@ template <>
 struct property_action<property_name> {
   template <typename Input>
   static void apply(Input const& in, property& prop) {
-    std::cout << "woo: " << in.string() << '\n';
+    prop.name = in.string();
+  }
+};
+
+template <>
+struct property_action<value_string> {
+  template <typename Input>
+  static void apply(Input const& in, property& prop) {
+    prop.values.push_back(value::with_string(in.string()));
+  }
+};
+
+template <>
+struct property_action<value_param> {
+  template <typename Input>
+  static void apply(Input const& in, property& prop) {
+    prop.values.push_back(value::with_param(in.string()));
+  }
+};
+
+template <>
+struct property_action<value_int> {
+  template <typename Input>
+  static void apply(Input const& in, property& prop) {
+    prop.values.push_back(value::with_int(std::stoi(in.string())));
+  }
+};
+
+template <>
+struct property_action<value_float> {
+  template <typename Input>
+  static void apply(Input const& in, property& prop) {
+    prop.values.push_back(value::with_float(std::stof(in.string())));
   }
 };
 
@@ -248,8 +280,8 @@ signature signature::parse(std::string_view str)
 property property::parse(std::string_view str)
 {
   property prop;
-  pegtl::parse<must<property_grammar, eolf>
-              >
+  pegtl::parse<must<property_grammar, eolf>,
+               property_action>
   (
     string_input(str, ""), prop
   );
@@ -265,6 +297,38 @@ property_set property_set::parse(std::string_view str)
     string_input(str, ""), pset
   );
   return pset;
+}
+
+value value::with_int(int i)
+{
+  value v;
+  v.value_type = type::integer;
+  v.int_val = i;
+  return v;
+}
+
+value value::with_float(float f)
+{
+  value v;
+  v.value_type = type::floating;
+  v.float_val = f;
+  return v;
+}
+
+value value::with_param(std::string param)
+{
+  value v;
+  v.value_type = type::parameter;
+  v.param_val = param;
+  return v;
+}
+
+value value::with_string(std::string str)
+{
+  value v;
+  v.value_type = type::string;
+  v.string_val = str;
+  return v;
 }
 
 }

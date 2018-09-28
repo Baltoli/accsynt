@@ -46,6 +46,13 @@ TEST_CASE("signatures can be parsed") {
 }
 
 TEST_CASE("properties can be parsed") {
+  SECTION("with no values") {
+    auto s1 = "name";
+    auto pr1 = property::parse(s1);
+
+    REQUIRE(pr1.name == "name");
+    REQUIRE(pr1.values.empty());
+  }
 }
 
 TEST_CASE("files can be parsed") {

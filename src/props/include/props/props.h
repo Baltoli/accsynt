@@ -50,8 +50,13 @@ struct value {
   type value_type;
   int int_val;
   float float_val;
-  int param_val;
+  std::string param_val;
   std::string string_val;
+
+  static value with_int(int i);
+  static value with_float(float f);
+  static value with_param(std::string param);
+  static value with_string(std::string str);
 };
 
 struct property {
