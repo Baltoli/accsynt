@@ -1,3 +1,5 @@
+#include "passes.h"
+
 #include <llvm/Pass.h>
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/DerivedTypes.h>
@@ -130,4 +132,9 @@ char Clean::ID = 0;
 static RegisterPass<Clean> X("clean", "Accsynt cleaning pass",
                              false, false);
 
+}
+
+ModulePass *createCleanPass()
+{
+  return new Clean{};
 }

@@ -40,3 +40,8 @@ static RegisterPass<Namer> X("name", "Value naming pass for fiddling around",
                              false, false);
 
 }
+
+ModulePass *createNamerPass()
+{
+  return new Namer{};
+}

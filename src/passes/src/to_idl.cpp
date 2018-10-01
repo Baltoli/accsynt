@@ -1,3 +1,5 @@
+#include "passes.h"
+
 #include <llvm/Pass.h>
 #include <llvm/IR/Function.h>
 #include <llvm/IR/Module.h>
@@ -23,4 +25,9 @@ char ConvertToIDL::ID = 0;
 static RegisterPass<ConvertToIDL> X("to_idl", "Convert a function to IDL constraints",
                                     false, false);
 
+}
+
+FunctionPass *createConvertToIDLPass()
+{
+  return new ConvertToIDL{};
 }
