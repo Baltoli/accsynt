@@ -2,4 +2,6 @@
 
 #include <llvm/IR/Instruction.h>
 
-std::string constraint(llvm::Instruction const& I);
+#include <optional>
+
+std::optional<std::string> constraint(llvm::Instruction const& I);

@@ -43,7 +43,9 @@ bool ConvertToIDL::runOnFunction(Function& F)
   auto constraints = std::vector<std::string>{};
   for(auto const& BB : F) {
     for(auto const& I : BB) {
-      constraints.push_back(constraint(I));
+      if(auto con = constraint(I)) {
+        constraints.push_back(con.value());
+      }
     }
   }
 

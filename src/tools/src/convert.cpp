@@ -44,7 +44,7 @@ void run_prepare_passes(Function& fn)
 void run_conversion_passes(Function& fn)
 {
   auto name = createNamerPass();
-  auto convert = createConvertToIDLPass();
+  auto convert = createConvertToIDLPass(OutputFilename);
 
   name->runOnFunction(fn);
   convert->runOnFunction(fn);
