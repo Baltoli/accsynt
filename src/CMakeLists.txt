@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 
-set(CXX_PROJECT_FLAGS "-std=c++17 -Wall -Werror -pedantic -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=unused-function")
+set(CXX_PROJECT_FLAGS "-std=c++17 -Wall -Werror -pedantic -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=unused-function -Wno-error=class-memaccess")
 set(CMAKE_CXX_FLAGS "${CXX_PROJECT_FLAGS} ${CMAKE_CXX_FLAGS}")
 
 if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
