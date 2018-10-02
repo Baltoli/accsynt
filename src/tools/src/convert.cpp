@@ -41,6 +41,15 @@ void run_prepare_passes(Function& fn)
   pm.run(fn, fam);
 }
 
+void run_conversion_passes(Function& fn)
+{
+  auto name = createNamerPass();
+  auto convert = createConvertToIDLPass();
+
+  name->runOnFunction(fn);
+  convert->runOnFunction(fn);
+}
+
 int main(int argc, char **argv)
 {
   cl::ParseCommandLineOptions(argc, argv);
@@ -63,7 +72,5 @@ int main(int argc, char **argv)
   }
 
   run_prepare_passes(*function);
-
-  auto pass = createConvertToIDLPass(OutputFilename);
-  pass->runOnFunction(*function);
+  run_conversion_passes(*function);
 }

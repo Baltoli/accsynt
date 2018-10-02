@@ -8,30 +8,28 @@ using namespace llvm;
 
 namespace {
 
-struct Namer : public ModulePass {
+struct Namer : public FunctionPass {
   static char ID;
-  Namer() : ModulePass(ID) {}
+  Namer() : FunctionPass(ID) {}
 
-  bool runOnModule(Module &M) override;
+  bool runOnFunction(Function &F) override;
 };
 
-bool Namer::runOnModule(Module &M)
+bool Namer::runOnFunction(Function &F)
 {
   int counter = 0;
 
-  for(auto& F : M) {
-    for(auto& BB : F) {
-      for(auto& I : BB) {
-        if(!I.hasName() && !I.getType()->isVoidTy()) {
-          I.setName("v" + std::to_string(counter++));
-        }
+  for(auto& BB : F) {
+    for(auto& I : BB) {
+      if(!I.hasName() && !I.getType()->isVoidTy()) {
+        I.setName("v" + std::to_string(counter++));
       }
     }
+  }
 
-    int argc = 0;
-    for(auto& arg : F.args()) {
-      arg.setName("arg" + std::to_string(argc++));
-    }
+  int argc = 0;
+  for(auto& arg : F.args()) {
+    arg.setName("arg" + std::to_string(argc++));
   }
 
   return true;
@@ -43,7 +41,7 @@ static RegisterPass<Namer> X("name", "Value naming pass for fiddling around",
 
 }
 
-ModulePass *createNamerPass()
+std::unique_ptr<FunctionPass> createNamerPass()
 {
-  return new Namer{};
+  return std::unique_ptr<FunctionPass>{new Namer{}};
 }

@@ -134,7 +134,7 @@ static RegisterPass<Clean> X("clean", "Accsynt cleaning pass",
 
 }
 
-ModulePass *createCleanPass()
+std::unique_ptr<ModulePass> createCleanPass()
 {
-  return new Clean{};
+  return std::unique_ptr<ModulePass>{new Clean{}};
 }

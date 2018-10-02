@@ -1,4 +1,9 @@
+#include "opcode.h"
+#include "translate.h"
+
 #include <passes/passes.h>
+
+#include <fmt/format.h>
 
 #include <llvm/Pass.h>
 #include <llvm/IR/Function.h>
@@ -14,11 +19,6 @@ using namespace llvm;
 
 namespace {
 
-bool is_add(Instruction const& inst)
-{
-  return inst.getOpcode() == Instruction::Add;
-}
-
 struct ConvertToIDL : public FunctionPass {
   static char ID;
   ConvertToIDL(std::string out = "-") : 
@@ -28,6 +28,9 @@ struct ConvertToIDL : public FunctionPass {
 
   bool runOnFunction(Function& F) override;
 
+  std::string header(std::string name) const;
+  std::string footer() const;
+
 private:
   std::error_code ec;
   raw_fd_ostream output;
@@ -35,12 +38,38 @@ private:
 
 bool ConvertToIDL::runOnFunction(Function& F)
 {
+  output << header(F.getName());
+
+  auto constraints = std::vector<std::string>{};
   for(auto const& BB : F) {
     for(auto const& I : BB) {
-      output << I << '\n';
+      constraints.push_back(constraint(I));
     }
   }
+
+  for(auto it = constraints.begin();
+      it != constraints.end();
+      ++it)
+  {
+    output << " " << *it;
+    if(std::next(it) != constraints.end()) {
+      output << " and\n";
+    }
+  }
+
+  output << footer() << '\n';
   return false;
+}
+
+std::string ConvertToIDL::header(std::string name) const
+{
+  name[0] = std::toupper(name[0]);
+  return fmt::format("Constraint {}\n(\n", name);
+}
+
+std::string ConvertToIDL::footer() const
+{
+  return "\n)\nEnd";
 }
 
 char ConvertToIDL::ID = 0;
