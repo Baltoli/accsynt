@@ -28,6 +28,7 @@ bool ConvertToIDL::runOnFunction(Function& F)
 {
   for(auto const& BB : F) {
     for(auto const& I : BB) {
+      outs() << I << '\n';
     }
   }
   return false;
