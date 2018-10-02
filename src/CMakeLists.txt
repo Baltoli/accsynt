@@ -25,6 +25,7 @@ enable_testing()
 add_subdirectory(dist)
 add_subdirectory(passes)
 add_subdirectory(props)
+add_subdirectory(tools)
 
 option(BUILD_DOC "Build documentation" OFF)
 find_package(Doxygen)
