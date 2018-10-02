@@ -6,7 +6,9 @@
 #include <llvm/IR/Module.h>
 #include <llvm/Support/raw_ostream.h>
 
+#include <memory>
 #include <optional>
+#include <system_error>
 
 using namespace llvm;
 
@@ -19,16 +21,23 @@ bool is_add(Instruction const& inst)
 
 struct ConvertToIDL : public FunctionPass {
   static char ID;
-  ConvertToIDL() : FunctionPass(ID) {}
+  ConvertToIDL(std::string out = "-") : 
+    FunctionPass(ID), ec(), output(out, ec)
+  {
+  }
 
   bool runOnFunction(Function& F) override;
+
+private:
+  std::error_code ec;
+  raw_fd_ostream output;
 };
 
 bool ConvertToIDL::runOnFunction(Function& F)
 {
   for(auto const& BB : F) {
     for(auto const& I : BB) {
-      outs() << I << '\n';
+      output << I << '\n';
     }
   }
   return false;
@@ -40,7 +49,12 @@ static RegisterPass<ConvertToIDL> X("to-idl", "Convert a function to IDL constra
 
 }
 
-FunctionPass *createConvertToIDLPass()
+std::unique_ptr<FunctionPass> createConvertToIDLPass()
 {
-  return new ConvertToIDL{};
+  return std::unique_ptr<FunctionPass>{new ConvertToIDL{}};
+}
+
+std::unique_ptr<FunctionPass> createConvertToIDLPass(std::string file)
+{
+  return std::unique_ptr<FunctionPass>{new ConvertToIDL{file}};
 }

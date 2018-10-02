@@ -38,7 +38,7 @@ void run_prepare_passes(Function& fn)
   auto pb = PassBuilder{};
   pb.registerFunctionAnalyses(fam);
 
-  pm.run(*fn, fam);
+  pm.run(fn, fam);
 }
 
 int main(int argc, char **argv)
@@ -53,10 +53,6 @@ int main(int argc, char **argv)
     return 1;
   }
 
-  if(OutputFilename == "-") {
-    OutputFilename = FunctionName + ".idl";
-  }
-
   auto function = mod->getFunction(FunctionName);
   if(!function) {
     auto err_string = fmt::format("No such function: {}", FunctionName);
@@ -68,6 +64,6 @@ int main(int argc, char **argv)
 
   run_prepare_passes(*function);
 
-  auto pass = std::unique_ptr<FunctionPass>{createConvertToIDLPass()};
+  auto pass = createConvertToIDLPass(OutputFilename);
   pass->runOnFunction(*function);
 }
