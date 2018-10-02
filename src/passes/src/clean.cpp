@@ -1,4 +1,4 @@
-#include "passes.h"
+#include <passes/passes.h>
 
 #include <llvm/Pass.h>
 #include <llvm/IR/BasicBlock.h>
