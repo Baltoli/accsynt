@@ -1,0 +1,6 @@
+#!/bin/bash
+
+input="$1"
+shift
+
+~/llvm7/bin/clang -O1 -Xclang -disable-llvm-passes -S -emit-llvm "$input"
