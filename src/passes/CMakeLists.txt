@@ -1,15 +1,14 @@
-add_library(AccsyntPasses MODULE
+add_library(AccsyntPasses SHARED
   src/clean.cpp
   src/namer.cpp
-  src/to_idl.cpp
-)
+  src/to_idl.cpp)
 
 target_include_directories(AccsyntPasses PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
     PRIVATE src)
 
-  install(TARGETS AccsyntPasses EXPORT AccsyntPassesConfig
+install(TARGETS AccsyntPasses EXPORT AccsyntPassesConfig
     ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
     LIBRARY  DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME  DESTINATION ${CMAKE_INSTALL_BINDIR})  # This is for Windows

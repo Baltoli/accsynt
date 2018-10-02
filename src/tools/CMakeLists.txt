@@ -3,3 +3,6 @@ add_executable(detect
 
 add_executable(convert
   src/convert.cpp)
+
+target_link_libraries(convert
+  AccsyntPasses)
