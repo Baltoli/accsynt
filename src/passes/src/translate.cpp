@@ -11,8 +11,10 @@ std::optional<std::string> constraint(llvm::Instruction const& I)
 {
   if(auto op = idl_opcode(I)) {
     return fmt::format(
-      "( {{{}}} is {} instruction )",
-      I.getName().str(), op.value()
+      "( {{{result}}} is {op} instruction and {{{left}}} is first argument of {{{result}}} )",
+      fmt::arg("result", I.getName().str()),
+      fmt::arg("op", op.value()),
+      fmt::arg("left", "left")
     );             
   }
 
