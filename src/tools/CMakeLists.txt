@@ -12,3 +12,7 @@ target_link_libraries(convert
 target_link_libraries(detect
   CONAN_PKG::fmt
   -Wl,--whole-archive ${llvm_libs} -Wl,--no-whole-archive)
+
+install(
+  TARGETS detect convert
+  DESTINATION ${CMAKE_INSTALL_BINDIR})

@@ -19,7 +19,7 @@ install(TARGETS AccsyntPasses EXPORT AccsyntPassesConfig
     RUNTIME  DESTINATION ${CMAKE_INSTALL_BINDIR})  # This is for Windows
 install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-install(EXPORT AccsyntPassesConfig DESTINATION share/AccsyntPassesConfig/cmake)
+install(EXPORT AccsyntPassesConfig DESTINATION share/AccsyntPasses/cmake)
 
 export(TARGETS AccsyntPasses FILE AccsyntPassesConfig.cmake)
 
