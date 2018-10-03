@@ -8,3 +8,7 @@ target_link_libraries(convert
   CONAN_PKG::fmt
   ${llvm_libs}
   AccsyntPasses)
+
+target_link_libraries(detect
+  CONAN_PKG::fmt
+  ${llvm_libs})

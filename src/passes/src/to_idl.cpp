@@ -9,6 +9,7 @@
 #include <llvm/IR/Function.h>
 #include <llvm/IR/InstrTypes.h>
 #include <llvm/IR/Module.h>
+#include <llvm/Support/FileSystem.h>
 #include <llvm/Support/raw_ostream.h>
 
 #include <memory>
@@ -22,7 +23,7 @@ namespace {
 struct ConvertToIDL : public FunctionPass {
   static char ID;
   ConvertToIDL(std::string out = "-") : 
-    FunctionPass(ID), ec(), output(out, ec)
+    FunctionPass(ID), ec(), output(out, ec, sys::fs::F_RW)
   {
   }
 
