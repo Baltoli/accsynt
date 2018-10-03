@@ -11,4 +11,4 @@ target_link_libraries(convert
 
 target_link_libraries(detect
   CONAN_PKG::fmt
-  ${llvm_libs})
+  -Wl,--whole-archive ${llvm_libs} -Wl,--no-whole-archive)
