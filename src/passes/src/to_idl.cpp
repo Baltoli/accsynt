@@ -29,9 +29,6 @@ struct ConvertToIDL : public FunctionPass {
 
   bool runOnFunction(Function& F) override;
 
-  std::string header(std::string name) const;
-  std::string footer() const;
-
 private:
   std::error_code ec;
   raw_fd_ostream output;
@@ -42,7 +39,7 @@ bool ConvertToIDL::runOnFunction(Function& F)
   using namespace fmt::literals;
 
   if(auto result = convert::to_idl(F)) {
-    output << result.value();
+    output << result.value() << '\n';
   } else {
     auto bold_red = "\u001b[1m\u001b[31m";
     auto reset = "\u001b[0m";
@@ -53,40 +50,8 @@ bool ConvertToIDL::runOnFunction(Function& F)
       "name"_a = F.getName().str()
     );
   }
-  /* output << header(F.getName()); */
 
-  /* auto constraints = std::vector<std::string>{}; */
-  /* for(auto const& BB : F) { */
-  /*   for(auto const& I : BB) { */
-  /*     if(auto con = constraint(I)) { */
-  /*       constraints.push_back(con.value()); */
-  /*     } */
-  /*   } */
-  /* } */
-
-  /* for(auto it = constraints.begin(); */
-  /*     it != constraints.end(); */
-  /*     ++it) */
-  /* { */
-  /*   output << " " << *it; */
-  /*   if(std::next(it) != constraints.end()) { */
-  /*     output << " and\n"; */
-  /*   } */
-  /* } */
-
-  /* output << footer() << '\n'; */
   return false;
-}
-
-std::string ConvertToIDL::header(std::string name) const
-{
-  name[0] = std::toupper(name[0]);
-  return fmt::format("Constraint {}\n(\n", name);
-}
-
-std::string ConvertToIDL::footer() const
-{
-  return "\n)\nEnd";
 }
 
 char ConvertToIDL::ID = 0;

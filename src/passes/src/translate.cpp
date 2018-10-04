@@ -19,6 +19,12 @@ std::string nth_of(size_t i)
   }
 }
 
+std::string title_case(std::string in)
+{
+  in[0] = std::toupper(in[0]);
+  return in;
+}
+
 // Base constraint for an instruction - i.e. {I} is add instruction
 std::optional<std::string> base_constraint(Instruction const& I)
 {
@@ -70,6 +76,20 @@ std::optional<std::string> constraint(Instruction const& I)
 
 std::optional<std::string> constraint(Function const& F)
 {
+  auto atoms = std::vector<std::string>{};
+
+  for(auto const& BB : F) {
+    for(auto const& I : BB) {
+      if(auto con = constraint(I)) {
+        atoms.push_back(con.value());
+      }
+    }
+  }
+
+  if(!atoms.empty()) {
+    return constraint_and(atoms);
+  }
+
   return std::nullopt;
 }
 
@@ -79,6 +99,15 @@ namespace convert {
 
 std::optional<std::string> to_idl(Function const& F)
 {
+  using namespace fmt::literals;
+
+  if(auto con = detail::constraint(F)) {
+    return "Constraint {name}\n{constraint}\nEnd"_format(
+      "name"_a = detail::title_case(F.getName().str()),
+      "constraint"_a = con.value()
+    );
+  }
+
   return std::nullopt;
 }
 
