@@ -21,6 +21,19 @@ std::string next_const_name()
   return "const_v{}"_format(const_count++);
 }
 
+std::string get_name(Value const& v)
+{
+  if(isa<Constant>(v)) {
+    if(names.find(&v) == names.end()) {
+      names.insert({&v, next_const_name()});
+    }
+
+    return names.at(&v);
+  } else {
+    return v.getName().str();
+  }
+}
+
 std::string nth_of(size_t i)
 {
   if(i == 0) { return "first"; }
@@ -52,6 +65,29 @@ std::optional<std::string> base_constraint(Instruction const& I)
   return std::nullopt;
 }
 
+std::vector<std::string> const_constraints(Value const& v)
+{
+  using namespace fmt::literals;
+
+  auto atoms = std::vector<std::string>{};
+
+  if(auto* cv = dyn_cast<Constant>(&v)) {
+    auto name = get_name(*cv);
+    atoms.push_back("({{{}}} is preexecution)"_format(name));
+
+    if(cv->isZeroValue()) {
+      auto type = cv->getType();
+      if(type->isFloatingPointTy()) {
+        atoms.push_back("({{{}}} is floating point zero)"_format(name));
+      } else if(type->isIntegerTy()) {
+        atoms.push_back("({{{}}} is integer zero)"_format(name));
+      }
+    }
+  }
+
+  return atoms;
+}
+
 // Constraint for the nth argument of I
 // i.e. {v0} is first argument of {I}
 std::string nth_arg_constraint(Instruction const& I, size_t n)
@@ -60,36 +96,13 @@ std::string nth_arg_constraint(Instruction const& I, size_t n)
   assert(n < I.getNumOperands() && 
          "Not enough operands to instruction");
 
-  auto nth_text = nth_of(n);
-
-  // Here we need to work out if the argument is an instruction or not. If it
-  // is, we can use the name as nth argument. If it's a constant, we want to
-  // give it a unique name and make sure it's pre-execution.
-  auto operand = I.getOperand(n);
-  auto is_const = isa<Constant>(operand);
-
-  auto atoms = std::vector<std::string>{};
-
-  auto name = [&] {
-    if(is_const) {
-      if(names.find(operand) == names.end()) {
-        names.insert({operand, next_const_name()});
-      }
-
-      return names.at(operand);
-    } else {
-      return operand->getName().str();
-    }
-  }();
-
-  if(is_const) {
-    atoms.push_back("({{{}}} is preexecution)"_format(name));
-  }
+  auto& operand = *I.getOperand(n);
+  auto atoms = const_constraints(operand);
 
   atoms.push_back(
       "({{{arg}}} is {nth} argument of {{{instr}}})"_format(
-      "arg"_a = name,
-      "nth"_a = nth_text,
+      "arg"_a = get_name(operand),
+      "nth"_a = nth_of(n),
       "instr"_a = I.getName().str()
   ));
 
