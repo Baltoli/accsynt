@@ -1,8 +1,8 @@
-#include "opcode.h"
 #include "translate.h"
 
 #include <passes/passes.h>
 
+#include <fmt/color.h>
 #include <fmt/format.h>
 
 #include <llvm/Pass.h>
@@ -16,7 +16,6 @@
 #include <optional>
 #include <system_error>
 
-using namespace convert;
 using namespace llvm;
 
 namespace {
@@ -40,28 +39,42 @@ private:
 
 bool ConvertToIDL::runOnFunction(Function& F)
 {
-  output << header(F.getName());
+  using namespace fmt::literals;
 
-  auto constraints = std::vector<std::string>{};
-  for(auto const& BB : F) {
-    for(auto const& I : BB) {
-      if(auto con = constraint(I)) {
-        constraints.push_back(con.value());
-      }
-    }
+  if(auto result = convert::to_idl(F)) {
+    output << result.value();
+  } else {
+    auto bold_red = "\u001b[1m\u001b[31m";
+    auto reset = "\u001b[0m";
+
+    fmt::print(stderr, 
+      "{color}Error:{reset} converting function '{name}' to IDL\n",
+      "color"_a = bold_red, "reset"_a = reset,
+      "name"_a = F.getName().str()
+    );
   }
+  /* output << header(F.getName()); */
 
-  for(auto it = constraints.begin();
-      it != constraints.end();
-      ++it)
-  {
-    output << " " << *it;
-    if(std::next(it) != constraints.end()) {
-      output << " and\n";
-    }
-  }
+  /* auto constraints = std::vector<std::string>{}; */
+  /* for(auto const& BB : F) { */
+  /*   for(auto const& I : BB) { */
+  /*     if(auto con = constraint(I)) { */
+  /*       constraints.push_back(con.value()); */
+  /*     } */
+  /*   } */
+  /* } */
 
-  output << footer() << '\n';
+  /* for(auto it = constraints.begin(); */
+  /*     it != constraints.end(); */
+  /*     ++it) */
+  /* { */
+  /*   output << " " << *it; */
+  /*   if(std::next(it) != constraints.end()) { */
+  /*     output << " and\n"; */
+  /*   } */
+  /* } */
+
+  /* output << footer() << '\n'; */
   return false;
 }
 

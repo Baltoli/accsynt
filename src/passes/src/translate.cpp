@@ -7,7 +7,7 @@
 
 using namespace llvm;
 
-namespace convert {
+namespace convert::detail {
 
 std::string nth_of(size_t i)
 {
@@ -65,6 +65,20 @@ std::optional<std::string> constraint(Instruction const& I)
     return constraint_and(args);
   }
 
+  return std::nullopt;
+}
+
+std::optional<std::string> constraint(Function const& F)
+{
+  return std::nullopt;
+}
+
+}
+
+namespace convert {
+
+std::optional<std::string> to_idl(Function const& F)
+{
   return std::nullopt;
 }
 
