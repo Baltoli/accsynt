@@ -23,15 +23,14 @@ namespace {
 struct ConvertToIDL : public FunctionPass {
   static char ID;
   ConvertToIDL(std::string out = "-") : 
-    FunctionPass(ID), ec(), output(out, ec, sys::fs::F_RW)
+    FunctionPass(ID), output_path(out)
   {
   }
 
   bool runOnFunction(Function& F) override;
 
 private:
-  std::error_code ec;
-  raw_fd_ostream output;
+  std::string output_path;
 };
 
 bool ConvertToIDL::runOnFunction(Function& F)
@@ -39,6 +38,8 @@ bool ConvertToIDL::runOnFunction(Function& F)
   using namespace fmt::literals;
 
   if(auto result = convert::to_idl(F)) {
+    std::error_code ec;
+    raw_fd_ostream output{output_path, ec, sys::fs::F_RW};
     output << result.value() << '\n';
   } else {
     auto bold_red = "\u001b[1m\u001b[31m";
