@@ -8,6 +8,18 @@ using namespace llvm;
 
 namespace {
 
+bool should_rename(Instruction const& I)
+{
+  // Probaby rename if it doesn't have a name already
+  if(!I.hasName()) {
+    // Unless it's a void type (i.e. doesn't name a value)
+    return !I.getType()->isVoidTy();
+  }
+
+  auto name = I.getName().str();
+  return !std::isalpha(name[0]);
+}
+
 struct Namer : public FunctionPass {
   static char ID;
   Namer() : FunctionPass(ID) {}
@@ -21,7 +33,7 @@ bool Namer::runOnFunction(Function &F)
 
   for(auto& BB : F) {
     for(auto& I : BB) {
-      if(!I.hasName() && !I.getType()->isVoidTy()) {
+      if(should_rename(I)) {
         I.setName("v" + std::to_string(counter++));
       }
     }
