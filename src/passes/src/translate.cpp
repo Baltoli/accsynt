@@ -7,6 +7,8 @@
 
 using namespace llvm;
 
+namespace convert {
+
 std::string nth_of(size_t i)
 {
   if(i == 0) { return "first"; }
@@ -48,31 +50,12 @@ std::string nth_arg_constraint(Instruction const& I, size_t n)
   );
 }
 
-// Combine constraints into one by wrapping them in braces and forming their
-// conjunction
-template <typename Iterator>
-std::string constraint_and(Iterator begin, Iterator end)
-{
-  using namespace fmt::literals;
-
-  return "({})"_format(fmt::join(begin, end, " and "));
-}
-
-// Comvenience overload
-template <typename Container>
-std::string constraint_and(Container c)
-{
-  using std::begin;
-  using std::end;
-
-  return constraint_and(begin(c), end(c));
-}
-
 std::optional<std::string> constraint(Instruction const& I)
 {
   auto operands = I.getNumOperands();
+  auto op_str = base_constraint(I);
 
-  if(auto op_str = base_constraint(I); operands <= 3) {
+  if(op_str && operands <= 3) {
     auto args = std::vector<std::string>{op_str.value()};
 
     for(auto n = 0u; n < operands; ++n) {
@@ -83,4 +66,6 @@ std::optional<std::string> constraint(Instruction const& I)
   }
 
   return std::nullopt;
+}
+
 }

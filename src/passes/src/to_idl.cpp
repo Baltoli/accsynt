@@ -16,6 +16,7 @@
 #include <optional>
 #include <system_error>
 
+using namespace convert;
 using namespace llvm;
 
 namespace {
