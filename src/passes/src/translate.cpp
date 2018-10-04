@@ -5,9 +5,21 @@
 
 #include <llvm/IR/Instruction.h>
 
+#include <map>
+
 using namespace llvm;
 
 namespace convert::detail {
+
+static std::map<Value const*, std::string> names{};
+static int const_count = 0;
+
+std::string next_const_name()
+{
+  using namespace fmt::literals;
+
+  return "const_v{}"_format(const_count++);
+}
 
 std::string nth_of(size_t i)
 {
@@ -49,11 +61,39 @@ std::string nth_arg_constraint(Instruction const& I, size_t n)
          "Not enough operands to instruction");
 
   auto nth_text = nth_of(n);
-  return "({{{arg}}} is {nth} argument of {{{instr}}})"_format(
-      "arg"_a = I.getOperand(n)->getName().str(),
+
+  // Here we need to work out if the argument is an instruction or not. If it
+  // is, we can use the name as nth argument. If it's a constant, we want to
+  // give it a unique name and make sure it's pre-execution.
+  auto operand = I.getOperand(n);
+  auto is_const = isa<Constant>(operand);
+
+  auto atoms = std::vector<std::string>{};
+
+  auto name = [&] {
+    if(is_const) {
+      if(names.find(operand) == names.end()) {
+        names.insert({operand, next_const_name()});
+      }
+
+      return names.at(operand);
+    } else {
+      return operand->getName().str();
+    }
+  }();
+
+  if(is_const) {
+    atoms.push_back("({{{}}} is preexecution)"_format(name));
+  }
+
+  atoms.push_back(
+      "({{{arg}}} is {nth} argument of {{{instr}}})"_format(
+      "arg"_a = name,
       "nth"_a = nth_text,
       "instr"_a = I.getName().str()
-  );
+  ));
+
+  return constraint_and(atoms);
 }
 
 std::optional<std::string> constraint(Instruction const& I)

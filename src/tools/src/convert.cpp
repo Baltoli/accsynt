@@ -46,7 +46,6 @@ void run_conversion_passes(Function& fn)
   auto convert = createConvertToIDLPass(OutputFilename);
 
   name->runOnFunction(fn);
-  fn.print(llvm::errs());
   convert->runOnFunction(fn);
 }
 

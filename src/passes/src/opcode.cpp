@@ -5,6 +5,8 @@ using namespace llvm;
 std::optional<std::string> idl_opcode(llvm::Instruction const& inst)
 {
   switch(inst.getOpcode()) {
+    /* case Instruction::Br: */
+    /*   return "branch"; */
     case Instruction::GetElementPtr: 
       return "gep";
     case Instruction::Shl:
@@ -26,6 +28,8 @@ std::optional<std::string> idl_opcode(llvm::Instruction const& inst)
     case Instruction::Or:
     case Instruction::ICmp:
     case Instruction::FCmp:
+    case Instruction::Load:
+    case Instruction::Store:
       return inst.getOpcodeName(inst.getOpcode());
     default: 
       return std::nullopt;
