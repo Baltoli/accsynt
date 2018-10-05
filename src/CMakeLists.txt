@@ -28,11 +28,12 @@ llvm_map_components_to_libnames(llvm_libs support core irreader interpreter pass
 include(GNUInstallDirs)
 enable_testing()
 
-add_subdirectory(dist)
+# add_subdirectory(dist)
 add_subdirectory(passes)
 add_subdirectory(props)
 add_subdirectory(tools)
 add_subdirectory(synth)
+add_subdirectory(support)
 
 option(BUILD_DOC "Build documentation" OFF)
 find_package(Doxygen)
