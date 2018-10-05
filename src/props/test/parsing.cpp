@@ -71,15 +71,15 @@ wefjop
 )";
   auto ps = property_set::parse(file);
 
-  REQUIRE(ps.sig.return_type == data_type::integer);
+  REQUIRE(ps.type_signature.return_type == data_type::integer);
 
-  REQUIRE(ps.sig.parameters.at(0).type == data_type::integer);
-  REQUIRE(ps.sig.parameters.at(0).name == "s");
-  REQUIRE(ps.sig.parameters.at(0).pointer_depth == 0);
+  REQUIRE(ps.type_signature.parameters.at(0).type == data_type::integer);
+  REQUIRE(ps.type_signature.parameters.at(0).name == "s");
+  REQUIRE(ps.type_signature.parameters.at(0).pointer_depth == 0);
 
-  REQUIRE(ps.sig.parameters.at(1).type == data_type::floating);
-  REQUIRE(ps.sig.parameters.at(1).name == "d");
-  REQUIRE(ps.sig.parameters.at(1).pointer_depth == 1);
+  REQUIRE(ps.type_signature.parameters.at(1).type == data_type::floating);
+  REQUIRE(ps.type_signature.parameters.at(1).name == "d");
+  REQUIRE(ps.type_signature.parameters.at(1).pointer_depth == 1);
 
   REQUIRE(ps.properties.size() == 3);
 }

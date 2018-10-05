@@ -75,7 +75,7 @@ struct property {
 };
 
 struct property_set {
-  signature sig;
+  signature type_signature;
   std::vector<property> properties;
 
   static property_set parse(std::string_view str);
@@ -94,7 +94,7 @@ void property::success(Input const& in, property_set& parent)
 template <typename Input>
 void signature::success(Input const& in, property_set& parent)
 {
-  parent.sig = *this;
+  parent.type_signature = *this;
 }
 
 }
