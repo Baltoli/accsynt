@@ -8,7 +8,7 @@
 
 // TODO: abstract parser state from PODs used for domain
 
-namespace props::detail {
+namespace props {
 
 struct property_set;
 
@@ -79,6 +79,7 @@ struct property_set {
   std::vector<property> properties;
 
   static property_set parse(std::string_view str);
+  static property_set load(std::string_view str);
 };
 
 template <typename Input>
@@ -95,6 +96,6 @@ void signature::success(Input const& in, property_set& parent)
 
 }
 
-std::ostream& operator<<(std::ostream& os, const props::detail::data_type& dt);
-std::ostream& operator<<(std::ostream& os, const props::detail::param& p);
-std::ostream& operator<<(std::ostream& os, const props::detail::signature& sig);
+std::ostream& operator<<(std::ostream& os, const props::data_type& dt);
+std::ostream& operator<<(std::ostream& os, const props::param& p);
+std::ostream& operator<<(std::ostream& os, const props::signature& sig);

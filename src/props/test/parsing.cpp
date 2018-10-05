@@ -2,9 +2,12 @@
 
 #include <catch2/catch.hpp>
 
-#include <iostream>
+#include <fmt/format.h>
 
-using namespace props::detail;
+#include <filesystem>
+
+namespace fs = std::filesystem;
+using namespace props;
 
 TEST_CASE("signatures can be parsed") {
   SECTION("with valid signatures") {
@@ -82,4 +85,11 @@ wefjop
   REQUIRE(ps.type_signature.parameters.at(1).pointer_depth == 1);
 
   REQUIRE(ps.properties.size() == 3);
+}
+
+TEST_CASE("files can be loaded") {
+  auto current_path = fs::path(RESOURCE_DIR);
+
+  auto test_a_path = current_path / "test_a.props";
+  auto ps_a = property_set::load(test_a_path.string());
 }

@@ -27,7 +27,12 @@ add_executable(props_unit
 
 target_link_libraries(props_unit
   props
+  stdc++fs
+  CONAN_PKG::fmt
   CONAN_PKG::catch2)
+
+target_compile_options(props_unit
+  PUBLIC -DRESOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/test/inputs")
 
 add_test(NAME props_unit
          COMMAND $<TARGET_FILE:props_unit>)

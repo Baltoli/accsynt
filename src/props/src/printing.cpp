@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-using namespace props::detail;
+using namespace props;
 
 std::ostream& operator <<(std::ostream& os, const data_type& dt)
 {

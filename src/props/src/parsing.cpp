@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-namespace props::detail {
+namespace props {
 
 namespace pegtl = tao::props_pegtl;
 using namespace pegtl;
@@ -305,6 +305,16 @@ property_set property_set::parse(std::string_view str)
               >
   (
     string_input(str, ""), pset
+  );
+  return pset;
+}
+
+property_set property_set::load(std::string_view path)
+{
+  property_set pset;
+  pegtl::parse<must<file_grammar, eof>>
+  (
+    file_input(path), pset
   );
   return pset;
 }
