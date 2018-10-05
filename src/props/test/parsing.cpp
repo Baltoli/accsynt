@@ -65,7 +65,7 @@ TEST_CASE("files can be parsed") {
 
 
 int main(int s, float *d)
-name 0.0, 0, 0.0, :string, s, d
+name 2.111, 0.000, 4, :string, s, d
 fjio
 wefjop
 )";
