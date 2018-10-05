@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-namespace props {
+using namespace props::detail;
 
 std::ostream& operator <<(std::ostream& os, const data_type& dt)
 {
@@ -49,6 +49,4 @@ std::ostream& operator <<(std::ostream& os, const signature& sig)
 
   os << ")";
   return os;
-}
-
 }

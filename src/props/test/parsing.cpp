@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-using namespace props;
+using namespace props::detail;
 
 TEST_CASE("signatures can be parsed") {
   SECTION("with valid signatures") {

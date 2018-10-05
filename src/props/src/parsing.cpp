@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-namespace props {
+namespace props::detail {
 
 namespace pegtl = tao::props_pegtl;
 using namespace pegtl;
