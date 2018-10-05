@@ -3,10 +3,10 @@ cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 add_compile_options(
   -std=c++17
   -Wall -Werror -pedantic 
-  -Wno-error=unused-variable
+  -Wno-error=class-memaccess
   -Wno-error=unused-but-set-variable 
   -Wno-error=unused-function 
-  -Wno-error=class-memaccess
+  -Wno-error=unused-variable
 )
 
 if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
