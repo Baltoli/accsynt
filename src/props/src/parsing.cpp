@@ -119,11 +119,21 @@ struct value_param
 {};
 
 struct value_int
-  : TAO_PEGTL_STRING("0")
+  : seq<
+      opt<sor<one<'+'>, one<'-'>>>,
+      plus<digit>
+    >
 {};
 
 struct value_float
-  : TAO_PEGTL_STRING("0.0")
+  : seq<
+      opt<sor<one<'+'>, one<'-'>>>,
+      plus<digit>,
+      opt<
+        one<'.'>,
+        plus<digit>
+      >
+    >
 {};
 
 struct property_value
