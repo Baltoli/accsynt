@@ -1,0 +1,7 @@
+#!/bin/bash
+
+input_file="$1"
+shift
+
+output_file=$(basename "$input_file" .c)
+gcc -shared -fpic -c "$input_file" -o "${output_file}.so"

@@ -24,4 +24,5 @@ int main(int argc, char **argv)
   cl::ParseCommandLineOptions(argc, argv);
 
   auto property_set = props::property_set::load(PropertiesPath);
+  // also load shared library
 }
