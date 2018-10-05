@@ -92,4 +92,12 @@ TEST_CASE("files can be loaded") {
 
   auto test_a_path = current_path / "test_a.props";
   auto ps_a = property_set::load(test_a_path.string());
+
+  REQUIRE(ps_a.type_signature.return_type == data_type::integer);
+
+  REQUIRE(ps_a.type_signature.name == "main");
+  REQUIRE(ps_a.type_signature.parameters.empty());
+
+  REQUIRE(ps_a.properties.at(0).name == "property");
+  REQUIRE(ps_a.properties.at(0).values.size() == 2);
 }
