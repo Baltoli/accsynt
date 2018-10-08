@@ -8,6 +8,7 @@ add_library(props
 
 target_link_libraries(props
   ${llvm_libs}
+  support
   CONAN_PKG::pegtl)
 
 target_include_directories(props PUBLIC
