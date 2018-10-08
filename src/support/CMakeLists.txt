@@ -1,7 +1,8 @@
 project(libsupport VERSION 0.1 LANGUAGES CXX)
 
 add_library(support
-  src/dynamic_library.cpp)
+  src/dynamic_library.cpp
+  src/thread_context.cpp)
 
 target_link_libraries(support
   dl)
