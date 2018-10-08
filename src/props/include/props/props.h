@@ -1,5 +1,9 @@
 #pragma once
 
+#include <llvm/IR/DerivedTypes.h>
+#include <llvm/IR/Function.h>
+#include <llvm/IR/Module.h>
+
 #include <iosfwd>
 #include <string>
 #include <string_view>
@@ -21,6 +25,8 @@ struct param {
   std::string name;
   data_type type;
   int pointer_depth;
+
+  llvm::Type *llvm_type() const;
 };
 
 struct signature {
@@ -37,6 +43,9 @@ struct signature {
 
   template <typename Input>
   signature(Input const& in, property_set& parent) {}
+
+  llvm::FunctionType *function_type() const;
+  llvm::Function *create_function(llvm::Module &mod) const;
 };
 
 struct value {
