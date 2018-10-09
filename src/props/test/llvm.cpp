@@ -97,5 +97,18 @@ TEST_CASE("can create functions from signatures") {
   auto sig = signature::parse("void test(int x, float *y)");
   auto fn = sig.create_function(mod, "real");
 
-  mod.print(errs(), nullptr);
+  REQUIRE(fn);
+
+  auto ft = fn->getFunctionType();
+  REQUIRE(ft->getReturnType()->isVoidTy());
+
+  REQUIRE(ft->getNumParams() == 2);
+  auto p0 = ft->getParamType(0);
+  auto p1 = ft->getParamType(1);
+
+  REQUIRE(p0->isIntegerTy(32));
+  REQUIRE(p1->isPointerTy());
+
+  auto p1_t = cast<PointerType>(p1)->getElementType();
+  REQUIRE(p1_t->isFloatTy());
 }
