@@ -35,10 +35,4 @@ void call_builder::add(float f)
   args_.push_back(gv);
 }
 
-void call_builder::add(void *ptr)
-{
-  auto gv = GenericValue{ptr};
-  args_.push_back(gv);
-}
-
 }

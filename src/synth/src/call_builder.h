@@ -23,8 +23,6 @@ public:
   std::vector<llvm::GenericValue> const& args() const;
 
 private:
-  void add(void *ptr);
-
   props::signature signature_;
   std::vector<llvm::GenericValue> args_;
 };
@@ -38,7 +36,8 @@ void add(T *ptr)
                 std::is_same_v<RPT, float>,
                 "Unsupported pointer type");
 
-  add(reinterpret_cast<void *>(ptr));
+  auto gv = GenericValue{ptr};
+  args_.push_back(gv);
 }
 
 }
