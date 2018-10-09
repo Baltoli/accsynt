@@ -1,5 +1,6 @@
 add_executable(synth
   src/call_builder.cpp
+  src/call_wrapper.cpp
   src/synth.cpp)
 
 target_link_libraries(synth
