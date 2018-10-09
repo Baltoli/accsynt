@@ -1,10 +1,12 @@
 project(libsupport VERSION 0.1 LANGUAGES CXX)
 
 add_library(support
+  src/load_module.cpp
   src/dynamic_library.cpp
   src/thread_context.cpp)
 
 target_link_libraries(support
+  ${llvm_libs}
   dl)
 
 target_include_directories(support PUBLIC
@@ -21,6 +23,7 @@ install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 install(EXPORT SupportConfig DESTINATION share/Support/cmake)
 
 add_executable(support_unit
+  test/load_module.cpp
   test/main.cpp)
 
 target_link_libraries(support_unit
