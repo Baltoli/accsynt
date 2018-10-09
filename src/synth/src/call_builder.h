@@ -28,7 +28,7 @@ private:
 };
 
 template <typename T>
-void add(T *ptr)
+void call_builder::add(T *ptr)
 {
   using RPT = std::remove_pointer_t<T>;
 
@@ -36,7 +36,7 @@ void add(T *ptr)
                 std::is_same_v<RPT, float>,
                 "Unsupported pointer type");
 
-  auto gv = GenericValue{ptr};
+  auto gv = llvm::GenericValue{ptr};
   args_.push_back(gv);
 }
 
