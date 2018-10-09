@@ -21,6 +21,9 @@ enum class data_type {
   floating
 };
 
+llvm::Type *base_llvm_type(data_type dt);
+llvm::Type *base_llvm_return_type(std::optional<data_type> dt);
+
 struct param {
   std::string name;
   data_type type;

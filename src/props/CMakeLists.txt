@@ -26,6 +26,7 @@ install(EXPORT PropsConfig DESTINATION share/Props/cmake)
 
 add_executable(props_unit
   test/main.cpp
+  test/llvm.cpp
   test/parsing.cpp)
 
 target_link_libraries(props_unit
