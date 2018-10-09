@@ -12,23 +12,18 @@ public:
   ~dynamic_library();
 
   template <typename Func>
-  Func *symbol(const std::string& symbol);
+  Func *symbol(const std::string& sym);
+
+  void *raw_symbol(const std::string& sym);
 
 private:
   void *lib_;
 };
 
 template <typename Func>
-Func *dynamic_library::symbol(const std::string& symbol)
+Func *dynamic_library::symbol(const std::string& sym)
 {
-  dlerror();
-  void *sym = dlsym(lib_, symbol.c_str());
-  char *err = dlerror();
-  if(err) {
-    throw std::runtime_error(err);
-  }
-
-  return reinterpret_cast<Func *>(sym);
+  return reinterpret_cast<Func *>(raw_symbol(sym));
 }
 
 }

@@ -17,4 +17,16 @@ dynamic_library::~dynamic_library()
   }
 }
 
+void *dynamic_library::raw_symbol(const std::string& sym)
+{
+  dlerror();
+  void *dy_sym = dlsym(lib_, sym.c_str());
+  char *err = dlerror();
+  if(err) {
+    throw std::runtime_error(err);
+  }
+
+  return dy_sym;
+}
+
 }
