@@ -1,11 +1,14 @@
 #include <props/props.h>
+#include <support/thread_context.h>
 
 #include <catch2/catch.hpp>
 
 #include <llvm/Support/raw_ostream.h>
 
-using namespace llvm;
 using namespace props;
+using namespace support;
+
+using namespace llvm;
 
 TEST_CASE("can get LLVM types from parameters") {
   SECTION("for integer values") {
@@ -87,4 +90,12 @@ TEST_CASE("can get LLVM types from signatures") {
     
     REQUIRE(p2_t_t->isFloatTy());
   }
+}
+
+TEST_CASE("can create functions from signatures") {
+  auto mod = Module("test-mod", thread_context::get());
+  auto sig = signature::parse("void test(int x, float *y)");
+  auto fn = sig.create_function(mod, "real");
+
+  mod.print(errs(), nullptr);
 }

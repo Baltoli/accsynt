@@ -50,9 +50,20 @@ FunctionType *signature::function_type() const
                            param_types, false);
 }
 
-Function *signature::create_function(Module &mod) const
+Function *signature::create_function(Module &mod,
+                                     std::string const& suffix) const
 {
-  return nullptr;
+  auto full_name = name + "_" + suffix;
+  auto fn =  Function::Create(function_type(), Function::ExternalLinkage, 
+                              full_name, &mod);
+
+  auto i = 0;
+  for(auto it = fn->arg_begin();
+      it != fn->arg_end(); ++it, ++i) {
+    it->setName(parameters.at(i).name);
+  }
+
+  return fn;
 }
 
 }

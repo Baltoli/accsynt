@@ -1,7 +1,6 @@
 #include <support/load_module.h>
 #include <support/thread_context.h>
 
-#include <llvm/IR/Module.h>
 #include <llvm/IR/Verifier.h>
 #include <llvm/IRReader/IRReader.h>
 #include <llvm/Support/MemoryBuffer.h>
