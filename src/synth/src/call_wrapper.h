@@ -11,7 +11,7 @@ namespace synth {
 
 class call_wrapper {
 public:
-  call_wrapper(llvm::Module& mod, std::string const& name);
+  call_wrapper(llvm::Module const& mod);
 
 private:
   std::unique_ptr<llvm::ExecutionEngine> engine_;

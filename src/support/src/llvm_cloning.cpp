@@ -31,26 +31,22 @@ Function *copy_function(Function *f, Module *m)
   return func;
 }
 
-std::unique_ptr<Module> copy_module_to(LLVMContext& ctx, Module *m)
+std::unique_ptr<Module> copy_module_to(LLVMContext& ctx, Module const& m)
 {
-  if(!m) {
-    return nullptr;
-  }
+  llvm::verifyModule(m, &llvm::errs());
 
-  llvm::verifyModule(*m, &llvm::errs());
-
-  if(&ctx == &m->getContext()) {
-    return llvm::CloneModule(*m);
+  if(&ctx == &m.getContext()) {
+    return llvm::CloneModule(m);
   } else {
     std::string str;
     raw_string_ostream stream{str};
-    WriteBitcodeToFile(*m, stream);
+    WriteBitcodeToFile(m, stream);
 
     auto buf = MemoryBuffer::getMemBuffer(stream.str());
     auto expect = parseBitcodeFile(buf->getMemBufferRef(), ctx);
 
     if(auto err = expect.takeError()) {
-      m->print(llvm::errs(), nullptr);
+      m.print(llvm::errs(), nullptr);
       llvm::logAllUnhandledErrors(std::move(err), llvm::errs(), "");
       std::exit(1);
     }

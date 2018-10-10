@@ -8,9 +8,9 @@ using namespace llvm;
 
 namespace synth {
 
-call_wrapper::call_wrapper(Module& mod, std::string const& name)
+call_wrapper::call_wrapper(Module const& mod)
 {
-  auto mod_copy = copy_module_to(thread_context::get(), &mod);
+  auto mod_copy = copy_module_to(thread_context::get(), mod);
   auto eb = llvm::EngineBuilder{std::move(mod_copy)};
   engine_.reset(eb.create());
 }
