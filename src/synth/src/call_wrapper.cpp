@@ -40,6 +40,7 @@ call_wrapper::call_wrapper(signature sig,
   if(!engine_) {
     errs() << "BAD: engine not created\n";
     errs() << err << '\n';
+    throw std::runtime_error("Engine creation failed");
   }
 
   engine_->addGlobalMapping(function_, sym);
@@ -47,7 +48,6 @@ call_wrapper::call_wrapper(signature sig,
 
 void call_wrapper::call()
 {
-  engine_->runFunction(function_, builder_.args());
 }
 
 }
