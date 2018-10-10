@@ -1,6 +1,7 @@
 #pragma once
 
 #include <props/props.h>
+#include <support/traits.h>
 
 #include <llvm/ExecutionEngine/GenericValue.h>
 
@@ -21,7 +22,7 @@ public:
 
 private:
   void add_int(int i);
-  void add_double(double d);
+  void add_float(float d);
 
   template <typename T>
   void add_pointer(T *ptr);
@@ -36,13 +37,12 @@ void call_builder::add(T arg)
   using Base = std::decay_t<T>;
   if constexpr(std::is_same_v<Base, int>) {
     add_int(arg);
-  } else if constexpr(std::is_same_v<Base, float> ||
-                      std::is_same_v<Base, double>) {
-    add_double(arg);
+  } else if constexpr(std::is_same_v<Base, float>) {
+    add_float(arg);
   } else if constexpr(std::is_pointer_v<Base>) {
     add_pointer(arg);
-  } else {
-    static_assert(std::is_same_v<Base, int>, "Invalid type!");
+  } else  {
+    static_fail("Unsupported argument type");
   }
 }
 

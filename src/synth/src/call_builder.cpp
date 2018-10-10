@@ -28,10 +28,10 @@ void call_builder::add_int(int i)
   args_.push_back(gv);
 }
 
-void call_builder::add_double(double d)
+void call_builder::add_float(float d)
 {
   auto gv = GenericValue{};
-  gv.DoubleVal = d;
+  gv.FloatVal = d;
   args_.push_back(gv);
 }
 
