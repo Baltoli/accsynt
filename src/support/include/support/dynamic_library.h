@@ -19,16 +19,16 @@ public:
   ~dynamic_library();
 
   template <typename Func>
-  Func *symbol(const std::string& sym);
+  Func *symbol(const std::string& sym) const;
 
-  void *raw_symbol(const std::string& sym);
+  void *raw_symbol(const std::string& sym) const;
 
 private:
   void *lib_;
 };
 
 template <typename Func>
-Func *dynamic_library::symbol(const std::string& sym)
+Func *dynamic_library::symbol(const std::string& sym) const
 {
   return reinterpret_cast<Func *>(raw_symbol(sym));
 }

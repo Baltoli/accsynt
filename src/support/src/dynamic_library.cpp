@@ -37,7 +37,7 @@ dynamic_library& dynamic_library::operator=(dynamic_library&& other)
   return *this;
 }
 
-void *dynamic_library::raw_symbol(const std::string& sym)
+void *dynamic_library::raw_symbol(const std::string& sym) const
 {
   if(!lib_) {
     throw std::runtime_error("Cannot get symbol from moved-from library");

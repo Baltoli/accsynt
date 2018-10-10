@@ -20,8 +20,6 @@ public:
   call_wrapper(props::signature sig, llvm::Module const& mod, std::string const& name, support::dynamic_library const& dl);
 
 private:
-  call_wrapper(props::signature sig, llvm::Module const& mod);
-
   call_builder builder_;
   llvm::Function *function_;
   std::unique_ptr<llvm::ExecutionEngine> engine_;
