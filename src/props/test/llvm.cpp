@@ -95,7 +95,7 @@ TEST_CASE("can get LLVM types from signatures") {
 TEST_CASE("can create functions from signatures") {
   auto mod = Module("test-mod", thread_context::get());
   auto sig = signature::parse("void test(int x, float *y)");
-  auto fn = sig.create_function(mod, "real");
+  auto fn = sig.create_function(mod);
 
   REQUIRE(fn);
 

@@ -26,12 +26,28 @@ call_wrapper::call_wrapper(signature sig,
   auto mod_copy = copy_module_to(thread_context::get(), mod);
 
   auto sym = dl.raw_symbol(name);
-  auto mod_fn = sig.create_function(*mod_copy);
+  function_ = sig.create_function(*mod_copy);
+
+  auto topts = TargetOptions{};
+  std::string err;
 
   auto eb = llvm::EngineBuilder{std::move(mod_copy)};
+  eb.setErrorStr(&err);
+  eb.setEngineKind(EngineKind::JIT);
+  eb.setTargetOptions(topts);
   engine_.reset(eb.create());
 
-  engine_->addGlobalMapping(mod_fn, sym);
+  if(!engine_) {
+    errs() << "BAD: engine not created\n";
+    errs() << err << '\n';
+  }
+
+  engine_->addGlobalMapping(function_, sym);
+}
+
+void call_wrapper::call()
+{
+  engine_->runFunction(function_, builder_.args());
 }
 
 }

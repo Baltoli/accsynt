@@ -48,8 +48,7 @@ struct signature {
   signature(Input const& in, property_set& parent) {}
 
   llvm::FunctionType *function_type() const;
-  llvm::Function *create_function(llvm::Module &mod, 
-                                  std::string const& suffix = "") const;
+  llvm::Function *create_function(llvm::Module &mod) const;
 };
 
 struct value {

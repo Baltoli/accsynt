@@ -23,7 +23,7 @@ conan_cmake_run(CONANFILE "../conanfile.txt"
 find_package(LLVM 7 REQUIRED CONFIG)
 include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
-llvm_map_components_to_libnames(llvm_libs support core irreader interpreter passes IDLSolver)
+llvm_map_components_to_libnames(llvm_libs support core irreader x86asmprinter x86asmparser x86codegen x86desc x86info target mcjit interpreter passes IDLSolver)
 
 include(GNUInstallDirs)
 enable_testing()

@@ -50,10 +50,9 @@ FunctionType *signature::function_type() const
                            param_types, false);
 }
 
-Function *signature::create_function(Module &mod,
-                                     std::string const& suffix) const
+Function *signature::create_function(Module &mod) const
 {
-  auto full_name = name + "_" + suffix;
+  auto full_name = name;
   auto fn =  Function::Create(function_type(), Function::ExternalLinkage, 
                               full_name, &mod);
 

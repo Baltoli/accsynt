@@ -8,6 +8,7 @@
 
 #include <llvm/IR/Module.h>
 #include <llvm/Support/CommandLine.h>
+#include <llvm/Support/TargetSelect.h>
 
 using namespace support;
 using namespace synth;
@@ -27,6 +28,10 @@ LibraryPath(
 
 int main(int argc, char **argv)
 {
+  InitializeNativeTarget();
+  LLVMInitializeNativeAsmPrinter();
+  LLVMInitializeNativeAsmParser();
+
   cl::ParseCommandLineOptions(argc, argv);
 
   auto property_set = props::property_set::load(PropertiesPath);
@@ -36,4 +41,9 @@ int main(int argc, char **argv)
 
   auto mod = Module("test_mod", thread_context::get());
   auto wrap = call_wrapper(property_set.type_signature, mod, "add", lib);
+
+  wrap.add_argument(1);
+  wrap.add_argument(2);
+
+  wrap.call();
 }
