@@ -11,7 +11,7 @@ using namespace llvm;
 namespace synth {
 
 call_wrapper::call_wrapper(signature sig, Module const& mod)
-  : signature_(sig)
+  : builder_(sig)
 {
   auto mod_copy = copy_module_to(thread_context::get(), mod);
   auto eb = llvm::EngineBuilder{std::move(mod_copy)};

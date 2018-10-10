@@ -1,5 +1,7 @@
 #pragma once
 
+#include "call_builder.h"
+
 #include <props/props.h>
 #include <support/dynamic_library.h>
 
@@ -20,7 +22,7 @@ public:
 private:
   call_wrapper(props::signature sig, llvm::Module const& mod);
 
-  props::signature signature_;
+  call_builder builder_;
   llvm::Function *function_;
   std::unique_ptr<llvm::ExecutionEngine> engine_;
 };
