@@ -8,7 +8,14 @@ namespace support {
 
 class dynamic_library {
 public:
-  dynamic_library(const std::string& path);
+  explicit dynamic_library(const std::string& path);
+
+  dynamic_library(dynamic_library const&) = delete;
+  dynamic_library& operator=(dynamic_library const&) = delete;
+
+  dynamic_library(dynamic_library&&);
+  dynamic_library& operator=(dynamic_library&&);
+
   ~dynamic_library();
 
   template <typename Func>

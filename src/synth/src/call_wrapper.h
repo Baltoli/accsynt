@@ -14,6 +14,7 @@ namespace synth {
 class call_wrapper {
 public:
   call_wrapper(llvm::Module const& mod, std::string const& name);
+  call_wrapper(llvm::Module const& mod, std::string const& name, support::dynamic_library dl);
 
 private:
   call_wrapper(llvm::Module const& mod);

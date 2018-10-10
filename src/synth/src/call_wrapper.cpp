@@ -20,4 +20,8 @@ call_wrapper::call_wrapper(llvm::Module const& mod, std::string const& name)
 {
 }
 
+call_wrapper::call_wrapper(llvm::Module const& mod, std::string const& name, dynamic_library dl)
+{
+}
+
 }
