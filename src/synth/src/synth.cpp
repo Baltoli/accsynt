@@ -5,6 +5,7 @@
 
 #include <llvm/Support/CommandLine.h>
 
+using namespace synth;
 using namespace support;
 using namespace llvm;
 

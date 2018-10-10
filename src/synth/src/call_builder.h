@@ -13,22 +13,41 @@ class call_builder {
 public:
   call_builder(props::signature sig);
 
-  void add(int i);
-  void add(float f);
-
   template <typename T>
-  void add(T *ptr);
+  void add(T arg);
 
   props::signature const& signature() const;
   std::vector<llvm::GenericValue> const& args() const;
 
 private:
+  void add_int(int i);
+  void add_double(double d);
+
+  template <typename T>
+  void add_pointer(T *ptr);
+
   props::signature signature_;
   std::vector<llvm::GenericValue> args_;
 };
 
 template <typename T>
-void call_builder::add(T *ptr)
+void call_builder::add(T arg)
+{
+  using Base = std::decay_t<T>;
+  if constexpr(std::is_same_v<Base, int>) {
+    add_int(arg);
+  } else if constexpr(std::is_same_v<Base, float> ||
+                      std::is_same_v<Base, double>) {
+    add_double(arg);
+  } else if constexpr(std::is_pointer_v<Base>) {
+    add_pointer(arg);
+  } else {
+    static_assert(std::is_same_v<Base, int>, "Invalid type!");
+  }
+}
+
+template <typename T>
+void call_builder::add_pointer(T *ptr)
 {
   using RPT = std::remove_pointer_t<T>;
 

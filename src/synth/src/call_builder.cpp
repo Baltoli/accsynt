@@ -21,17 +21,17 @@ std::vector<GenericValue> const& call_builder::args() const
   return args_;
 }
 
-void call_builder::add(int i)
+void call_builder::add_int(int i)
 {
   auto gv = GenericValue{};
   gv.IntVal = APInt(32, i, true);
   args_.push_back(gv);
 }
 
-void call_builder::add(float f)
+void call_builder::add_double(double d)
 {
   auto gv = GenericValue{};
-  gv.FloatVal = f;
+  gv.DoubleVal = d;
   args_.push_back(gv);
 }
 
