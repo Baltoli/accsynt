@@ -14,11 +14,12 @@ namespace synth {
 class call_wrapper {
 public:
   call_wrapper(llvm::Module const& mod, std::string const& name);
-  call_wrapper(llvm::Module const& mod, std::string const& name, support::dynamic_library dl);
+  call_wrapper(llvm::Module const& mod, std::string const& name, support::dynamic_library const& dl);
 
 private:
   call_wrapper(llvm::Module const& mod);
 
+  llvm::Function *function_;
   std::unique_ptr<llvm::ExecutionEngine> engine_;
 };
 
