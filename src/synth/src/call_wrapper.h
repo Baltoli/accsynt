@@ -1,5 +1,7 @@
 #pragma once
 
+#include <support/dynamic_library.h>
+
 #include <llvm/ExecutionEngine/GenericValue.h>
 #include <llvm/ExecutionEngine/Interpreter.h>
 #include <llvm/IR/Function.h>
@@ -11,9 +13,11 @@ namespace synth {
 
 class call_wrapper {
 public:
-  call_wrapper(llvm::Module const& mod);
+  call_wrapper(llvm::Module const& mod, std::string const& name);
 
 private:
+  call_wrapper(llvm::Module const& mod);
+
   std::unique_ptr<llvm::ExecutionEngine> engine_;
 };
 

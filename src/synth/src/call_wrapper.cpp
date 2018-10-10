@@ -15,4 +15,9 @@ call_wrapper::call_wrapper(Module const& mod)
   engine_.reset(eb.create());
 }
 
+call_wrapper::call_wrapper(llvm::Module const& mod, std::string const& name)
+  : call_wrapper(mod)
+{
+}
+
 }
