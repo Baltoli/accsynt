@@ -39,7 +39,7 @@ bool ConvertToIDL::runOnFunction(Function& F)
 
   if(auto result = convert::to_idl(F)) {
     std::error_code ec;
-    raw_fd_ostream output{output_path, ec, sys::fs::F_RW};
+    raw_fd_ostream output{output_path, ec, sys::fs::F_Text};
     output << result.value() << '\n';
   } else {
     auto bold_red = "\u001b[1m\u001b[31m";

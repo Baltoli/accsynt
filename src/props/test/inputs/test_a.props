@@ -1,2 +1,2 @@
-int add(int x, int y)
+int main()
 property :str, 0
