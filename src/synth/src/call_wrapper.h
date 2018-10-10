@@ -24,7 +24,9 @@ public:
 
   void call();
 
-/* private: */
+private:
+  llvm::Function *build_wrapper_function(llvm::Module& mod, llvm::Function *fn) const;
+
   call_builder builder_;
   llvm::Function *function_;
   std::unique_ptr<llvm::ExecutionEngine> engine_;

@@ -15,6 +15,7 @@ call_wrapper::call_wrapper(signature sig,
                            std::string const& name)
   :builder_(sig)
 {
+  // TODO
 }
 
 call_wrapper::call_wrapper(signature sig, 
@@ -28,8 +29,12 @@ call_wrapper::call_wrapper(signature sig,
   auto sym = dl.raw_symbol(name);
   function_ = sig.create_function(*mod_copy);
 
+  auto wrapper = build_wrapper_function(*mod_copy, function_);
+
   auto topts = TargetOptions{};
   std::string err;
+
+  mod_copy->print(llvm::errs(), nullptr);
 
   auto eb = llvm::EngineBuilder{std::move(mod_copy)};
   eb.setErrorStr(&err);
@@ -48,6 +53,19 @@ call_wrapper::call_wrapper(signature sig,
 
 void call_wrapper::call()
 {
+}
+
+llvm::Function *call_wrapper::build_wrapper_function(llvm::Module& mod, llvm::Function *fn) const
+{
+  auto name = fn->getName().str() + "_wrap";
+  auto rt = fn->getFunctionType()->getReturnType();
+  auto byte_t = IntegerType::get(thread_context::get(), 8);
+  auto ptr_t = byte_t->getPointerTo();
+  auto fn_ty = FunctionType::get(rt, {ptr_t}, false);
+
+  auto new_fn = Function::Create(fn_ty, GlobalValue::ExternalLinkage, name, &mod);
+  // TODO: build marshalling code in here...
+  return new_fn;
 }
 
 }
