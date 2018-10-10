@@ -10,6 +10,18 @@
 
 namespace synth {
 
+namespace detail {
+
+template <typename T>
+constexpr uint8_t nth_byte(T val, size_t n)
+{
+  uint8_t data[sizeof(T)] = { 0 };
+  memcpy(data, &val, sizeof(T));
+  return data[n];
+}
+
+}
+
 class call_builder {
 public:
   call_builder(props::signature sig);
@@ -18,45 +30,26 @@ public:
   void add(T arg);
 
   props::signature const& signature() const;
-  std::vector<llvm::GenericValue> const& args() const;
+  uint8_t const* args() const;
 
 private:
-  void add_int(int i);
-  void add_float(float d);
-
-  template <typename T>
-  void add_pointer(T *ptr);
 
   props::signature signature_;
-  std::vector<llvm::GenericValue> args_;
+  std::vector<uint8_t> args_;
 };
 
 template <typename T>
 void call_builder::add(T arg)
 {
   using Base = std::decay_t<T>;
-  if constexpr(std::is_same_v<Base, int>) {
-    add_int(arg);
-  } else if constexpr(std::is_same_v<Base, float>) {
-    add_float(arg);
-  } else if constexpr(std::is_pointer_v<Base>) {
-    add_pointer(arg);
-  } else  {
-    static_fail("Unsupported argument type");
+  static_assert(std::is_same_v<Base, int> ||
+                std::is_same_v<Base, float> ||
+                std::is_pointer_v<Base>,
+                "Must be int, float or pointer!");
+
+  for(auto i = 0u; i < sizeof(T); ++i) {
+    args_.push_back(detail::nth_byte(arg, sizeof(T) - i - 1));
   }
-}
-
-template <typename T>
-void call_builder::add_pointer(T *ptr)
-{
-  using RPT = std::remove_pointer_t<T>;
-
-  static_assert(std::is_same_v<RPT, int> ||
-                std::is_same_v<RPT, float>,
-                "Unsupported pointer type");
-
-  auto gv = llvm::GenericValue{ptr};
-  args_.push_back(gv);
 }
 
 }

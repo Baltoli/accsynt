@@ -24,7 +24,7 @@ public:
 
   void call();
 
-private:
+/* private: */
   call_builder builder_;
   llvm::Function *function_;
   std::unique_ptr<llvm::ExecutionEngine> engine_;
