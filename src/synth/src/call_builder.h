@@ -29,26 +29,44 @@ public:
   template <typename T>
   void add(T arg);
 
+  template <typename T>
+  void add(std::vector<T> arg);
+
   props::signature const& signature() const;
   uint8_t* args();
 
 private:
-
   props::signature signature_;
   std::vector<uint8_t> args_;
+
+  std::vector<std::vector<int>> int_data_;
+  std::vector<std::vector<float>> float_data_;
 };
 
 template <typename T>
 void call_builder::add(T arg)
 {
   using Base = std::decay_t<T>;
-  static_assert(std::is_same_v<Base, int> ||
-                std::is_same_v<Base, float> ||
-                std::is_pointer_v<Base>,
-                "Must be int, float or pointer!");
+  static_assert((std::is_same_v<Base, int> ||
+                std::is_same_v<Base, float>) &&
+                !std::is_pointer_v<Base>,
+                "Must be int or float and not pointer!");
 
   for(auto i = 0u; i < sizeof(T); ++i) {
     args_.push_back(detail::nth_byte(arg, i));
+  }
+}
+
+template <typename T>
+void call_builder::add(std::vector<T> arg)
+{
+  static_assert(std::is_same_v<T, int> ||
+                std::is_same_v<T, float>,
+                "Pointed-to data must be of base type");
+
+  auto data = arg.data();
+  for(auto i = 0u; i < sizeof(T); ++i) {
+    args_.push_back(detail::nth_byte(data, i));
   }
 }
 
