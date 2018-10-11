@@ -60,7 +60,7 @@ void call_wrapper::call(call_builder build)
   engine_->finalizeObject();
   auto jit_fn = reinterpret_cast<int (*)(uint8_t *)>(addr);
   auto args = build.args();
-  jit_fn(args);
+  errs() << "return: " << jit_fn(args) << '\n';
 }
 
 size_t call_wrapper::marshalled_size(llvm::Type const* type) const

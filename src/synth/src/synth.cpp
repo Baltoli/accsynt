@@ -44,4 +44,8 @@ int main(int argc, char **argv)
   auto ref = call_wrapper(property_set.type_signature, mod, "add", lib);
 
   auto synth = null_synth(property_set, ref);
+  auto fn = synth.generate();
+  if(fn) {
+    errs() << *fn << '\n';
+  }
 }

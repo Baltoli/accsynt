@@ -19,6 +19,9 @@ public:
   virtual void generate(call_builder& builder);
 
 protected:
+  virtual void generate_value(call_builder& builder,
+                              props::param param);
+
   props::property_set properties_;
 };
 

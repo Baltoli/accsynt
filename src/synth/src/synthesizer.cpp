@@ -1,5 +1,7 @@
 #include "synthesizer.h"
 
+#include "generator.h"
+
 using namespace props;
 using namespace llvm;
 
@@ -17,6 +19,10 @@ std::string null_synth::name() const
 
 Function *null_synth::generate() const
 {
+  auto build = reference_.get_builder();
+  auto gen = generator(properties_);
+  gen.generate(build);
+  reference_.call(build);
   return nullptr;
 }
 
