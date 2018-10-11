@@ -42,11 +42,8 @@ int main(int argc, char **argv)
   auto mod = Module("test_mod", thread_context::get());
   auto wrap = call_wrapper(property_set.type_signature, mod, "add", lib);
 
-  wrap.add_argument(1);
-  wrap.add_argument(2);
-  wrap.add_argument(3.89f);
-  int i = 0;
-  wrap.add_argument(&i);
+  wrap.add_argument(22);
+  wrap.add_argument(45);
 
   wrap.call();
 }

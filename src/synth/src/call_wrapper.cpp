@@ -4,6 +4,7 @@
 #include <support/thread_context.h>
 
 #include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/Verifier.h>
 
 using namespace props;
 using namespace support;
@@ -29,14 +30,15 @@ call_wrapper::call_wrapper(signature sig,
   auto mod_copy = copy_module_to(thread_context::get(), mod);
 
   auto sym = dl.raw_symbol(name);
-  function_ = sig.create_function(*mod_copy);
+  auto base_fn = sig.create_function(*mod_copy);
 
-  auto wrapper = build_wrapper_function(*mod_copy, function_);
+  function_ = build_wrapper_function(*mod_copy, base_fn);
 
   auto topts = TargetOptions{};
   std::string err;
 
   mod_copy->print(llvm::errs(), nullptr);
+  verifyModule(*mod_copy, &llvm::errs());
 
   auto eb = llvm::EngineBuilder{std::move(mod_copy)};
   eb.setErrorStr(&err);
@@ -50,11 +52,16 @@ call_wrapper::call_wrapper(signature sig,
     throw std::runtime_error("Engine creation failed");
   }
 
-  engine_->addGlobalMapping(function_, sym);
+  engine_->addGlobalMapping(base_fn, sym);
 }
 
 void call_wrapper::call()
 {
+  auto addr = engine_->getPointerToFunction(function_);
+  engine_->finalizeObject();
+  auto jit_fn = reinterpret_cast<int (*)(uint8_t *)>(addr);
+  auto args = builder_.args();
+  errs() << jit_fn(args) << '\n';
 }
 
 size_t call_wrapper::marshalled_size(llvm::Type const* type) const
@@ -70,7 +77,7 @@ size_t call_wrapper::marshalled_size(llvm::Type const* type) const
   }
 }
 
-llvm::Function *call_wrapper::build_wrapper_function(llvm::Module& mod, llvm::Function *fn) const
+Function *call_wrapper::build_wrapper_function(Module& mod, Function *fn) const
 {
   auto& ctx = thread_context::get();
 

@@ -16,7 +16,7 @@ props::signature const& call_builder::signature() const
   return signature_;
 }
 
-uint8_t const* call_builder::args() const
+uint8_t* call_builder::args()
 {
   return args_.data();
 }

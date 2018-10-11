@@ -30,7 +30,7 @@ public:
   void add(T arg);
 
   props::signature const& signature() const;
-  uint8_t const* args() const;
+  uint8_t* args();
 
 private:
 
@@ -48,7 +48,7 @@ void call_builder::add(T arg)
                 "Must be int, float or pointer!");
 
   for(auto i = 0u; i < sizeof(T); ++i) {
-    args_.push_back(detail::nth_byte(arg, sizeof(T) - i - 1));
+    args_.push_back(detail::nth_byte(arg, i));
   }
 }
 
