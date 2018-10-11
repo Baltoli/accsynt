@@ -16,7 +16,7 @@ namespace synth {
 call_wrapper::call_wrapper(signature sig, 
                            llvm::Module const& mod, 
                            std::string const& name)
-  :builder_(sig)
+  : signature_(sig)
 {
   auto mod_copy = copy_module_to(thread_context::get(), mod);
 
@@ -52,9 +52,9 @@ call_wrapper::call_wrapper(signature sig,
   engine_->addGlobalMapping(impl_, sym);
 }
 
-void call_wrapper::call()
+call_builder call_wrapper::get_builder() const
 {
-  call(builder_);
+  return call_builder(signature_);
 }
 
 void call_wrapper::call(call_builder build)
