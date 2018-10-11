@@ -5,14 +5,19 @@ using namespace llvm;
 
 namespace synth {
 
-synthesizer::synthesizer(property_set ps, Function *fn)
-  : properties_(ps), reference_(fn)
+synthesizer::synthesizer(props::property_set ps, call_wrapper& wrap)
+  : properties_(ps), reference_(wrap)
 {
 }
 
 std::string null_synth::name() const
 {
   return "Null";
+}
+
+Function *null_synth::generate() const
+{
+  return nullptr;
 }
 
 }

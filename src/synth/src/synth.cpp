@@ -41,11 +41,7 @@ int main(int argc, char **argv)
   auto lib = dynamic_library(LibraryPath);
 
   auto mod = Module("test_mod", thread_context::get());
-  auto wrap = call_wrapper(property_set.type_signature, mod, "add", lib);
-  auto arg_b = wrap.get_builder();
+  auto ref = call_wrapper(property_set.type_signature, mod, "add", lib);
 
-  arg_b.add(22);
-  arg_b.add(45);
-
-  wrap.call(arg_b);
+  auto synth = null_synth(property_set, ref);
 }

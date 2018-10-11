@@ -26,7 +26,6 @@ call_wrapper::call_wrapper(signature sig,
   auto topts = TargetOptions{};
   std::string err;
 
-  mod_copy->print(llvm::errs(), nullptr);
   verifyModule(*mod_copy, &llvm::errs());
 
   auto eb = llvm::EngineBuilder{std::move(mod_copy)};
@@ -36,9 +35,7 @@ call_wrapper::call_wrapper(signature sig,
   engine_.reset(eb.create());
 
   if(!engine_) {
-    errs() << "BAD: engine not created\n";
-    errs() << err << '\n';
-    throw std::runtime_error("Engine creation failed");
+    throw std::runtime_error("Engine creation failed: " + err);
   }
 }
 
@@ -63,7 +60,7 @@ void call_wrapper::call(call_builder build)
   engine_->finalizeObject();
   auto jit_fn = reinterpret_cast<int (*)(uint8_t *)>(addr);
   auto args = build.args();
-  errs() << jit_fn(args) << '\n';
+  jit_fn(args);
 }
 
 size_t call_wrapper::marshalled_size(llvm::Type const* type) const
