@@ -53,8 +53,11 @@ FunctionType *signature::function_type() const
 Function *signature::create_function(Module &mod) const
 {
   auto full_name = name;
-  auto fn =  Function::Create(function_type(), Function::ExternalLinkage, 
-                              full_name, &mod);
+  auto fn_const = mod.getOrInsertFunction(full_name, function_type());
+  if(!isa<Function>(fn_const)) {
+    throw std::runtime_error("Bad: const not function");
+  }
+  auto fn = dyn_cast<Function>(fn_const);
 
   auto i = 0;
   for(auto it = fn->arg_begin();

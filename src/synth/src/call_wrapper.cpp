@@ -18,21 +18,10 @@ call_wrapper::call_wrapper(signature sig,
                            std::string const& name)
   :builder_(sig)
 {
-  // TODO
-}
-
-call_wrapper::call_wrapper(signature sig, 
-                           llvm::Module const& mod, 
-                           std::string const& name, 
-                           dynamic_library const& dl)
-  : builder_(sig)
-{
   auto mod_copy = copy_module_to(thread_context::get(), mod);
 
-  auto sym = dl.raw_symbol(name);
-  auto base_fn = sig.create_function(*mod_copy);
-
-  function_ = build_wrapper_function(*mod_copy, base_fn);
+  impl_ = sig.create_function(*mod_copy);
+  wrapper_ = build_wrapper_function(*mod_copy, impl_);
 
   auto topts = TargetOptions{};
   std::string err;
@@ -51,13 +40,21 @@ call_wrapper::call_wrapper(signature sig,
     errs() << err << '\n';
     throw std::runtime_error("Engine creation failed");
   }
+}
 
-  engine_->addGlobalMapping(base_fn, sym);
+call_wrapper::call_wrapper(signature sig, 
+                           llvm::Module const& mod, 
+                           std::string const& name, 
+                           dynamic_library const& dl)
+  : call_wrapper(sig, mod, name)
+{
+  auto sym = dl.raw_symbol(name);
+  engine_->addGlobalMapping(impl_, sym);
 }
 
 void call_wrapper::call()
 {
-  auto addr = engine_->getPointerToFunction(function_);
+  auto addr = engine_->getPointerToFunction(wrapper_);
   engine_->finalizeObject();
   auto jit_fn = reinterpret_cast<int (*)(uint8_t *)>(addr);
   auto args = builder_.args();
