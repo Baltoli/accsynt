@@ -54,10 +54,15 @@ call_wrapper::call_wrapper(signature sig,
 
 void call_wrapper::call()
 {
+  call(builder_);
+}
+
+void call_wrapper::call(call_builder build)
+{
   auto addr = engine_->getPointerToFunction(wrapper_);
   engine_->finalizeObject();
   auto jit_fn = reinterpret_cast<int (*)(uint8_t *)>(addr);
-  auto args = builder_.args();
+  auto args = build.args();
   errs() << jit_fn(args) << '\n';
 }
 

@@ -1,4 +1,5 @@
 #include "call_wrapper.h"
+#include "synthesizer.h"
 
 #include <props/props.h>
 #include <support/dynamic_library.h>

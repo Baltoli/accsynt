@@ -25,6 +25,7 @@ public:
   void add_argument(T arg);
 
   void call();
+  void call(call_builder builder);
 
 private:
   size_t marshalled_size(llvm::Type const* type) const;

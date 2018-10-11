@@ -1,4 +1,5 @@
 add_executable(synth
+  src/synthesizer.cpp
   src/call_builder.cpp
   src/call_wrapper.cpp
   src/synth.cpp)
