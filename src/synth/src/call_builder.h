@@ -39,8 +39,8 @@ private:
   props::signature signature_;
   std::vector<uint8_t> args_;
 
-  std::vector<std::vector<int>> int_data_;
-  std::vector<std::vector<float>> float_data_;
+  std::vector<std::vector<int>> int_data_ = {};
+  std::vector<std::vector<float>> float_data_ = {};
 };
 
 template <typename T>
@@ -64,7 +64,19 @@ void call_builder::add(std::vector<T> arg)
                 std::is_same_v<T, float>,
                 "Pointed-to data must be of base type");
 
-  auto data = arg.data();
+  void *data = nullptr;
+
+  if constexpr(std::is_same_v<T, int>) {
+    int_data_.push_back(arg);
+    data = int_data_.back().data();
+  } else if constexpr(std::is_same_v<T, float>) {
+    float_data_.push_back(arg);
+    data = float_data_.back().data();
+  }
+
+  assert((data || arg.empty()) && 
+         "Something very wrong inside vector building!");
+
   for(auto i = 0u; i < sizeof(T); ++i) {
     args_.push_back(detail::nth_byte(data, i));
   }
