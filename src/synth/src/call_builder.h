@@ -26,11 +26,6 @@ class call_builder {
 public:
   call_builder(props::signature sig);
 
-  // Don't want this class to be copyable at the moment - it would copy args_ by
-  // default, which spilts the pointers away from the data that originates them.
-  // 
-  // We can't build vectors on demand - this is because we need to keep them
-  // alive so that the data pointers remain good.
   call_builder(call_builder const&);
   call_builder& operator=(call_builder);
 
