@@ -15,6 +15,55 @@ signature const& call_builder::signature() const
   return signature_;
 }
 
+call_builder::call_builder(call_builder const& other) :
+  signature_(other.signature_),
+  current_arg_(0),
+  int_data_(other.int_data_), float_data_(other.float_data_)
+{
+  args_.clear();
+
+  size_t offset = 0;
+  size_t int_offset = 0;
+  size_t float_offset = 0;
+
+  for(auto const& param : signature_.parameters) {
+    if(param.pointer_depth == 0) {
+      // TODO: fix size for more types
+      for(auto i = 0u; i < 4; ++i, ++offset) {
+        args_.push_back(other.args_.at(offset));
+      }
+    } else {
+      assert(param.pointer_depth == 1 && "Can't copy nested pointers");
+
+      if(param.type == data_type::integer) {
+        add(int_data_.at(int_offset++));
+      } else if(param.type == data_type::floating) {
+        add(float_data_.at(float_offset++));
+      }
+
+      offset += 8;
+    }
+
+    current_arg_++;
+  }
+}
+
+call_builder& call_builder::operator=(call_builder other)
+{
+  swap(*this, other);
+  return *this;
+}
+
+void swap(call_builder& left, call_builder& right)
+{
+  using std::swap;
+  swap(left.signature_, right.signature_);
+  swap(left.args_, right.args_);
+  swap(left.current_arg_, right.current_arg_);
+  swap(left.int_data_, right.int_data_);
+  swap(left.float_data_, right.float_data_);
+}
+
 uint8_t* call_builder::args()
 {
   return args_.data();

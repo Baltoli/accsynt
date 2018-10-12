@@ -31,8 +31,8 @@ public:
   // 
   // We can't build vectors on demand - this is because we need to keep them
   // alive so that the data pointers remain good.
-  call_builder(call_builder const&) = delete;
-  call_builder& operator=(call_builder) = delete;
+  call_builder(call_builder const&);
+  call_builder& operator=(call_builder);
 
   template <typename T>
   void add(T arg);
@@ -45,6 +45,8 @@ public:
 
   bool operator==(call_builder const& other) const;
   bool operator!=(call_builder const& other) const;
+
+  friend void swap(call_builder& left, call_builder& right);
 
 private:
   props::signature signature_;
