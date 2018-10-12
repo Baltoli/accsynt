@@ -26,6 +26,7 @@ call_wrapper::call_wrapper(signature sig,
   auto topts = TargetOptions{};
   std::string err;
 
+  llvm::errs() << *mod_copy << '\n';
   verifyModule(*mod_copy, &llvm::errs());
 
   auto eb = llvm::EngineBuilder{std::move(mod_copy)};
@@ -58,9 +59,10 @@ void call_wrapper::call(call_builder& build)
 {
   auto addr = engine_->getPointerToFunction(wrapper_);
   engine_->finalizeObject();
-  auto jit_fn = reinterpret_cast<int (*)(uint8_t *)>(addr);
+  auto jit_fn = reinterpret_cast<void (*)(uint8_t *)>(addr);
   auto args = build.args();
-  errs() << "return: " << jit_fn(args) << '\n';
+  jit_fn(args);
+  /* errs() << "return: " << jit_fn(args) << '\n'; */
 }
 
 size_t call_wrapper::marshalled_size(llvm::Type const* type) const
@@ -96,7 +98,9 @@ Function *call_wrapper::build_wrapper_function(Module& mod, Function *fn) const
   auto call_args = std::vector<Value *>{};
 
   for(auto it = fn->arg_begin(); it != fn->arg_end(); ++it) {
-    auto size = marshalled_size(it->getType());
+    auto arg_type = it->getType();
+
+    auto size = marshalled_size(arg_type);
     auto vec = make_vector(B, size);
 
     for(auto i = 0u; i < size; ++i) {
@@ -106,12 +110,23 @@ Function *call_wrapper::build_wrapper_function(Module& mod, Function *fn) const
       ++offset;
     }
 
-    auto cast = B.CreateBitCast(vec, it->getType());
-    call_args.push_back(cast);
+    if(arg_type->isPointerTy()) {
+      auto cast = B.CreateBitCast(vec, IntegerType::get(ctx, 64));
+      auto ptr = B.CreateIntToPtr(cast, arg_type);
+      call_args.push_back(ptr);
+    } else {
+      auto cast = B.CreateBitCast(vec, it->getType());
+      call_args.push_back(cast);
+    }
   }
 
   auto call = B.CreateCall(fn, call_args);
-  B.CreateRet(call);
+  if(signature_.return_type) {
+    B.CreateRet(call);
+  } else {
+    B.CreateRetVoid();
+  }
+
   return new_fn;
 }
 

@@ -96,7 +96,7 @@ void call_builder::add(std::vector<T> arg)
   assert((data || arg.empty()) && 
          "Something very wrong inside vector building!");
 
-  for(auto i = 0u; i < sizeof(T); ++i) {
+  for(auto i = 0u; i < sizeof(data); ++i) {
     args_.push_back(detail::nth_byte(data, i));
   }
 
