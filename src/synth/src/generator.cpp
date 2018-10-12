@@ -4,8 +4,13 @@ using namespace props;
 
 namespace synth {
 
+/**
+ *  Basic generator
+ */
+
 generator::generator(property_set ps) :
-  properties_(ps)
+  properties_(ps), 
+  rd_(), random_(rd_())
 {
 }
 
@@ -35,6 +40,32 @@ void generator::generate_value(call_builder& builder,
       builder.add(std::vector<float>{1.0f});
     }
   }
+}
+
+int generator::random_int(int min, int max)
+{
+  auto dis = std::uniform_int_distribution<int>(min, max);
+  return dis(random_);
+}
+
+
+/*
+ *  BLAS-specific generator
+ */
+
+blas_generator::blas_generator(props::property_set ps) :
+  generator(ps), sizes_()
+{
+}
+
+void blas_generator::generate(call_builder& builder)
+{
+}
+
+size_t blas_generator::random_size()
+{
+  auto dis = std::uniform_int_distribution<size_t>(0, max_size_);
+  return dis(random_);
 }
 
 }

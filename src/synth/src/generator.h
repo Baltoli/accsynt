@@ -4,6 +4,10 @@
 
 #include <props/props.h>
 
+#include <limits>
+#include <map>
+#include <random>
+
 namespace synth {
 
 /*
@@ -22,7 +26,30 @@ protected:
   virtual void generate_value(call_builder& builder,
                               props::param param);
 
+  int random_int(int min = std::numeric_limits<int>::min(), 
+                 int max = std::numeric_limits<int>::max());
+  /* float random_float(); */
+
   props::property_set properties_;
+
+private:
+  std::random_device rd_;
+
+protected:
+  std::mt19937 random_;
+};
+
+class blas_generator : public generator {
+public:
+  blas_generator(props::property_set ps);
+
+  void generate(call_builder& builder) override;
+
+private:
+  size_t max_size_ = 128;
+  std::map<size_t, size_t> sizes_;
+
+  size_t random_size();
 };
 
 }
