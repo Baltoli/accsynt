@@ -82,7 +82,7 @@ Function *call_wrapper::build_wrapper_function(Module& mod, Function *fn) const
   auto& ctx = thread_context::get();
 
   auto name = fn->getName().str() + "_wrap";
-  auto rt = fn->getFunctionType()->getReturnType();
+  auto rt = IntegerType::get(ctx, 64);
   auto byte_t = IntegerType::get(ctx, 8);
   auto ptr_t = byte_t->getPointerTo();
   auto fn_ty = FunctionType::get(rt, {ptr_t}, false);
@@ -121,9 +121,9 @@ Function *call_wrapper::build_wrapper_function(Module& mod, Function *fn) const
 
   auto call = B.CreateCall(fn, call_args);
   if(signature_.return_type) {
-    B.CreateRet(call);
+    make_return(B, call);
   } else {
-    B.CreateRetVoid();
+    make_return(B);
   }
 
   return new_fn;

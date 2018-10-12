@@ -30,6 +30,9 @@ private:
   template <typename Builder>
   llvm::Value *make_vector(Builder &B, size_t size) const;
 
+  template <typename Builder>
+  llvm::Value *make_return(Builder &B, llvm::Value *ret = nullptr) const;
+
   llvm::Function *build_wrapper_function(llvm::Module& mod, llvm::Function *fn) const;
 
   props::signature signature_;
@@ -41,9 +44,24 @@ private:
 template <typename Builder>
 llvm::Value *call_wrapper::make_vector(Builder &B, size_t size) const
 {
-  auto byte_ty = llvm::IntegerType::get(support::thread_context::get(), 8);
-  auto vec_ty = llvm::VectorType::get(byte_ty, size);
+  auto vec_ty = llvm::VectorType::get(B.getInt8Ty(), size);
   return llvm::Constant::getNullValue(vec_ty);
+}
+
+template <typename Builder>
+llvm::Value *call_wrapper::make_return(Builder &B, llvm::Value *ret) const
+{
+  if(!ret) {
+    ret = B.getInt64(0);
+  }
+
+  auto* to_extend = ret;
+  if(ret->getType()->isFloatTy()) {
+    to_extend = B.CreateBitCast(ret, B.getInt32Ty());
+  }
+
+  auto* return_val = B.CreateZExt(to_extend, B.getInt64Ty());
+  return B.CreateRet(return_val);
 }
 
 }
