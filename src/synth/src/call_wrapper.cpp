@@ -54,14 +54,13 @@ call_builder call_wrapper::get_builder() const
   return call_builder(signature_);
 }
 
-void call_wrapper::call(call_builder& build)
+uint64_t call_wrapper::call(call_builder& build)
 {
   auto addr = engine_->getPointerToFunction(wrapper_);
   engine_->finalizeObject();
-  auto jit_fn = reinterpret_cast<void (*)(uint8_t *)>(addr);
+  auto jit_fn = reinterpret_cast<uint64_t (*)(uint8_t *)>(addr);
   auto args = build.args();
-  jit_fn(args);
-  /* errs() << "return: " << jit_fn(args) << '\n'; */
+  return jit_fn(args);
 }
 
 size_t call_wrapper::marshalled_size(llvm::Type const* type) const
