@@ -35,6 +35,9 @@ public:
   props::signature const& signature() const;
   uint8_t* args();
 
+  bool operator==(call_builder const& other) const;
+  bool operator!=(call_builder const& other) const;
+
 private:
   props::signature signature_;
   std::vector<uint8_t> args_;

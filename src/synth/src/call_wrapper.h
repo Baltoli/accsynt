@@ -22,7 +22,7 @@ public:
   call_wrapper(props::signature sig, llvm::Module const& mod, std::string const& name, support::dynamic_library const& dl);
 
   call_builder get_builder() const;
-  void call(call_builder builder);
+  void call(call_builder& builder);
 
 private:
   size_t marshalled_size(llvm::Type const* type) const;

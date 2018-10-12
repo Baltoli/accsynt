@@ -30,6 +30,9 @@ struct param {
   int pointer_depth;
 
   llvm::Type *llvm_type() const;
+
+  bool operator==(param const& other) const;
+  bool operator!=(param const& other) const;
 };
 
 struct signature {
@@ -49,6 +52,9 @@ struct signature {
 
   llvm::FunctionType *function_type() const;
   llvm::Function *create_function(llvm::Module &mod) const;
+
+  bool operator==(signature const& other) const;
+  bool operator!=(signature const& other) const;
 };
 
 struct value {

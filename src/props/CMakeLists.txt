@@ -4,6 +4,7 @@ add_library(props
   src/parsing.cpp
   src/printing.cpp
   src/llvm_function.cpp
+  src/comparisons.cpp
   src/props.cpp)
 
 target_link_libraries(props

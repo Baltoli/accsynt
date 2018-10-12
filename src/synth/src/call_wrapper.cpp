@@ -54,7 +54,7 @@ call_builder call_wrapper::get_builder() const
   return call_builder(signature_);
 }
 
-void call_wrapper::call(call_builder build)
+void call_wrapper::call(call_builder& build)
 {
   auto addr = engine_->getPointerToFunction(wrapper_);
   engine_->finalizeObject();
