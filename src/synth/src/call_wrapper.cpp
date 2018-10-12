@@ -26,7 +26,6 @@ call_wrapper::call_wrapper(signature sig,
   auto topts = TargetOptions{};
   std::string err;
 
-  llvm::errs() << *mod_copy << '\n';
   verifyModule(*mod_copy, &llvm::errs());
 
   auto eb = llvm::EngineBuilder{std::move(mod_copy)};
