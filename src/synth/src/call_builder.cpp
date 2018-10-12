@@ -27,6 +27,10 @@ call_builder::call_builder(call_builder const& other) :
   size_t float_offset = 0;
 
   for(auto const& param : signature_.parameters) {
+    if(current_arg_ >= other.current_arg_) {
+      break;
+    }
+
     if(param.pointer_depth == 0) {
       // TODO: fix size for more types
       for(auto i = 0u; i < 4; ++i, ++offset) {
@@ -35,10 +39,15 @@ call_builder::call_builder(call_builder const& other) :
     } else {
       assert(param.pointer_depth == 1 && "Can't copy nested pointers");
 
+      void *data = nullptr;
       if(param.type == data_type::integer) {
-        add(int_data_.at(int_offset++));
+        data = int_data_.at(int_offset++).data();
       } else if(param.type == data_type::floating) {
-        add(float_data_.at(float_offset++));
+        data = float_data_.at(float_offset++).data();
+      }
+
+      for(auto i = 0u; i < sizeof(void*); ++i) {
+        args_.push_back(detail::nth_byte(data, i));
       }
 
       offset += 8;
