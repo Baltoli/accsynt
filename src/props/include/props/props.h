@@ -41,6 +41,11 @@ struct signature {
   std::optional<data_type> return_type;
   std::string name;
   std::vector<param> parameters;
+  
+  size_t param_index(std::string const& name) const;
+
+  llvm::FunctionType *function_type() const;
+  llvm::Function *create_function(llvm::Module &mod) const;
 
   static signature parse(std::string_view str);
 
@@ -49,9 +54,6 @@ struct signature {
 
   template <typename Input>
   signature(Input const& in, property_set& parent) {}
-
-  llvm::FunctionType *function_type() const;
-  llvm::Function *create_function(llvm::Module &mod) const;
 
   bool operator==(signature const& other) const;
   bool operator!=(signature const& other) const;
@@ -97,6 +99,9 @@ public:
   signature type_signature;
   std::vector<property> properties;
 
+  template <typename Func>
+  void for_each_named(std::string const& name, Func&& fn) const;
+
   static property_set parse(std::string_view str);
   static property_set load(std::string_view str);
 
@@ -114,6 +119,16 @@ template <typename Input>
 void signature::success(Input const& in, property_set& parent)
 {
   parent.type_signature = *this;
+}
+
+template <typename Func>
+void property_set::for_each_named(std::string const& name, Func&& fn) const
+{
+  for(auto const& prop : properties) {
+    if(prop.name == name) {
+      fn(prop);
+    }
+  }
 }
 
 }
