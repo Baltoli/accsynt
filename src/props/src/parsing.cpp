@@ -3,7 +3,7 @@
 #define TAO_PEGTL_NAMESPACE props_pegtl
 #include <tao/pegtl.hpp>
 
-#include <iostream>
+#include <set>
 
 namespace props {
 
@@ -331,6 +331,25 @@ property_set property_set::load(std::string_view path)
 
 bool property_set::is_valid() const
 {
+  auto param_names = std::set<std::string_view>{};
+  for(auto const& param : type_signature.parameters) {
+    auto [iter, ins] = param_names.insert(param.name);
+    if(!ins) {
+      return false; // Non-unique parameter name
+    }
+  }
+
+  for(auto const& prop : properties) {
+    for(auto const& val : prop.values) {
+      if(val.value_type == value::type::parameter) {
+        auto found = param_names.find(val.param_val);
+        if(found == param_names.end()) {
+          return false;
+        }
+      }
+    }
+  }
+
   return true;
 }
 
