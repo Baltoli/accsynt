@@ -127,10 +127,8 @@ struct value_float
   : seq<
       opt<sor<one<'+'>, one<'-'>>>,
       plus<digit>,
-      opt<
-        one<'.'>,
-        plus<digit>
-      >
+      one<'.'>,
+      plus<digit>
     >
 {};
 
