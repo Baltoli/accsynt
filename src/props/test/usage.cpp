@@ -87,8 +87,18 @@ size -8
 
 TEST_CASE("can find signature indices") {
   SECTION("when the name exists") {
+    auto str = "int main(int x, int y, float *z)";
+    auto sig = signature::parse(str);
+
+    REQUIRE(sig.param_index("x") == 0);
+    REQUIRE(sig.param_index("y") == 1);
+    REQUIRE(sig.param_index("z") == 2);
   }
 
   SECTION("when the name does not exist") {
+    auto str = "int main(int x, int y)";
+    auto sig = signature::parse(str);
+    
+    REQUIRE_THROWS(sig.param_index("z"));
   }
 }
