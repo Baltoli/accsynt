@@ -92,12 +92,16 @@ struct property {
   property(Input const& in, property_set& parent) {}
 };
 
-struct property_set {
+class property_set {
+public:
   signature type_signature;
   std::vector<property> properties;
 
   static property_set parse(std::string_view str);
   static property_set load(std::string_view str);
+
+private:
+  bool is_valid() const;
 };
 
 template <typename Input>

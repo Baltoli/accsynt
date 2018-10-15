@@ -306,6 +306,11 @@ property_set property_set::parse(std::string_view str)
   (
     string_input(str, ""), pset
   );
+
+  if(!pset.is_valid()) {
+    throw std::runtime_error("Invalid pset");
+  }
+
   return pset;
 }
 
@@ -316,7 +321,17 @@ property_set property_set::load(std::string_view path)
   (
     file_input(path), pset
   );
+
+  if(!pset.is_valid()) {
+    throw std::runtime_error("Invalid pset");
+  }
+
   return pset;
+}
+
+bool property_set::is_valid() const
+{
+  return true;
 }
 
 value value::with_int(int i)
