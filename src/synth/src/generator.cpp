@@ -31,9 +31,9 @@ void generator::generate_value(call_builder& builder,
 
   if(param.pointer_depth == 0) {
     if(param.type == data_type::integer) {
-      builder.add(34);
+      builder.add(random_int());
     } else if(param.type == data_type::floating) {
-      builder.add(0.0f);
+      builder.add(random_float());
     }
   } else if(param.pointer_depth == 1) {
     if(param.type == data_type::integer) {
@@ -47,6 +47,12 @@ void generator::generate_value(call_builder& builder,
 int generator::random_int(int min, int max)
 {
   auto dis = std::uniform_int_distribution<int>(min, max);
+  return dis(random_);
+}
+
+float generator::random_float(float min, float max)
+{
+  auto dis = std::uniform_real_distribution<float>(min, max);
   return dis(random_);
 }
 
@@ -101,6 +107,8 @@ void blas_generator::generate(call_builder& builder)
       } else {
         builder.add(random_float_data(found->second, -100, 100));
       }
+    } else {
+      generate_value(builder, params.at(i));
     }
   }
 }
@@ -115,8 +123,7 @@ std::vector<float>
 blas_generator::random_float_data(int length, float min, float max)
 {
   auto ret = std::vector<float>(length, 0.0f);
-  auto dis = std::uniform_real_distribution<float>(min, max);
-  std::generate(ret.begin(), ret.end(), [&] { return dis(random_); });
+  std::generate(ret.begin(), ret.end(), [&] { return random_float(min, max); });
   return ret;
 }
 

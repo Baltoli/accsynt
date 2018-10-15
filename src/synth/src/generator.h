@@ -28,7 +28,8 @@ protected:
 
   int random_int(int min = std::numeric_limits<int>::min(), 
                  int max = std::numeric_limits<int>::max());
-  /* float random_float(); */
+  float random_float(float min = std::numeric_limits<float>::min(),
+                     float max = std::numeric_limits<float>::max());
 
   props::property_set properties_;
 
