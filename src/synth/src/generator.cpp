@@ -58,6 +58,16 @@ int generator::random_int(int min, int max)
 blas_generator::blas_generator(props::property_set ps) :
   generator(ps), sizes_()
 {
+}
+
+// This design can probably be made a lot more efficient - if it turns out to be
+// a performance killer then the best idea is probably to cache some size pairs
+// in the constructor then regenerate from that rather than from the properties
+// directly. For now it seems to work so leaving it as is.
+void blas_generator::create_next_sizes()
+{
+  sizes_.clear();
+
   properties_.for_each_named("size", [this] (auto const& prop) {
     // TODO: validate before building size map
     auto ptr_name = prop.values.at(0).param_val;
@@ -66,17 +76,36 @@ blas_generator::blas_generator(props::property_set ps) :
     auto const& sig = properties_.type_signature;
     auto ptr_index = sig.param_index(ptr_name);
     auto size_index = sig.param_index(size_name);
+
+    auto size = random_size();
+    auto [p_it, p_ins] = sizes_.insert({ptr_index, size});
+    auto [s_it, s_ins] = sizes_.insert({size_index, size});
+
+    if(!p_ins || !s_ins) {
+      throw std::runtime_error("Invalid size specification for blas");
+    }
   });
 }
 
 void blas_generator::generate(call_builder& builder)
 {
-  throw std::runtime_error("Not yet implemented");
+  create_next_sizes();
+
+  auto const& params = properties_.type_signature.parameters;
+  for(auto i = 0u; i < params.size(); ++i) {
+    if(auto found = sizes_.find(i); found != sizes_.end()) {
+      if(params.at(i).pointer_depth == 0) {
+        builder.add(found->second);
+      } else {
+        builder.add(std::vector<float>(found->second, 1.0f));
+      }
+    }
+  }
 }
 
-size_t blas_generator::random_size()
+int blas_generator::random_size()
 {
-  auto dis = std::uniform_int_distribution<size_t>(0, max_size_);
+  auto dis = std::uniform_int_distribution<int>(0, max_size_);
   return dis(random_);
 }
 

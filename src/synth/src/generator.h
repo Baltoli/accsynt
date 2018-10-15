@@ -47,9 +47,10 @@ public:
 
 private:
   size_t max_size_ = 128;
-  std::map<size_t, size_t> sizes_;
+  std::map<size_t, int> sizes_;
 
-  size_t random_size();
+  void create_next_sizes();
+  int random_size();
 };
 
 }
