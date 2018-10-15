@@ -51,6 +51,11 @@ private:
 
   void create_next_sizes();
   int random_size();
+
+  std::vector<float> random_float_data(
+      int length,
+      float min = std::numeric_limits<float>::min(),
+      float max = std::numeric_limits<float>::max());
 };
 
 }

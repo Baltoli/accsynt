@@ -87,6 +87,8 @@ void blas_generator::create_next_sizes()
   });
 }
 
+// TODO: check types more in this function
+// TODO: sanity check the sizes_ map to make sure everything generated is OK?
 void blas_generator::generate(call_builder& builder)
 {
   create_next_sizes();
@@ -97,7 +99,7 @@ void blas_generator::generate(call_builder& builder)
       if(params.at(i).pointer_depth == 0) {
         builder.add(found->second);
       } else {
-        builder.add(std::vector<float>(found->second, 1.0f));
+        builder.add(random_float_data(found->second, -100, 100));
       }
     }
   }
@@ -107,6 +109,15 @@ int blas_generator::random_size()
 {
   auto dis = std::uniform_int_distribution<int>(0, max_size_);
   return dis(random_);
+}
+
+std::vector<float> 
+blas_generator::random_float_data(int length, float min, float max)
+{
+  auto ret = std::vector<float>(length, 0.0f);
+  auto dis = std::uniform_real_distribution<float>(min, max);
+  std::generate(ret.begin(), ret.end(), [&] { return dis(random_); });
+  return ret;
 }
 
 }
