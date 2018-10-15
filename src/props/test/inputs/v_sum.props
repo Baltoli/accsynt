@@ -1,0 +1,2 @@
+float v_sum(int n, float *x)
+size x, n

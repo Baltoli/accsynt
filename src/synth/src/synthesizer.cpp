@@ -21,7 +21,7 @@ Function *null_synth::generate() const
 {
   auto build = reference_.get_builder();
 
-  auto gen = generator(properties_);
+  auto gen = blas_generator(properties_);
 
   gen.generate(build);
   auto b2 = build;

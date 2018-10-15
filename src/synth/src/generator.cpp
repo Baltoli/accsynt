@@ -1,5 +1,7 @@
 #include "generator.h"
 
+#include <fmt/format.h>
+
 using namespace props;
 
 namespace synth {
@@ -56,10 +58,20 @@ int generator::random_int(int min, int max)
 blas_generator::blas_generator(props::property_set ps) :
   generator(ps), sizes_()
 {
+  properties_.for_each_named("size", [this] (auto const& prop) {
+    // TODO: validate before building size map
+    auto ptr_name = prop.values.at(0).param_val;
+    auto size_name = prop.values.at(1).param_val;
+    
+    auto const& sig = properties_.type_signature;
+    auto ptr_index = sig.param_index(ptr_name);
+    auto size_index = sig.param_index(size_name);
+  });
 }
 
 void blas_generator::generate(call_builder& builder)
 {
+  throw std::runtime_error("Not yet implemented");
 }
 
 size_t blas_generator::random_size()
