@@ -29,6 +29,8 @@ public:
   call_builder(call_builder const&);
   call_builder& operator=(call_builder);
 
+  void reset();
+
   template <typename T>
   void add(T arg);
 

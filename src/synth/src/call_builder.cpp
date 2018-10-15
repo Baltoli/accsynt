@@ -57,6 +57,11 @@ call_builder::call_builder(call_builder const& other) :
   }
 }
 
+void call_builder::reset()
+{
+  *this = call_builder(signature_);
+}
+
 call_builder& call_builder::operator=(call_builder other)
 {
   swap(*this, other);
@@ -75,6 +80,8 @@ void swap(call_builder& left, call_builder& right)
 
 uint8_t* call_builder::args()
 {
+  assert(current_arg_ == signature_.parameters.size() &&
+         "Argument pack not fully built yet!");
   return args_.data();
 }
 
