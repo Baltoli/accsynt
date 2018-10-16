@@ -17,7 +17,7 @@ std::string null_synth::name() const
   return "Null";
 }
 
-Function *null_synth::generate() const
+Function *null_synth::generate()
 {
   auto build = reference_.get_builder();
 

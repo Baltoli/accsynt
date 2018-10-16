@@ -6,6 +6,7 @@
 #include <props/props.h>
 
 #include <llvm/IR/Function.h>
+#include <llvm/IR/Module.h>
 
 #include <string>
 #include <vector>
@@ -17,7 +18,7 @@ public:
   synthesizer(props::property_set ps, call_wrapper& wrap);
 
   virtual std::string name() const = 0;
-  virtual llvm::Function* generate() const = 0;
+  virtual llvm::Function* generate() = 0;
 
 protected:
   props::property_set properties_;
@@ -31,7 +32,7 @@ public:
   using synthesizer::synthesizer;
 
   std::string name() const override;
-  llvm::Function *generate() const override;
+  llvm::Function *generate() override;
 };
 
 class blas_synth : public synthesizer {
@@ -39,11 +40,16 @@ public:
   blas_synth(props::property_set ps, call_wrapper& wrap);
 
   std::string name() const override;
-  llvm::Function *generate() const override;
+  llvm::Function *generate() override;
 
 private:
+  llvm::Function *candidate();
+  bool satisfies_examples(llvm::Function *cand) const;
+
   blas_generator generator_;
   std::vector<std::pair<call_builder, output_example>> examples_;
+
+  llvm::Module mod_;
 };
 
 }
