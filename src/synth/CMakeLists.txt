@@ -1,5 +1,6 @@
 add_executable(synth
   src/synthesizer.cpp
+  src/blas_synth.cpp
   src/generator.cpp
   src/call_builder.cpp
   src/call_wrapper.cpp

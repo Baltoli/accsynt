@@ -54,6 +54,11 @@ private:
   std::vector<std::vector<float>> float_data_ = {};
 };
 
+struct output_example {
+  uint64_t return_value;
+  call_builder output_args;
+};
+
 template <typename T>
 void call_builder::add(T arg)
 {
