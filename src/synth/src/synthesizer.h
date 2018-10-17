@@ -1,7 +1,9 @@
 #pragma once
 
+#include "blas_properties.h"
 #include "call_wrapper.h"
 #include "generator.h"
+#include "loops.h"
 
 #include <props/props.h>
 
@@ -55,8 +57,13 @@ public:
 
 private:
   llvm::Function *candidate() override;
+  void next_loop();
 
+  blas_properties blas_props_;
   blas_generator gen_;
+
+  std::unordered_set<loop> loops_;
+  decltype(loops_)::iterator current_loop_;
 };
 
 }
