@@ -45,6 +45,20 @@ llvm::Function *blas_synth::candidate()
 std::vector<llvm::Instruction *> 
 blas_synth::build_control_flow(loop shape, Function *fn) const
 {
+  /*
+   * What this needs to do for BLAS is lay out loop control flow based on the
+   * shape passed in.
+   *
+   * We need an auxiliary method that will lay out the control flow for a single
+   * loop but with a specified end point. That allows us to handle both
+   * sequencing and nesting by walking the structure properly.
+   *
+   * That aux. method will also get a reference to the insertion points vector
+   * so that it knows where to put them - this parent function will then handle
+   * collecting them together and building the overall control flow.
+   *
+   * Data flow follows.
+   */
   auto rt = fn->getFunctionType()->getReturnType();
   auto bb = BasicBlock::Create(thread_context::get(), "ret", fn);
   auto rv = rt->isVoidTy() ? nullptr : Constant::getNullValue(rt);
