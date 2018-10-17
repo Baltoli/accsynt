@@ -21,8 +21,12 @@ public:
   virtual llvm::Function* generate() = 0;
 
 protected:
+  void make_examples(generator& gen, size_t n);
+
   props::property_set properties_;
   call_wrapper& reference_;
+
+  std::vector<std::pair<call_builder, output_example>> examples_;
 
 private:
 };
@@ -46,9 +50,7 @@ private:
   llvm::Function *candidate();
   bool satisfies_examples(llvm::Function *cand) const;
 
-  blas_generator generator_;
-  std::vector<std::pair<call_builder, output_example>> examples_;
-
+  blas_generator gen_;
   llvm::Module mod_;
 };
 

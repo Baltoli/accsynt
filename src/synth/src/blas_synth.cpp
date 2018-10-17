@@ -17,17 +17,8 @@ namespace synth {
 
 blas_synth::blas_synth(property_set ps, call_wrapper& ref) :
   synthesizer(ps, ref),
-  generator_(ps), examples_(),
-  mod_("blas_mod", thread_context::get())
+  gen_(ps), mod_("blas_mod", thread_context::get())
 {
-  auto limit = 1000;
-  for(auto i = 0; i < limit; ++i) {
-    auto cb = ref.get_builder();
-    generator_.generate(cb);
-    auto before = cb;
-    auto ret = ref.call(cb);
-    examples_.push_back({before, {ret, cb}});
-  }
 }
 
 std::string blas_synth::name() const
@@ -37,6 +28,10 @@ std::string blas_synth::name() const
 
 llvm::Function *blas_synth::generate()
 {
+  if(examples_.empty()) {
+    make_examples(gen_, 1'000);
+  }
+
   auto cand = candidate();
   errs() << satisfies_examples(cand) << '\n';
   return cand;
