@@ -76,6 +76,7 @@ void blas_generator::create_next_sizes()
 
   properties_.for_each_named("size", [this] (auto const& prop) {
     // TODO: validate before building size map
+    // TODO: use blas_properties
     auto ptr_name = prop.values.at(0).param_val;
     auto size_name = prop.values.at(1).param_val;
     
