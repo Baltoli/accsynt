@@ -24,6 +24,37 @@ void synthesizer::make_examples(generator& gen, size_t n)
   }
 }
 
+bool synthesizer::satisfies_examples(Function *cand) const
+{
+  auto wrap = call_wrapper{properties_.type_signature, 
+                           *cand->getParent(), cand->getName()};
+
+  for(auto [in, out] : examples_) {
+    auto ret = wrap.call(in);
+
+    if(ret != out.return_value || in != out.output_args) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+Function *synthesizer::generate()
+{
+  Function *cand = nullptr;
+
+  for(auto i = 0u; i < attempts_ && !cand; ++i) {
+    cand = candidate();
+    if(!satisfies_examples(cand)) {
+      cand->eraseFromParent();
+      cand = nullptr;
+    }
+  }
+
+  return cand;
+}
+
 std::string null_synth::name() const
 {
   return "Null";
@@ -31,13 +62,6 @@ std::string null_synth::name() const
 
 Function *null_synth::generate()
 {
-  auto build = reference_.get_builder();
-
-  auto gen = blas_generator(properties_);
-  gen.generate(build);
-
-  auto ret = reference_.call(build);
-  errs() << ret << '\n';
   return nullptr;
 }
 

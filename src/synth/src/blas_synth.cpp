@@ -19,22 +19,12 @@ blas_synth::blas_synth(property_set ps, call_wrapper& ref) :
   synthesizer(ps, ref),
   gen_(ps), mod_("blas_mod", thread_context::get())
 {
+  make_examples(gen_, 1'000);
 }
 
 std::string blas_synth::name() const
 {
   return "BLAS";
-}
-
-llvm::Function *blas_synth::generate()
-{
-  if(examples_.empty()) {
-    make_examples(gen_, 1'000);
-  }
-
-  auto cand = candidate();
-  errs() << satisfies_examples(cand) << '\n';
-  return cand;
 }
 
 llvm::Function *blas_synth::candidate()
@@ -50,21 +40,6 @@ llvm::Function *blas_synth::candidate()
   auto rv = rt->isVoidTy() ? nullptr : Constant::getNullValue(rt);
   ReturnInst::Create(mod_.getContext(), rv, bb);
   return fn;
-}
-
-bool blas_synth::satisfies_examples(llvm::Function *cand) const
-{
-  call_wrapper wrap(properties_.type_signature, *cand->getParent(), cand->getName());
-
-  for(auto [in, out] : examples_) {
-    auto ret = wrap.call(in);
-
-    if(ret != out.return_value || in != out.output_args) {
-      return false;
-    }
-  }
-
-  return true;
 }
 
 }

@@ -18,15 +18,19 @@ public:
   synthesizer(props::property_set ps, call_wrapper& wrap);
 
   virtual std::string name() const = 0;
-  virtual llvm::Function* generate() = 0;
+  virtual llvm::Function* generate();
 
 protected:
   void make_examples(generator& gen, size_t n);
+  bool satisfies_examples(llvm::Function *cand) const;
+
+  virtual llvm::Function *candidate() = 0;
 
   props::property_set properties_;
   call_wrapper& reference_;
 
   std::vector<std::pair<call_builder, output_example>> examples_;
+  size_t attempts_ = 128;
 
 private:
 };
@@ -44,11 +48,9 @@ public:
   blas_synth(props::property_set ps, call_wrapper& wrap);
 
   std::string name() const override;
-  llvm::Function *generate() override;
 
 private:
-  llvm::Function *candidate();
-  bool satisfies_examples(llvm::Function *cand) const;
+  llvm::Function *candidate() override;
 
   blas_generator gen_;
   llvm::Module mod_;

@@ -47,5 +47,7 @@ int main(int argc, char **argv)
   auto fn = synth.generate();
   if(fn) {
     errs() << *fn << '\n';
+  } else {
+    errs() << "No function found\n";
   }
 }
