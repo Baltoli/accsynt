@@ -37,12 +37,19 @@ llvm::Function *blas_synth::candidate()
   next_loop();
 
   auto fn = create_stub();
+  build_control_flow(*current_loop_, fn);
+
+  return fn;
+}
+
+std::vector<llvm::Instruction *> 
+blas_synth::build_control_flow(loop shape, Function *fn) const
+{
   auto rt = fn->getFunctionType()->getReturnType();
-  
   auto bb = BasicBlock::Create(thread_context::get(), "ret", fn);
   auto rv = rt->isVoidTy() ? nullptr : Constant::getNullValue(rt);
   ReturnInst::Create(mod_.getContext(), rv, bb);
-  return fn;
+  return {};
 }
 
 void blas_synth::next_loop()
