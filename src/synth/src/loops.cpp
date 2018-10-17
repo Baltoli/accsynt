@@ -6,17 +6,17 @@
 #include <iostream>
 #include <numeric>
 
-namespace accsynt {
+namespace synth {
 
-Loop::Loop(const Loop& other) :
+loop::loop(const loop& other) :
   slot_(other.slot_)
 {
   for(const auto& child : other.loops_) {
-    loops_.emplace_back(new Loop(*child));
+    loops_.emplace_back(new loop(*child));
   }
 }
 
-Loop& Loop::operator=(Loop other)
+loop& loop::operator=(loop other)
 {
   using std::swap;
   slot_ = other.slot_;
@@ -24,32 +24,32 @@ Loop& Loop::operator=(Loop other)
   return *this;
 }
 
-std::optional<long> Loop::ID() const
+std::optional<long> loop::ID() const
 {
   if(!slot_) { return {}; }
-  if(auto l_id = std::get_if<LoopID>(&*slot_)) {
+  if(auto l_id = std::get_if<loop_id>(&*slot_)) {
     return l_id->id;
   }
   return {};
 }
 
-Loop& Loop::add_child(Loop const& l)
+loop& loop::add_child(loop const& l)
 {
-  return *loops_.emplace_back(new Loop(l));
+  return *loops_.emplace_back(new loop(l));
 }
 
-Loop Loop::nested() const
+loop loop::nested() const
 {
-  auto ret = Loop{};
+  auto ret = loop{};
   ret.add_child(*this);
   return ret;
 }
 
-Loop Loop::normalised() const
+loop loop::normalised() const
 {
-  auto ret = Loop{{}};
+  auto ret = loop{{}};
   if(slot_) {
-    ret = Loop{};
+    ret = loop{};
   }
 
   for(auto& ch : loops_) {
@@ -64,9 +64,9 @@ Loop Loop::normalised() const
   return ret;
 }
 
-std::unordered_set<Loop> Loop::next_variants() const
+std::unordered_set<loop> loop::next_variants() const
 {
-  auto ret = std::unordered_set<Loop>{};
+  auto ret = std::unordered_set<loop>{};
 
   // Recurse
   for(auto i = 0u; i < children_size(); ++i) {
@@ -82,25 +82,25 @@ std::unordered_set<Loop> Loop::next_variants() const
   ret.insert(nested());
   
   // Pre-/post-sequence
-  auto loop = Loop{{}};
-  auto l2 = loop;
-  loop.add_child(Loop{});
-  loop.add_child(*this);
+  auto l = loop{{}};
+  auto l2 = l;
+  l.add_child(loop{});
+  l.add_child(*this);
   l2.add_child(*this);
-  l2.add_child(Loop{});
-  ret.insert(loop);
+  l2.add_child(loop{});
+  ret.insert(l);
   ret.insert(l2);
 
   return ret;
 }
 
-std::unordered_set<Loop> Loop::shapes(size_t n)
+std::unordered_set<loop> loop::shapes(size_t n)
 {
-  auto ret = std::unordered_set<Loop>{};
+  auto ret = std::unordered_set<loop>{};
 
   if(n == 0) {
   } else if(n == 1) {
-    ret.insert(Loop{});
+    ret.insert(loop{});
   } else {
     auto prevs = shapes(n - 1);
     for(auto p : prevs) {
@@ -114,7 +114,7 @@ std::unordered_set<Loop> Loop::shapes(size_t n)
   return ret;
 }
 
-bool Loop::operator==(Loop const& other) const
+bool loop::operator==(loop const& other) const
 {
   if(slot_ != other.slot_) {
     return false;
@@ -135,12 +135,12 @@ bool Loop::operator==(Loop const& other) const
   return true;
 }
 
-bool Loop::operator!=(Loop const& other) const
+bool loop::operator!=(loop const& other) const
 {
   return !(*this == other);
 }
 
-size_t Loop::hash() const
+size_t loop::hash() const
 {
   size_t ret = 0;
   support::hash_combine(ret, slot_);
@@ -150,16 +150,16 @@ size_t Loop::hash() const
   return ret;
 }
 
-std::unordered_set<Loop> Loop::loops(size_t n)
+std::unordered_set<loop> loop::loops(size_t n)
 {
   auto ids = std::vector<long>(n);
   std::iota(ids.begin(), ids.end(), 0);
   return loops(n, ids.begin(), ids.end());
 }
 
-bool Loop::is_instantiated() const
+bool loop::is_instantiated() const
 {
-  if(auto sl = slot_; !std::holds_alternative<LoopID>(*sl)) {
+  if(auto sl = slot_; !std::holds_alternative<loop_id>(*sl)) {
     return false;
   }
 
@@ -168,18 +168,18 @@ bool Loop::is_instantiated() const
   });
 }
 
-std::ostream& operator<<(std::ostream& os, Slot const& slot)
+std::ostream& operator<<(std::ostream& os, slot const& slot)
 {
   auto printer = support::visitor{
-    [&os] (Hole) { os << "()"; },
-    [&os] (LoopID l) { os << "L" << l.id; }
+    [&os] (hole) { os << "()"; },
+    [&os] (loop_id l) { os << "L" << l.id; }
   };
 
   std::visit(printer, slot);
   return os;
 }
 
-std::ostream& operator<<(std::ostream& os, Loop const& loop)
+std::ostream& operator<<(std::ostream& os, loop const& loop)
 {
   auto nest = bool{loop.slot_};
   if(nest) {
@@ -201,19 +201,19 @@ std::ostream& operator<<(std::ostream& os, Loop const& loop)
 }
 
 namespace std {
-  using namespace accsynt;
+  using namespace synth;
 
-  size_t hash<Hole>::operator()(Hole const& h) const {
+  size_t hash<hole>::operator()(hole const& h) const {
     return 0;
   }
 
-  size_t hash<LoopID>::operator()(LoopID const& h) const {
+  size_t hash<loop_id>::operator()(loop_id const& h) const {
     size_t ret = 0;
     support::hash_combine(ret, h.id);
     return ret;
   }
 
-  size_t hash<Loop>::operator()(Loop const& l) const {
+  size_t hash<loop>::operator()(loop const& l) const {
     return l.hash();
   }
 }

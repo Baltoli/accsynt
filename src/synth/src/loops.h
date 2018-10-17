@@ -12,30 +12,30 @@
 #include <variant>
 #include <vector>
 
-namespace accsynt {
-  struct Hole;
-  struct LoopID;
-  class Loop;
+namespace synth {
+  struct hole;
+  struct loop_id;
+  class loop;
 }
 
 namespace std {
   template <>
-  struct hash<accsynt::Hole> {
-    size_t operator()(accsynt::Hole const& h) const;
+  struct hash<synth::hole> {
+    size_t operator()(synth::hole const& h) const;
   };
 
   template <>
-  struct hash<accsynt::LoopID> {
-    size_t operator()(accsynt::LoopID const& h) const;
+  struct hash<synth::loop_id> {
+    size_t operator()(synth::loop_id const& h) const;
   };
 
   template <>
-  struct hash<accsynt::Loop> {
-    size_t operator()(accsynt::Loop const& h) const;
+  struct hash<synth::loop> {
+    size_t operator()(synth::loop const& h) const;
   };
 }
 
-namespace accsynt {
+namespace synth {
 
 /**
  * \brief Represents a slot in which a loop ID can be instantiated.
@@ -43,28 +43,28 @@ namespace accsynt {
  * These holes are used to build the unlabelled tree structure representing
  * loops in the shape code.
  */
-struct Hole {
+struct hole {
   /// Always returns true; all holes are equivalent.
-  bool operator==(Hole const& other) const { return true; }
+  bool operator==(hole const& other) const { return true; }
 
   /// Always returns false; all holes are equivalent.
-  bool operator!=(Hole const& other) const { return false; }
+  bool operator!=(hole const& other) const { return false; }
 };
 
 /**
  * \brief Small type-safe wrapper around a loop identifier.
  */
-struct LoopID { 
-  LoopID() = delete;
+struct loop_id { 
+  loop_id() = delete;
 
   /// Comparisons use underlying id.
-  bool operator==(LoopID const& other) const
+  bool operator==(loop_id const& other) const
   {
     return id == other.id;
   }
 
   /// Comparisons use underlying id.
-  bool operator!=(LoopID const& other) const
+  bool operator!=(loop_id const& other) const
   {
     return !(*this == other);
   }
@@ -76,11 +76,11 @@ struct LoopID {
 /**
  * \brief Represents the positition of a loop iterator.
  *
- * If a Slot instance holds a Hole, it has not yet been instantiated with a loop
- * identifier. Similarly, if it holds a LoopID, it represents a specific
+ * If a slot instance holds a hole, it has not yet been instantiated with a loop
+ * identifier. Similarly, if it holds a loop_id, it represents a specific
  * iterator within the loop structure (i.e. it has been instantiated).
  */
-using Slot = std::variant<Hole, LoopID>;
+using slot = std::variant<hole, loop_id>;
 
 /**
  * \brief Represents a node in a loop tree structure.
@@ -112,44 +112,44 @@ using Slot = std::variant<Hole, LoopID>;
  * loop (possibly with others nested inside). If it does not, the instance
  * represents a (potentially empty) sequence of loops.
  */
-class Loop {
+class loop {
   // The sequence of child loops for this instance.
-  std::vector<std::unique_ptr<Loop>> loops_ = {};
+  std::vector<std::unique_ptr<loop>> loops_ = {};
 
   // If a loop has no slot, it represents a sequence of its children.
-  std::optional<Slot> slot_ = Hole{};
+  std::optional<slot> slot_ = hole{};
 
 public:
   /**
-   * \brief The default state for a Loop object is a Hole with no child loops.
+   * \brief The default state for a loop object is a hole with no child loops.
    *
    * This default state represents the following loop structure:
    * ```
    * for(... : ?) {}
    * ```
    */
-  Loop() = default;
+  loop() = default;
 
   /**
-   * \brief Construct a Loop using a slot.
+   * \brief Construct a loop using a slot.
    *
-   * If the argument to this constructor is a Hole, it is equivalent to default
+   * If the argument to this constructor is a hole, it is equivalent to default
    * constructing.
    *
-   * This constructor can be used to construct a container Loop (one that does
+   * This constructor can be used to construct a container loop (one that does
    * not have an outer iterator) by passing an empty optional.
    */
-  Loop(std::optional<Slot> s) : slot_{s} {}
+  loop(std::optional<slot> s) : slot_{s} {}
 
   /**
-   * \brief Copy-construct a Loop by copying all child loops.
+   * \brief Copy-construct a loop by copying all child loops.
    */
-  Loop(const Loop& other);
+  loop(const loop& other);
 
   /**
    * \brief Assignment operator uses copy-and swap.
    */
-  Loop& operator=(Loop other);
+  loop& operator=(loop other);
 
   /**
    * \name Comparison
@@ -158,13 +158,13 @@ public:
    * outer slot, and all their children compare equal, the loops are equal.
    */
   ///@{
-  bool operator==(Loop const& other) const;
-  bool operator!=(Loop const& other) const;
+  bool operator==(loop const& other) const;
+  bool operator!=(loop const& other) const;
   
   /**
    * \brief Public hash function that can access private state.
    *
-   * This function is used by the `std::hash<Loop>` specialisation.
+   * This function is used by the `std::hash<loop>` specialisation.
    */
   size_t hash() const;
   ///@}
@@ -183,22 +183,22 @@ public:
    * \name In-place manipulation
    */
   ///@{
-  Loop& add_child(Loop const& l);
+  loop& add_child(loop const& l);
 
   template <typename Container>
   void instantiate(Container c);
   ///@}
 
   /**
-   * \name Constructing new Loops
+   * \name Constructing new loops
    */
   ///@{
-  Loop nested() const;
-  Loop normalised() const;
-  std::unordered_set<Loop> next_variants() const;
+  loop nested() const;
+  loop normalised() const;
+  std::unordered_set<loop> next_variants() const;
 
   template <typename Iterator>
-  std::pair<Loop, Iterator> instantiated(Iterator begin, Iterator end) const;
+  std::pair<loop, Iterator> instantiated(Iterator begin, Iterator end) const;
   ///@}
 
   /**
@@ -206,7 +206,7 @@ public:
    */
   ///@{
   size_t children_size() const { return loops_.size(); }
-  Loop& nth_child(size_t n) const { return *loops_.at(n); }
+  loop& nth_child(size_t n) const { return *loops_.at(n); }
 
   auto begin() const { return loops_.begin(); }
   auto end() const { return loops_.end(); }
@@ -221,22 +221,22 @@ public:
    * structures for a given number of iterators.
    */
   ///@{
-  static std::unordered_set<Loop> shapes(size_t n);
+  static std::unordered_set<loop> shapes(size_t n);
 
-  static std::unordered_set<Loop> loops(size_t n);
+  static std::unordered_set<loop> loops(size_t n);
 
   template <typename Iterator>
-  static std::unordered_set<Loop> loops(size_t n, Iterator begin, Iterator end);
+  static std::unordered_set<loop> loops(size_t n, Iterator begin, Iterator end);
   ///@}
 
   /// Print a human-readable representation of this object to a stream.
-  friend std::ostream& operator<<(std::ostream& os, Loop const& loop);
+  friend std::ostream& operator<<(std::ostream& os, loop const& loop);
 };
 
 template <typename Iterator>
-std::unordered_set<Loop> Loop::loops(size_t n, Iterator begin, Iterator end)
+std::unordered_set<loop> loop::loops(size_t n, Iterator begin, Iterator end)
 {
-  auto ret = std::unordered_set<Loop>{};
+  auto ret = std::unordered_set<loop>{};
   auto all_shapes = shapes(n);
   do {
     for(const auto& shape : all_shapes) {
@@ -249,14 +249,14 @@ std::unordered_set<Loop> Loop::loops(size_t n, Iterator begin, Iterator end)
 }
 
 template <typename Container>
-void Loop::instantiate(Container c)
+void loop::instantiate(Container c)
 {
   using std::begin; using std::end;
   *this = instantiated(begin(c), end(c)).first;
 }
 
 template <typename Iterator>
-std::pair<Loop, Iterator> Loop::instantiated(Iterator begin, Iterator end) const
+std::pair<loop, Iterator> loop::instantiated(Iterator begin, Iterator end) const
 {
   if(begin == end) {
     return {*this, begin};
@@ -265,7 +265,7 @@ std::pair<Loop, Iterator> Loop::instantiated(Iterator begin, Iterator end) const
   auto ret = *this;
   auto it = begin;
   if(ret.slot_) {
-    ret.slot_ = LoopID{*it++};
+    ret.slot_ = loop_id{*it++};
   }
 
   for(auto i = 0u; i < ret.children_size(); ++i) {
