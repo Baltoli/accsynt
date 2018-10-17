@@ -3,13 +3,15 @@
 #include "generator.h"
 
 using namespace props;
+using namespace support;
+
 using namespace llvm;
 
 namespace synth {
 
 synthesizer::synthesizer(props::property_set ps, call_wrapper& wrap)
   : properties_(ps), reference_(wrap),
-    examples_()
+    examples_(), mod_("synth", thread_context::get())
 {
 }
 
@@ -53,6 +55,11 @@ Function *synthesizer::generate()
   }
 
   return cand;
+}
+
+Function *synthesizer::create_stub()
+{
+  return properties_.type_signature.create_function(mod_);
 }
 
 std::string null_synth::name() const

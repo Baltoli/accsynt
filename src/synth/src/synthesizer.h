@@ -26,11 +26,15 @@ protected:
 
   virtual llvm::Function *candidate() = 0;
 
+  llvm::Function *create_stub();
+
   props::property_set properties_;
   call_wrapper& reference_;
 
   std::vector<std::pair<call_builder, output_example>> examples_;
   size_t attempts_ = 128;
+
+  llvm::Module mod_;
 
 private:
 };
@@ -53,7 +57,6 @@ private:
   llvm::Function *candidate() override;
 
   blas_generator gen_;
-  llvm::Module mod_;
 };
 
 }

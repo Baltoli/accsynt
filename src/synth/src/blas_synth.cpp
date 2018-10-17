@@ -17,7 +17,7 @@ namespace synth {
 
 blas_synth::blas_synth(property_set ps, call_wrapper& ref) :
   synthesizer(ps, ref),
-  gen_(ps), mod_("blas_mod", thread_context::get())
+  gen_(ps)
 {
   make_examples(gen_, 1'000);
 }
@@ -29,11 +29,7 @@ std::string blas_synth::name() const
 
 llvm::Function *blas_synth::candidate()
 {
-  for(auto& fn : mod_) { 
-    fn.eraseFromParent();
-  }
-
-  auto fn = properties_.type_signature.create_function(mod_);
+  auto fn = create_stub();
   auto rt = fn->getFunctionType()->getReturnType();
   
   auto bb = BasicBlock::Create(thread_context::get(), "ret", fn);
