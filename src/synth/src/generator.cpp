@@ -62,38 +62,25 @@ float generator::random_float(float min, float max)
  */
 
 blas_generator::blas_generator(props::property_set ps) :
-  generator(ps), sizes_()
+  generator(ps), blas_props_(ps), sizes_()
 {
 }
 
-// This design can probably be made a lot more efficient - if it turns out to be
-// a performance killer then the best idea is probably to cache some size pairs
-// in the constructor then regenerate from that rather than from the properties
-// directly. For now it seems to work so leaving it as is.
-// 
-// Ahah: this doesn't work when there are multiple arrays with the same size.
 void blas_generator::create_next_sizes()
 {
   sizes_.clear();
 
-  properties_.for_each_named("size", [this] (auto const& prop) {
-    // TODO: validate before building size map
-    // TODO: use blas_properties
-    auto ptr_name = prop.values.at(0).param_val;
-    auto size_name = prop.values.at(1).param_val;
-    
-    auto const& sig = properties_.type_signature;
-    auto ptr_index = sig.param_index(ptr_name);
-    auto size_index = sig.param_index(size_name);
+  for(auto [ptr_idx, size_idx] : blas_props_.loop_sizes()) {
+    if(sizes_.find(size_idx) == sizes_.end()) {
+      auto new_size_val = random_size();
+      sizes_.insert({size_idx, new_size_val});
+    }
 
-    auto size = random_size();
-    auto [p_it, p_ins] = sizes_.insert({ptr_index, size});
-    auto [s_it, s_ins] = sizes_.insert({size_index, size});
-
-    if(!p_ins || !s_ins) {
+    auto [p_it, p_ins] = sizes_.insert({ptr_idx, sizes_.at(size_idx)});
+    if(!p_ins) {
       throw std::runtime_error("Invalid size specification for blas");
     }
-  });
+  }
 }
 
 // TODO: check types more in this function
