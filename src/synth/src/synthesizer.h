@@ -59,7 +59,12 @@ private:
   llvm::Function *candidate() override;
   void next_loop();
 
-  std::vector<llvm::Instruction *> build_control_flow(loop shape, llvm::Function *fn) const;
+  std::vector<llvm::Instruction *> 
+    build_control_flow(loop shape, llvm::Function *fn) const;
+
+  llvm::BasicBlock *
+    build_loop(loop shape, llvm::BasicBlock* end_dst, 
+               std::vector<llvm::Instruction *>& inserts) const;
 
   blas_properties blas_props_;
   blas_generator gen_;
