@@ -42,10 +42,15 @@ size_t blas_properties::merged_loop_count() const
   return size_indexes().size();
 }
 
-// TODO
-std::vector<size_t> blas_properties::pointers_with_size(size_t size_idx) const
+std::set<size_t> blas_properties::pointers_with_size(size_t size_idx) const
 {
-  return {};
+  auto ret = std::set<size_t>{};
+  for(auto [ptr, sz] : sizes_) {
+    if(size_idx == sz) {
+      ret.insert(ptr);
+    }
+  }
+  return ret;
 }
 
 }

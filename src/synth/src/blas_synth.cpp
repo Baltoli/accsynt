@@ -108,6 +108,13 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
   auto iter = B.CreatePHI(iter_ty, 2, "iter");
   iter->addIncoming(ConstantInt::get(iter_ty, 0), header);
 
+  auto with_size = blas_props_.pointers_with_size(size_idx);
+  for(auto ptr_idx : with_size) {
+    auto ptr_arg = std::next(fn->arg_begin(), ptr_idx);
+    auto gep = B.CreateGEP(ptr_arg, {iter});
+    B.CreateLoad(gep);
+  }
+
   auto post_body = BasicBlock::Create(ctx, "post", fn);
   B.SetInsertPoint(post_body);
 

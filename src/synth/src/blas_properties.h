@@ -17,7 +17,7 @@ public:
   // The merged loop count is the number of unique loop sizes in this
   // property set
   size_t merged_loop_count() const;
-  std::vector<size_t> pointers_with_size(size_t size_idx) const;
+  std::set<size_t> pointers_with_size(size_t size_idx) const;
 
   std::set<size_t> size_indexes() const;
 
