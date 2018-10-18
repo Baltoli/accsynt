@@ -28,4 +28,29 @@ std::map<size_t, size_t> const& blas_properties::loop_sizes() const
   return sizes_;
 }
 
+std::set<size_t> blas_properties::size_indexes() const
+{
+  auto ret = std::set<size_t>{};
+  for(auto [ptr, sz] : sizes_) {
+    ret.insert(sz);
+  }
+  return ret;
+}
+
+size_t blas_properties::merged_loop_count() const
+{
+  return size_indexes().size();
+}
+
+std::set<size_t> blas_properties::pointers_with_size(size_t size_idx) const
+{
+  auto ret = std::set<size_t>{};
+  for(auto [ptr, sz] : sizes_) {
+    if(size_idx == sz) {
+      ret.insert(ptr);
+    }
+  }
+  return ret;
+}
+
 }

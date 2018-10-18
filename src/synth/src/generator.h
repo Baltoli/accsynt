@@ -1,5 +1,6 @@
 #pragma once
 
+#include "blas_properties.h"
 #include "call_builder.h"
 
 #include <props/props.h>
@@ -47,6 +48,8 @@ public:
   void generate(call_builder& builder) override;
 
 private:
+  blas_properties blas_props_;
+
   size_t max_size_ = 128;
   std::map<size_t, int> sizes_;
 
