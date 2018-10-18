@@ -129,10 +129,12 @@ bool call_builder::operator==(call_builder const& other) const
         all_eq = all_eq && 
           (int_data_.at(int_data_offset) == 
            other.int_data_.at(int_data_offset));
+        int_data_offset++;
       } else if(param.type == data_type::floating) {
         all_eq = all_eq && 
           (float_data_.at(float_data_offset) == 
            other.float_data_.at(float_data_offset));
+        float_data_offset++;
       }
     }
   }
