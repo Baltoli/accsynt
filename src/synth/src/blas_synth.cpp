@@ -37,8 +37,11 @@ llvm::Function *blas_synth::candidate()
   next_loop();
 
   auto fn = create_stub();
+  // TODO: this doesn't handle the case where there is no loop - it needs to be
+  // optional
   build_control_flow(*current_loop_, fn);
 
+  llvm::errs() << *fn << '\n';
   return fn;
 }
 
@@ -59,10 +62,20 @@ blas_synth::build_control_flow(loop shape, Function *fn) const
    *
    * Data flow follows.
    */
-  auto rt = fn->getFunctionType()->getReturnType();
-  auto bb = BasicBlock::Create(thread_context::get(), "ret", fn);
-  auto rv = rt->isVoidTy() ? nullptr : Constant::getNullValue(rt);
-  ReturnInst::Create(mod_.getContext(), rv, bb);
+  auto& ctx = fn->getContext();
+
+  auto entry = BasicBlock::Create(ctx, "entry", fn);
+  auto exit = BasicBlock::Create(ctx, "exit", fn);
+  BranchInst::Create(exit, entry);
+
+  // Create dummy return value until we do data flow properly.
+  auto rt = fn->getReturnType();
+  if(rt->isVoidTy()) {
+    ReturnInst::Create(ctx, exit);
+  } else {
+    ReturnInst::Create(ctx, Constant::getNullValue(rt), exit);
+  }
+
   return {};
 }
 

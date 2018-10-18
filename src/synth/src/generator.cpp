@@ -70,6 +70,8 @@ blas_generator::blas_generator(props::property_set ps) :
 // a performance killer then the best idea is probably to cache some size pairs
 // in the constructor then regenerate from that rather than from the properties
 // directly. For now it seems to work so leaving it as is.
+// 
+// Ahah: this doesn't work when there are multiple arrays with the same size.
 void blas_generator::create_next_sizes()
 {
   sizes_.clear();

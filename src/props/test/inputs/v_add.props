@@ -1,0 +1,4 @@
+void v_add(int n, float *x, float *y, float *o)
+size x, n
+size y, n
+size o, n
