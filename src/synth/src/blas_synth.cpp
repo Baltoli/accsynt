@@ -43,7 +43,13 @@ llvm::Function *blas_synth::candidate()
   // TODO: this doesn't handle the case where there is no loop - it needs to be
   // optional
   auto data_synth = dataflow_synth(fn);
-  build_control_flow(*current_loop_, fn);
+  auto seeds = build_control_flow(*current_loop_, fn);
+
+  // TODO: maybe put this code inside the control flow generator and pass a
+  // reference to the dataflow synth?
+  for(auto* instr : seeds) {
+    data_synth.seed(instr);
+  }
 
   data_synth.create_dataflow();
   llvm::errs() << *fn << '\n';
@@ -68,12 +74,12 @@ blas_synth::build_control_flow(loop shape, Function *fn) const
    * Data flow follows.
    */
   auto& ctx = fn->getContext();
-  auto inserts = std::vector<Instruction *>{};
+  auto seeds = std::vector<Instruction *>{};
 
   auto entry = BasicBlock::Create(ctx, "entry", fn);
   auto exit = BasicBlock::Create(ctx, "exit", fn);
 
-  auto header = build_loop(shape, exit, inserts);
+  auto header = build_loop(shape, exit, seeds);
   BranchInst::Create(header, entry);
 
   // Create dummy return value until we do data flow properly.
@@ -84,14 +90,14 @@ blas_synth::build_control_flow(loop shape, Function *fn) const
     ReturnInst::Create(ctx, Constant::getNullValue(rt), exit);
   }
 
-  return inserts;
+  return seeds;
 }
 
 // TODO: handle nested loops in this method - loop over the children of shape
 // and build them appropriately.
 // TODO: logic to lay out sequences of loops when there's no parent.
 BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst, 
-                                   std::vector<Instruction *>& inserts) const
+                                   std::vector<Instruction *>& seeds) const
 {
   auto loop_id = *shape.ID();
   auto indexes = blas_props_.size_indexes();
@@ -115,7 +121,9 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
   for(auto ptr_idx : with_size) {
     auto ptr_arg = std::next(fn->arg_begin(), ptr_idx);
     auto gep = B.CreateGEP(ptr_arg, {iter});
-    B.CreateLoad(gep);
+    auto load = B.CreateLoad(gep);
+    
+    seeds.push_back(load);
   }
 
   auto post_body = BasicBlock::Create(ctx, "post", fn);
