@@ -1,6 +1,8 @@
 #pragma once
 
+#include <llvm/IR/Constant.h>
 #include <llvm/IR/Value.h>
+#include <llvm/Support/raw_ostream.h>
 
 #include <vector>
 
@@ -25,7 +27,6 @@ void value_sampler::operator()(Builder&& B, size_t n,
     // TODO: do this randomly
     // TODO: and do it the right number of times
     auto *val = live.at(0);
-    B.CreateBitCast(val, val->getType(), "noop");
   }
 }
 
