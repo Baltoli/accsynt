@@ -27,21 +27,30 @@ void dataflow_synth::create_dataflow()
   dom_tree_.recalculate(*function_);
   auto const& roots = dom_tree_.getRoots();
 
-  auto work = std::queue<BasicBlock *>{};
   for(auto *root : roots) {
-    work.push(root);
+    create_block_dataflow(root, {});
+  }
+}
+
+void dataflow_synth::create_block_dataflow(llvm::BasicBlock *block, 
+                                           std::vector<llvm::Value *> live)
+{
+  // At each block, we make the set of seeds in that block live
+  for(auto seed : seeds_) {
+    if(auto instr = dyn_cast<Instruction>(seed)) {
+      if(instr->getParent() == block) {
+        live.push_back(instr);
+      }
+    }
   }
 
-  while(!work.empty()) {
-    auto block = work.front();
-    work.pop();
+  // Note that the sampler is responsible for updating the set of live values -
+  // it might synthesise things that shouldn't be considered.
+  auto builder = IRBuilder<>(block->getTerminator());
+  sampler_(builder, 1, live);
 
-    auto builder = IRBuilder<>(block->getTerminator());
-    sampler_(builder, 1, seeds_);
-
-    for(auto ch : dom_tree_.getNode(block)->getChildren()) {
-      work.push(ch->getBlock());
-    }
+  for(auto ch : dom_tree_.getNode(block)->getChildren()) {
+    create_block_dataflow(ch->getBlock(), live);
   }
 }
 

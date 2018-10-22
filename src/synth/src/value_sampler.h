@@ -13,7 +13,7 @@ public:
   value_sampler() = default;
 
   template <typename Builder>
-  void operator()(Builder&&, size_t, std::vector<llvm::Value *> const&);
+  void operator()(Builder&&, size_t, std::vector<llvm::Value *>&);
 
 private:
   // Internal state kept during the generation process
@@ -21,7 +21,7 @@ private:
 
 template <typename Builder>
 void value_sampler::operator()(Builder&& B, size_t n, 
-                               std::vector<llvm::Value *> const& live)
+                               std::vector<llvm::Value *>& live)
 {
   if(!live.empty()) {
     // TODO: do this randomly

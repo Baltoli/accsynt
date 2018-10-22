@@ -2,6 +2,7 @@
 
 #include "value_sampler.h"
 
+#include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/Dominators.h>
 #include <llvm/IR/Function.h>
 
@@ -15,6 +16,9 @@ public:
   void create_dataflow();
 
 private:
+  void create_block_dataflow(llvm::BasicBlock *block, 
+                             std::vector<llvm::Value *> live);
+
   llvm::Function *function_;
   llvm::DominatorTree dom_tree_;
 
