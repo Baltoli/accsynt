@@ -1,3 +1,4 @@
+#include "dataflow_synth.h"
 #include "loops.h"
 #include "synthesizer.h"
 
@@ -41,8 +42,10 @@ llvm::Function *blas_synth::candidate()
   auto fn = create_stub();
   // TODO: this doesn't handle the case where there is no loop - it needs to be
   // optional
+  auto data_synth = dataflow_synth(fn);
   build_control_flow(*current_loop_, fn);
 
+  data_synth.create_dataflow();
   llvm::errs() << *fn << '\n';
   return fn;
 }
