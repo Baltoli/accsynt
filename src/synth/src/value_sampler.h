@@ -1,0 +1,32 @@
+#pragma once
+
+#include <llvm/IR/Value.h>
+
+#include <vector>
+
+namespace synth {
+
+class value_sampler {
+public:
+  value_sampler() = default;
+
+  template <typename Builder>
+  void operator()(Builder&&, size_t, std::vector<llvm::Value *> const&);
+
+private:
+  // Internal state kept during the generation process
+};
+
+template <typename Builder>
+void value_sampler::operator()(Builder&& B, size_t n, 
+                               std::vector<llvm::Value *> const& live)
+{
+  if(!live.empty()) {
+    // TODO: do this randomly
+    // TODO: and do it the right number of times
+    auto *val = live.at(0);
+    B.CreateBitCast(val, val->getType(), "noop");
+  }
+}
+
+}

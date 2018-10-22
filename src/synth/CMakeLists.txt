@@ -1,4 +1,5 @@
 add_executable(synth
+  src/value_sampler.cpp
   src/blas_properties.cpp
   src/loops.cpp
   src/synthesizer.cpp
