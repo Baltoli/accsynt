@@ -1,6 +1,7 @@
 #include "value_sampler.h"
 
 #include <support/llvm_values.h>
+#include <support/random.h>
 
 #include <llvm/IR/Constant.h>
 
@@ -23,7 +24,8 @@ void value_sampler::add_incoming(
     if(pred_live.empty()) {
       phi->addIncoming(constant(ty), pred);
     } else {
-      phi->addIncoming(*pred_live.begin(), pred);
+      auto val = uniform_sample(pred_live);
+      phi->addIncoming(*val, pred);
     }
   }
 }
