@@ -51,7 +51,19 @@ llvm::Function *blas_synth::candidate()
     data_synth.seed(instr);
   }
 
+  auto& ctx = fn->getContext();
+  auto rt = fn->getReturnType();
+
+  if(rt->isVoidTy()) {
+    ReturnInst::Create(ctx, exit);
+  } else {
+    ReturnInst::Create(ctx, Constant::getNullValue(rt), exit);
+  }
+
   data_synth.create_dataflow();
+
+  // TODO: fix up the return value here by filling in a value to the returninst
+
   llvm::errs() << *fn << '\n';
   return fn;
 }
@@ -82,14 +94,6 @@ blas_synth::build_control_flow(loop shape, Function *fn) const
 
   auto header = build_loop(shape, exit, seeds, outputs);
   BranchInst::Create(header, entry);
-
-  // Create dummy return value until we do data flow properly.
-  auto rt = fn->getReturnType();
-  if(rt->isVoidTy()) {
-    ReturnInst::Create(ctx, exit);
-  } else {
-    ReturnInst::Create(ctx, Constant::getNullValue(rt), exit);
-  }
 
   return { seeds, outputs, exit };
 }
