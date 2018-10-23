@@ -43,7 +43,7 @@ llvm::Function *blas_synth::candidate()
   // TODO: this doesn't handle the case where there is no loop - it needs to be
   // optional
   auto data_synth = dataflow_synth(fn);
-  auto seeds = build_control_flow(*current_loop_, fn);
+  auto [seeds, outputs, exit] = build_control_flow(*current_loop_, fn);
 
   // TODO: maybe put this code inside the control flow generator and pass a
   // reference to the dataflow synth?
@@ -56,7 +56,7 @@ llvm::Function *blas_synth::candidate()
   return fn;
 }
 
-std::vector<llvm::Instruction *> 
+blas_control_data
 blas_synth::build_control_flow(loop shape, Function *fn) const
 {
   /*
@@ -75,11 +75,12 @@ blas_synth::build_control_flow(loop shape, Function *fn) const
    */
   auto& ctx = fn->getContext();
   auto seeds = std::vector<Instruction *>{};
+  auto outputs = std::vector<Instruction *>{};
 
   auto entry = BasicBlock::Create(ctx, "entry", fn);
   auto exit = BasicBlock::Create(ctx, "exit", fn);
 
-  auto header = build_loop(shape, exit, seeds);
+  auto header = build_loop(shape, exit, seeds, outputs);
   BranchInst::Create(header, entry);
 
   // Create dummy return value until we do data flow properly.
@@ -90,14 +91,15 @@ blas_synth::build_control_flow(loop shape, Function *fn) const
     ReturnInst::Create(ctx, Constant::getNullValue(rt), exit);
   }
 
-  return seeds;
+  return { seeds, outputs, exit };
 }
 
 // TODO: handle nested loops in this method - loop over the children of shape
 // and build them appropriately.
 // TODO: logic to lay out sequences of loops when there's no parent.
 BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst, 
-                                   std::vector<Instruction *>& seeds) const
+                                   std::vector<Instruction *>& seeds,
+                                   std::vector<Instruction *>& outputs) const
 {
   auto loop_id = *shape.ID();
   auto indexes = blas_props_.size_indexes();

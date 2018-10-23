@@ -8,6 +8,12 @@
 
 namespace synth {
 
+struct blas_control_data {
+  std::vector<llvm::Instruction *> seeds;
+  std::vector<llvm::Instruction *> outputs;
+  llvm::BasicBlock *exit;
+};
+
 class blas_synth : public synthesizer {
 public:
   blas_synth(props::property_set ps, call_wrapper& wrap);
@@ -18,12 +24,12 @@ private:
   llvm::Function *candidate() override;
   void next_loop();
 
-  std::vector<llvm::Instruction *> 
-    build_control_flow(loop shape, llvm::Function *fn) const;
+  blas_control_data build_control_flow(loop shape, llvm::Function *fn) const;
 
-  llvm::BasicBlock *
-    build_loop(loop shape, llvm::BasicBlock* end_dst, 
-               std::vector<llvm::Instruction *>& inserts) const;
+  llvm::BasicBlock *build_loop(
+      loop shape, llvm::BasicBlock* end_dst, 
+      std::vector<llvm::Instruction *>& outputs,
+      std::vector<llvm::Instruction *>& seeds) const;
 
   blas_properties blas_props_;
   blas_generator gen_;
