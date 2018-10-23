@@ -1,9 +1,12 @@
 #include "dataflow_synth.h"
 
+#include <support/llvm_values.h>
+
 #include <llvm/IR/IRBuilder.h>
 
 #include <queue>
 
+using namespace support;
 using namespace llvm;
 
 namespace synth {
@@ -28,10 +31,7 @@ void dataflow_synth::create_dataflow()
   }
 
   for(auto phi : phis_) {
-    auto block = phi->getParent();
-    for(auto it = pred_begin(block); it != pred_end(block); ++it) {
-      auto live = final_live_.at(*it);
-    }
+    sampler_.add_incoming(phi, final_live_);
   }
 }
 
@@ -51,23 +51,18 @@ void dataflow_synth::create_block_dataflow(llvm::BasicBlock *block,
 
   auto n_preds = std::distance(pred_begin(block), pred_end(block));
   if(n_preds > 1) {
-    for(auto i = 0; i < 1; ++i) {
-      // TODO: try to make a better guess at what types we could put into these
-      // PHI nodes. For now just make a couple each of float and int32
-      auto phi1 = builder.CreatePHI(builder.getInt32Ty(), n_preds);
-      auto phi2 = builder.CreatePHI(builder.getFloatTy(), n_preds);
-
-      live.push_back(phi1);
-      live.push_back(phi2);
-      phis_.push_back(phi1);
-      phis_.push_back(phi2);
+    auto types = all_types(live);
+    for(auto ty : types) {
+      auto phi = builder.CreatePHI(ty, n_preds);
+      live.push_back(phi);
+      phis_.push_back(phi);
     }
   }
 
   // Note that the sampler is responsible for updating the set of live values -
   // it might synthesise things that shouldn't be considered.
   builder.SetInsertPoint(block->getTerminator());
-  sampler_(builder, 1, live);
+  sampler_.block(builder, 1, live);
 
   for(auto ch : dom_tree_.getNode(block)->getChildren()) {
     create_block_dataflow(ch->getBlock(), live);

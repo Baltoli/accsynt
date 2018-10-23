@@ -1,6 +1,9 @@
 #pragma once
 
+#include <llvm/IR/BasicBlock.h>
+#include <llvm/IR/CFG.h>
 #include <llvm/IR/Constant.h>
+#include <llvm/IR/Instructions.h>
 #include <llvm/IR/Value.h>
 #include <llvm/Support/raw_ostream.h>
 
@@ -13,15 +16,22 @@ public:
   value_sampler() = default;
 
   template <typename Builder>
-  void operator()(Builder&&, size_t, std::vector<llvm::Value *>&);
+  void block(Builder&&, size_t, std::vector<llvm::Value *>&);
+
+  void add_incoming(
+    llvm::PHINode *phi, 
+    std::map<llvm::BasicBlock *, std::vector<llvm::Value *>> const& live);
+
+protected:
+  llvm::Value *constant(llvm::Type *ty) const;
 
 private:
   // Internal state kept during the generation process
 };
 
 template <typename Builder>
-void value_sampler::operator()(Builder&& B, size_t n, 
-                               std::vector<llvm::Value *>& live)
+void value_sampler::block(Builder&& B, size_t n, 
+                          std::vector<llvm::Value *>& live)
 {
   if(!live.empty()) {
     // TODO: do this randomly
