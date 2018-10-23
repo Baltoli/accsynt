@@ -1,5 +1,5 @@
 #include "call_wrapper.h"
-#include "synthesizer.h"
+#include "blas_synth.h"
 
 #include <props/props.h>
 #include <support/dynamic_library.h>

@@ -1,6 +1,6 @@
+#include "blas_synth.h"
 #include "dataflow_synth.h"
 #include "loops.h"
-#include "synthesizer.h"
 
 #include <support/thread_context.h>
 
@@ -126,6 +126,7 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
     seeds.push_back(load);
 
     if(blas_props_.is_output(ptr_idx)) {
+      // Now somehow store
     }
   }
 
