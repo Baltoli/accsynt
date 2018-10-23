@@ -107,7 +107,7 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
   auto& ctx = fn->getContext();
 
   auto size_arg = std::next(fn->arg_begin(), size_idx);
-  auto iter_ty = IntegerType::get(ctx, 64);
+  auto iter_ty = IntegerType::get(ctx, 32); // TODO: ???
 
   auto header = BasicBlock::Create(ctx, "header", fn);
   auto B = IRBuilder<>(header);

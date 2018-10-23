@@ -1,6 +1,7 @@
 project(libsupport VERSION 0.1 LANGUAGES CXX)
 
 add_library(support
+  src/random.cpp
   src/llvm_values.cpp
   src/llvm_cloning.cpp
   src/load_module.cpp
