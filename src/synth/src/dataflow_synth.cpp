@@ -18,10 +18,6 @@ void dataflow_synth::seed(Value *instr)
   seeds_.push_back(instr);
 }
 
-// This really needs to be recursive - we should keep track of a vector of
-// values, then recurse into each child block as we come to them. Keep proper
-// track of the live values at each step - just handing over the seeds obviously
-// doesn't work ;)
 void dataflow_synth::create_dataflow()
 {
   dom_tree_.recalculate(*function_);
@@ -44,9 +40,21 @@ void dataflow_synth::create_block_dataflow(llvm::BasicBlock *block,
     }
   }
 
+  auto builder = IRBuilder<>(&*block->begin());
+
+  auto n_preds = std::distance(pred_begin(block), pred_end(block));
+  if(n_preds > 1) {
+    for(auto i = 0; i < 1; ++i) {
+      // TODO: try to make a better guess at what types we could put into these
+      // PHI nodes. For now just make a couple each of float and int32
+      builder.CreatePHI(builder.getInt32Ty(), n_preds);
+      builder.CreatePHI(builder.getFloatTy(), n_preds);
+    }
+  }
+
   // Note that the sampler is responsible for updating the set of live values -
   // it might synthesise things that shouldn't be considered.
-  auto builder = IRBuilder<>(block->getTerminator());
+  builder.SetInsertPoint(block->getTerminator());
   sampler_(builder, 1, live);
 
   for(auto ch : dom_tree_.getNode(block)->getChildren()) {
