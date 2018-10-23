@@ -26,6 +26,13 @@ void dataflow_synth::create_dataflow()
   for(auto *root : roots) {
     create_block_dataflow(root, {});
   }
+
+  for(auto phi : phis_) {
+    auto block = phi->getParent();
+    for(auto it = pred_begin(block); it != pred_end(block); ++it) {
+      auto live = final_live_.at(*it);
+    }
+  }
 }
 
 void dataflow_synth::create_block_dataflow(llvm::BasicBlock *block, 
@@ -47,8 +54,13 @@ void dataflow_synth::create_block_dataflow(llvm::BasicBlock *block,
     for(auto i = 0; i < 1; ++i) {
       // TODO: try to make a better guess at what types we could put into these
       // PHI nodes. For now just make a couple each of float and int32
-      builder.CreatePHI(builder.getInt32Ty(), n_preds);
-      builder.CreatePHI(builder.getFloatTy(), n_preds);
+      auto phi1 = builder.CreatePHI(builder.getInt32Ty(), n_preds);
+      auto phi2 = builder.CreatePHI(builder.getFloatTy(), n_preds);
+
+      live.push_back(phi1);
+      live.push_back(phi2);
+      phis_.push_back(phi1);
+      phis_.push_back(phi2);
     }
   }
 
@@ -60,6 +72,8 @@ void dataflow_synth::create_block_dataflow(llvm::BasicBlock *block,
   for(auto ch : dom_tree_.getNode(block)->getChildren()) {
     create_block_dataflow(ch->getBlock(), live);
   }
+
+  final_live_.insert({block, live});
 }
 
 }

@@ -6,6 +6,8 @@
 #include <llvm/IR/Dominators.h>
 #include <llvm/IR/Function.h>
 
+#include <map>
+
 namespace synth {
 
 class dataflow_synth {
@@ -23,6 +25,9 @@ private:
   llvm::DominatorTree dom_tree_;
 
   std::vector<llvm::Value *> seeds_ = {};
+  std::vector<llvm::PHINode *> phis_ = {};
+  std::map<llvm::BasicBlock *, std::vector<llvm::Value *>> final_live_ = {};
+
   value_sampler sampler_ = {};
 };
 
