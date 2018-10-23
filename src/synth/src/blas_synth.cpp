@@ -2,6 +2,8 @@
 #include "dataflow_synth.h"
 #include "loops.h"
 
+#include <support/llvm_values.h>
+#include <support/random.h>
 #include <support/thread_context.h>
 
 #include <fmt/format.h>
@@ -61,7 +63,20 @@ llvm::Function *blas_synth::candidate()
   }
 
   data_synth.create_dataflow();
+  auto const& live = data_synth.block_live();
 
+  for(auto out_ptr : outputs) {
+    // TODO: unsafe cast
+    auto type = cast<PointerType>(out_ptr->getType())->getElementType();
+
+    auto block = out_ptr->getParent();
+    auto block_live = with_type(type, live.at(block));
+
+    if(!block_live.empty()) {
+      auto store_val = *uniform_sample(block_live);
+      new StoreInst(store_val, out_ptr, block->getTerminator());
+    }
+  }
   // TODO: fix up the return value here by filling in a value to the returninst
 
   llvm::errs() << *fn << '\n';
@@ -132,7 +147,8 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
     seeds.push_back(load);
 
     if(blas_props_.is_output(ptr_idx)) {
-      // Now somehow store
+      // TODO: unsafe cast
+      outputs.push_back(cast<Instruction>(gep));
     }
   }
 
