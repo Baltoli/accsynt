@@ -21,12 +21,17 @@ public:
 
   std::set<size_t> size_indexes() const;
 
+  bool is_output(size_t idx) const;
+
 private:
   size_t count_ = 0;
   
   // Stores a mapping from ptr_index -> size_index, where the indexes are into
   // the arguments of the property_set's type signature
   std::map<size_t, size_t> sizes_ = {};
+
+  // Store which argument indices are outputs
+  std::set<size_t> outputs_ = {};
 };
 
 }

@@ -12,10 +12,15 @@ namespace synth {
 
 class dataflow_synth {
 public:
+  using block_live_map = 
+    std::map<llvm::BasicBlock *, std::vector<llvm::Value *>>;
+
   dataflow_synth(llvm::Function *);
 
   void seed(llvm::Value *);
   void create_dataflow();
+
+  block_live_map const& block_live() const;
 
 private:
   void create_block_dataflow(llvm::BasicBlock *block, 
@@ -26,7 +31,7 @@ private:
 
   std::vector<llvm::Value *> seeds_ = {};
   std::vector<llvm::PHINode *> phis_ = {};
-  std::map<llvm::BasicBlock *, std::vector<llvm::Value *>> final_live_ = {};
+  block_live_map final_live_ = {};
 
   value_sampler sampler_ = {};
 };

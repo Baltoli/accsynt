@@ -71,4 +71,9 @@ void dataflow_synth::create_block_dataflow(llvm::BasicBlock *block,
   final_live_.insert({block, live});
 }
 
+dataflow_synth::block_live_map const& dataflow_synth::block_live() const
+{
+  return final_live_;
+}
+
 }

@@ -124,6 +124,9 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
     auto load = B.CreateLoad(gep);
     
     seeds.push_back(load);
+
+    if(blas_props_.is_output(ptr_idx)) {
+    }
   }
 
   auto post_body = BasicBlock::Create(ctx, "post", fn);

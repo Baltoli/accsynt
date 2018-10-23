@@ -16,6 +16,15 @@ blas_properties::blas_properties(props::property_set ps)
 
     sizes_.insert({ptr_index, size_index});
   });
+
+  ps.for_each_named("output", [&,this] (auto const& prop) {
+    auto ptr_name = prop.values.at(0).param_val;
+
+    auto const& sig = ps.type_signature;
+    auto ptr_index = sig.param_index(ptr_name);
+
+    outputs_.insert(ptr_index);
+  });
 }
 
 size_t blas_properties::loop_count() const
@@ -35,6 +44,11 @@ std::set<size_t> blas_properties::size_indexes() const
     ret.insert(sz);
   }
   return ret;
+}
+
+bool blas_properties::is_output(size_t idx) const
+{
+  return outputs_.find(idx) != outputs_.end();
 }
 
 size_t blas_properties::merged_loop_count() const
