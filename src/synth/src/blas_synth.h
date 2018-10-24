@@ -29,7 +29,8 @@ private:
   llvm::BasicBlock *build_loop(
       loop shape, llvm::BasicBlock* end_dst, 
       std::vector<llvm::Instruction *>& seeds,
-      std::vector<llvm::Instruction *>& outputs) const;
+      std::vector<llvm::Instruction *>& outputs,
+      std::vector<llvm::Value *> iters) const;
 
   blas_properties blas_props_;
   blas_generator gen_;

@@ -25,6 +25,15 @@ blas_properties::blas_properties(props::property_set ps)
 
     outputs_.insert(ptr_index);
   });
+
+  auto i = 0;
+  for(auto param : ps.type_signature.parameters) {
+    if(param.pointer_depth > 0 && sizes_.find(i) == sizes_.end()) {
+      unsized_.insert(i);
+    }
+
+    ++i;
+  }
 }
 
 size_t blas_properties::loop_count() const
@@ -65,6 +74,11 @@ std::set<size_t> blas_properties::pointers_with_size(size_t size_idx) const
     }
   }
   return ret;
+}
+
+std::set<size_t> blas_properties::unsized_pointers() const
+{
+  return unsized_;
 }
 
 }

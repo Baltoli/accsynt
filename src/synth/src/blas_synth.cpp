@@ -116,7 +116,7 @@ blas_synth::build_control_flow(loop shape, Function *fn) const
   auto entry = BasicBlock::Create(ctx, "entry", fn);
   auto exit = BasicBlock::Create(ctx, "exit", fn);
 
-  auto header = build_loop(shape, exit, seeds, outputs);
+  auto header = build_loop(shape, exit, seeds, outputs, {});
   BranchInst::Create(header, entry);
 
   return { seeds, outputs, exit };
@@ -127,7 +127,8 @@ blas_synth::build_control_flow(loop shape, Function *fn) const
 // TODO: logic to lay out sequences of loops when there's no parent.
 BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst, 
                                    std::vector<Instruction *>& seeds,
-                                   std::vector<Instruction *>& outputs) const
+                                   std::vector<Instruction *>& outputs,
+                                   std::vector<Value *> iters) const
 {
   auto loop_id = *shape.ID();
   auto indexes = blas_props_.size_indexes();
@@ -177,9 +178,27 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
     }
   }
 
+  iters.push_back(iter);
+  if(iters.size() == 2) {
+    for(auto idx : blas_props_.unsized_pointers()) {
+      auto ptr_arg = std::next(fn->arg_begin(), idx);
+
+      // TODO: make properly generic
+      // ------- shortcut
+      auto stride = fn->arg_begin();
+      auto mul = B.CreateMul(iters.at(1), stride);
+      auto array_index = B.CreateAdd(iters.at(0), mul);
+      auto gep = B.CreateGEP(ptr_arg, {array_index});
+      auto load = B.CreateLoad(gep);
+
+      seeds.push_back(load);
+      // ------- end shortcut
+    }
+  }
+
   BasicBlock *dest = body_post;
   for(auto& ch : shape) {
-    dest = build_loop(*ch, dest, seeds, outputs);
+    dest = build_loop(*ch, dest, seeds, outputs, iters);
   }
   B.CreateBr(dest);
 
