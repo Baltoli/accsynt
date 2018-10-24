@@ -62,7 +62,7 @@ void dataflow_synth::create_block_dataflow(llvm::BasicBlock *block,
   // Note that the sampler is responsible for updating the set of live values -
   // it might synthesise things that shouldn't be considered.
   builder.SetInsertPoint(block->getTerminator());
-  sampler_.block(builder, 1, live);
+  sampler_.block(builder, 5, live);
 
   for(auto ch : dom_tree_.getNode(block)->getChildren()) {
     create_block_dataflow(ch->getBlock(), live);
