@@ -31,13 +31,8 @@ bool synthesizer::satisfies_examples(Function *cand) const
   auto wrap = call_wrapper{properties_.type_signature, 
                            *cand->getParent(), cand->getName()};
 
-  int vvv = 0;
   for(auto [in, out] : examples_) {
     auto ret = wrap.call(in);
-    ++vvv;
-    // WHAT
-    // Sometimes an example is just *WRONG* - why is this? It contains all
-    // zeroes. Look at make_examples to see what breaks.
 
     if(ret != out.return_value || in != out.output_args) {
       return false;

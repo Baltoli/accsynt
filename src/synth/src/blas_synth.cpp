@@ -79,7 +79,7 @@ llvm::Function *blas_synth::candidate()
   }
   // TODO: fix up the return value here by filling in a value to the returninst
 
-  llvm::errs() << *fn << '\n';
+  /* llvm::errs() << *fn << '\n'; */
   return fn;
 }
 
@@ -133,11 +133,19 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
   auto header = BasicBlock::Create(ctx, "header", fn);
   auto B = IRBuilder<>(header);
 
-  auto pre_body = BasicBlock::Create(ctx, "pre", fn);
-  B.SetInsertPoint(pre_body);
+  auto body = BasicBlock::Create(ctx, "body", fn);
+  auto exit = BasicBlock::Create(ctx, "loop_exit", fn);
+
+  auto check = BasicBlock::Create(ctx, "loop-check", fn);
+  B.SetInsertPoint(check);
   auto iter = B.CreatePHI(iter_ty, 2, "iter");
   iter->addIncoming(ConstantInt::get(iter_ty, 0), header);
+  auto next = B.CreateAdd(iter, ConstantInt::get(iter_ty, 1), "next_iter");
+  iter->addIncoming(next, body);
+  auto cond = B.CreateICmpSLT(iter, B.CreateSExtOrBitCast(size_arg, iter_ty));
+  B.CreateCondBr(cond, body, exit);
 
+  B.SetInsertPoint(body);
   auto with_size = blas_props_.pointers_with_size(size_idx);
   for(auto ptr_idx : with_size) {
     auto ptr_arg = std::next(fn->arg_begin(), ptr_idx);
@@ -151,20 +159,10 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
       outputs.push_back(cast<Instruction>(gep));
     }
   }
+  B.CreateBr(check);
 
-  auto post_body = BasicBlock::Create(ctx, "post", fn);
-  B.SetInsertPoint(post_body);
-
-  auto exit = BasicBlock::Create(ctx, "loop_exit", fn);
-  B.SetInsertPoint(exit);
-  auto next = B.CreateAdd(iter, ConstantInt::get(iter_ty, 1), "next_iter");
-  iter->addIncoming(next, exit);
-  auto cond = B.CreateICmpEQ(next, B.CreateSExtOrBitCast(size_arg, iter_ty));
-  B.CreateCondBr(cond, end_dst, pre_body);
-
-  BranchInst::Create(pre_body, header);
-  BranchInst::Create(post_body, pre_body);
-  BranchInst::Create(exit, post_body);
+  BranchInst::Create(check, header);
+  BranchInst::Create(end_dst, exit);
 
   return header;
 }
