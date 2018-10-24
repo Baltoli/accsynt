@@ -94,6 +94,7 @@ llvm::Function *blas_synth::candidate()
 blas_control_data
 blas_synth::build_control_flow(loop shape, Function *fn) const
 {
+  std::cerr << shape << '\n';
   /*
    * What this needs to do for BLAS is lay out loop control flow based on the
    * shape passed in.
@@ -141,19 +142,20 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
   auto header = BasicBlock::Create(ctx, "header", fn);
   auto B = IRBuilder<>(header);
 
-  auto body = BasicBlock::Create(ctx, "body", fn);
+  auto body_pre = BasicBlock::Create(ctx, "body_pre", fn);
+  auto body_post = BasicBlock::Create(ctx, "body_post", fn);
   auto exit = BasicBlock::Create(ctx, "loop_exit", fn);
 
-  auto check = BasicBlock::Create(ctx, "loop-check", fn);
+  auto check = BasicBlock::Create(ctx, "loop_check", fn);
   B.SetInsertPoint(check);
   auto iter = B.CreatePHI(iter_ty, 2, "iter");
   iter->addIncoming(ConstantInt::get(iter_ty, 0), header);
   auto next = B.CreateAdd(iter, ConstantInt::get(iter_ty, 1), "next_iter");
-  iter->addIncoming(next, body);
+  iter->addIncoming(next, body_post);
   auto cond = B.CreateICmpSLT(iter, B.CreateSExtOrBitCast(size_arg, iter_ty));
-  B.CreateCondBr(cond, body, exit);
+  B.CreateCondBr(cond, body_pre, exit);
 
-  B.SetInsertPoint(body);
+  B.SetInsertPoint(body_pre);
   auto with_size = blas_props_.pointers_with_size(size_idx);
   for(auto ptr_idx : with_size) {
     auto ptr_arg = std::next(fn->arg_begin(), ptr_idx);
@@ -164,9 +166,24 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
 
     if(blas_props_.is_output(ptr_idx)) {
       // TODO: unsafe cast
-      outputs.push_back(cast<Instruction>(gep));
+
+      auto ip = B.saveIP();
+
+      B.SetInsertPoint(body_post);
+      auto store_gep = B.CreateGEP(ptr_arg, {iter});
+      outputs.push_back(cast<Instruction>(store_gep));
+
+      B.restoreIP(ip);
     }
   }
+
+  BasicBlock *dest = body_post;
+  for(auto& ch : shape) {
+    dest = build_loop(*ch, dest, seeds, outputs);
+  }
+  B.CreateBr(dest);
+
+  B.SetInsertPoint(body_post);
   B.CreateBr(check);
 
   BranchInst::Create(check, header);
