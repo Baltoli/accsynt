@@ -43,11 +43,17 @@ template <typename Builder>
 void value_sampler::block(Builder&& B, size_t n, 
                           std::vector<llvm::Value *>& live)
 {
+  auto non_const = [] (auto *v) {
+    return !llvm::isa<llvm::Constant>(v);
+  };
+
   for(auto i = 0u; i < n; ++i) {
     if(!live.empty()) {
-      auto v1 = *support::uniform_sample(live);
-      auto v2 = *support::uniform_sample(live);
-      live.push_back(arithmetic(B, v1, v2));
+      auto v1 = support::uniform_sample_if(live, non_const);
+      auto v2 = support::uniform_sample_if(live, non_const);
+      if(v1 != live.end() && v2 != live.end()) { 
+        live.push_back(arithmetic(B, *v1, *v2));
+      }
     }
   }
 }

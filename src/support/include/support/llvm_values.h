@@ -1,7 +1,9 @@
 #pragma once
 
+#include <llvm/IR/Instructions.h>
 #include <llvm/IR/Value.h>
 
+#include <queue>
 #include <set>
 
 namespace support {
@@ -27,5 +29,7 @@ std::set<llvm::Type *> all_types(Container&& c)
   }
   return ret;
 }
+
+std::set<llvm::Value *> all_uses(llvm::Value *v);
 
 }

@@ -17,6 +17,8 @@ void value_sampler::add_incoming(
   auto ty = phi->getType();
   auto block = phi->getParent();
 
+  auto uses = all_uses(phi);
+
   for(auto pred : predecessors(block)) {
     auto pred_live = with_type(ty, live.at(pred));
     pred_live.erase(phi);
@@ -24,8 +26,25 @@ void value_sampler::add_incoming(
     if(pred_live.empty()) {
       phi->addIncoming(constant(ty), pred);
     } else {
-      auto val = uniform_sample(pred_live);
-      phi->addIncoming(*val, pred);
+      if(uses.empty()) {
+        auto val = uniform_sample(pred_live);
+        phi->addIncoming(*val, pred);
+      } else {
+        auto use_live = std::set<llvm::Value *>{};
+        for(auto p : pred_live) {
+          if(uses.find(p) != uses.end()) {
+            use_live.insert(p);
+          }
+        }
+        
+        if(use_live.empty()) {
+          auto val = uniform_sample(pred_live);
+          phi->addIncoming(*val, pred);
+        } else {
+          auto val = uniform_sample(use_live);
+          phi->addIncoming(*val, pred);
+        }
+      }
     }
   }
 }
