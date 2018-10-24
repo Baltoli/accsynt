@@ -54,8 +54,8 @@ llvm::Function *blas_synth::candidate()
   }
 
   auto& ctx = fn->getContext();
-  auto rt = fn->getReturnType();
 
+  auto rt = fn->getReturnType();
   if(rt->isVoidTy()) {
     ReturnInst::Create(ctx, exit);
   } else {
@@ -77,7 +77,15 @@ llvm::Function *blas_synth::candidate()
       new StoreInst(store_val, out_ptr, block->getTerminator());
     }
   }
-  // TODO: fix up the return value here by filling in a value to the returninst
+
+  if(!rt->isVoidTy()) {
+    auto ret = exit->getTerminator();
+    ret->eraseFromParent();
+
+    auto exit_live = live.at(exit);
+    auto ret_val = *uniform_sample(with_type(rt, exit_live));
+    ReturnInst::Create(ctx, ret_val, exit);
+  }
 
   llvm::errs() << *fn << '\n';
   return fn;

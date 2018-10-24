@@ -1,0 +1,3 @@
+float dot(int n, float *a, float *b)
+size a, n
+size b, n

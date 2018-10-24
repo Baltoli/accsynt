@@ -26,8 +26,11 @@ void dataflow_synth::create_dataflow()
   dom_tree_.recalculate(*function_);
   auto const& roots = dom_tree_.getRoots();
 
+  auto root_live = std::vector<llvm::Value *>{};
+  root_live.push_back(sampler_.constant(Type::getFloatTy(function_->getContext())));
+
   for(auto *root : roots) {
-    create_block_dataflow(root, {});
+    create_block_dataflow(root, root_live);
   }
 
   for(auto phi : phis_) {

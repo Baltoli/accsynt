@@ -46,7 +46,7 @@ Function *synthesizer::generate()
 {
   Function *cand = nullptr;
 
-  for(auto i = 0u; i < attempts_ && !cand; ++i) {
+  while(!cand) {
     cand = candidate();
     if(!satisfies_examples(cand)) {
       cand->eraseFromParent();

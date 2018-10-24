@@ -29,9 +29,9 @@ public:
     llvm::PHINode *phi, 
     std::map<llvm::BasicBlock *, std::vector<llvm::Value *>> const& live);
 
-protected:
   llvm::Value *constant(llvm::Type *ty) const;
 
+protected:
   template <typename Builder>
   llvm::Value *arithmetic(Builder&& B, llvm::Value *v1, llvm::Value *v2) const;
 
