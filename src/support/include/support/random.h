@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <limits>
 #include <random>
 
 namespace support {
@@ -57,6 +58,15 @@ auto uniform_sample_if(Container const& c, UnaryPred p)
   using std::end;
 
   return uniform_sample_if(begin(c), end(c), p);
+}
+
+template <typename IntType>
+IntType random_int(IntType min = std::numeric_limits<IntType>::min(),
+                   IntType max = std::numeric_limits<IntType>::max())
+{
+  auto rd = std::random_device{};
+  auto dist = std::uniform_int_distribution<IntType>{min, max};
+  return dist(rd);
 }
 
 }

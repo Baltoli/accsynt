@@ -1,5 +1,7 @@
 #pragma once
 
+#include <support/random.h>
+
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/CFG.h>
 #include <llvm/IR/Constant.h>
@@ -11,6 +13,11 @@
 
 namespace synth {
 
+/*
+ * TODO: this is BLAS specific code - need to tidy it up and put it behind a
+ * more general interface so that other domains can then pick how they want to
+ * build their dataflow. Keeping instructions restricted for now.
+ */
 class value_sampler {
 public:
   value_sampler() = default;
@@ -25,6 +32,9 @@ public:
 protected:
   llvm::Value *constant(llvm::Type *ty) const;
 
+  template <typename Builder>
+  llvm::Value *arithmetic(Builder&& B, llvm::Value *v1, llvm::Value *v2) const;
+
 private:
   // Internal state kept during the generation process
 };
@@ -33,11 +43,36 @@ template <typename Builder>
 void value_sampler::block(Builder&& B, size_t n, 
                           std::vector<llvm::Value *>& live)
 {
-  if(!live.empty()) {
-    // TODO: do this randomly
-    // TODO: and do it the right number of times
-    auto *val = live.at(0);
+  for(auto i = 0u; i < n; ++i) {
+    if(!live.empty()) {
+      auto v1 = *support::uniform_sample(live);
+      auto v2 = *support::uniform_sample(live);
+      live.push_back(arithmetic(B, v1, v2));
+    }
   }
 }
+
+template <typename Builder>
+llvm::Value *value_sampler::arithmetic(
+    Builder&& B, llvm::Value *v1, llvm::Value *v2) const
+{
+  // TODO: be more forgiving to different types being passed in here - look for
+  // common base type etc and try to do some extensions / upcasting
+  
+  if(v1->getType() != v2->getType()) {
+    return nullptr;
+  }
+
+  // TODO: check integer vs. floating point etc
+  auto choice = support::random_int(0, 2);
+  switch(choice) {
+    case 0: return B.CreateFAdd(v1, v2);
+    case 1: return B.CreateFMul(v1, v2);
+    case 2: return B.CreateFSub(v1, v2);
+  }
+
+  __builtin_unreachable();
+}
+
 
 }

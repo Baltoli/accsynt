@@ -79,7 +79,7 @@ llvm::Function *blas_synth::candidate()
   }
   // TODO: fix up the return value here by filling in a value to the returninst
 
-  /* llvm::errs() << *fn << '\n'; */
+  llvm::errs() << *fn << '\n';
   return fn;
 }
 
