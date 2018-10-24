@@ -1,0 +1,4 @@
+void v_copy(int n, float *i, float *o)
+size i, n
+size o, n
+output o

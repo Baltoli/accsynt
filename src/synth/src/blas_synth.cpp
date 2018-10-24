@@ -159,7 +159,7 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
   B.SetInsertPoint(exit);
   auto next = B.CreateAdd(iter, ConstantInt::get(iter_ty, 1), "next_iter");
   iter->addIncoming(next, exit);
-  auto cond = B.CreateICmpEQ(iter, B.CreateSExtOrBitCast(size_arg, iter_ty));
+  auto cond = B.CreateICmpEQ(next, B.CreateSExtOrBitCast(size_arg, iter_ty));
   B.CreateCondBr(cond, end_dst, pre_body);
 
   BranchInst::Create(pre_body, header);
