@@ -35,6 +35,7 @@ protected:
   llvm::Module mod_;
 
 private:
+  llvm::Function *debug_generate();
 };
 
 class null_synth : public synthesizer {
