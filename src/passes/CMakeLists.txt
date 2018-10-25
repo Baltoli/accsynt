@@ -1,4 +1,5 @@
 add_library(AccsyntPasses SHARED
+  src/fix_floats.cpp
   src/clean.cpp
   src/namer.cpp
   src/to_idl.cpp
