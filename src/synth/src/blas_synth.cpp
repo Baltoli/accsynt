@@ -123,7 +123,7 @@ blas_synth::build_control_flow(loop shape, Function *fn) const
   auto entry = BasicBlock::Create(ctx, "entry", fn);
   auto exit = BasicBlock::Create(ctx, "exit", fn);
 
-  auto header = build_loop(shape, exit, seeds, outputs, {});
+  auto header = build_loop(shape, exit, seeds, outputs, blocks, {});
   BranchInst::Create(header, entry);
 
   return { seeds, outputs, blocks, exit };
@@ -135,6 +135,7 @@ blas_synth::build_control_flow(loop shape, Function *fn) const
 BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst, 
                                    std::vector<Instruction *>& seeds,
                                    std::vector<Instruction *>& outputs,
+                                   std::vector<BasicBlock *>& data_blocks,
                                    std::vector<Value *> iters) const
 {
   auto loop_id = *shape.ID();
@@ -153,6 +154,9 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
   auto body_pre = BasicBlock::Create(ctx, "body_pre", fn);
   auto body_post = BasicBlock::Create(ctx, "body_post", fn);
   auto exit = BasicBlock::Create(ctx, "loop_exit", fn);
+
+  data_blocks.push_back(body_pre);
+  data_blocks.push_back(body_post);
 
   auto check = BasicBlock::Create(ctx, "loop_check", fn);
   B.SetInsertPoint(check);
@@ -205,7 +209,7 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
 
   BasicBlock *dest = body_post;
   for(auto& ch : shape) {
-    dest = build_loop(*ch, dest, seeds, outputs, iters);
+    dest = build_loop(*ch, dest, seeds, outputs, data_blocks, iters);
   }
   B.CreateBr(dest);
 
