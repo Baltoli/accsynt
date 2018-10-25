@@ -167,7 +167,7 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
   for(auto ptr_idx : with_size) {
     auto ptr_arg = std::next(fn->arg_begin(), ptr_idx);
     auto gep = B.CreateGEP(ptr_arg, {iter});
-    auto load = B.CreateLoad(gep, "SVAL");
+    auto load = B.CreateLoad(gep);
     
     seeds.push_back(load);
 
@@ -195,7 +195,7 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
       auto mul = B.CreateMul(iters.at(0), stride);
       auto array_index = B.CreateAdd(iters.at(1), mul);
       auto gep = B.CreateGEP(ptr_arg, {array_index});
-      auto load = B.CreateLoad(gep, "AVAL");
+      auto load = B.CreateLoad(gep);
 
       seeds.push_back(load);
       // ------- end shortcut
