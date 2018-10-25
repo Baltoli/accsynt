@@ -56,6 +56,10 @@ Function *blas_synth::candidate()
     data_synth.seed(instr);
   }
 
+  for(auto& arg : fn->args()) {
+    data_synth.seed(&arg);
+  }
+
   auto& ctx = fn->getContext();
 
   auto rt = fn->getReturnType();

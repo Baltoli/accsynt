@@ -2,6 +2,7 @@
 
 #include <support/llvm_values.h>
 
+#include <llvm/IR/Argument.h>
 #include <llvm/IR/IRBuilder.h>
 
 #include <queue>
@@ -47,6 +48,10 @@ void dataflow_synth::create_block_dataflow(llvm::BasicBlock *block,
       if(instr->getParent() == block) {
         live.push_back(instr);
       }
+    } else if(auto arg = dyn_cast<Argument>(seed)) {
+      // TODO: add arguments to live set if they are scalars
+      //       then write a vector scale program, then move on to general GEMV
+      __builtin_trap();
     }
   }
 
