@@ -39,7 +39,7 @@ void generator::generate_value(call_builder& builder,
     if(param.type == data_type::integer) {
       builder.add(std::vector<int>{1});
     } else if(param.type == data_type::floating) {
-      builder.add(std::vector<float>{1.0f});
+      builder.add(random_float_data(16 * 16 * 4, -10, 10));
     }
   }
 }
@@ -56,6 +56,13 @@ float generator::random_float(float min, float max)
   return dis(random_);
 }
 
+std::vector<float>
+generator::random_float_data(int length, float min, float max)
+{
+  auto ret = std::vector<float>(length, 0.0f);
+  std::generate(ret.begin(), ret.end(), [&] { return random_float(min, max); });
+  return ret;
+}
 
 /*
  *  BLAS-specific generator
@@ -95,7 +102,7 @@ void blas_generator::generate(call_builder& builder)
       if(params.at(i).pointer_depth == 0) {
         builder.add(found->second);
       } else {
-        builder.add(random_float_data(found->second, -100, 100));
+        builder.add(random_float_data(found->second, -10, 10));
       }
     } else {
       generate_value(builder, params.at(i));
@@ -107,14 +114,6 @@ int blas_generator::random_size()
 {
   auto dis = std::uniform_int_distribution<int>(0, max_size_);
   return dis(random_);
-}
-
-std::vector<float> 
-blas_generator::random_float_data(int length, float min, float max)
-{
-  auto ret = std::vector<float>(length, 0.0f);
-  std::generate(ret.begin(), ret.end(), [&] { return random_float(min, max); });
-  return ret;
 }
 
 }
