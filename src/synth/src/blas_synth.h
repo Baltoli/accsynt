@@ -11,6 +11,7 @@ namespace synth {
 struct blas_control_data {
   std::vector<llvm::Instruction *> seeds;
   std::vector<llvm::Instruction *> outputs;
+  std::vector<llvm::BasicBlock *> data_blocks,
   llvm::BasicBlock *exit;
 };
 
