@@ -12,7 +12,7 @@ using namespace llvm;
 namespace synth {
 
 dataflow_synth::dataflow_synth(Function *f) :
-  function_(f), dom_tree_()
+  dataflow_synth(f, [] (auto) { return true; })
 {
 }
 
@@ -65,7 +65,9 @@ void dataflow_synth::create_block_dataflow(llvm::BasicBlock *block,
   // Note that the sampler is responsible for updating the set of live values -
   // it might synthesise things that shouldn't be considered.
   builder.SetInsertPoint(block->getTerminator());
-  sampler_.block(builder, 2, live);
+  if(should_populate_(block)) {
+    sampler_.block(builder, 2, live);
+  }
 
   for(auto ch : dom_tree_.getNode(block)->getChildren()) {
     create_block_dataflow(ch->getBlock(), live);

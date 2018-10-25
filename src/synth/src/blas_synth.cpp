@@ -37,15 +37,19 @@ std::string blas_synth::name() const
   return "BLAS";
 }
 
-llvm::Function *blas_synth::candidate()
+Function *blas_synth::candidate()
 {
   next_loop();
 
   auto fn = create_stub();
   // TODO: this doesn't handle the case where there is no loop - it needs to be
   // optional
-  auto data_synth = dataflow_synth(fn);
   auto [seeds, outputs, blocks, exit] = build_control_flow(*current_loop_, fn);
+  auto data_synth = dataflow_synth(fn, [&] (auto *b) {
+    auto ret = std::find(blocks.begin(), blocks.end(), b) != blocks.end();
+    outs() << b->getName() << " -> " << ret << '\n';
+    return ret;
+  });
 
   // TODO: maybe put this code inside the control flow generator and pass a
   // reference to the dataflow synth?
