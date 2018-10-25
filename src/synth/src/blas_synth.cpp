@@ -74,6 +74,12 @@ llvm::Function *blas_synth::candidate()
 
     if(!block_live.empty()) {
       auto store_val = *uniform_sample(block_live);
+      auto phi_s = uniform_sample_if(block_live, [] (auto v) {
+        return isa<PHINode>(v);
+      });
+      if(phi_s != block_live.end()) {
+        store_val = *phi_s;
+      }
       new StoreInst(store_val, out_ptr, block->getTerminator());
     }
   }
@@ -161,7 +167,7 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
   for(auto ptr_idx : with_size) {
     auto ptr_arg = std::next(fn->arg_begin(), ptr_idx);
     auto gep = B.CreateGEP(ptr_arg, {iter});
-    auto load = B.CreateLoad(gep);
+    auto load = B.CreateLoad(gep, "SVAL");
     
     seeds.push_back(load);
 
@@ -185,11 +191,11 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
 
       // TODO: make properly generic
       // ------- shortcut
-      auto stride = fn->arg_begin();
-      auto mul = B.CreateMul(iters.at(1), stride);
-      auto array_index = B.CreateAdd(iters.at(0), mul);
+      auto stride = std::next(fn->arg_begin());
+      auto mul = B.CreateMul(iters.at(0), stride);
+      auto array_index = B.CreateAdd(iters.at(1), mul);
       auto gep = B.CreateGEP(ptr_arg, {array_index});
-      auto load = B.CreateLoad(gep);
+      auto load = B.CreateLoad(gep, "AVAL");
 
       seeds.push_back(load);
       // ------- end shortcut
