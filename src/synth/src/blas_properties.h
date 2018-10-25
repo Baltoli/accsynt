@@ -19,6 +19,8 @@ public:
   size_t merged_loop_count() const;
   std::set<size_t> pointers_with_size(size_t size_idx) const;
 
+  std::set<size_t> unsized_pointers() const;
+
   std::set<size_t> size_indexes() const;
 
   bool is_output(size_t idx) const;
@@ -32,6 +34,8 @@ private:
 
   // Store which argument indices are outputs
   std::set<size_t> outputs_ = {};
+
+  std::set<size_t> unsized_ = {};
 };
 
 }

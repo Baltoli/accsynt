@@ -37,15 +37,19 @@ std::string blas_synth::name() const
   return "BLAS";
 }
 
-llvm::Function *blas_synth::candidate()
+Function *blas_synth::candidate()
 {
   next_loop();
 
   auto fn = create_stub();
   // TODO: this doesn't handle the case where there is no loop - it needs to be
   // optional
-  auto data_synth = dataflow_synth(fn);
-  auto [seeds, outputs, exit] = build_control_flow(*current_loop_, fn);
+  auto [seeds, outputs, blocks, exit] = build_control_flow(*current_loop_, fn);
+  auto data_synth = dataflow_synth(fn, [&] (auto *b) {
+    auto ret = std::find(blocks.begin(), blocks.end(), b) != blocks.end();
+    outs() << b->getName() << " -> " << ret << '\n';
+    return ret;
+  });
 
   // TODO: maybe put this code inside the control flow generator and pass a
   // reference to the dataflow synth?
@@ -74,6 +78,12 @@ llvm::Function *blas_synth::candidate()
 
     if(!block_live.empty()) {
       auto store_val = *uniform_sample(block_live);
+      auto phi_s = uniform_sample_if(block_live, [] (auto v) {
+        return isa<PHINode>(v);
+      });
+      if(phi_s != block_live.end()) {
+        store_val = *phi_s;
+      }
       new StoreInst(store_val, out_ptr, block->getTerminator());
     }
   }
@@ -94,6 +104,7 @@ llvm::Function *blas_synth::candidate()
 blas_control_data
 blas_synth::build_control_flow(loop shape, Function *fn) const
 {
+  std::cerr << shape << '\n';
   /*
    * What this needs to do for BLAS is lay out loop control flow based on the
    * shape passed in.
@@ -111,14 +122,15 @@ blas_synth::build_control_flow(loop shape, Function *fn) const
   auto& ctx = fn->getContext();
   auto seeds = std::vector<Instruction *>{};
   auto outputs = std::vector<Instruction *>{};
+  auto blocks = std::vector<BasicBlock *>{};
 
   auto entry = BasicBlock::Create(ctx, "entry", fn);
   auto exit = BasicBlock::Create(ctx, "exit", fn);
 
-  auto header = build_loop(shape, exit, seeds, outputs);
+  auto header = build_loop(shape, exit, seeds, outputs, blocks, {});
   BranchInst::Create(header, entry);
 
-  return { seeds, outputs, exit };
+  return { seeds, outputs, blocks, exit };
 }
 
 // TODO: handle nested loops in this method - loop over the children of shape
@@ -126,7 +138,9 @@ blas_synth::build_control_flow(loop shape, Function *fn) const
 // TODO: logic to lay out sequences of loops when there's no parent.
 BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst, 
                                    std::vector<Instruction *>& seeds,
-                                   std::vector<Instruction *>& outputs) const
+                                   std::vector<Instruction *>& outputs,
+                                   std::vector<BasicBlock *>& data_blocks,
+                                   std::vector<Value *> iters) const
 {
   auto loop_id = *shape.ID();
   auto indexes = blas_props_.size_indexes();
@@ -141,19 +155,23 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
   auto header = BasicBlock::Create(ctx, "header", fn);
   auto B = IRBuilder<>(header);
 
-  auto body = BasicBlock::Create(ctx, "body", fn);
+  auto body_pre = BasicBlock::Create(ctx, "body_pre", fn);
+  auto body_post = BasicBlock::Create(ctx, "body_post", fn);
   auto exit = BasicBlock::Create(ctx, "loop_exit", fn);
 
-  auto check = BasicBlock::Create(ctx, "loop-check", fn);
+  data_blocks.push_back(body_pre);
+  data_blocks.push_back(body_post);
+
+  auto check = BasicBlock::Create(ctx, "loop_check", fn);
   B.SetInsertPoint(check);
   auto iter = B.CreatePHI(iter_ty, 2, "iter");
   iter->addIncoming(ConstantInt::get(iter_ty, 0), header);
   auto next = B.CreateAdd(iter, ConstantInt::get(iter_ty, 1), "next_iter");
-  iter->addIncoming(next, body);
+  iter->addIncoming(next, body_post);
   auto cond = B.CreateICmpSLT(iter, B.CreateSExtOrBitCast(size_arg, iter_ty));
-  B.CreateCondBr(cond, body, exit);
+  B.CreateCondBr(cond, body_pre, exit);
 
-  B.SetInsertPoint(body);
+  B.SetInsertPoint(body_pre);
   auto with_size = blas_props_.pointers_with_size(size_idx);
   for(auto ptr_idx : with_size) {
     auto ptr_arg = std::next(fn->arg_begin(), ptr_idx);
@@ -164,9 +182,42 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
 
     if(blas_props_.is_output(ptr_idx)) {
       // TODO: unsafe cast
-      outputs.push_back(cast<Instruction>(gep));
+
+      auto ip = B.saveIP();
+
+      B.SetInsertPoint(body_post);
+      auto store_gep = B.CreateGEP(ptr_arg, {iter});
+      outputs.push_back(cast<Instruction>(store_gep));
+
+      B.restoreIP(ip);
     }
   }
+
+  iters.push_back(iter);
+  if(iters.size() == 2) {
+    for(auto idx : blas_props_.unsized_pointers()) {
+      auto ptr_arg = std::next(fn->arg_begin(), idx);
+
+      // TODO: make properly generic
+      // ------- shortcut
+      auto stride = std::next(fn->arg_begin());
+      auto mul = B.CreateMul(iters.at(0), stride);
+      auto array_index = B.CreateAdd(iters.at(1), mul);
+      auto gep = B.CreateGEP(ptr_arg, {array_index});
+      auto load = B.CreateLoad(gep);
+
+      seeds.push_back(load);
+      // ------- end shortcut
+    }
+  }
+
+  BasicBlock *dest = body_post;
+  for(auto& ch : shape) {
+    dest = build_loop(*ch, dest, seeds, outputs, data_blocks, iters);
+  }
+  B.CreateBr(dest);
+
+  B.SetInsertPoint(body_post);
   B.CreateBr(check);
 
   BranchInst::Create(check, header);

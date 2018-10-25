@@ -6,6 +6,7 @@
 #include <llvm/IR/Dominators.h>
 #include <llvm/IR/Function.h>
 
+#include <functional>
 #include <map>
 
 namespace synth {
@@ -14,6 +15,9 @@ class dataflow_synth {
 public:
   using block_live_map = 
     std::map<llvm::BasicBlock *, std::vector<llvm::Value *>>;
+
+  template <typename BlockPred>
+  dataflow_synth(llvm::Function *, BlockPred&& pred);
 
   dataflow_synth(llvm::Function *);
 
@@ -33,7 +37,16 @@ private:
   std::vector<llvm::PHINode *> phis_ = {};
   block_live_map final_live_ = {};
 
+  std::function<bool (llvm::BasicBlock*)> should_populate_;
+
   value_sampler sampler_ = {};
 };
+
+template <typename BlockPred>
+dataflow_synth::dataflow_synth(llvm::Function *fn, BlockPred&& pred) :
+  function_(fn), dom_tree_(),
+  should_populate_(pred)
+{
+}
 
 }
