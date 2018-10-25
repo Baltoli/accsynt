@@ -1,10 +1,24 @@
 #include "generator.h"
 #include "synthesizer.h"
 
+#include <support/llvm_cloning.h>
+#include <support/thread_context.h>
+
+#include <llvm/IRReader/IRReader.h>
+#include <llvm/Support/CommandLine.h>
+#include <llvm/Support/SourceMgr.h>
+
 using namespace props;
 using namespace support;
 
 using namespace llvm;
+
+static cl::opt<std::string>
+DebugInput(
+    "debug", cl::Optional,
+    cl::desc("Use debug input instead of generating"),
+    cl::value_desc("filename"),
+    cl::init(""));
 
 namespace synth {
 
@@ -41,8 +55,33 @@ bool synthesizer::satisfies_examples(Function *cand) const
   return true;
 }
 
+Function *synthesizer::debug_generate()
+{
+  auto& ctx = thread_context::get();
+  SMDiagnostic Err;
+
+  auto&& mod = parseIRFile(DebugInput, Err, ctx, true, "");
+  if(!mod) {
+    Err.print("synth debug", errs());
+    return nullptr;
+  }
+
+  auto name = properties_.type_signature.name;
+  auto fn = copy_function(mod->getFunction(name), &mod_);
+  
+  if(!satisfies_examples(fn)) {
+    return nullptr;
+  }
+
+  return fn;
+}
+
 Function *synthesizer::generate()
 {
+  if(DebugInput != "") {
+    return debug_generate();
+  }
+
   Function *cand = nullptr;
 
   while(!cand) {
