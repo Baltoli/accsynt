@@ -32,6 +32,11 @@ protected:
   float random_float(float min = std::numeric_limits<float>::min(),
                      float max = std::numeric_limits<float>::max());
 
+  std::vector<float> random_float_data(
+      int length,
+      float min = std::numeric_limits<float>::min(),
+      float max = std::numeric_limits<float>::max());
+
   props::property_set properties_;
 
 private:
@@ -50,16 +55,11 @@ public:
 private:
   blas_properties blas_props_;
 
-  size_t max_size_ = 128;
+  size_t max_size_ = 16;
   std::map<size_t, int> sizes_;
 
   void create_next_sizes();
   int random_size();
-
-  std::vector<float> random_float_data(
-      int length,
-      float min = std::numeric_limits<float>::min(),
-      float max = std::numeric_limits<float>::max());
 };
 
 }

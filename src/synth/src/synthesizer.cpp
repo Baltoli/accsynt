@@ -1,6 +1,5 @@
-#include "synthesizer.h"
-
 #include "generator.h"
+#include "synthesizer.h"
 
 using namespace props;
 using namespace support;
