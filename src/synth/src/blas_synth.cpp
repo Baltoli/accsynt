@@ -47,7 +47,6 @@ Function *blas_synth::candidate()
   auto [seeds, outputs, blocks, exit] = build_control_flow(*current_loop_, fn);
   auto data_synth = dataflow_synth(fn, [&] (auto *b) {
     auto ret = std::find(blocks.begin(), blocks.end(), b) != blocks.end();
-    outs() << b->getName() << " -> " << ret << '\n';
     return ret;
   });
 
