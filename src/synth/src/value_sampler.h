@@ -70,7 +70,7 @@ llvm::Value *value_sampler::arithmetic(
   }
 
   // TODO: check integer vs. floating point etc
-  auto choice = support::random_int(0, 1);
+  auto choice = support::random_int(0, 2);
   switch(choice) {
     case 0: return B.CreateFAdd(v1, v2);
     case 1: return B.CreateFMul(v1, v2);
