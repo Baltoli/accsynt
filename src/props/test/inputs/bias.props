@@ -1,0 +1,3 @@
+void bias(float b, int n, float *x)
+size x, n
+output x
