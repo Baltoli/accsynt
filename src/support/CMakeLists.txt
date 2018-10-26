@@ -1,6 +1,7 @@
 project(libsupport VERSION 0.1 LANGUAGES CXX)
 
 add_library(support
+  src/float_compare.cpp
   src/random.cpp
   src/llvm_values.cpp
   src/llvm_cloning.cpp
@@ -26,6 +27,7 @@ install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 install(EXPORT SupportConfig DESTINATION share/Support/cmake)
 
 add_executable(support_unit
+  test/floats.cpp
   test/traits.cpp
   test/load_module.cpp
   test/main.cpp)

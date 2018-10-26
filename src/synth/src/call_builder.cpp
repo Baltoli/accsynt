@@ -1,7 +1,11 @@
 #include "call_builder.h"
 
-using namespace llvm;
+#include <support/float_compare.h>
+
 using namespace props;
+using namespace support;
+
+using namespace llvm;
 
 namespace synth {
 
@@ -132,8 +136,9 @@ bool call_builder::operator==(call_builder const& other) const
         int_data_offset++;
       } else if(param.type == data_type::floating) {
         all_eq = all_eq && 
-          (float_data_.at(float_data_offset) == 
-           other.float_data_.at(float_data_offset));
+          approx_equal(
+            float_data_.at(float_data_offset),
+            other.float_data_.at(float_data_offset));
         float_data_offset++;
       }
     }
