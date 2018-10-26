@@ -30,6 +30,15 @@ void dataflow_synth::create_dataflow()
   auto root_live = std::vector<llvm::Value *>{};
   root_live.push_back(sampler_.constant(Type::getFloatTy(function_->getContext())));
 
+  for(auto seed : seeds_) {
+    if(auto arg = dyn_cast<Argument>(seed)) {
+      // TODO: fix to include integers
+      if(arg->getType()->isFloatTy()) {
+        root_live.push_back(arg);
+      }
+    }
+  }
+
   for(auto *root : roots) {
     create_block_dataflow(root, root_live);
   }
@@ -48,10 +57,6 @@ void dataflow_synth::create_block_dataflow(llvm::BasicBlock *block,
       if(instr->getParent() == block) {
         live.push_back(instr);
       }
-    } else if(auto arg = dyn_cast<Argument>(seed)) {
-      // TODO: add arguments to live set if they are scalars
-      //       then write a vector scale program, then move on to general GEMV
-      __builtin_trap();
     }
   }
 
