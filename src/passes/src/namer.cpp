@@ -41,7 +41,9 @@ bool Namer::runOnFunction(Function &F)
 
   int argc = 0;
   for(auto& arg : F.args()) {
-    arg.setName("arg" + std::to_string(argc++));
+    if(!arg.hasName()) {
+      arg.setName("arg" + std::to_string(argc++));
+    }
   }
 
   return true;
