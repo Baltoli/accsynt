@@ -46,7 +46,7 @@ int main(int argc, char **argv)
   auto synth = blas_synth(property_set, ref);
   auto fn = synth.generate();
   if(fn) {
-    errs() << *fn << '\n';
+    outs() << *fn << '\n';
   } else {
     errs() << "No function found\n";
   }

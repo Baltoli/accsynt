@@ -83,13 +83,16 @@ Function *blas_synth::candidate()
     auto block_live = with_type(type, live.at(block));
 
     if(!block_live.empty()) {
+      // TODO: in some situations phis are preferable - basically if we have
+      // nested loops. Work out a way to integrate this.
+
       auto store_val = *uniform_sample(block_live);
-      auto phi_s = uniform_sample_if(block_live, [] (auto v) {
-        return isa<PHINode>(v);
-      });
-      if(phi_s != block_live.end()) {
-        store_val = *phi_s;
-      }
+      /* auto phi_s = uniform_sample_if(block_live, [] (auto v) { */
+      /*   return isa<PHINode>(v); */
+      /* }); */
+      /* if(phi_s != block_live.end()) { */
+      /*   store_val = *phi_s; */
+      /* } */
       new StoreInst(store_val, out_ptr, block->getTerminator());
     }
   }

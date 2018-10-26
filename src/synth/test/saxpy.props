@@ -1,0 +1,4 @@
+void saxpy(int n, float a, float *x, float *y)
+size x, n
+size y, n
+output y

@@ -33,7 +33,7 @@ void generator::generate_value(call_builder& builder,
     if(param.type == data_type::integer) {
       builder.add(random_int());
     } else if(param.type == data_type::floating) {
-      builder.add(random_float());
+      builder.add(random_float(-10, 10));
     }
   } else if(param.pointer_depth == 1) {
     if(param.type == data_type::integer) {
