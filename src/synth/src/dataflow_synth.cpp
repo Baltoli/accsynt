@@ -2,6 +2,7 @@
 
 #include <support/llvm_values.h>
 
+#include <llvm/IR/Argument.h>
 #include <llvm/IR/IRBuilder.h>
 
 #include <queue>
@@ -28,6 +29,15 @@ void dataflow_synth::create_dataflow()
 
   auto root_live = std::vector<llvm::Value *>{};
   root_live.push_back(sampler_.constant(Type::getFloatTy(function_->getContext())));
+
+  for(auto seed : seeds_) {
+    if(auto arg = dyn_cast<Argument>(seed)) {
+      // TODO: fix to include integers
+      if(arg->getType()->isFloatTy()) {
+        root_live.push_back(arg);
+      }
+    }
+  }
 
   for(auto *root : roots) {
     create_block_dataflow(root, root_live);
