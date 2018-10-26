@@ -86,6 +86,8 @@ Function *synthesizer::generate()
 
   auto attempts = 0;
   while(!cand) {
+    errs() << attempts << '\r';
+
     cand = candidate();
     if(!satisfies_examples(cand)) {
       cand->eraseFromParent();

@@ -105,14 +105,14 @@ Function *blas_synth::candidate()
     ReturnInst::Create(ctx, ret_val, exit);
   }
 
-  llvm::errs() << *fn << '\n';
+  /* llvm::errs() << *fn << '\n'; */
   return fn;
 }
 
 blas_control_data
 blas_synth::build_control_flow(Function *fn, loop shape) const
 {
-  std::cerr << shape << '\n';
+  /* std::cerr << shape << '\n'; */
   /*
    * What this needs to do for BLAS is lay out loop control flow based on the
    * shape passed in.
