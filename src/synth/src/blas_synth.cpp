@@ -44,7 +44,10 @@ Function *blas_synth::candidate()
   auto fn = create_stub();
   // TODO: this doesn't handle the case where there is no loop - it needs to be
   // optional
-  auto [seeds, outputs, blocks, exit] = build_control_flow(*current_loop_, fn);
+  auto [seeds, outputs, blocks, exit] = should_loop() ?
+    build_control_flow(fn, *current_loop_) :
+    build_control_flow(fn);
+
   auto data_synth = dataflow_synth(fn, [&] (auto *b) {
     auto ret = std::find(blocks.begin(), blocks.end(), b) != blocks.end();
     return ret;
@@ -105,7 +108,7 @@ Function *blas_synth::candidate()
 }
 
 blas_control_data
-blas_synth::build_control_flow(loop shape, Function *fn) const
+blas_synth::build_control_flow(Function *fn, loop shape) const
 {
   std::cerr << shape << '\n';
   /*
@@ -134,6 +137,21 @@ blas_synth::build_control_flow(loop shape, Function *fn) const
   BranchInst::Create(header, entry);
 
   return { seeds, outputs, blocks, exit };
+}
+
+blas_control_data
+blas_synth::build_control_flow(Function *fn) const
+{
+  auto& ctx = fn->getContext();
+
+  auto entry = BasicBlock::Create(ctx, "entry", fn);
+  auto body = BasicBlock::Create(ctx, "body", fn);
+  auto exit = BasicBlock::Create(ctx, "exit", fn);
+
+  BranchInst::Create(body, entry);
+  BranchInst::Create(exit, body);
+
+  return { {}, {}, { body }, exit };
 }
 
 // TODO: handle nested loops in this method - loop over the children of shape
@@ -201,7 +219,8 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
     for(auto idx : blas_props_.unsized_pointers()) {
       auto ptr_arg = std::next(fn->arg_begin(), idx);
 
-      // TODO: make properly generic
+      // TODO: make properly generic: push this code into an indexing
+      // abstraction that can also do convolution.
       // ------- shortcut
       auto stride = std::next(fn->arg_begin());
       auto mul = B.CreateMul(iters.at(0), stride);
@@ -227,6 +246,11 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
   BranchInst::Create(end_dst, exit);
 
   return header;
+}
+
+bool blas_synth::should_loop() const
+{
+  return !loops_.empty();
 }
 
 void blas_synth::next_loop()
