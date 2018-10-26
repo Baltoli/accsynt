@@ -42,8 +42,7 @@ Function *blas_synth::candidate()
   next_loop();
 
   auto fn = create_stub();
-  // TODO: this doesn't handle the case where there is no loop - it needs to be
-  // optional
+
   auto [seeds, outputs, blocks, exit] = should_loop() ?
     build_control_flow(fn, *current_loop_) :
     build_control_flow(fn);

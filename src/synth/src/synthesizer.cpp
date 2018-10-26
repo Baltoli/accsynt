@@ -84,14 +84,18 @@ Function *synthesizer::generate()
 
   Function *cand = nullptr;
 
+  auto attempts = 0;
   while(!cand) {
     cand = candidate();
     if(!satisfies_examples(cand)) {
       cand->eraseFromParent();
       cand = nullptr;
     }
+    
+    ++attempts;
   }
 
+  errs() << "Took " << attempts << " attempts\n";
   return cand;
 }
 
