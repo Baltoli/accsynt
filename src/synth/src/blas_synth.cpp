@@ -87,12 +87,12 @@ Function *blas_synth::candidate()
       // nested loops. Work out a way to integrate this.
 
       auto store_val = *uniform_sample(block_live);
-      /* auto phi_s = uniform_sample_if(block_live, [] (auto v) { */
-      /*   return isa<PHINode>(v); */
-      /* }); */
-      /* if(phi_s != block_live.end()) { */
-      /*   store_val = *phi_s; */
-      /* } */
+      auto phi_s = uniform_sample_if(block_live, [] (auto v) {
+        return isa<PHINode>(v);
+      });
+      if(phi_s != block_live.end()) {
+        store_val = *phi_s;
+      }
       new StoreInst(store_val, out_ptr, block->getTerminator());
     }
   }
@@ -184,7 +184,6 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
   auto exit = BasicBlock::Create(ctx, "loop_exit", fn);
 
   data_blocks.push_back(body_pre);
-  data_blocks.push_back(body_post);
 
   auto check = BasicBlock::Create(ctx, "loop_check", fn);
   B.SetInsertPoint(check);
@@ -244,6 +243,10 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
 
   B.SetInsertPoint(body_post);
   B.CreateBr(check);
+
+  if(shape.children_size() > 0) {
+    data_blocks.push_back(body_post);
+  }
 
   BranchInst::Create(check, header);
   BranchInst::Create(end_dst, exit);
