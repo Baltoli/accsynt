@@ -88,12 +88,12 @@ Function *blas_synth::candidate()
       auto store_val = *uniform_sample(block_live);
 
       // TODO: configure this from heuristics
-      auto phi_s = uniform_sample_if(block_live, [] (auto v) {
-        return isa<PHINode>(v);
-      });
-      if(phi_s != block_live.end()) {
-        store_val = *phi_s;
-      }
+      /* auto phi_s = uniform_sample_if(block_live, [] (auto v) { */
+      /*   return isa<PHINode>(v); */
+      /* }); */
+      /* if(phi_s != block_live.end()) { */
+      /*   store_val = *phi_s; */
+      /* } */
       new StoreInst(store_val, out_ptr, block->getTerminator());
     }
   }
@@ -114,6 +114,7 @@ Function *blas_synth::candidate()
 blas_control_data
 blas_synth::build_control_flow(Function *fn, loop shape) const
 {
+  // TODO: runtime option to log or not
   /* std::cerr << shape << '\n'; */
   /*
    * What this needs to do for BLAS is lay out loop control flow based on the
@@ -233,6 +234,17 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
 
       seeds.push_back(load);
       // ------- end shortcut
+      
+      if(blas_props_.is_output(idx)) {
+        // TODO: deduplicate store code?
+        auto ip = B.saveIP();
+
+        B.SetInsertPoint(body_post);
+        auto store_gep = B.CreateGEP(ptr_arg, {array_index});
+        outputs.push_back(cast<Instruction>(store_gep));
+
+        B.restoreIP(ip);
+      }
     }
   }
 
