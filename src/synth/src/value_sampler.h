@@ -68,6 +68,14 @@ llvm::Value *make_intrinsic(Builder&& B, llvm::Intrinsic::ID id, llvm::Value *v1
 }
 
 template <typename Builder>
+llvm::Value *make_clamp(Builder&& B, llvm::Value *v1)
+{
+  auto zero = llvm::ConstantFP::get(B.getFloatTy(), 0.0);
+  auto cond = B.CreateFCmpOLT(v1, zero);
+  return B.CreateSelect(cond, zero, v1);
+}
+
+template <typename Builder>
 llvm::Value *value_sampler::arithmetic(
     Builder&& B, llvm::Value *v1, llvm::Value *v2) const
 {
@@ -79,13 +87,16 @@ llvm::Value *value_sampler::arithmetic(
   }
 
   // TODO: check integer vs. floating point etc
-  auto choice = support::random_int(0, 2);
+  auto options = std::vector {0, 1, 2, 3, 4, 5, 6};
+  auto choice = *support::uniform_sample(options);
   switch(choice) {
     case 0: return B.CreateFAdd(v1, v2);
     case 1: return B.CreateFMul(v1, v2);
-    case 2: return make_intrinsic(B, llvm::Intrinsic::fabs, v1);
-    case 3: return B.CreateFSub(v1, v2);
+    case 2: return B.CreateFSub(v1, v2);
+    case 3: return make_intrinsic(B, llvm::Intrinsic::fabs, v1);
     case 4: return make_intrinsic(B, llvm::Intrinsic::sqrt, v1);
+    case 5: return make_intrinsic(B, llvm::Intrinsic::exp, v1);
+    case 6: return make_clamp(B, v1);
   }
 
   __builtin_unreachable();
