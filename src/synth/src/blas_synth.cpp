@@ -233,7 +233,7 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
       auto ptr_arg = std::next(fn->arg_begin(), idx);
 
       // TODO: make properly generic: push this code into an indexing
-      // abstraction that can also do convolution.
+      // abstraction that can also do convolution. Really I mean it
       // ------- shortcut
       auto stride = std::next(fn->arg_begin());
       auto mul = B.CreateMul(iters.at(0), stride);
@@ -242,6 +242,14 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
       auto load = B.CreateLoad(gep);
 
       seeds.push_back(load);
+      // ------- end shortcut
+
+      // ------- shortcut for conv
+      auto outer = iters.at(0);
+      auto inner = iters.at(1);
+      auto diff = B.CreateSub(outer, inner);
+      auto cond = B.CreateICmpSLT(diff, B.getInt32(0));
+      // TODO: MOVE ME TO the regular GEP section of code
       // ------- end shortcut
       
       if(blas_props_.is_output(idx)) {
