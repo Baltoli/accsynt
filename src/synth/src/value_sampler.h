@@ -6,6 +6,7 @@
 #include <llvm/IR/CFG.h>
 #include <llvm/IR/Constant.h>
 #include <llvm/IR/Instructions.h>
+#include <llvm/IR/Intrinsics.h>
 #include <llvm/IR/Value.h>
 #include <llvm/Support/raw_ostream.h>
 
@@ -59,6 +60,14 @@ void value_sampler::block(Builder&& B, size_t n,
 }
 
 template <typename Builder>
+llvm::Value *make_fabs(Builder&& B, llvm::Value *v1)
+{
+  auto mod = B.GetInsertBlock()->getParent()->getParent();
+  auto intrinsic = llvm::Intrinsic::getDeclaration(mod, llvm::Intrinsic::fabs, v1->getType());
+  return B.CreateCall(intrinsic, v1);
+}
+
+template <typename Builder>
 llvm::Value *value_sampler::arithmetic(
     Builder&& B, llvm::Value *v1, llvm::Value *v2) const
 {
@@ -70,11 +79,12 @@ llvm::Value *value_sampler::arithmetic(
   }
 
   // TODO: check integer vs. floating point etc
-  auto choice = support::random_int(0, 1);
+  auto choice = support::random_int(0, 2);
   switch(choice) {
     case 0: return B.CreateFAdd(v1, v2);
     case 1: return B.CreateFMul(v1, v2);
-    case 2: return B.CreateFSub(v1, v2);
+    case 2: return make_fabs(std::forward<decltype(B)>(B), v1);
+    case 3: return B.CreateFSub(v1, v2);
   }
 
   __builtin_unreachable();
