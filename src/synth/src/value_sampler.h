@@ -60,18 +60,10 @@ void value_sampler::block(Builder&& B, size_t n,
 }
 
 template <typename Builder>
-llvm::Value *make_fabs(Builder&& B, llvm::Value *v1)
+llvm::Value *make_intrinsic(Builder&& B, llvm::Intrinsic::ID id, llvm::Value *v1)
 {
   auto mod = B.GetInsertBlock()->getParent()->getParent();
-  auto intrinsic = llvm::Intrinsic::getDeclaration(mod, llvm::Intrinsic::fabs, v1->getType());
-  return B.CreateCall(intrinsic, v1);
-}
-
-template <typename Builder>
-llvm::Value *make_sqrt(Builder&& B, llvm::Value *v1)
-{
-  auto mod = B.GetInsertBlock()->getParent()->getParent();
-  auto intrinsic = llvm::Intrinsic::getDeclaration(mod, llvm::Intrinsic::sqrt, v1->getType());
+  auto intrinsic = llvm::Intrinsic::getDeclaration(mod, id, v1->getType());
   return B.CreateCall(intrinsic, v1);
 }
 
@@ -91,9 +83,9 @@ llvm::Value *value_sampler::arithmetic(
   switch(choice) {
     case 0: return B.CreateFAdd(v1, v2);
     case 1: return B.CreateFMul(v1, v2);
-    case 2: return make_sqrt(std::forward<decltype(B)>(B), v1);
+    case 2: return make_intrinsic(B, llvm::Intrinsic::fabs, v1);
     case 3: return B.CreateFSub(v1, v2);
-    case 4: return make_fabs(std::forward<decltype(B)>(B), v1);
+    case 4: return make_intrinsic(B, llvm::Intrinsic::sqrt, v1);
   }
 
   __builtin_unreachable();
