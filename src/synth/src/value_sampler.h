@@ -87,7 +87,7 @@ llvm::Value *value_sampler::arithmetic(
   }
 
   // TODO: check integer vs. floating point etc
-  auto options = std::vector {0, 1, 2, 3, 4, 5, 6};
+  auto options = std::vector {0, 1, 7};
   auto choice = *support::uniform_sample(options);
   switch(choice) {
     case 0: return B.CreateFAdd(v1, v2);
@@ -97,6 +97,7 @@ llvm::Value *value_sampler::arithmetic(
     case 4: return make_intrinsic(B, llvm::Intrinsic::sqrt, v1);
     case 5: return make_intrinsic(B, llvm::Intrinsic::exp, v1);
     case 6: return make_clamp(B, v1);
+    case 7: return B.CreateFDiv(v1, v2);
   }
 
   __builtin_unreachable();

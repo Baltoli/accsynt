@@ -1,0 +1,4 @@
+void norm(int n, float *in, float *out)
+size in, n
+size out, n
+output out
