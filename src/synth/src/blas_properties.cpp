@@ -4,6 +4,8 @@ namespace synth {
 
 blas_properties::blas_properties(props::property_set ps)
 {
+  // TODO: validation of properties
+
   ps.for_each_named("size", [&,this] (auto const& prop) {
     count_++;
 
@@ -24,6 +26,15 @@ blas_properties::blas_properties(props::property_set ps)
     auto ptr_index = sig.param_index(ptr_name);
 
     outputs_.insert(ptr_index);
+  });
+
+  ps.for_each_named("pack", [&,this] (auto const& prop) {
+    auto ptr_name = prop.values.at(0).param_val;
+
+    auto const& sig = ps.type_signature;
+    auto ptr_index = sig.param_index(ptr_name);
+
+    packing_.insert({ptr_index, prop.values.at(1).int_val});
   });
 
   auto i = 0;
@@ -79,6 +90,15 @@ std::set<size_t> blas_properties::pointers_with_size(size_t size_idx) const
 std::set<size_t> blas_properties::unsized_pointers() const
 {
   return unsized_;
+}
+
+size_t blas_properties::pack_size(size_t idx) const
+{
+  if(packing_.find(idx) == packing_.end()) {
+    return 1;
+  } else {
+    return packing_.at(idx);
+  }
 }
 
 }

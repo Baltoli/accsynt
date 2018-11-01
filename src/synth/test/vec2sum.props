@@ -1,0 +1,5 @@
+void vec2sum(int n, float *o, float *vs)
+size o, n
+size vs, n
+pack vs, 2
+output o

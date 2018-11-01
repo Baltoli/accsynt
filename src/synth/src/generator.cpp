@@ -102,7 +102,7 @@ void blas_generator::generate(call_builder& builder)
       if(params.at(i).pointer_depth == 0) {
         builder.add(found->second);
       } else {
-        builder.add(random_float_data(found->second, -10, 10));
+        builder.add(random_float_data(found->second * blas_props_.pack_size(i), -10, 10));
       }
     } else {
       generate_value(builder, params.at(i));
