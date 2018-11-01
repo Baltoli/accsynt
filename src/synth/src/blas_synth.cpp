@@ -107,7 +107,7 @@ Function *blas_synth::candidate()
     ReturnInst::Create(ctx, ret_val, exit);
   }
 
-  /* llvm::errs() << *fn << '\n'; */
+  llvm::errs() << *fn << '\n';
   return fn;
 }
 
@@ -199,14 +199,23 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
   B.SetInsertPoint(body_pre);
   auto with_size = blas_props_.pointers_with_size(size_idx);
   for(auto ptr_idx : with_size) {
+    auto pack = blas_props_.pack_size(ptr_idx);
+    auto base_idx = B.CreateMul(iter, B.getInt32(pack));
+
     auto ptr_arg = std::next(fn->arg_begin(), ptr_idx);
-    auto gep = B.CreateGEP(ptr_arg, {iter});
-    auto load = B.CreateLoad(gep);
-    
-    seeds.push_back(load);
+
+    for(auto i = 0u; i < pack; ++i) {
+      auto real_idx = B.CreateAdd(base_idx, B.getInt32(i));
+
+      auto gep = B.CreateGEP(ptr_arg, {real_idx});
+      auto load = B.CreateLoad(gep);
+      
+      seeds.push_back(load);
+    }
 
     if(blas_props_.is_output(ptr_idx)) {
       // TODO: unsafe cast
+      // TODO: store to packs?
 
       auto ip = B.saveIP();
 

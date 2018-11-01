@@ -25,6 +25,8 @@ public:
 
   bool is_output(size_t idx) const;
 
+  size_t pack_size(size_t idx) const;
+
 private:
   size_t count_ = 0;
   
@@ -36,6 +38,11 @@ private:
   std::set<size_t> outputs_ = {};
 
   std::set<size_t> unsized_ = {};
+
+  // Stores a mapping of ptr_index -> packing size, where the packing size
+  // indicates how many elements are packed / should be accessed at each
+  // iteration
+  std::map<size_t, size_t> packing_ = {};
 };
 
 }
