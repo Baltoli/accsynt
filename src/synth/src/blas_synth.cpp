@@ -86,6 +86,8 @@ Function *blas_synth::candidate()
       // nested loops. Work out a way to integrate this.
 
       auto store_val = *uniform_sample(block_live);
+
+      // TODO: configure this from heuristics
       auto phi_s = uniform_sample_if(block_live, [] (auto v) {
         return isa<PHINode>(v);
       });
