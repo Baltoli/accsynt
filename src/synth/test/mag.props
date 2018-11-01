@@ -1,0 +1,5 @@
+void determinant(int n, float *o, float *ms)
+size o, n
+size ms, n
+output o
+pack ms, 2
