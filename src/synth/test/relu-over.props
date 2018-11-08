@@ -1,0 +1,3 @@
+void relu(int n, float *o)
+size o, n
+output o

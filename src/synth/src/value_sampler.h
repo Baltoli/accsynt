@@ -87,7 +87,7 @@ llvm::Value *value_sampler::arithmetic(
   }
 
   // TODO: check integer vs. floating point etc
-  auto options = std::vector {0, 1, 7};
+  auto options = std::vector{6};
   auto choice = *support::uniform_sample(options);
   switch(choice) {
     case 0: return B.CreateFAdd(v1, v2);

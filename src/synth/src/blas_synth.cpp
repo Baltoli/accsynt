@@ -107,7 +107,7 @@ Function *blas_synth::candidate()
     ReturnInst::Create(ctx, ret_val, exit);
   }
 
-  llvm::errs() << *fn->getParent() << '\n';
+  /* llvm::errs() << *fn << '\n'; */
   return fn;
 }
 
@@ -245,10 +245,10 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
       // ------- end shortcut
 
       // ------- shortcut for conv
-      auto outer = iters.at(0);
-      auto inner = iters.at(1);
-      auto diff = B.CreateSub(outer, inner);
-      auto cond = B.CreateICmpSLT(diff, B.getInt32(0));
+      /* auto outer = iters.at(0); */
+      /* auto inner = iters.at(1); */
+      /* auto diff = B.CreateSub(outer, inner); */
+      /* auto cond = B.CreateICmpSLT(diff, B.getInt32(0)); */
       // TODO: MOVE ME TO the regular GEP section of code
       // ------- end shortcut
       
