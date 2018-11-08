@@ -13,6 +13,7 @@ namespace convert::detail {
 
 static std::map<Value const*, std::string> names{};
 static int const_count = 0;
+static int instr_count = 0;
 
 std::string next_const_name()
 {
@@ -21,11 +22,24 @@ std::string next_const_name()
   return "const_v{}"_format(const_count++);
 }
 
+std::string next_instr_name()
+{
+  using namespace fmt::literals;
+
+  return "instr_{}"_format(instr_count++);
+}
+
 std::string get_name(Value const& v)
 {
   if(isa<Constant>(v)) {
     if(names.find(&v) == names.end()) {
       names.insert({&v, next_const_name()});
+    }
+
+    return names.at(&v);
+  } else if(isa<Instruction>(v)) {
+    if(names.find(&v) == names.end()) {
+      names.insert({&v, next_instr_name()});
     }
 
     return names.at(&v);
@@ -57,7 +71,7 @@ std::optional<std::string> base_constraint(Instruction const& I)
 
   if(auto op = idl_opcode(I)) {
     return "({{{result}}} is {op} instruction)"_format(
-      "result"_a = I.getName().str(),
+      "result"_a = get_name(I),
       "op"_a = op.value()
     );
   }
@@ -103,7 +117,7 @@ std::string nth_arg_constraint(Instruction const& I, size_t n)
       "({{{arg}}} is {nth} argument of {{{instr}}})"_format(
       "arg"_a = get_name(operand),
       "nth"_a = nth_of(n),
-      "instr"_a = I.getName().str()
+      "instr"_a = get_name(I)
   ));
 
   return constraint_and(atoms);

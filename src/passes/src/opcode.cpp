@@ -30,6 +30,7 @@ std::optional<std::string> idl_opcode(llvm::Instruction const& inst)
     case Instruction::FCmp:
     case Instruction::Load:
     case Instruction::Store:
+    case Instruction::Select:
       return inst.getOpcodeName(inst.getOpcode());
     default: 
       return std::nullopt;
