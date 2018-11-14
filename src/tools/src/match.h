@@ -1,6 +1,6 @@
 #pragma once
 
-#include <iosfwd>
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -72,3 +72,5 @@ private:
     void print_constraints_line(std::ostream&,std::string,Instruction) const;
 
 };
+
+void compute(Graph graph, Graph second_graph);

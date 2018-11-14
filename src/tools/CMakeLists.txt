@@ -6,6 +6,8 @@ add_executable(convert
 
 add_executable(graph-match
   src/graph_match.cpp
+  src/load_graph.cpp
+  src/algorithm.cpp
   src/graph.cpp
   src/match.cpp)
 
