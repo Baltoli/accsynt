@@ -1,5 +1,58 @@
 #include "match.h"
 
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/Module.h>
+#include <llvm/IRReader/IRReader.h>
+#include <llvm/Support/CommandLine.h>
+#include <llvm/Support/SourceMgr.h>
+#include <llvm/Support/raw_ostream.h>
+
+using namespace llvm;
+
+static cl::opt<std::string>
+FunctionName(cl::Positional, cl::desc("<function>"),
+    cl::value_desc("function name"));
+
+static cl::opt<std::string>
+InputA(cl::Positional, cl::desc("<bitcode>"),
+    cl::Required, cl::value_desc("filename A"));
+
+static cl::opt<std::string>
+InputB(cl::Positional, cl::desc("<bitcode>"),
+    cl::Required, cl::value_desc("filename B"));
+
+static cl::opt<std::string>
+OutputFilename("o",
+    cl::desc("Filename to save the generated constraints to"),
+    cl::value_desc("filename"),
+    cl::init("-"));
+
+int main(int argc, char **argv)
+{
+  cl::ParseCommandLineOptions(argc, argv);
+  LLVMContext Context;
+  SMDiagnostic Err;
+
+  auto&& modA = parseIRFile(InputA, Err, Context, true, "");
+  if(!modA) {
+    Err.print(argv[0], errs());
+    return 1;
+  }
+
+  auto&& modB = parseIRFile(InputB, Err, Context, true, "");
+  if(!modB) {
+    Err.print(argv[0], errs());
+    return 1;
+  }
+
+  auto fnA = modA->getFunction(FunctionName);
+  auto fnB = modB->getFunction(FunctionName);
+
+  auto graphA = from_function(*fnA);
+  auto graphB = from_function(*fnB);
+  compute(graphA, graphB);
+}
+
 /*
 define float @dot(i32 %n, float* %a, float* %b) {
 entry:
@@ -37,31 +90,32 @@ loop-check:                                       ; preds = %header, %body
   br i1 %11, label %body, label %loop_exit
 }
 */
-Graph first_graph(
-{{Instruction::param, "%n"},                   // 0
- {Instruction::param, "%a"},                   // 1
- {Instruction::param, "%b"},                   // 2
- {Instruction::fsub,  "%0",         {13, 18}}, // 3
- {Instruction::fmul,  "%1",         { 3,  3}}, // 4
- {Instruction::ret,   "",           {14}},     // 5
- {Instruction::gep,   "%2",         { 1, 15}}, // 6
- {Instruction::load,  "%3",         { 6}},     // 7
- {Instruction::gep,   "%4",         { 2, 15}}, // 8
- {Instruction::load,  "%5",         { 8}},     // 9
- {Instruction::fmul,  "%6",         { 7,  9}}, //10
- {Instruction::fadd,  "%7",         {14, 10}}, //11
- {Instruction::fsub,  "%8",         {18, 14}}, //12
- {Instruction::fmul,  "%9",         {18, 19}}, //13
- {Instruction::phi,   "%10",        {21, 11}}, //14
- {Instruction::phi,   "%iter",      {16, 22}}, //15   this is swapped around
- {Instruction::add,   "%next_iter", {15, 23}}, //16
- {Instruction::icmp,  "%11",        { 0}},     //17
- {Instruction::fsub,  "%12",        {14, 14}}, //18
- {Instruction::fadd,  "%13",        {18, 18}}, //19
- {Instruction::br,    "",           {17}},     //20
- {Instruction::cnst,  "0.0"},                  //21
- {Instruction::cnst,  "0"},                    //22
- {Instruction::cnst,  "1"}});                  //23
+
+/* Graph first_graph( */
+/* {{Instruction::param, "%n"},                   // 0 */
+/*  {Instruction::param, "%a"},                   // 1 */
+/*  {Instruction::param, "%b"},                   // 2 */
+/*  {Instruction::fsub,  "%0",         {13, 18}}, // 3 */
+/*  {Instruction::fmul,  "%1",         { 3,  3}}, // 4 */
+/*  {Instruction::ret,   "",           {14}},     // 5 */
+/*  {Instruction::gep,   "%2",         { 1, 15}}, // 6 */
+/*  {Instruction::load,  "%3",         { 6}},     // 7 */
+/*  {Instruction::gep,   "%4",         { 2, 15}}, // 8 */
+/*  {Instruction::load,  "%5",         { 8}},     // 9 */
+/*  {Instruction::fmul,  "%6",         { 7,  9}}, //10 */
+/*  {Instruction::fadd,  "%7",         {14, 10}}, //11 */
+/*  {Instruction::fsub,  "%8",         {18, 14}}, //12 */
+/*  {Instruction::fmul,  "%9",         {18, 19}}, //13 */
+/*  {Instruction::phi,   "%10",        {21, 11}}, //14 */
+/*  {Instruction::phi,   "%iter",      {16, 22}}, //15   this is swapped around */
+/*  {Instruction::add,   "%next_iter", {15, 23}}, //16 */
+/*  {Instruction::icmp,  "%11",        { 0}},     //17 */
+/*  {Instruction::fsub,  "%12",        {14, 14}}, //18 */
+/*  {Instruction::fadd,  "%13",        {18, 18}}, //19 */
+/*  {Instruction::br,    "",           {17}},     //20 */
+/*  {Instruction::cnst,  "0.0"},                  //21 */
+/*  {Instruction::cnst,  "0"},                    //22 */
+/*  {Instruction::cnst,  "1"}});                  //23 */
 
 /*
 ; ModuleID = 'dot.ll'
@@ -98,31 +152,27 @@ loop_exit:                                        ; preds = %body, %entry
 attributes #0 = { norecurse nounwind readonly }
 
 */
-Graph second_graph(
-{{Instruction::param, "%n"},                   // 0 - 24
- {Instruction::param, "%a"},                   // 1 - 25
- {Instruction::param, "%b"},                   // 2 - 26
- {Instruction::icmp,  "%0",         { 0, 19}}, // 3 - 27
- {Instruction::br,    "",           { 3}},     // 4 - 28
- {Instruction::phi,   "%iter1",     { 7, 19}}, // 5 - 29
- {Instruction::phi,   "%1",         {20, 14}}, // 6 - 30    this is swapped around
- {Instruction::add,   "%next_iter", { 5, 21}}, // 7 - 31
- {Instruction::zext,  "%2",         { 5}},     // 8 - 32
- {Instruction::gep,   "%3",         { 1, 5}},  // 9 - 33    this is manipulated
- {Instruction::load,  "%4",         { 9}},     //10 - 34
- {Instruction::gep,   "%5",         { 2, 5}},  //11 - 35    this is manipulated
- {Instruction::load,  "%6",         {11}},     //12 - 36
- {Instruction::fmul,  "%7",         {10, 12}}, //13 - 37
- {Instruction::fadd,  "%8",         { 6, 13}}, //14 - 38
- {Instruction::icmp,  "%9",         { 7,  0}}, //15 - 39
- {Instruction::br,    "",           {15}},     //16 - 40
- {Instruction::phi,   "%.lcssa",    {20, 14}}, //17 - 41
- {Instruction::ret,   "",           {17}},     //18 - 42
- {Instruction::cnst,  "0"},                    //19 - 43
- {Instruction::cnst,  "0.0"},                  //20 - 44
- {Instruction::cnst,  "1"}});                  //21 - 45
 
-int main()
-{
-  compute(first_graph, second_graph);
-}
+/* Graph second_graph( */
+/* {{Instruction::param, "%n"},                   // 0 - 24 */
+/*  {Instruction::param, "%a"},                   // 1 - 25 */
+/*  {Instruction::param, "%b"},                   // 2 - 26 */
+/*  {Instruction::icmp,  "%0",         { 0, 19}}, // 3 - 27 */
+/*  {Instruction::br,    "",           { 3}},     // 4 - 28 */
+/*  {Instruction::phi,   "%iter1",     { 7, 19}}, // 5 - 29 */
+/*  {Instruction::phi,   "%1",         {20, 14}}, // 6 - 30    this is swapped around */
+/*  {Instruction::add,   "%next_iter", { 5, 21}}, // 7 - 31 */
+/*  {Instruction::zext,  "%2",         { 5}},     // 8 - 32 */
+/*  {Instruction::gep,   "%3",         { 1, 5}},  // 9 - 33    this is manipulated */
+/*  {Instruction::load,  "%4",         { 9}},     //10 - 34 */
+/*  {Instruction::gep,   "%5",         { 2, 5}},  //11 - 35    this is manipulated */
+/*  {Instruction::load,  "%6",         {11}},     //12 - 36 */
+/*  {Instruction::fmul,  "%7",         {10, 12}}, //13 - 37 */
+/*  {Instruction::fadd,  "%8",         { 6, 13}}, //14 - 38 */
+/*  {Instruction::icmp,  "%9",         { 7,  0}}, //15 - 39 */
+/*  {Instruction::br,    "",           {15}},     //16 - 40 */
+/*  {Instruction::phi,   "%.lcssa",    {20, 14}}, //17 - 41 */
+/*  {Instruction::ret,   "",           {17}},     //18 - 42 */
+/*  {Instruction::cnst,  "0"},                    //19 - 43 */
+/*  {Instruction::cnst,  "0.0"},                  //20 - 44 */
+/*  {Instruction::cnst,  "1"}});                  //21 - 45 */

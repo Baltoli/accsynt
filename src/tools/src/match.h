@@ -1,5 +1,7 @@
 #pragma once
 
+#include <llvm/IR/Function.h>
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -74,3 +76,5 @@ private:
 };
 
 void compute(Graph graph, Graph second_graph);
+
+Graph from_function(llvm::Function const& fn);
