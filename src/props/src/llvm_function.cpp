@@ -16,6 +16,8 @@ Type *base_llvm_type(data_type dt)
     default:
       assert(false && "Unsupported data type");
   }
+
+  __builtin_unreachable();
 }
 
 Type *base_llvm_return_type(std::optional<data_type> dt)
