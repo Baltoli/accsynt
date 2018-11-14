@@ -5,6 +5,8 @@ add_executable(convert
   src/convert.cpp)
 
 add_executable(graph-match
+  src/graph_match.cpp
+  src/graph.cpp
   src/match.cpp)
 
 target_link_libraries(convert
