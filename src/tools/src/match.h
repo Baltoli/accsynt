@@ -33,6 +33,8 @@ public:
     Instruction      op;
     std::string      name;
     std::vector<int> edges;
+
+    void print(std::ostream&) const;
 };
 
 class Graph
@@ -42,7 +44,8 @@ public:
 
     void add(Graph& g);
 
-    std::string opcode_string(Instruction) const;
+    static std::string opcode_string(Instruction);
+
     void print(std::ostream&) const;
 
     std::vector<Instruction> get_opcodes(std::vector<size_t> idx) const;

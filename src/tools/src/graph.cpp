@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-std::string Graph::opcode_string(Instruction op) const
+std::string Graph::opcode_string(Instruction op)
 {
     switch(op) {
     case Instruction::cnst:  return "cnst";
@@ -15,7 +15,9 @@ std::string Graph::opcode_string(Instruction op) const
     case Instruction::gep:   return "gep";
     case Instruction::load:  return "load";
     case Instruction::fmul:  return "fmul";
+    case Instruction::fsub:  return "fsub";
     case Instruction::fadd:  return "fadd";
+    case Instruction::store: return "store";
     case Instruction::ret:   return "ret";
     default:                 return "";
     }

@@ -56,6 +56,8 @@ std::string nth_of(size_t i)
   else {
     assert(false && "Too many operands");
   }
+
+  __builtin_unreachable();
 }
 
 std::string title_case(std::string in)

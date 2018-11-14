@@ -3,9 +3,11 @@
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/Function.h>
 #include <llvm/IR/Instruction.h>
+#include <llvm/IR/Instructions.h>
 #include <llvm/Support/raw_ostream.h>
 
 #include <map>
+#include <set>
 
 using namespace llvm;
 
@@ -38,6 +40,7 @@ using namespace llvm;
   }
 
   assert(false && "Bad instruction type");
+  __builtin_unreachable();
 }
 
 std::string instr_name(Value const& v)
@@ -61,8 +64,22 @@ std::string instr_name(Value const& v)
   }
 }
 
+
 std::vector<Node> get_nodes(Function const& fn)
 {
+  auto vals = std::map<std::string, int>{};
+
+  auto const_idx = [&vals](Constant const* c, int& count)
+  {
+    auto name = instr_name(*c);
+
+    if(vals.find(name) == vals.end()) {
+      vals.insert({name, count++});
+    }
+
+    return vals[name];
+  };
+  
   auto nodes = std::vector<Node>{};
   auto idxs = std::map<Value const*, int>{};
   int counter = 0;
@@ -74,15 +91,20 @@ std::vector<Node> get_nodes(Function const& fn)
 
   for(auto const& BB : fn) {
     for(auto const& I : BB) {
-      idxs[&I] = counter++;
+      for(auto const& o : I.operands()) {
+        if(!isa<BasicBlock>(o)) {
+          idxs[&I] = counter++;
+          break;
+        }
+      }
     }
   }
 
   for(auto const& BB : fn) {
     for(auto const& I : BB) {
       for(auto const& o : I.operands()) {
-        if(isa<Constant>(&o)) {
-          idxs[o] = counter++;
+        if(auto cst = dyn_cast<Constant>(&o)) {
+          idxs[o] = const_idx(cst, counter);
         }
       }
     }
@@ -98,18 +120,32 @@ std::vector<Node> get_nodes(Function const& fn)
       auto edges = std::vector<int>{};
 
       for(auto const& o : I.operands()) {
-        edges.push_back(idxs[o]);
+        if(auto cst = dyn_cast<Constant>(&o)) {
+          int i = 0;
+          edges.push_back(const_idx(cst, i));
+        } else {
+          if(!isa<BasicBlock>(o)) {
+            edges.push_back(idxs[o]);
+          }
+        }
       }
-
-      nodes.emplace_back(instr_type(I), instr_name(I), edges);
+      
+      if(!edges.empty()) {
+        nodes.emplace_back(instr_type(I), instr_name(I), edges);
+      }
     }
   }
 
+  auto names = std::set<std::string>{};
   for(auto const& BB : fn) {
     for(auto const& I : BB) {
       for(auto const& o : I.operands()) {
-        if(isa<Constant>(&o)) {
-          nodes.emplace_back(instr_type(I), instr_name(I));
+        if(auto cst = dyn_cast<Constant>(&o)) {
+          auto name = instr_name(*cst);
+          if(names.find(name) == names.end()) {
+            nodes.emplace_back(instr_type(*cst), name);
+            names.insert(name);
+          }
         }
       }
     }
@@ -120,5 +156,11 @@ std::vector<Node> get_nodes(Function const& fn)
 
 Graph from_function(Function const& fn)
 {
-  return { get_nodes(fn) };
+  auto nodes = get_nodes(fn);
+  int i = 0;
+  for(auto n : nodes) {
+    std::cout << i++ << ": ";
+    n.print(std::cout);
+  }
+  return { nodes };
 }
