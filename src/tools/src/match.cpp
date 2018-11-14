@@ -215,6 +215,7 @@ void Match::print_constraints_line(std::ostream& ostr,std::string name,Instructi
     case Instruction::zext:  ostr<<"zext instruction";   break;
     case Instruction::gep:   ostr<<"gep instruction";    break;
     case Instruction::load:  ostr<<"load instruction";   break;
+    case Instruction::store: ostr<<"store instruction";  break;
     case Instruction::fmul:  ostr<<"fmul instruction";   break;
     case Instruction::fadd:  ostr<<"fadd instruction";   break;
     case Instruction::fsub:  ostr<<"fsub instruction";   break;

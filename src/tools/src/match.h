@@ -21,7 +21,8 @@ enum class Instruction
     fmul,
     fadd,
     fsub,
-    ret
+    ret,
+    store
 };
 
 class Node
