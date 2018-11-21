@@ -8,7 +8,8 @@ add_library(coresynth
   src/blas_synth.cpp
   src/generator.cpp
   src/call_builder.cpp
-  src/call_wrapper.cpp)
+  src/call_wrapper.cpp
+  src/fragment.cpp)
 
 add_executable(synth
   src/synth.cpp)
