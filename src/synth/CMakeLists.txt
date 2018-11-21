@@ -13,6 +13,9 @@ add_library(coresynth
 add_executable(synth
   src/synth.cpp)
 
+add_executable(fragment-demo
+  src/fragment_demo.cpp)
+
 target_link_libraries(coresynth
   ${llvm_libs}
   CONAN_PKG::fmt
@@ -21,6 +24,9 @@ target_link_libraries(coresynth
   props)
 
 target_link_libraries(synth
+  coresynth)
+
+target_link_libraries(fragment-demo
   coresynth)
 
 install(
