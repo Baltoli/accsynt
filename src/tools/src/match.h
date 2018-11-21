@@ -11,18 +11,22 @@ enum class Instruction
     cnst,
     param,
     icmp,
+    fcmp,
     br,
     phi,
     add,
+    sub,
     mul,
     zext,
+    sext,
     gep,
     load,
     fmul,
     fadd,
     fsub,
     ret,
-    store
+    store,
+    select
 };
 
 class Node

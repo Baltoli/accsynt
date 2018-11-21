@@ -24,11 +24,14 @@ using namespace llvm;
   if(auto inst = dyn_cast<llvm::Instruction>(&v)) {
     switch(inst->getOpcode()) {
     case llvm::Instruction::ICmp:           return ::Instruction::icmp;
+    case llvm::Instruction::FCmp:           return ::Instruction::fcmp;
     case llvm::Instruction::Br:             return ::Instruction::br;
     case llvm::Instruction::PHI:            return ::Instruction::phi;
     case llvm::Instruction::Add:            return ::Instruction::add;
+    case llvm::Instruction::Sub:            return ::Instruction::sub;
     case llvm::Instruction::Mul:            return ::Instruction::mul;
     case llvm::Instruction::ZExt:           return ::Instruction::zext;
+    case llvm::Instruction::SExt:           return ::Instruction::sext;
     case llvm::Instruction::GetElementPtr:  return ::Instruction::gep;
     case llvm::Instruction::Load:           return ::Instruction::load;
     case llvm::Instruction::FMul:           return ::Instruction::fmul;
@@ -36,9 +39,11 @@ using namespace llvm;
     case llvm::Instruction::FSub:           return ::Instruction::fsub;
     case llvm::Instruction::Ret:            return ::Instruction::ret;
     case llvm::Instruction::Store:          return ::Instruction::store;
+    case llvm::Instruction::Select:          return ::Instruction::select;
     }
   }
 
+  errs() << v << '\n';
   assert(false && "Bad instruction type");
   __builtin_unreachable();
 }

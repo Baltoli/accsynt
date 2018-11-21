@@ -208,11 +208,14 @@ void Match::print_constraints_line(std::ostream& ostr,std::string name,Instructi
     case Instruction::cnst:  ostr<<"constant";           break;
     case Instruction::param: ostr<<"an argument";        break;
     case Instruction::icmp:  ostr<<"icmp instruction";   break;
+    case Instruction::fcmp:  ostr<<"fcmp instruction";   break;
     case Instruction::br:    ostr<<"branch instruction"; break;
     case Instruction::phi:   ostr<<"phi instruction";    break;
     case Instruction::add:   ostr<<"add instruction";    break;
+    case Instruction::sub:   ostr<<"sub instruction";    break;
     case Instruction::mul:   ostr<<"mul instruction";    break;
     case Instruction::zext:  ostr<<"zext instruction";   break;
+    case Instruction::sext:  ostr<<"sext instruction";   break;
     case Instruction::gep:   ostr<<"gep instruction";    break;
     case Instruction::load:  ostr<<"load instruction";   break;
     case Instruction::store: ostr<<"store instruction";  break;
@@ -220,6 +223,7 @@ void Match::print_constraints_line(std::ostream& ostr,std::string name,Instructi
     case Instruction::fadd:  ostr<<"fadd instruction";   break;
     case Instruction::fsub:  ostr<<"fsub instruction";   break;
     case Instruction::ret:   ostr<<"parameter";          break;
+    case Instruction::select:   ostr<<"select instruction";          break;
     }
 }
 
