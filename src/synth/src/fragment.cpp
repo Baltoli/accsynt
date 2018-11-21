@@ -15,4 +15,11 @@ compile_context::compile_context(Module& mod, signature sig) :
 {
 }
 
+function_harness compile_context::get_new_harness()
+{
+  // TODO: make a new function, check the signature for a return type, create
+  // entry and exit blocks.
+  return { nullptr, nullptr, nullptr };
+}
+
 }

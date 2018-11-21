@@ -8,6 +8,12 @@
 
 namespace synth {
 
+struct function_harness {
+  llvm::Function *function;
+  llvm::BasicBlock *entry;
+  llvm::BasicBlock *exit;
+};
+
 /**
  * Information and helper methods for compiling fragments. Responsible for
  * interfacing with an LLVM function, keeping track of a signature etc.
@@ -17,6 +23,8 @@ public:
   compile_context(llvm::Module& mod,
                   props::signature sig);
  
+  function_harness get_new_harness();
+
 private:
   llvm::Module& mod_;
   props::signature sig_;
@@ -44,13 +52,15 @@ public:
   /**
    * Compile this fragment to LLVM using ctx, which contains all the information
    * needed to do so (attachment blocks, signature for parameter index mapping,
-   * etc).
+   * etc). This probably doesn't need to be virtual in that case - public
+   * interface knows how to compile in terms of managing a context and splicing,
+   * given knowledge of how to splice (virtual).
    */
-  virtual llvm::Function* compile(compile_context&& ctx) = 0;
+  virtual llvm::Function* compile(compile_context& ctx) = 0;
 
   /**
    * Recursive primitive that makes up compilation - insert this fragment
-   * between two basic blocks.
+   * between two basic blocks. Will expect the entry block not to be terminated?
    */
   virtual void splice(llvm::BasicBlock *entry, llvm::BasicBlock *exit) = 0;
 
