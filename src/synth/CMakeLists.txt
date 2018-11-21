@@ -1,4 +1,4 @@
-add_executable(synth
+add_library(coresynth
   src/indexing.cpp
   src/dataflow_synth.cpp
   src/value_sampler.cpp
@@ -8,15 +8,20 @@ add_executable(synth
   src/blas_synth.cpp
   src/generator.cpp
   src/call_builder.cpp
-  src/call_wrapper.cpp
+  src/call_wrapper.cpp)
+
+add_executable(synth
   src/synth.cpp)
 
-target_link_libraries(synth
+target_link_libraries(coresynth
   ${llvm_libs}
   CONAN_PKG::fmt
   CONAN_PKG::spdlog
   support
   props)
+
+target_link_libraries(synth
+  coresynth)
 
 install(
   TARGETS synth
