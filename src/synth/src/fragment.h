@@ -54,6 +54,9 @@ public:
    * This doesn't receive a signature because the compilation context is
    * responsible for that - means that fragments are portable across functions
    * with differently ordered parameters etc.
+   *
+   * TODO: Do we want to check arguments somehow? Virtual validation method or
+   * just let subclasses do their own thing?
    */
   fragment(std::vector<props::value> args);
 
@@ -61,8 +64,8 @@ public:
    * Print this fragment to an ostream, with an overload for indentation to
    * allow for printing children nested as appropriate.
    */
-  virtual void print(std::ostream& os) = 0;
   virtual void print(std::ostream& os, size_t indent) = 0;
+  virtual void print(std::ostream& os);
 
   /**
    * Compile this fragment to LLVM using ctx, which contains all the information

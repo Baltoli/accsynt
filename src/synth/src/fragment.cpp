@@ -13,9 +13,14 @@ fragment::fragment(std::vector<value> args) :
 {
 }
 
+void fragment::print(std::ostream& os)
+{
+  print(os, 0);
+}
+
 Function* fragment::compile(compile_context& ctx)
 {
-  this->splice(ctx, ctx.entry_, ctx.exit_);
+  splice(ctx, ctx.entry_, ctx.exit_);
   return ctx.func_;
 }
 
