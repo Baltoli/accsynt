@@ -18,14 +18,15 @@ target_link_libraries(convert
   AccsyntPasses)
 
 if(APPLE)
-  set(detect_link_line "${llvm_libs}")
+  target_link_libraries(detect
+    CONAN_PKG::fmt
+    ${llvm_libs})
 else()
-  set(detect_link_line "-Wl,--whole-archive ${llvm_libs} -Wl,--no-whole-archive")
+  target_link_libraries(detect
+    CONAN_PKG::fmt
+    -Wl,--whole-archive ${llvm_libs} -Wl,--no-whole-archive)
 endif()
 
-target_link_libraries(detect
-  CONAN_PKG::fmt
-  "${detect_link_line}")
 
 target_link_libraries(graph-match
   ${llvm_libs})
