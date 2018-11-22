@@ -35,9 +35,6 @@ public:
   compile_context& operator=(compile_context&&) = default;
 
 protected:
-  // Things the fragment needs to use for compilation
-
-private:
   llvm::Module& mod_;
 
   llvm::Function *func_;
@@ -74,13 +71,13 @@ public:
    * interface knows how to compile in terms of managing a context and splicing,
    * given knowledge of how to splice (virtual).
    */
-  virtual llvm::Function* compile(compile_context&& ctx) = 0;
+  llvm::Function* compile(compile_context& ctx);
 
   /**
    * Recursive primitive that makes up compilation - insert this fragment
    * between two basic blocks. Will expect the entry block not to be terminated?
    */
-  virtual void splice(llvm::BasicBlock *entry, llvm::BasicBlock *exit) = 0;
+  virtual void splice(compile_context& ctx, llvm::BasicBlock *entry, llvm::BasicBlock *exit) = 0;
 
   /**
    * Adds a new child fragment to this one - will recurse into existing children

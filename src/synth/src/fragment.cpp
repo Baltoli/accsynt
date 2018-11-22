@@ -13,6 +13,12 @@ fragment::fragment(std::vector<value> args) :
 {
 }
 
+Function* fragment::compile(compile_context& ctx)
+{
+  this->splice(ctx, ctx.entry_, ctx.exit_);
+  return ctx.func_;
+}
+
 /**
  * From what I've thought about, I think the best thing to do is to have a
  * context "own" / manage a single function which is created when we create a
