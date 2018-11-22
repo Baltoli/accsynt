@@ -14,7 +14,7 @@ using namespace llvm;
 
 int main()
 {
-  auto sig = signature::parse("void func(int n, float *x)");
+  auto sig = signature::parse("int func(int n, float *x)");
   auto mod = Module{"fragtest", thread_context::get()};
 
   auto ctx = compile_context{mod, sig};

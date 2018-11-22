@@ -1,5 +1,8 @@
 #include "fragment.h"
 
+#include <llvm/IR/Constant.h>
+#include <llvm/IR/Function.h>
+
 using namespace llvm;
 using namespace props;
 
@@ -19,8 +22,19 @@ fragment::fragment(std::vector<value> args) :
 compile_context::compile_context(Module& mod, signature sig) :
   mod_(mod), sig_(sig)
 {
-  // TODO: this should set up the function we're compiling into, and assign the
-  // basic blocks for entry and exit. Need to check return type.
+  auto& ctx = mod_.getContext();
+
+  func_ = sig_.create_function(mod_);
+  entry_ = BasicBlock::Create(ctx, "entry", func_);
+  exit_ = BasicBlock::Create(ctx, "exit", func_);
+
+  auto rt = func_->getFunctionType()->getReturnType();
+  if(rt->isVoidTy()) {
+    return_ = ReturnInst::Create(ctx, exit_);
+  } else {
+    auto zero = Constant::getNullValue(rt);
+    return_ = ReturnInst::Create(ctx, zero, exit_);
+  }
 }
 
 }

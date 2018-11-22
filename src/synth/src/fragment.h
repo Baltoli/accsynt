@@ -2,6 +2,7 @@
 
 #include <props/props.h>
 
+#include <llvm/IR/Instructions.h>
 #include <llvm/IR/Module.h>
 
 #include <vector>
@@ -38,9 +39,12 @@ protected:
 
 private:
   llvm::Module& mod_;
+
   llvm::Function *func_;
   llvm::BasicBlock *entry_;
   llvm::BasicBlock *exit_;
+  llvm::ReturnInst *return_;
+
   props::signature sig_;
 };
 
