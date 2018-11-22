@@ -6,3 +6,6 @@ spdlog/1.1.0@bincrafters/stable
 
 [generators]
 cmake
+
+[options]
+fmt:header_only=True

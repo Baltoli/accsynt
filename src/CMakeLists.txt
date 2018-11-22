@@ -2,12 +2,16 @@ cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 
 add_compile_options(
   -std=c++17
+  -fvisibility-inlines-hidden
+  -undefined dynamic_lookup
   -Wall -Werror -pedantic 
   -Wno-error=class-memaccess
   -Wno-error=unused-but-set-variable 
   -Wno-error=unused-function 
   -Wno-error=unused-variable
 )
+
+set(CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS} -undefined dynamic_lookup")
 
 if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
   message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
