@@ -8,25 +8,39 @@
 
 namespace synth {
 
-struct function_harness {
-  llvm::Function *function;
-  llvm::BasicBlock *entry;
-  llvm::BasicBlock *exit;
-};
+class fragment;
 
 /**
  * Information and helper methods for compiling fragments. Responsible for
  * interfacing with an LLVM function, keeping track of a signature etc.
  */
 class compile_context {
+  friend class fragment;
+
 public:
   compile_context(llvm::Module& mod,
                   props::signature sig);
  
-  function_harness get_new_harness();
+  /**
+   * Don't want these to be copyable - once used to compile they are done as we
+   * create the function and fill it up.
+   */
+  compile_context(compile_context const&) = delete;
+  compile_context& operator=(compile_context const&) = delete;
+
+  // TODO: define these and add a flag to the object that checks for
+  // use-after-move?
+  compile_context(compile_context&&) = default;
+  compile_context& operator=(compile_context&&) = default;
+
+protected:
+  // Things the fragment needs to use for compilation
 
 private:
   llvm::Module& mod_;
+  llvm::Function *func_;
+  llvm::BasicBlock *entry_;
+  llvm::BasicBlock *exit_;
   props::signature sig_;
 };
 
@@ -56,7 +70,7 @@ public:
    * interface knows how to compile in terms of managing a context and splicing,
    * given knowledge of how to splice (virtual).
    */
-  virtual llvm::Function* compile(compile_context& ctx) = 0;
+  virtual llvm::Function* compile(compile_context&& ctx) = 0;
 
   /**
    * Recursive primitive that makes up compilation - insert this fragment

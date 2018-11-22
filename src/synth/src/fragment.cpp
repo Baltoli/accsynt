@@ -10,16 +10,17 @@ fragment::fragment(std::vector<value> args) :
 {
 }
 
+/**
+ * From what I've thought about, I think the best thing to do is to have a
+ * context "own" / manage a single function which is created when we create a
+ * context object - then we can also keep track of the appropriate basic blocks
+ * with the context object as well.
+ */
 compile_context::compile_context(Module& mod, signature sig) :
   mod_(mod), sig_(sig)
 {
-}
-
-function_harness compile_context::get_new_harness()
-{
-  // TODO: make a new function, check the signature for a return type, create
-  // entry and exit blocks.
-  return { nullptr, nullptr, nullptr };
+  // TODO: this should set up the function we're compiling into, and assign the
+  // basic blocks for entry and exit. Need to check return type.
 }
 
 }
