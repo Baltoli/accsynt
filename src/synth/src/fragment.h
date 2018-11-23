@@ -65,7 +65,7 @@ public:
    * allow for printing children nested as appropriate.
    */
   virtual void print(std::ostream& os, size_t indent) = 0;
-  virtual void print(std::ostream& os);
+  void print(std::ostream& os);
 
   /**
    * Compile this fragment to LLVM using ctx, which contains all the information
@@ -97,6 +97,8 @@ public:
   virtual bool add_child(frag_ptr&& f) = 0;
 
 protected:
+  void print_indent(std::ostream& os, size_t indent);
+
   std::vector<props::value> args_;
   std::vector<frag_ptr> children_ = {};
 };

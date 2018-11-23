@@ -7,6 +7,8 @@
 #include <llvm/IR/Module.h>
 #include <llvm/Support/raw_ostream.h>
 
+#include <iostream>
+
 using namespace props;
 using namespace support;
 using namespace synth;
@@ -20,4 +22,6 @@ int main()
 
   auto ctx = compile_context{mod, sig};
   auto frag = linear_fragment{{}};
+
+  frag.print(std::cout);
 }
