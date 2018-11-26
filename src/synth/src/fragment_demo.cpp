@@ -24,4 +24,7 @@ int main()
   auto frag = linear_fragment{{}};
 
   frag.print(std::cout);
+
+  auto fn = frag.compile(ctx);
+  errs() << *fn << '\n';
 }

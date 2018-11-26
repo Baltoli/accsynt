@@ -34,7 +34,9 @@ public:
   compile_context(compile_context&&) = default;
   compile_context& operator=(compile_context&&) = default;
 
-protected:
+// TODO: work out encapsulation for context - need to make information available
+// to derived fragment classes?
+/* protected: */
   llvm::Module& mod_;
 
   llvm::Function *func_;

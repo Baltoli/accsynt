@@ -2,6 +2,8 @@
 
 #include "fragment.h"
 
+#include <llvm/IR/BasicBlock.h>
+
 namespace synth {
 
 class linear_fragment : public fragment {
@@ -14,6 +16,7 @@ public:
   virtual bool add_child(frag_ptr&& f);
 
 private:
+  llvm::BasicBlock *block_;
 };
 
 }
