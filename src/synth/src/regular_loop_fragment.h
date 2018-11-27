@@ -17,6 +17,8 @@ public:
   virtual bool add_child(frag_ptr&& f);
 
 private:
+  llvm::Argument *get_pointer(compile_context&);
+  llvm::Argument *get_size(compile_context&);
 };
 
 }

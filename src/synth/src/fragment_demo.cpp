@@ -22,7 +22,9 @@ int main()
   auto mod = Module{"fragtest", thread_context::get()};
 
   auto ctx = compile_context{mod, sig};
-  auto frag = regular_loop_fragment{{}};
+  auto frag = regular_loop_fragment{{
+    value::with_param("x"), value::with_param("n")
+  }};
 
   frag.print(std::cout);
 

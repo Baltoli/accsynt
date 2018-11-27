@@ -11,6 +11,10 @@ namespace synth {
 
 class fragment;
 
+class fragment_args_error : public std::runtime_error {
+  using std::runtime_error::runtime_error;
+};
+
 /**
  * Information and helper methods for compiling fragments. Responsible for
  * interfacing with an LLVM function, keeping track of a signature etc.
