@@ -1,5 +1,6 @@
 #include "fragment.h"
 #include "linear_fragment.h"
+#include "regular_loop_fragment.h"
 
 #include <props/props.h>
 #include <support/thread_context.h>
@@ -21,7 +22,7 @@ int main()
   auto mod = Module{"fragtest", thread_context::get()};
 
   auto ctx = compile_context{mod, sig};
-  auto frag = linear_fragment{{}};
+  auto frag = regular_loop_fragment{{}};
 
   frag.print(std::cout);
 
