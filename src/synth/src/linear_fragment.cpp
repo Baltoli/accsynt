@@ -9,7 +9,7 @@ namespace synth {
 void linear_fragment::print(std::ostream& os, size_t indent)
 {
   print_indent(os, indent);
-  os << "[?]" << '\n';
+  os << "[linear region]" << '\n';
 }
 
 /**

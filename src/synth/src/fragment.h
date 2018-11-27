@@ -34,6 +34,12 @@ public:
   compile_context(compile_context&&) = default;
   compile_context& operator=(compile_context&&) = default;
 
+  /**
+   * Get the LLVM arg for the parameter name passed in. This lives in the
+   * context because it depends on the signature.
+   */
+  llvm::Argument *parameter(std::string const& name);
+
 // TODO: work out encapsulation for context - need to make information available
 // to derived fragment classes?
 /* protected: */
@@ -45,6 +51,15 @@ public:
   llvm::ReturnInst *return_;
 
   props::signature sig_;
+};
+
+/**
+ * This will contain everything built during construction - for example the set
+ * of seeds, data blocks, the LLVM function etc.
+ */
+class compile_metadata {
+public:
+private:
 };
 
 class fragment {
@@ -61,6 +76,11 @@ public:
    * just let subclasses do their own thing?
    */
   fragment(std::vector<props::value> args);
+
+  /**
+   * Default virtual destructor to allow for polymorphic usage.
+   */
+  virtual ~fragment() {}
 
   /**
    * Print this fragment to an ostream, with an overload for indentation to
