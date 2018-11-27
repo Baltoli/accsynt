@@ -2,6 +2,11 @@
 
 namespace synth {
 
+regular_loop_fragment::regular_loop_fragment(std::vector<props::value> args) :
+  fragment(args)
+{
+}
+
 fragment::frag_ptr regular_loop_fragment::clone()
 {
   return clone_as<regular_loop_fragment>();
