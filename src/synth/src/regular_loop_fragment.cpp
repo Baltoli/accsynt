@@ -44,7 +44,9 @@ void regular_loop_fragment::print(std::ostream& os, size_t indent)
 
   if(n_childs >= 2) {
     print_indent(os, indent); 
-    os << "[regular loop] {\n";
+    os << "[regular loop: ";
+    os << args_.at(0).param_val << ", ";
+    os << args_.at(1).param_val << "] {\n";
     children_.at(1)->print(os, indent+1);
     print_indent(os, indent);
     os << "}\n";
