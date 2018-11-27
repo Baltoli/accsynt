@@ -36,14 +36,23 @@ fragment::frag_ptr regular_loop_fragment::clone()
 
 void regular_loop_fragment::print(std::ostream& os, size_t indent)
 {
-  // TODO: print child
-  using namespace fmt::literals;
-  auto str = "for(elt in {ptr}[0...{size}]) {{\nlive += elt\n}}"_format(
-    "ptr"_a = args_.at(0).param_val,
-    "size"_a = args_.at(1).param_val
-  );
+  auto n_childs = children_.size();
 
-  os << str << '\n';
+  if(n_childs >= 1) {
+    children_.at(0)->print(os, indent);
+  }
+
+  if(n_childs >= 2) {
+    print_indent(os, indent); 
+    os << "[regular loop] {\n";
+    children_.at(1)->print(os, indent+1);
+    print_indent(os, indent);
+    os << "}\n";
+  }
+
+  if(n_childs >= 3) {
+    children_.at(2)->print(os, indent);
+  }
 }
 
 void regular_loop_fragment::splice(compile_context& ctx, llvm::BasicBlock *entry, llvm::BasicBlock *exit)
