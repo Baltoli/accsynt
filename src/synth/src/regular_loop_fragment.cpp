@@ -48,46 +48,73 @@ void regular_loop_fragment::print(std::ostream& os, size_t indent)
 
 void regular_loop_fragment::splice(compile_context& ctx, llvm::BasicBlock *entry, llvm::BasicBlock *exit)
 {
-  // General structure of a regular loop: header that checks the value of the
-  // iterator, body depending on children (entry / exit)
-  if(children_.empty()) {
-    // If no children, then we can just branch from entry to exit?
-    BranchInst::Create(exit, entry);
-  } else {
+  auto& llvm_ctx = entry->getContext();
+
+  auto inter_first = BasicBlock::Create(llvm_ctx, "reg-loop.inter0", ctx.func_);
+  auto inter_second = BasicBlock::Create(llvm_ctx, "reg-loop.inter1", ctx.func_);
+
+  auto n_childs = children_.size();
+  auto last_exit = entry;
+  
+  if(n_childs >= 1) {
+    children_.at(0)->splice(ctx, last_exit, inter_first);
+    last_exit = inter_first;
+  }
+
+  if(n_childs >= 2) {
     auto ptr = get_pointer(ctx);
     auto size = get_size(ctx);
 
-    auto header = BasicBlock::Create(ptr->getContext(), "loop-header", ctx.func_);
-    auto pre_body = BasicBlock::Create(ptr->getContext(), "pre-body", ctx.func_);
-    auto post_body = BasicBlock::Create(ptr->getContext(), "post-body", ctx.func_);
+    auto header = BasicBlock::Create(llvm_ctx, "reg-loop.header", ctx.func_);
+    auto pre_body = BasicBlock::Create(llvm_ctx, "reg-loop.pre-body", ctx.func_);
+    auto post_body = BasicBlock::Create(llvm_ctx, "reg-loop.post-body", ctx.func_);
 
-    auto B = IRBuilder<>(entry);
+    auto B = IRBuilder<>(inter_first);
     B.CreateBr(header);
 
     B.SetInsertPoint(header);
-    auto iter = B.CreatePHI(size->getType(), 2, "iter");
-    iter->addIncoming(ConstantInt::get(iter->getType(), 0), entry);
-    auto cond = B.CreateICmpSLT(iter, size);
-    B.CreateCondBr(cond, pre_body, exit);
+    auto iter = B.CreatePHI(size->getType(), 2, "reg-loop.iter");
+    iter->addIncoming(ConstantInt::get(iter->getType(), 0), inter_first);
+    auto cond = B.CreateICmpSLT(iter, size, "reg-loop.cond");
+    B.CreateCondBr(cond, pre_body, inter_second);
+
+    B.SetInsertPoint(pre_body);
+    auto gep = B.CreateGEP(ptr, iter, "reg-loop.gep");
+    auto load = B.CreateLoad(gep, "reg-loop.load");
 
     B.SetInsertPoint(post_body);
-    auto next = B.CreateAdd(iter, ConstantInt::get(iter->getType(), 1), "next-iter");
+    auto next = B.CreateAdd(iter, ConstantInt::get(iter->getType(), 1), "reg-loop.next-iter");
     iter->addIncoming(next, post_body);
     B.CreateBr(header);
 
-    // TODO: gep?
-    children_.at(0)->splice(ctx, pre_body, post_body);
+    children_.at(1)->splice(ctx, pre_body, post_body);
+    last_exit = inter_second;
+  }
+
+  if(n_childs >= 3) {
+    children_.at(2)->splice(ctx, last_exit, exit);
+    last_exit = exit;
+  }
+
+  if(last_exit != exit) {
+    BranchInst::Create(exit, last_exit);
   }
 }
 
 bool regular_loop_fragment::add_child(frag_ptr&& f)
 {
-  if(children_.empty()) {
+  if(children_.size() < 3) {
     children_.push_back(std::move(f));
     return true;
   } else {
-    return children_.front()->add_child(std::move(f));
+    for(auto& child : children_) {
+      if(child->add_child(std::move(f))) {
+        return true;
+      }
+    }
   }
+
+  return false;
 }
 
 llvm::Argument *regular_loop_fragment::get_pointer(compile_context& ctx)

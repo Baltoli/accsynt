@@ -23,9 +23,8 @@ void linear_fragment::print(std::ostream& os, size_t indent)
  */
 void linear_fragment::splice(compile_context& ctx, llvm::BasicBlock *entry, llvm::BasicBlock *exit)
 {
-  block_ = BasicBlock::Create(entry->getContext(), "linear", ctx.func_);
-  // TODO: do we need to ensure that entry_ does not have a terminator, or can
-  // we assume?
+  block_ = BasicBlock::Create(entry->getContext(), "linear.block", ctx.func_);
+
   BranchInst::Create(block_, entry);  
   BranchInst::Create(exit, block_);
 }
