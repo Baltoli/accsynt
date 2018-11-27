@@ -55,7 +55,7 @@ compile_context::compile_context(Module& mod, signature sig) :
   }
 }
 
-llvm::Argument *compile_context::parameter(std::string const& name)
+llvm::Argument *compile_context::argument(std::string const& name)
 {
   return std::next(func_->arg_begin(), sig_.param_index(name));
 }

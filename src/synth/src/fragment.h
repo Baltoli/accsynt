@@ -38,7 +38,7 @@ public:
    * Get the LLVM arg for the parameter name passed in. This lives in the
    * context because it depends on the signature.
    */
-  llvm::Argument *parameter(std::string const& name);
+  llvm::Argument *argument(std::string const& name);
 
 // TODO: work out encapsulation for context - need to make information available
 // to derived fragment classes?
@@ -80,7 +80,12 @@ public:
   /**
    * Default virtual destructor to allow for polymorphic usage.
    */
-  virtual ~fragment() {}
+  virtual ~fragment() = default;
+
+  /**
+   * Virtual clone to allow for polymorphic copying of fragment objects.
+   */
+  virtual frag_ptr clone() = 0;
 
   /**
    * Print this fragment to an ostream, with an overload for indentation to
@@ -123,6 +128,19 @@ protected:
 
   std::vector<props::value> args_;
   std::vector<frag_ptr> children_ = {};
+
+  template <typename T>
+  std::unique_ptr<T> clone_as();
 };
+
+template <typename T>
+std::unique_ptr<T> fragment::clone_as()
+{
+  auto new_frag = std::make_unique<T>(args_);
+  for(auto const& child : children_) {
+    new_frag->add_child(frag_ptr{child->clone()});
+  }
+  return new_frag;
+}
 
 }

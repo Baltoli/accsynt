@@ -6,6 +6,11 @@ using namespace llvm;
 
 namespace synth {
 
+fragment::frag_ptr linear_fragment::clone()
+{
+  return clone_as<linear_fragment>();
+}
+
 void linear_fragment::print(std::ostream& os, size_t indent)
 {
   print_indent(os, indent);
