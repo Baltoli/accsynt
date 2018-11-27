@@ -6,6 +6,7 @@ namespace synth {
 
 class regular_loop_fragment : public fragment {
 public:
+  using fragment::add_child;
   using fragment::print;
 
   regular_loop_fragment(std::vector<props::value> args);

@@ -127,6 +127,9 @@ public:
    */
   virtual bool add_child(frag_ptr&& f) = 0;
 
+  template <typename T>
+  bool add_child(T frag);
+
 protected:
   void print_indent(std::ostream& os, size_t indent);
 
@@ -136,6 +139,12 @@ protected:
   template <typename T>
   std::unique_ptr<T> clone_as();
 };
+
+template <typename T>
+bool fragment::add_child(T frag)
+{
+  return add_child(frag_ptr{frag.clone()});
+}
 
 template <typename T>
 std::unique_ptr<T> fragment::clone_as()
