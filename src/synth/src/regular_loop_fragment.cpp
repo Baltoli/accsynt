@@ -1,5 +1,7 @@
 #include "regular_loop_fragment.h"
 
+#include <fmt/format.h>
+
 using namespace props;
 using namespace llvm;
 
@@ -31,8 +33,13 @@ fragment::frag_ptr regular_loop_fragment::clone()
 
 void regular_loop_fragment::print(std::ostream& os, size_t indent)
 {
-  print_indent(os, indent);
-  os << "[regular loop]\n";
+  using namespace fmt::literals;
+  auto str = "for(elt in {ptr}[0...{size}]) {{\nlive += elt\n}}"_format(
+    "ptr"_a = args_.at(0).param_val,
+    "size"_a = args_.at(1).param_val
+  );
+
+  os << str << '\n';
 }
 
 void regular_loop_fragment::splice(compile_context& ctx, llvm::BasicBlock *entry, llvm::BasicBlock *exit)
