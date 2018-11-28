@@ -25,11 +25,9 @@ int main()
   auto frag = regular_loop_fragment{{
     value::with_param("x"), value::with_param("n")
   }};
-  frag.add_child(linear_fragment{{}});
+  frag.add_child(empty_fragment{{}});
   frag.add_child(frag.clone());
-  frag.add_child(linear_fragment{{}});
-  frag.add_child(linear_fragment{{}});
-  frag.add_child(linear_fragment{{}});
+  frag.add_child(empty_fragment{{}});
   frag.add_child(linear_fragment{{}});
 
   frag.print(std::cout);
