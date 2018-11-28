@@ -17,6 +17,22 @@ class fragment_args_error : public std::runtime_error {
 };
 
 /**
+ * The metadata we collect during compilation is:
+ *  * The function itself will be returned as part of this object.
+ *  * A set of seed values.
+ *  * A set of blocks to use as data blocks.
+ *  * A set of output locations to be stored to.
+ */
+struct compile_metadata {
+  llvm::Function *function;
+  std::set<llvm::Value *> seeds = {};
+  std::set<llvm::BasicBlock *> data_blocks = {};
+  std::set<llvm::Value *> outputs = {};
+
+  explicit compile_metadata(llvm::Function *fn);
+};
+
+/**
  * Information and helper methods for compiling fragments. Responsible for
  * interfacing with an LLVM function, keeping track of a signature etc.
  */
@@ -48,6 +64,8 @@ public:
 // TODO: work out encapsulation for context - need to make information available
 // to derived fragment classes?
 /* protected: */
+  props::signature sig_;
+
   llvm::Module& mod_;
 
   llvm::Function *func_;
@@ -55,23 +73,7 @@ public:
   llvm::BasicBlock *exit_;
   llvm::ReturnInst *return_;
 
-  props::signature sig_;
-};
-
-/**
- * The metadata we collect during compilation is:
- *  * The function itself will be returned as part of this object.
- *  * A set of seed values.
- *  * A set of blocks to use as data blocks.
- *  * A set of output locations to be stored to.
- */
-struct compile_metadata {
-  llvm::Function *function;
-  std::set<llvm::Value *> seeds = {};
-  std::set<llvm::BasicBlock *> data_blocks = {};
-  std::set<llvm::Value *> outputs = {};
-
-  explicit compile_metadata(llvm::Function *fn);
+  compile_metadata metadata_;
 };
 
 class fragment {

@@ -39,13 +39,13 @@ compile_metadata fragment::compile(compile_context& ctx)
  * with the context object as well.
  */
 compile_context::compile_context(Module& mod, signature sig) :
-  mod_(mod), sig_(sig)
+  sig_(sig), mod_(mod), 
+  func_(sig_.create_function(mod_)),
+  entry_(BasicBlock::Create(mod_.getContext(), "entry", func_)),
+  exit_(BasicBlock::Create(mod_.getContext(), "exit", func_)),
+  metadata_(func_)
 {
   auto& ctx = mod_.getContext();
-
-  func_ = sig_.create_function(mod_);
-  entry_ = BasicBlock::Create(ctx, "entry", func_);
-  exit_ = BasicBlock::Create(ctx, "exit", func_);
 
   auto rt = func_->getFunctionType()->getReturnType();
   if(rt->isVoidTy()) {
