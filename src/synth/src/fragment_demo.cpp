@@ -34,6 +34,6 @@ int main()
 
   frag.print(std::cout);
 
-  auto fn = frag.compile(ctx);
-  errs() << *fn << '\n';
+  auto data = frag.compile(ctx);
+  errs() << *data.function << '\n';
 }

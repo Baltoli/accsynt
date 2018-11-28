@@ -25,10 +25,11 @@ void fragment::print(std::ostream& os)
   print(os, 0);
 }
 
-Function* fragment::compile(compile_context& ctx)
+compile_metadata fragment::compile(compile_context& ctx)
 {
+  auto meta = compile_metadata(ctx.func_);
   splice(ctx, ctx.entry_, ctx.exit_);
-  return ctx.func_;
+  return meta;
 }
 
 /**
@@ -58,6 +59,11 @@ compile_context::compile_context(Module& mod, signature sig) :
 llvm::Argument *compile_context::argument(std::string const& name)
 {
   return std::next(func_->arg_begin(), sig_.param_index(name));
+}
+
+compile_metadata::compile_metadata(llvm::Function *fn)
+  : function(fn)
+{
 }
 
 }
