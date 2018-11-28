@@ -18,7 +18,4 @@ TEST_CASE("tinkering") {
 
   auto w = detail::equality_wrapper(2.0f);
   REQUIRE(!w.is_negative());
-
-  std::cout << ulp_diff(-221.098328f, -221.098206f) << '\n';
-  std::cout << ulp_diff(124.857239, 124.857117) << '\n';
 }
