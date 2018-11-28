@@ -27,6 +27,8 @@ void linear_fragment::splice(compile_context& ctx, llvm::BasicBlock *entry, llvm
 
   BranchInst::Create(block_, entry);  
   BranchInst::Create(exit, block_);
+
+  ctx.metadata_.data_blocks.insert(block_);
 }
 
 bool linear_fragment::add_child(frag_ptr&& f)

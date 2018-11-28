@@ -27,9 +27,8 @@ void fragment::print(std::ostream& os)
 
 compile_metadata fragment::compile(compile_context& ctx)
 {
-  auto meta = compile_metadata(ctx.func_);
   splice(ctx, ctx.entry_, ctx.exit_);
-  return meta;
+  return ctx.metadata_;
 }
 
 /**

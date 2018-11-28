@@ -100,6 +100,8 @@ void regular_loop_fragment::splice(compile_context& ctx, llvm::BasicBlock *entry
 
     children_.at(1)->splice(ctx, pre_body, post_body);
     last_exit = inter_second;
+
+    ctx.metadata_.seeds.insert(load);
   }
 
   if(n_childs >= 3) {

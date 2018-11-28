@@ -36,4 +36,21 @@ int main()
 
   auto data = frag.compile(ctx);
   errs() << *data.function << '\n';
+
+  errs() << "After compilation:\n";
+
+  errs() << "Data blocks:\n";
+  for(auto block : data.data_blocks) {
+    errs() << "\t" << block->getName() << '\n';
+  }
+
+  errs() << "Seeds:\n";
+  for(auto seed : data.seeds) {
+    errs() << "\t" << *seed << '\n';
+  }
+
+  errs() << "Outputs:\n";
+  for(auto out : data.outputs) {
+    errs() << "\t" << *out << '\n';
+  }
 }
