@@ -9,7 +9,6 @@ add_library(coresynth
   src/call_builder.cpp
   src/call_wrapper.cpp
   src/fragment.cpp
-  src/linear_fragment.cpp
   src/regular_loop_fragment.cpp)
 
 add_executable(synth
