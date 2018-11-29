@@ -7,6 +7,13 @@
 using namespace support;
 
 TEST_CASE("basic construction") {
-  auto vec = std::vector<std::vector<int>>{{1, 2}, {3,4}, {5,6}};
+  auto vec = std::vector<std::vector<int>>{{0,1}, {2}};
   auto prod = cartesian_product(vec.begin(), vec.end());
+
+  for(auto v : prod) {
+    for(auto i : v) {
+      std::cout << i << " ";
+    }
+    std::cout << '\n';
+  }
 }

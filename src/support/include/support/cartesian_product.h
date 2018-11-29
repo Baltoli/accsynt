@@ -1,14 +1,18 @@
 #pragma once
 
 #include <cstddef>
+#include <functional>
 #include <iterator>
+#include <numeric>
 #include <tuple>
 #include <utility>
 #include <vector>
 
+#include <iostream>
+
 namespace support {
 
-template <typename T>
+template <typename T, typename It>
 class cartesian_product_iterator;
 
 /**
@@ -22,41 +26,83 @@ class cartesian_product_iterator;
  *    element.
  *  * So the first bit of setup.
  */
-template <typename T>
+template <typename T, typename Iterator>
 class cartesian_product {
 public:
-  using iterator = cartesian_product_iterator<T>;
+  using iterator = cartesian_product_iterator<T, Iterator>;
   friend iterator;
 
-  template <typename Iterator>
   cartesian_product(Iterator b, Iterator e) :
-    size_(std::distance(b, e))
+    begin_(b),
+    size_(std::distance(b, e)),
+    element_sizes_(size_)
   {
+    using std::begin;
+    using std::end;
+
+    auto i = size_t{0};
+    for(auto it = b; it != e; ++it) {
+      element_sizes_[i++] = std::distance(begin(*it), end(*it));
+    }
+
+    n_products_ = std::accumulate(element_sizes_.begin(), element_sizes_.end(), 1, std::multiplies{});
   }
 
   iterator begin()
   {
-    return iterator(0, size_, *this);
+    return iterator(0, n_products_, *this);
   }
 
   iterator end()
   {
-    return iterator(size_, size_, *this);
+    return iterator(n_products_, n_products_, *this);
   }
 
 protected:
   std::vector<T> get(size_t idx)
   {
-    return std::vector<T>(idx);
+    using std::begin;
+
+    auto offsets = std::vector<size_t>(size_, 0);
+
+    for(auto i = 0u; i < idx; ++i) {
+      auto ptr = size_t{0};
+      offsets[ptr]++;
+      while(offsets[ptr] == element_sizes_[ptr]) {
+        offsets[ptr++] = 0;
+        offsets[ptr]++;
+      }
+    }
+
+    auto ret = std::vector<T>(size_);
+    for(auto i = 0u; i < size_; ++i) {
+      auto it = begin_;
+      std::advance(it, i);
+
+      auto bb = begin(*it);
+      std::advance(bb, offsets[i]);
+
+      ret[i] = *bb;
+    }
+    return ret;
   }
 
 private:
+  Iterator begin_;
+
   size_t size_;
+  std::vector<size_t> element_sizes_;
+
+  size_t n_products_;
 };
 
 template <typename Iterator>
-cartesian_product(Iterator b, Iterator e) -> 
-  cartesian_product<typename std::iterator_traits<Iterator>::value_type>;
+cartesian_product(Iterator, Iterator) ->
+  cartesian_product<
+    typename std::iterator_traits<
+      typename std::iterator_traits<Iterator>::value_type::iterator
+    >::value_type,
+    Iterator>;
 
 /**
  * Construct with: index, max bound for end, ref to data
@@ -66,7 +112,7 @@ cartesian_product(Iterator b, Iterator e) ->
  *
  * Type param is the value type.
  */
-template <typename T>
+template <typename T, typename It>
 class cartesian_product_iterator {
 public:
   using value_type = std::vector<T>;
@@ -75,7 +121,7 @@ public:
   using reference = std::vector<T> const&;
   using iterator_category = std::input_iterator_tag;
 
-  cartesian_product_iterator(size_t idx, size_t size, cartesian_product<T>& data) :
+  cartesian_product_iterator(size_t idx, size_t size, cartesian_product<T, It>& data) :
     index_(idx), size_(size), data_(&data)
   {
   }
@@ -87,41 +133,41 @@ public:
 
   value_type operator*()
   {
+    reload();
     return state_;
   }
 
   pointer operator->()
   {
+    reload();
     return std::addressof(state_);
   }
 
-  cartesian_product_iterator<T>& operator++()
+  cartesian_product_iterator<T, It>& operator++()
   {
     ++index_;
-    reload();
     return *this;
   }
 
-  cartesian_product_iterator<T>& operator++(int)
+  cartesian_product_iterator<T, It>& operator++(int)
   {
     auto copy = *this;
     ++index_;
-    reload();
     return copy;
   }
 
-  bool operator==(cartesian_product_iterator<T>& other)
+  bool operator==(cartesian_product_iterator<T, It>& other)
   {
     return std::tie(index_, size_, data_) ==
            std::tie(other.index_, other.size_, other.data_);
   }
 
-  bool operator!=(cartesian_product_iterator<T>& other)
+  bool operator!=(cartesian_product_iterator<T, It>& other)
   {
     return !(*this == other);
   }
 
-  friend void swap(cartesian_product_iterator<T>& a, cartesian_product_iterator<T>& b)
+  friend void swap(cartesian_product_iterator<T, It>& a, cartesian_product_iterator<T, It>& b)
   {
     using std::swap;
     swap(a.index_, b.index_);
@@ -132,7 +178,7 @@ public:
 private:
   size_t index_;
   size_t size_;
-  cartesian_product<T>* data_;
+  cartesian_product<T, It>* data_;
 
   std::vector<T> state_ = {};
 
