@@ -8,20 +8,18 @@
 #include <utility>
 #include <vector>
 
-#include <iostream>
-
 namespace support {
 
 template <typename T, typename It>
 class cartesian_product_iterator;
 
-template <typename T, typename Iterator>
+template <typename ElementType, typename NestedIterator>
 class cartesian_product {
 public:
-  using iterator = cartesian_product_iterator<T, Iterator>;
+  using iterator = cartesian_product_iterator<ElementType, NestedIterator>;
   friend iterator;
 
-  cartesian_product(Iterator b, Iterator e) :
+  cartesian_product(NestedIterator b, NestedIterator e) :
     begin_(b),
     product_size_(std::distance(b, e)),
     element_sizes_(product_size_)
@@ -58,7 +56,7 @@ public:
   }
 
 protected:
-  std::vector<T> get(size_t idx)
+  std::vector<ElementType> get(size_t idx)
   {
     using std::begin;
 
@@ -73,7 +71,7 @@ protected:
       }
     }
 
-    auto ret = std::vector<T>(product_size_);
+    auto ret = std::vector<ElementType>(product_size_);
     for(auto i = 0u; i < product_size_; ++i) {
       auto it = begin_;
       std::advance(it, i);
@@ -87,7 +85,7 @@ protected:
   }
 
 private:
-  Iterator begin_;
+  NestedIterator begin_;
 
   size_t product_size_;
   std::vector<size_t> element_sizes_;
