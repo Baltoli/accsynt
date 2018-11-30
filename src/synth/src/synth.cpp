@@ -36,7 +36,7 @@ int main(int argc, char **argv)
 
   cl::ParseCommandLineOptions(argc, argv);
 
-  auto m = match_expression("size", ignore_value{}, "woo");
+  auto m = match_expression("size", "ptr", "sz");
   errs() << m << '\n';
 
   auto property_set = props::property_set::load(PropertiesPath);
