@@ -119,7 +119,7 @@ public:
   using difference_type = size_t;
   using pointer = std::vector<T>*;
   using reference = std::vector<T> const&;
-  using iterator_category = std::bidirectional_iterator_tag;
+  using iterator_category = std::random_access_iterator_tag;
 
   cartesian_product_iterator(size_t idx, size_t size, cartesian_product<T, It>& data) :
     index_(idx), size_(size), data_(&data)
@@ -131,7 +131,7 @@ public:
   {
   }
 
-  value_type operator*()
+  reference operator*()
   {
     reload();
     return state_;
@@ -156,7 +156,7 @@ public:
     return copy;
   }
 
-  cartesian_product_iterator<T, It>& operator--
+  cartesian_product_iterator<T, It>& operator--()
   {
     --index_;
     return *this;
@@ -169,15 +169,76 @@ public:
     return copy;
   }
 
-  bool operator==(cartesian_product_iterator<T, It>& other)
+  cartesian_product_iterator<T, It>& operator+=(difference_type n)
+  {
+    index_ += n;
+    return *this;
+  }
+
+  friend cartesian_product_iterator<T, It> operator+(
+      cartesian_product_iterator<T, It> it, difference_type n)
+  {
+    it.index_ += n;
+    return it;
+  }
+
+  friend cartesian_product_iterator<T, It> operator+(
+      difference_type n, cartesian_product_iterator<T, It> it)
+  {
+    it.index_ += n;
+    return it;
+  }
+
+  cartesian_product_iterator<T, It>& operator-=(difference_type n)
+  {
+    index_ -= n;
+    return *this;
+  }
+
+  friend cartesian_product_iterator<T, It> operator-(
+      cartesian_product_iterator<T, It> it, difference_type n)
+  {
+    it.index_ -= n;
+    return it;
+  }
+
+  friend cartesian_product_iterator<T, It> operator-(
+      cartesian_product_iterator<T, It> it, cartesian_product_iterator<T, It> it2)
+  {
+    return it.index_ - it2.index_;
+  }
+
+  bool operator==(cartesian_product_iterator<T, It> const& other)
   {
     return std::tie(index_, size_, data_) ==
            std::tie(other.index_, other.size_, other.data_);
   }
 
-  bool operator!=(cartesian_product_iterator<T, It>& other)
+  bool operator!=(cartesian_product_iterator<T, It> const& other)
   {
     return !(*this == other);
+  }
+
+  bool operator<(cartesian_product_iterator<T, It> const& other)
+  {
+    return std::tie(index_, size_, data_) <
+           std::tie(other.index_, other.size_, other.data_);
+  }
+
+  bool operator>(cartesian_product_iterator<T, It> const& other)
+  {
+    return std::tie(index_, size_, data_) >
+           std::tie(other.index_, other.size_, other.data_);
+  }
+
+  bool operator<=(cartesian_product_iterator<T, It> const& other)
+  {
+    return !(*this > other);
+  }
+
+  bool operator>=(cartesian_product_iterator<T, It> const& other)
+  {
+    return !(*this < other);
   }
 
   friend void swap(cartesian_product_iterator<T, It>& a, cartesian_product_iterator<T, It>& b)
@@ -186,6 +247,7 @@ public:
     swap(a.index_, b.index_);
     swap(a.size_, b.size_);
     swap(a.data_, b.data_);
+    swap(a.state_, b.state_);
   }
 
 private:
