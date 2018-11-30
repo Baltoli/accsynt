@@ -14,7 +14,12 @@ match_expression::match_expression(std::string name, std::vector<binding_t> bs) 
 
 std::vector<match_result> match_expression::match(props::property_set ps)
 {
-  return {};
+  return {{
+    {
+      {"a", props::value::with_param("hello")},
+      {"b", props::value::with_int(10)}
+    }
+  }};
 }
 
 }

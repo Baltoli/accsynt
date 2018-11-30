@@ -77,6 +77,26 @@ struct value {
   static value with_float(float f);
   static value with_param(std::string param);
   static value with_string(std::string str);
+
+  template <typename OStream>
+  friend OStream& operator<<(OStream& os, value const& v)
+  {
+    switch(v.value_type) {
+      case type::integer:
+        os << v.int_val;
+        break;
+      case type::floating:
+        os << v.float_val;
+        break;
+      case type::parameter:
+        os << v.param_val;
+        break;
+      case type::string:
+        os << "\"" << v.string_val << "\"" << '\n';
+        break;
+    }
+    return os;
+  }
 };
 
 struct property {

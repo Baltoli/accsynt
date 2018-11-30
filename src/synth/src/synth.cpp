@@ -34,12 +34,16 @@ int main(int argc, char **argv)
   LLVMInitializeNativeAsmPrinter();
   LLVMInitializeNativeAsmParser();
 
-  /* cl::ParseCommandLineOptions(argc, argv); */
+  cl::ParseCommandLineOptions(argc, argv);
 
   auto m = match_expression("size", ignore_value{}, "woo");
   errs() << m << '\n';
 
-  /* auto property_set = props::property_set::load(PropertiesPath); */
+  auto property_set = props::property_set::load(PropertiesPath);
+  auto mrs = m.match(property_set);
+  for(auto mr : mrs) {
+    errs() << mr << '\n';
+  }
   /* auto fn_name = property_set.type_signature.name; */
 
   /* auto lib = dynamic_library(LibraryPath); */
