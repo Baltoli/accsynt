@@ -1,5 +1,6 @@
 #include "call_wrapper.h"
 #include "blas_synth.h"
+#include "rules.h"
 
 #include <props/props.h>
 #include <support/dynamic_library.h>
@@ -33,21 +34,24 @@ int main(int argc, char **argv)
   LLVMInitializeNativeAsmPrinter();
   LLVMInitializeNativeAsmParser();
 
-  cl::ParseCommandLineOptions(argc, argv);
+  /* cl::ParseCommandLineOptions(argc, argv); */
 
-  auto property_set = props::property_set::load(PropertiesPath);
-  auto fn_name = property_set.type_signature.name;
+  auto m = match_expression("size", ignore_value{}, "woo");
+  errs() << m << '\n';
 
-  auto lib = dynamic_library(LibraryPath);
+  /* auto property_set = props::property_set::load(PropertiesPath); */
+  /* auto fn_name = property_set.type_signature.name; */
 
-  auto mod = Module("test_mod", thread_context::get());
-  auto ref = call_wrapper(property_set.type_signature, mod, fn_name, lib);
+  /* auto lib = dynamic_library(LibraryPath); */
 
-  auto synth = blas_synth(property_set, ref);
-  auto fn = synth.generate();
-  if(fn) {
-    outs() << *fn << '\n';
-  } else {
-    errs() << "No function found\n";
-  }
+  /* auto mod = Module("test_mod", thread_context::get()); */
+  /* auto ref = call_wrapper(property_set.type_signature, mod, fn_name, lib); */
+
+  /* auto synth = blas_synth(property_set, ref); */
+  /* auto fn = synth.generate(); */
+  /* if(fn) { */
+  /*   outs() << *fn << '\n'; */
+  /* } else { */
+  /*   errs() << "No function found\n"; */
+  /* } */
 }
