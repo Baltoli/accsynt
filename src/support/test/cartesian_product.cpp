@@ -59,6 +59,9 @@ TEST_CASE("products are correct") {
 
   ++it;
   REQUIRE(*it == std::vector{ 1, 2, 7 });
+
+  ++it;
+  REQUIRE((it == prod.end()));
 }
 
 TEST_CASE("iterators are iterators") {
@@ -123,9 +126,51 @@ TEST_CASE("iterators are bidirectional iterators") {
   auto copy = it;
   REQUIRE((copy == it));
   REQUIRE((copy == it--));
+  REQUIRE((copy != it));
   REQUIRE((--copy == it));
 
   static_assert(
       std::is_same_v<decltype(*it--), std::iterator_traits<iter_t>::reference>, 
       "Deref of postdecrement must be reference");
+}
+
+TEST_CASE("iterators are random access iterators") {
+  auto v = std::vector<std::vector<int>>{{0, 1}, {2}, {5,6,7}};
+  auto prod = cartesian_product(v.begin(), v.end());
+  auto it = prod.begin();
+  auto it_c = it;
+
+  for(auto i = 0; i < 10; ++i, ++it) {}
+  REQUIRE((it != it_c));
+
+  it_c += 10;
+  REQUIRE((it == it_c));
+
+  REQUIRE(((it + 2) == (2 + it)));
+
+  for(auto i = 0; i < 4; ++i, --it) {}
+  REQUIRE((it != it_c));
+
+  it_c -= 4;
+  REQUIRE((it == it_c));
+
+  for(auto i = 0; i < 3; ++i, --it) {}
+  REQUIRE((it == (it_c - 3)));
+
+  REQUIRE((it_c - it) == 3);
+
+  REQUIRE(it[2] == *(it + 2));
+  static_assert(
+      std::is_convertible_v<decltype(it[2]), std::iterator_traits<decltype(it)>::reference>,
+      "Element access must be convertible to reference");
+
+  REQUIRE((it < it_c));
+  REQUIRE((it_c > it));
+  REQUIRE(!(it < it));
+  REQUIRE(!(it > it));
+
+  REQUIRE((it <= it_c));
+  REQUIRE((it <= it));
+  REQUIRE((it_c >= it));
+  REQUIRE((it >= it));
 }

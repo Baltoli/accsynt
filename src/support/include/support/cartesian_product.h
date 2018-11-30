@@ -216,6 +216,11 @@ public:
     return it.index_ - it2.index_;
   }
 
+  value_type operator[](difference_type n)
+  {
+    return *(*this + n);
+  }
+
   bool operator==(cartesian_product_iterator<T, It> const& other)
   {
     return std::tie(index_, size_, data_) ==
