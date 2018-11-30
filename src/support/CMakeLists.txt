@@ -27,6 +27,7 @@ install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 install(EXPORT SupportConfig DESTINATION share/Support/cmake)
 
 add_executable(support_unit
+  test/cartesian_product.cpp
   test/floats.cpp
   test/traits.cpp
   test/load_module.cpp
