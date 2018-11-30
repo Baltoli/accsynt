@@ -1,4 +1,5 @@
 add_library(coresynth
+  src/rules.cpp
   src/dataflow_synth.cpp
   src/value_sampler.cpp
   src/blas_properties.cpp
