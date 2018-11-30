@@ -15,17 +15,6 @@ namespace support {
 template <typename T, typename It>
 class cartesian_product_iterator;
 
-/**
- * Wrapper view class that accepts a range to product over, and gives iterators
- * that dereference to vectors of objects.
- *
- * Some maths to think about:
- *  * Easy to work out the total number of items the product view will produce -
- *    just the product over the lengths of its elements.
- *  * Which means that an integer in this range uniquely identifies a product
- *    element.
- *  * So the first bit of setup.
- */
 template <typename T, typename Iterator>
 class cartesian_product {
 public:
@@ -34,8 +23,8 @@ public:
 
   cartesian_product(Iterator b, Iterator e) :
     begin_(b),
-    size_(std::distance(b, e)),
-    element_sizes_(size_)
+    product_size_(std::distance(b, e)),
+    element_sizes_(product_size_)
   {
     using std::begin;
     using std::end;
@@ -46,6 +35,16 @@ public:
     }
 
     n_products_ = std::accumulate(element_sizes_.begin(), element_sizes_.end(), 1, std::multiplies{});
+  }
+
+  size_t product_size() const
+  {
+    return product_size_;
+  }
+
+  size_t size() const
+  {
+    return n_products_;
   }
 
   iterator begin()
@@ -63,7 +62,7 @@ protected:
   {
     using std::begin;
 
-    auto offsets = std::vector<size_t>(size_, 0);
+    auto offsets = std::vector<size_t>(product_size_, 0);
 
     for(auto i = 0u; i < idx; ++i) {
       auto ptr = size_t{0};
@@ -74,8 +73,8 @@ protected:
       }
     }
 
-    auto ret = std::vector<T>(size_);
-    for(auto i = 0u; i < size_; ++i) {
+    auto ret = std::vector<T>(product_size_);
+    for(auto i = 0u; i < product_size_; ++i) {
       auto it = begin_;
       std::advance(it, i);
 
@@ -90,7 +89,7 @@ protected:
 private:
   Iterator begin_;
 
-  size_t size_;
+  size_t product_size_;
   std::vector<size_t> element_sizes_;
 
   size_t n_products_;
@@ -145,12 +144,14 @@ public:
 
   cartesian_product_iterator<T, It>& operator++()
   {
+    needs_reload_ = true;
     ++index_;
     return *this;
   }
 
-  cartesian_product_iterator<T, It>& operator++(int)
+  cartesian_product_iterator<T, It> operator++(int)
   {
+    needs_reload_ = true;
     auto copy = *this;
     ++index_;
     return copy;
@@ -158,12 +159,14 @@ public:
 
   cartesian_product_iterator<T, It>& operator--()
   {
+    needs_reload_ = true;
     --index_;
     return *this;
   }
 
-  cartesian_product_iterator<T, It>& operator--(int)
+  cartesian_product_iterator<T, It> operator--(int)
   {
+    needs_reload_ = true;
     auto copy = *this;
     --index_;
     return copy;
@@ -171,6 +174,7 @@ public:
 
   cartesian_product_iterator<T, It>& operator+=(difference_type n)
   {
+    needs_reload_ = true;
     index_ += n;
     return *this;
   }
@@ -178,6 +182,7 @@ public:
   friend cartesian_product_iterator<T, It> operator+(
       cartesian_product_iterator<T, It> it, difference_type n)
   {
+    it.needs_reload_ = true;
     it.index_ += n;
     return it;
   }
@@ -185,12 +190,14 @@ public:
   friend cartesian_product_iterator<T, It> operator+(
       difference_type n, cartesian_product_iterator<T, It> it)
   {
+    it.needs_reload_ = true;
     it.index_ += n;
     return it;
   }
 
   cartesian_product_iterator<T, It>& operator-=(difference_type n)
   {
+    needs_reload_ = true;
     index_ -= n;
     return *this;
   }
@@ -198,11 +205,12 @@ public:
   friend cartesian_product_iterator<T, It> operator-(
       cartesian_product_iterator<T, It> it, difference_type n)
   {
+    it.needs_reload_ = true;
     it.index_ -= n;
     return it;
   }
 
-  friend cartesian_product_iterator<T, It> operator-(
+  friend difference_type operator-(
       cartesian_product_iterator<T, It> it, cartesian_product_iterator<T, It> it2)
   {
     return it.index_ - it2.index_;
@@ -257,9 +265,15 @@ private:
 
   std::vector<T> state_ = {};
 
+  bool needs_reload_ = true;
+
   void reload()
   {
-    state_ = data_->get(index_);
+    if(needs_reload_) {
+      state_ = data_->get(index_);
+    }
+
+    needs_reload_ = false;
   }
 };
 
