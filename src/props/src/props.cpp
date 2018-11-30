@@ -41,4 +41,29 @@ bool property_set::is_valid() const
   return true;
 }
 
+bool value::operator==(value const& other)
+{
+  if(value_type != other.value_type) {
+    return false;
+  }
+
+  switch(value_type) {
+      case type::integer:
+        return int_val == other.int_val;
+      case type::floating:
+        return float_val == other.float_val;
+      case type::parameter:
+        return param_val == other.param_val;
+      case type::string:
+        return string_val == other.string_val;
+  }
+
+  return false;
+}
+
+bool value::operator!=(value const& other)
+{
+  return !(*this == other);
+}
+
 }
