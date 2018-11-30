@@ -11,9 +11,16 @@ std::optional<match_result> match_result::unify_with(match_result const& other)
 {
   auto map = results_;
   for(auto [name, val] : other.results_) {
+    if(map.find(name) != map.end()) {
+      if(map.at(name) != val) {
+        return std::nullopt;
+      }
+    } else {
+      map.emplace(name, val);
+    }
   }
 
-  return {};
+  return match_result{map};
 }
 
 match_expression::match_expression(std::string name, std::vector<binding_t> bs) :

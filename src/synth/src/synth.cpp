@@ -44,6 +44,25 @@ int main(int argc, char **argv)
   for(auto mr : mrs) {
     errs() << mr << '\n';
   }
+
+  auto m1 = match_result{{
+    {
+      {"a", props::value::with_int(1)},
+      {"b", props::value::with_string("no")},
+      {"d", props::value::with_string("woo")}
+    }
+  }};
+
+  auto m2 = match_result{{
+    {
+      {"a", props::value::with_int(1)},
+      {"b", props::value::with_string("no")},
+      {"c", props::value::with_string("wo")}
+    }
+  }};
+
+  errs() << *m1.unify_with(m2) << '\n';
+
   /* auto fn_name = property_set.type_signature.name; */
 
   /* auto lib = dynamic_library(LibraryPath); */

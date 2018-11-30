@@ -95,7 +95,7 @@ struct value {
         os << v.param_val;
         break;
       case type::string:
-        os << "\"" << v.string_val << "\"" << '\n';
+        os << "\"" << v.string_val << "\"";
         break;
     }
     return os;
