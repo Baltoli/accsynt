@@ -5,6 +5,7 @@
 #include <support/visitor.h>
 
 #include <map>
+#include <optional>
 #include <string>
 #include <variant>
 #include <vector>
@@ -16,6 +17,8 @@ struct ignore_value {};
 class match_result {
 public:
   match_result(std::map<std::string, props::value>);
+
+  std::optional<match_result> unify_with(match_result const& other);
 
   template <typename OStream>
   friend OStream& operator<<(OStream& os, match_result const& mr);

@@ -7,6 +7,15 @@ match_result::match_result(std::map<std::string, props::value> rs) :
 {
 }
 
+std::optional<match_result> match_result::unify_with(match_result const& other)
+{
+  auto map = results_;
+  for(auto [name, val] : other.results_) {
+  }
+
+  return {};
+}
+
 match_expression::match_expression(std::string name, std::vector<binding_t> bs) :
     property_name_(name), bindings_(bs)
 {
