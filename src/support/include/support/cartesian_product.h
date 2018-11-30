@@ -119,7 +119,7 @@ public:
   using difference_type = size_t;
   using pointer = std::vector<T>*;
   using reference = std::vector<T> const&;
-  using iterator_category = std::input_iterator_tag;
+  using iterator_category = std::bidirectional_iterator_tag;
 
   cartesian_product_iterator(size_t idx, size_t size, cartesian_product<T, It>& data) :
     index_(idx), size_(size), data_(&data)
@@ -153,6 +153,19 @@ public:
   {
     auto copy = *this;
     ++index_;
+    return copy;
+  }
+
+  cartesian_product_iterator<T, It>& operator--
+  {
+    --index_;
+    return *this;
+  }
+
+  cartesian_product_iterator<T, It>& operator--(int)
+  {
+    auto copy = *this;
+    --index_;
     return copy;
   }
 
