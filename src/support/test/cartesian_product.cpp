@@ -19,7 +19,8 @@ TEST_CASE("can construct products from nested containers") {
   }
 
   SECTION("using the containers") {
-    // TODO
+    auto v = std::vector<std::vector<int>>{{0,1}, {2}};
+    auto prod = cartesian_product(v);
   }
 }
 
@@ -32,7 +33,7 @@ TEST_CASE("can iterate over products with a range for loop") {
 
 TEST_CASE("products are counted correctly") {
   auto v = std::vector<std::vector<int>>{{0, 1}, {2}, {5,6,7}};
-  auto prod = cartesian_product(v.begin(), v.end());
+  auto prod = cartesian_product(v);
 
   REQUIRE(prod.product_size() == 3);
   REQUIRE(prod.size() == 6);
@@ -66,7 +67,7 @@ TEST_CASE("products are correct") {
 
 TEST_CASE("iterators are iterators") {
   auto v = std::vector<std::vector<int>>{{0, 1}, {2}, {5,6,7}};
-  auto prod = cartesian_product(v.begin(), v.end());
+  auto prod = cartesian_product(v);
   auto it = prod.begin();
 
   *it;

@@ -35,6 +35,15 @@ public:
     n_products_ = std::accumulate(element_sizes_.begin(), element_sizes_.end(), 1, std::multiplies{});
   }
 
+  template <typename Container>
+  cartesian_product(Container&& c) :
+    cartesian_product(
+      [&] { using std::begin; return begin(c); }(),
+      [&] { using std::end; return end(c); }()
+    )
+  {
+  }
+
   size_t product_size() const
   {
     return product_size_;
@@ -93,32 +102,50 @@ private:
   size_t n_products_;
 };
 
-template <typename Iterator>
-cartesian_product(Iterator, Iterator) ->
+/*
+ * Horrible class template argument deduction guide. Breaking it down, what this
+ * does is use iterator_traits to get the inner type stored in the container,
+ * then again to get the element type within those containers.
+ *
+ * This means that NestedIterator needs to dereference to a container type with
+ * an iterator typedef within it.
+ */
+template <typename NestedIterator>
+cartesian_product(NestedIterator, NestedIterator) ->
   cartesian_product<
     typename std::iterator_traits<
-      typename std::iterator_traits<Iterator>::value_type::iterator
+      typename std::iterator_traits<
+        NestedIterator
+      >::value_type::iterator
     >::value_type,
-    Iterator>;
+    NestedIterator
+  >;
 
-/**
- * Construct with: index, max bound for end, ref to data
- * Random access - can jump around by incrementing
- * Deref: bump the iterators by the right amount, and return a vector of
- * appropriate data.
- *
- * Type param is the value type.
- */
-template <typename T, typename It>
+template <typename Container>
+cartesian_product(Container&&) ->
+  cartesian_product<
+    typename std::iterator_traits<
+      typename std::iterator_traits<
+        typename std::decay_t<Container>::iterator
+      >::value_type::iterator
+    >::value_type,
+    typename std::decay_t<Container>::iterator
+  >;
+
+template <typename ElementType, typename NestedIterator>
 class cartesian_product_iterator {
+private:
+  using iter_t = cartesian_product_iterator<ElementType, NestedIterator>;
+  using product_t = cartesian_product<ElementType, NestedIterator>;
+
 public:
-  using value_type = std::vector<T>;
+  using value_type = std::vector<ElementType>;
   using difference_type = size_t;
-  using pointer = std::vector<T>*;
-  using reference = std::vector<T> const&;
+  using pointer = std::vector<ElementType>*;
+  using reference = std::vector<ElementType> const&;
   using iterator_category = std::random_access_iterator_tag;
 
-  cartesian_product_iterator(size_t idx, size_t size, cartesian_product<T, It>& data) :
+  cartesian_product_iterator(size_t idx, size_t size, product_t& data) :
     index_(idx), size_(size), data_(&data)
   {
   }
@@ -140,14 +167,14 @@ public:
     return std::addressof(state_);
   }
 
-  cartesian_product_iterator<T, It>& operator++()
+  iter_t& operator++()
   {
     needs_reload_ = true;
     ++index_;
     return *this;
   }
 
-  cartesian_product_iterator<T, It> operator++(int)
+  iter_t operator++(int)
   {
     needs_reload_ = true;
     auto copy = *this;
@@ -155,14 +182,14 @@ public:
     return copy;
   }
 
-  cartesian_product_iterator<T, It>& operator--()
+  iter_t& operator--()
   {
     needs_reload_ = true;
     --index_;
     return *this;
   }
 
-  cartesian_product_iterator<T, It> operator--(int)
+  iter_t operator--(int)
   {
     needs_reload_ = true;
     auto copy = *this;
@@ -170,46 +197,42 @@ public:
     return copy;
   }
 
-  cartesian_product_iterator<T, It>& operator+=(difference_type n)
+  iter_t& operator+=(difference_type n)
   {
     needs_reload_ = true;
     index_ += n;
     return *this;
   }
 
-  friend cartesian_product_iterator<T, It> operator+(
-      cartesian_product_iterator<T, It> it, difference_type n)
+  friend iter_t operator+(iter_t it, difference_type n)
   {
     it.needs_reload_ = true;
     it.index_ += n;
     return it;
   }
 
-  friend cartesian_product_iterator<T, It> operator+(
-      difference_type n, cartesian_product_iterator<T, It> it)
+  friend iter_t operator+(difference_type n, iter_t it)
   {
     it.needs_reload_ = true;
     it.index_ += n;
     return it;
   }
 
-  cartesian_product_iterator<T, It>& operator-=(difference_type n)
+  iter_t& operator-=(difference_type n)
   {
     needs_reload_ = true;
     index_ -= n;
     return *this;
   }
 
-  friend cartesian_product_iterator<T, It> operator-(
-      cartesian_product_iterator<T, It> it, difference_type n)
+  friend iter_t operator-(iter_t it, difference_type n)
   {
     it.needs_reload_ = true;
     it.index_ -= n;
     return it;
   }
 
-  friend difference_type operator-(
-      cartesian_product_iterator<T, It> it, cartesian_product_iterator<T, It> it2)
+  friend difference_type operator-(iter_t it, iter_t it2)
   {
     return it.index_ - it2.index_;
   }
@@ -219,40 +242,40 @@ public:
     return *(*this + n);
   }
 
-  bool operator==(cartesian_product_iterator<T, It> const& other)
+  bool operator==(iter_t const& other)
   {
     return std::tie(index_, size_, data_) ==
            std::tie(other.index_, other.size_, other.data_);
   }
 
-  bool operator!=(cartesian_product_iterator<T, It> const& other)
+  bool operator!=(iter_t const& other)
   {
     return !(*this == other);
   }
 
-  bool operator<(cartesian_product_iterator<T, It> const& other)
+  bool operator<(iter_t const& other)
   {
     return std::tie(index_, size_, data_) <
            std::tie(other.index_, other.size_, other.data_);
   }
 
-  bool operator>(cartesian_product_iterator<T, It> const& other)
+  bool operator>(iter_t const& other)
   {
     return std::tie(index_, size_, data_) >
            std::tie(other.index_, other.size_, other.data_);
   }
 
-  bool operator<=(cartesian_product_iterator<T, It> const& other)
+  bool operator<=(iter_t const& other)
   {
     return !(*this > other);
   }
 
-  bool operator>=(cartesian_product_iterator<T, It> const& other)
+  bool operator>=(iter_t const& other)
   {
     return !(*this < other);
   }
 
-  friend void swap(cartesian_product_iterator<T, It>& a, cartesian_product_iterator<T, It>& b)
+  friend void swap(iter_t& a, iter_t& b)
   {
     using std::swap;
     swap(a.index_, b.index_);
@@ -264,9 +287,9 @@ public:
 private:
   size_t index_;
   size_t size_;
-  cartesian_product<T, It>* data_;
+  product_t* data_;
 
-  std::vector<T> state_ = {};
+  std::vector<ElementType> state_ = {};
 
   bool needs_reload_ = true;
 
