@@ -104,3 +104,28 @@ TEST_CASE("iterators are input iterators") {
   using std::swap;
   swap(it, i2);
 }
+
+TEST_CASE("iterators are bidirectional iterators") {
+  auto v = std::vector<std::vector<int>>{{0, 1}, {2}, {5,6,7}};
+  auto prod = cartesian_product(v.begin(), v.end());
+
+  auto it = prod.begin();
+  ++it;
+
+  using iter_t = decltype(it);
+  static_assert(
+      std::is_same_v<decltype(--it), iter_t&>, 
+      "Predecrement must be value_type");
+
+  static_assert(
+      std::is_convertible_v<decltype(it--), iter_t const&>, 
+      "Postdecrement must convert to const reference");
+  auto copy = it;
+  REQUIRE((copy == it));
+  REQUIRE((copy == it--));
+  REQUIRE((--copy == it));
+
+  static_assert(
+      std::is_same_v<decltype(*it--), std::iterator_traits<iter_t>::reference>, 
+      "Deref of postdecrement must be reference");
+}
