@@ -130,6 +130,11 @@ bool regular_loop_fragment::add_child(frag_ptr&& f)
   return false;
 }
 
+size_t regular_loop_fragment::count_immediate_holes() const
+{
+  return 3 - children_.size();
+}
+
 llvm::Argument *regular_loop_fragment::get_pointer(compile_context& ctx)
 {
   return ctx.argument(args_.at(0).param_val);

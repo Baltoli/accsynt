@@ -18,6 +18,9 @@ public:
   virtual void splice(compile_context& ctx, llvm::BasicBlock *entry, llvm::BasicBlock *exit);
   virtual bool add_child(frag_ptr&& f);
 
+protected:
+  virtual size_t count_immediate_holes() const override;
+
 private:
   llvm::BasicBlock *block_;
 };
@@ -66,6 +69,12 @@ template <bool use_data>
 bool linear_fragment_base<use_data>::add_child(frag_ptr&& f)
 {
   return false;
+}
+
+template <bool use_data>
+size_t linear_fragment_base<use_data>::count_immediate_holes() const
+{
+  return 0;
 }
 
 using linear_fragment = linear_fragment_base<true>;

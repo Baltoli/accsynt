@@ -140,8 +140,17 @@ public:
   template <typename T>
   bool add_child(T frag);
 
+  /**
+   * Counts the number of holes left in this fragment that can be instantiated
+   * with something else. Default implementation makes sure to recurse properly,
+   * but needs to make a virtual call to get the immediate number.
+   */
+  size_t count_holes() const;
+
 protected:
   void print_indent(std::ostream& os, size_t indent);
+
+  virtual size_t count_immediate_holes() const = 0;
 
   std::vector<props::value> args_;
   std::vector<frag_ptr> children_ = {};

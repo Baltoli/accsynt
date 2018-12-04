@@ -3,6 +3,8 @@
 #include <llvm/IR/Constant.h>
 #include <llvm/IR/Function.h>
 
+#include <numeric>
+
 using namespace llvm;
 using namespace props;
 
@@ -29,6 +31,16 @@ compile_metadata fragment::compile(compile_context& ctx)
 {
   splice(ctx, ctx.entry_, ctx.exit_);
   return ctx.metadata_;
+}
+
+size_t fragment::count_holes() const
+{
+  using std::begin;
+  using std::end;
+
+  return std::accumulate(begin(children_), end(children_), 0, [] (auto acc, auto&& ch) {
+    return acc + ch->count_holes();
+  }) + this->count_immediate_holes();
 }
 
 /**

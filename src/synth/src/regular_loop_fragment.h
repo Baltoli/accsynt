@@ -17,6 +17,9 @@ public:
   virtual void splice(compile_context& ctx, llvm::BasicBlock *entry, llvm::BasicBlock *exit);
   virtual bool add_child(frag_ptr&& f);
 
+protected:
+  virtual size_t count_immediate_holes() const override;
+
 private:
   llvm::Argument *get_pointer(compile_context&);
   llvm::Argument *get_size(compile_context&);
