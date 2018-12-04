@@ -44,7 +44,7 @@ int main(int argc, char **argv)
 
   auto property_set = props::property_set::load(PropertiesPath);
 
-  auto r = rule({ m, m2 });
+  auto r = rule("regularLoop", {"ptr", "sz"}, { m, m2 });
   auto frags = r.match(property_set);
 
   /* auto fn_name = property_set.type_signature.name; */

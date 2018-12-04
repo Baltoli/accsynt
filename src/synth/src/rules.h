@@ -16,6 +16,12 @@ namespace synth {
 
 struct ignore_value {};
 
+struct fragment_registry {
+  static std::unique_ptr<fragment> get(
+      std::string const& name,
+      std::vector<props::value> args);
+};
+
 class match_result {
 public:
   match_result(std::map<std::string, props::value>);
@@ -30,6 +36,8 @@ public:
 
   template <typename OStream>
   friend OStream& operator<<(OStream& os, match_result const& mr);
+
+  std::optional<props::value> operator()(std::string);
 
 protected:
   std::map<std::string, props::value> results_;
@@ -59,13 +67,17 @@ protected:
 
 class rule {
 public:
-  rule(std::vector<match_expression> es);
+  rule(std::string fragment,
+       std::vector<std::string> args,
+       std::vector<match_expression> es);
 
   std::vector<std::unique_ptr<fragment>> match(props::property_set ps);
 
 private:
   std::unique_ptr<fragment> instantiate(std::vector<props::value> args);
 
+  std::string fragment_;
+  std::vector<std::string> args_;
   std::vector<match_expression> exprs_;
 };
 
