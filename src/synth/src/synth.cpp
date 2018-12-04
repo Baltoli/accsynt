@@ -12,6 +12,8 @@
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/TargetSelect.h>
 
+#include <iostream>
+
 using namespace support;
 using namespace synth;
 using namespace llvm;
@@ -37,32 +39,13 @@ int main(int argc, char **argv)
   cl::ParseCommandLineOptions(argc, argv);
 
   auto m = match_expression("size", "ptr", "sz");
-  errs() << m << '\n';
+  auto m2 = match_expression("output", "ptr");
+  errs() << m << '\n' << m2 << '\n';
 
   auto property_set = props::property_set::load(PropertiesPath);
-  auto mrs = m.match(property_set);
-  for(auto mr : mrs) {
-    errs() << mr << '\n';
-  }
 
-  auto m1 = match_result{{
-    {
-      {"a", props::value::with_int(1)},
-      {"b", props::value::with_string("no")},
-      {"d", props::value::with_string("woo")}
-    }
-  }};
-
-  auto m2 = match_result{{
-    {
-      {"a", props::value::with_int(1)},
-      {"b", props::value::with_string("no")},
-      {"c", props::value::with_string("wo")}
-    }
-  }};
-
-  auto ms = std::vector{m1};
-  errs() << *match_result::unify_all(ms) << '\n';
+  auto r = rule({ m, m2 });
+  auto frags = r.match(property_set);
 
   /* auto fn_name = property_set.type_signature.name; */
 

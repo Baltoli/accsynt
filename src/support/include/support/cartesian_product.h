@@ -80,7 +80,7 @@ protected:
       }
     }
 
-    auto ret = std::vector<ElementType>(product_size_);
+    auto ret = std::vector<ElementType>();
     for(auto i = 0u; i < product_size_; ++i) {
       auto it = begin_;
       std::advance(it, i);
@@ -88,7 +88,7 @@ protected:
       auto bb = begin(*it);
       std::advance(bb, offsets[i]);
 
-      ret[i] = *bb;
+      ret.push_back(*bb);
     }
     return ret;
   }

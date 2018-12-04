@@ -1,5 +1,7 @@
 #pragma once
 
+#include "fragment.h"
+
 #include <props/props.h>
 
 #include <support/visitor.h>
@@ -55,6 +57,18 @@ protected:
   std::vector<binding_t> bindings_;
 };
 
+class rule {
+public:
+  rule(std::vector<match_expression> es);
+
+  std::vector<std::unique_ptr<fragment>> match(props::property_set ps);
+
+private:
+  std::unique_ptr<fragment> instantiate(std::vector<props::value> args);
+
+  std::vector<match_expression> exprs_;
+};
+
 template <typename Iterator>
 std::optional<match_result> match_result::unify_all(Iterator begin, Iterator end)
 {
@@ -106,11 +120,9 @@ OStream& operator<<(OStream& os, match_expression const& m)
     [] (ignore_value) { return std::string("_"); }
   };
 
-  os << "match(";
-  auto comma = "";
+  os << "match(" << m.property_name_;
   for(auto b : m.bindings_) {
-    os << comma << std::visit(bind_str, b);
-    comma = ", ";
+    os << ", " << std::visit(bind_str, b);
   }
   os << ")";
   return os;

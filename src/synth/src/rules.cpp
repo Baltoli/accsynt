@@ -1,4 +1,9 @@
+#include "regular_loop_fragment.h"
 #include "rules.h"
+
+#include <support/cartesian_product.h>
+
+#include <iostream>
 
 namespace synth {
 
@@ -50,6 +55,35 @@ std::vector<match_result> match_expression::match(props::property_set ps)
   }
 
   return ret;
+}
+
+rule::rule(std::vector<match_expression> es) :
+  exprs_(es)
+{
+}
+
+std::vector<std::unique_ptr<fragment>> rule::match(props::property_set ps)
+{
+  auto ret = std::vector<std::unique_ptr<fragment>>{};
+  
+  auto elements = std::vector<std::vector<match_result>>{};
+  for(auto expr : exprs_) {
+    elements.push_back(expr.match(ps));
+  }
+
+  for(auto prod : support::cartesian_product(elements)) {
+    auto unified = match_result::unify_all(prod);
+    if(unified) {
+      // instantiate and push here...
+    }
+  }
+
+  return ret;
+}
+
+std::unique_ptr<fragment> rule::instantiate(std::vector<props::value> args)
+{
+  return std::make_unique<regular_loop_fragment>(args);
 }
 
 }
