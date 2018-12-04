@@ -16,10 +16,22 @@ namespace synth {
 
 struct ignore_value {};
 
-struct fragment_registry {
+class rule;
+
+class fragment_registry {
+public:
   static std::unique_ptr<fragment> get(
       std::string const& name,
       std::vector<props::value> args);
+
+  fragment_registry() = delete;
+};
+
+class rule_registry {
+public:
+  static std::vector<rule> all();
+
+  rule_registry() = delete;
 };
 
 class match_result {

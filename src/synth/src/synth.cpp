@@ -1,6 +1,5 @@
 #include "call_wrapper.h"
 #include "blas_synth.h"
-#include "rules.h"
 
 #include <props/props.h>
 #include <support/dynamic_library.h>
@@ -11,8 +10,6 @@
 #include <llvm/IR/Module.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/TargetSelect.h>
-
-#include <iostream>
 
 using namespace support;
 using namespace synth;
@@ -38,27 +35,19 @@ int main(int argc, char **argv)
 
   cl::ParseCommandLineOptions(argc, argv);
 
-  auto m = match_expression("size", "ptr", "sz");
-  auto m2 = match_expression("output", "ptr");
-  errs() << m << '\n' << m2 << '\n';
-
   auto property_set = props::property_set::load(PropertiesPath);
+  auto fn_name = property_set.type_signature.name;
 
-  auto r = rule("regularLoop", {"ptr", "sz"}, { m, m2 });
-  auto frags = r.match(property_set);
+  auto lib = dynamic_library(LibraryPath);
 
-  /* auto fn_name = property_set.type_signature.name; */
+  auto mod = Module("test_mod", thread_context::get());
+  auto ref = call_wrapper(property_set.type_signature, mod, fn_name, lib);
 
-  /* auto lib = dynamic_library(LibraryPath); */
-
-  /* auto mod = Module("test_mod", thread_context::get()); */
-  /* auto ref = call_wrapper(property_set.type_signature, mod, fn_name, lib); */
-
-  /* auto synth = blas_synth(property_set, ref); */
-  /* auto fn = synth.generate(); */
-  /* if(fn) { */
-  /*   outs() << *fn << '\n'; */
-  /* } else { */
-  /*   errs() << "No function found\n"; */
-  /* } */
+  auto synth = blas_synth(property_set, ref);
+  auto fn = synth.generate();
+  if(fn) {
+    outs() << *fn << '\n';
+  } else {
+    errs() << "No function found\n";
+  }
 }
