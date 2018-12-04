@@ -20,6 +20,12 @@ public:
 
   std::optional<match_result> unify_with(match_result const& other);
 
+  template <typename Iterator>
+  static std::optional<match_result> unify_all(Iterator begin, Iterator end);
+
+  template <typename Container>
+  static std::optional<match_result> unify_all(Container&& c);
+
   template <typename OStream>
   friend OStream& operator<<(OStream& os, match_result const& mr);
 
@@ -48,6 +54,29 @@ protected:
   std::string property_name_;
   std::vector<binding_t> bindings_;
 };
+
+template <typename Iterator>
+std::optional<match_result> match_result::unify_all(Iterator begin, Iterator end)
+{
+  if(begin == end) {
+    return std::nullopt;
+  }
+
+  auto accum = std::optional<match_result>{*begin};
+  for(auto it = begin; it != end && accum; ++it) {
+    accum = accum->unify_with(*it);
+  }
+
+  return accum;
+}
+
+template <typename Container>
+std::optional<match_result> match_result::unify_all(Container&& c)
+{
+  using std::begin;
+  using std::end;
+  return unify_all(begin(c), end(c));
+}
 
 template <typename OStream>
 OStream& operator<<(OStream& os, match_result const& mr)

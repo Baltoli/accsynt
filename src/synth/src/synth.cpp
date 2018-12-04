@@ -61,7 +61,8 @@ int main(int argc, char **argv)
     }
   }};
 
-  errs() << *m1.unify_with(m2) << '\n';
+  auto ms = std::vector{m1};
+  errs() << *match_result::unify_all(ms) << '\n';
 
   /* auto fn_name = property_set.type_signature.name; */
 
