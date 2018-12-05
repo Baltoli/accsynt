@@ -22,6 +22,10 @@ public:
 private:
   llvm::Argument *get_pointer(compile_context&);
   llvm::Argument *get_size(compile_context&);
+
+  fragment::frag_ptr before_ = nullptr;
+  fragment::frag_ptr body_ = nullptr;
+  fragment::frag_ptr after_ = nullptr;
 };
 
 }
