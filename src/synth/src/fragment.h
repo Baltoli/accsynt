@@ -5,6 +5,7 @@
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Module.h>
 
+#include <functional>
 #include <set>
 #include <vector>
 
@@ -146,8 +147,17 @@ public:
 protected:
   void print_indent(std::ostream& os, size_t indent);
 
+  /**
+   * Helper method to clone and copy with the right type - simplifies the
+   * virtual clone method by having this handle the construction of a
+   * unique_ptr.
+   */
   template <typename T>
   frag_ptr clone_as(T const& obj) const;
+
+  template <typename... Children>
+  std::array<std::reference_wrapper<frag_ptr>, sizeof...(Children)> 
+    children_ref(Children&...) const;
 
   /**
    * If the fragment pointed to is empty / nullptr, then return 1 - it
@@ -169,6 +179,13 @@ template <typename T>
 fragment::frag_ptr fragment::clone_as(T const& obj) const
 {
   return fragment::frag_ptr(new T{obj});
+}
+
+template <typename... Children>
+std::array<std::reference_wrapper<fragment::frag_ptr>, sizeof...(Children)> 
+fragment::children_ref(Children&... chs) const
+{
+  return { std::ref(chs)... };
 }
 
 }

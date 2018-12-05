@@ -161,45 +161,24 @@ void regular_loop_fragment::splice(compile_context& ctx, llvm::BasicBlock *entry
 
 bool regular_loop_fragment::add_child(frag_ptr&& f, size_t idx)
 {
-  auto before_max = count_or_empty(before_);
-  auto body_max = count_or_empty(body_) + before_max;
-  auto after_max = count_or_empty(after_) + body_max;
+  auto children = children_ref(before_, body_, after_);
 
-  if(idx < before_max) {
-    if(before_) {
-      before_->add_child(std::move(f), idx);
+  for(frag_ptr& ch : children) {
+    auto max = count_or_empty(ch);
+    if(idx < max) {
+      if(ch) {
+        ch->add_child(std::move(f), idx);
+      } else {
+        ch = std::move(f);
+      }
+
+      return true;
     } else {
-      before_ = std::move(f);
+      idx -= max;
     }
-  } else if(idx < body_max) {
-    if(body_) {
-      body_->add_child(std::move(f), idx - before_max);
-    } else {
-      before_ = std::move(f);
-    }
-  } else if(idx < after_max) {
-    if(after_) {
-      after_->add_child(std::move(f), idx - body_max);
-    } else {
-      after_ = std::move(f);
-    }
-  } else {
-    throw std::invalid_argument("Too few holes remain in fragment");
   }
 
-  // TODO
-  /* if(children_.size() < 3) { */
-  /*   children_.push_back(std::move(f)); */
-  /*   return true; */
-  /* } else { */
-  /*   for(auto& child : children_) { */
-  /*     if(child->add_child(std::move(f))) { */
-  /*       return true; */
-  /*     } */
-  /*   } */
-  /* } */
-
-  return false;
+  throw std::invalid_argument("Too few holes in fragment");
 }
 
 size_t regular_loop_fragment::count_holes() const
