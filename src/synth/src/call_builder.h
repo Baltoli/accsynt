@@ -22,6 +22,11 @@ constexpr uint8_t nth_byte(T val, size_t n)
 
 }
 
+class call_builder_error : public std::runtime_error {
+public:
+  using std::runtime_error::runtime_error;
+};
+
 class call_builder {
 public:
   call_builder(props::signature sig);
@@ -68,12 +73,23 @@ void call_builder::add(T arg)
                 !std::is_pointer_v<Base>,
                 "Must be int or float and not pointer!");
 
-  assert(current_arg_ < signature_.parameters.size());
+  if(current_arg_ >= signature_.parameters.size()) {
+    throw call_builder_error("Parameter list is already full");
+  }
 
   auto param = signature_.parameters.at(current_arg_);
-  assert((std::is_same_v<Base, int> == (param.type == props::data_type::integer)));
-  assert((std::is_same_v<Base, float> == (param.type == props::data_type::floating)));
-  assert(param.pointer_depth == 0);
+
+  if(std::is_same_v<Base, int> && (param.type != props::data_type::integer)) {
+    throw call_builder_error("Adding non-integer when integer expected");
+  }
+
+  if(std::is_same_v<Base, float> && (param.type != props::data_type::floating)) {
+    throw call_builder_error("Adding non-float when float expected");
+  }
+
+  if(param.pointer_depth != 0) {
+    throw call_builder_error("Adding non-pointer when pointer expected");
+  }
 
   for(auto i = 0u; i < sizeof(T); ++i) {
     args_.push_back(detail::nth_byte(arg, i));
