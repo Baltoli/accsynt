@@ -20,6 +20,9 @@ add_executable(synth
 add_executable(fragment-demo
   src/fragment_demo.cpp)
 
+add_executable(synth_unit
+  test/main.cpp)
+
 target_link_libraries(coresynth
   ${llvm_libs}
   CONAN_PKG::fmt
@@ -33,6 +36,12 @@ target_link_libraries(synth
 target_link_libraries(fragment-demo
   coresynth)
 
+target_link_libraries(synth_unit
+  CONAN_PKG::catch2)
+
 install(
   TARGETS synth
   DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+add_test(NAME synth_unit
+         COMMAND $<TARGET_FILE:synth_unit>)
