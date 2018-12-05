@@ -60,5 +60,24 @@ TEST_CASE("Can copy and move fragments properly")
   frag1 = frag3;
 
   // TODO: validate these do the right thing - needs equality of fragments to be
-  // defined to work really.
+  // defined to work really, or some external observers of the fragment state
+}
+
+TEST_CASE("Can add children to fragments")
+{
+  // TODO
+}
+
+TEST_CASE("Can count remaining holes")
+{
+  SECTION("with an empty fragment") {
+    auto args = std::vector{value::with_param("x"), value::with_param("x")};
+    auto frag = regular_loop_fragment{args};
+
+    REQUIRE(frag.count_holes() == 3);
+  }
+
+  SECTION("when children have been added") {
+    // TODO
+  }
 }

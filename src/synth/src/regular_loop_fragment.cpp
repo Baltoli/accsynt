@@ -178,7 +178,9 @@ bool regular_loop_fragment::add_child(frag_ptr&& f, size_t idx)
 
 size_t regular_loop_fragment::count_holes() const
 {
-  return 0; // TODO 3 - children_.size();
+  return count_or_empty(before_) + 
+         count_or_empty(body_) + 
+         count_or_empty(after_);
 }
 
 llvm::Argument *regular_loop_fragment::get_pointer(compile_context& ctx)

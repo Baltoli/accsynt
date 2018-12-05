@@ -149,6 +149,13 @@ protected:
   template <typename T>
   frag_ptr clone_as(T const& obj) const;
 
+  /**
+   * If the fragment pointed to is empty / nullptr, then return 1 - it
+   * represents a hole. Otherwise return the number of empty holes in that
+   * fragment.
+   */
+  static size_t count_or_empty(frag_ptr const& frag);
+
   std::vector<props::value> args_;
 };
 
