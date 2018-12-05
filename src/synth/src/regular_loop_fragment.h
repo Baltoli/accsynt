@@ -11,6 +11,9 @@ public:
 
   regular_loop_fragment(std::vector<props::value> args);
 
+  regular_loop_fragment(regular_loop_fragment const& other);
+  regular_loop_fragment& operator=(regular_loop_fragment other);
+
   virtual fragment::frag_ptr clone();
 
   virtual void print(std::ostream& os, size_t indent) override;
@@ -18,6 +21,8 @@ public:
   virtual bool add_child(frag_ptr&& f, size_t idx);
 
   virtual size_t count_holes() const override;
+
+  friend void swap(regular_loop_fragment& a, regular_loop_fragment& b);
 
 private:
   llvm::Argument *get_pointer(compile_context&);

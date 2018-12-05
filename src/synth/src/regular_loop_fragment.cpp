@@ -29,6 +29,21 @@ regular_loop_fragment::regular_loop_fragment(std::vector<props::value> args) :
   }
 }
 
+regular_loop_fragment::regular_loop_fragment(regular_loop_fragment const& other) :
+  fragment(other.args_),
+  before_(other.before_->clone()),
+  body_(other.body_->clone()),
+  after_(other.after_->clone())
+{
+}
+
+regular_loop_fragment& regular_loop_fragment::operator=(regular_loop_fragment other)
+{
+  using std::swap;
+  swap(*this, other);
+  return *this;
+}
+
 fragment::frag_ptr regular_loop_fragment::clone()
 {
   return nullptr; // TODO clone_as<regular_loop_fragment>();
@@ -146,6 +161,15 @@ llvm::Argument *regular_loop_fragment::get_pointer(compile_context& ctx)
 llvm::Argument *regular_loop_fragment::get_size(compile_context& ctx)
 {
   return ctx.argument(args_.at(1).param_val);
+}
+  
+void swap(regular_loop_fragment& a, regular_loop_fragment& b)
+{
+  using std::swap;
+  swap(a.before_, b.before_);
+  swap(a.body_, b.body_);
+  swap(a.after_, b.after_);
+  swap(a.args_, b.args_);
 }
 
 }
