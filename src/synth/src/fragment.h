@@ -2,19 +2,18 @@
 
 #include <props/props.h>
 
+#include <support/indent.h>
+
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Module.h>
 
+#include <functional>
 #include <set>
 #include <vector>
 
 namespace synth {
 
 class fragment;
-
-class fragment_args_error : public std::runtime_error {
-  using std::runtime_error::runtime_error;
-};
 
 /**
  * The metadata we collect during compilation is:
@@ -102,11 +101,9 @@ public:
   virtual frag_ptr clone() = 0;
 
   /**
-   * Print this fragment to an ostream, with an overload for indentation to
-   * allow for printing children nested as appropriate.
+   * Get a pretty-printed representation of this fragment.
    */
-  virtual void print(std::ostream& os, size_t indent) = 0;
-  void print(std::ostream& os);
+  virtual std::string to_str(size_t indent) = 0;
 
   /**
    * Compile this fragment to LLVM using ctx, which contains all the information
@@ -135,44 +132,60 @@ public:
    * The child pointer passed into this one is moved from even if insertion
    * fails.
    */
-  virtual bool add_child(frag_ptr&& f) = 0;
+  virtual bool add_child(frag_ptr&& f, size_t idx) = 0;
 
   template <typename T>
-  bool add_child(T frag);
+  bool add_child(T frag, size_t idx);
 
   /**
    * Counts the number of holes left in this fragment that can be instantiated
    * with something else. Default implementation makes sure to recurse properly,
    * but needs to make a virtual call to get the immediate number.
    */
-  size_t count_holes() const;
+  virtual size_t count_holes() const = 0;
 
 protected:
-  void print_indent(std::ostream& os, size_t indent);
+  /**
+   * Helper method to clone and copy with the right type - simplifies the
+   * virtual clone method by having this handle the construction of a
+   * unique_ptr.
+   */
+  template <typename T>
+  frag_ptr clone_as(T const& obj) const;
 
-  virtual size_t count_immediate_holes() const = 0;
+  template <typename... Children>
+  std::array<std::reference_wrapper<frag_ptr>, sizeof...(Children)> 
+    children_ref(Children&...) const;
+
+  /**
+   * If the fragment pointed to is empty / nullptr, then return 1 - it
+   * represents a hole. Otherwise return the number of empty holes in that
+   * fragment.
+   */
+  static size_t count_or_empty(frag_ptr const& frag);
+
+  static std::string string_or_empty(frag_ptr const& frag, size_t ind);
 
   std::vector<props::value> args_;
-  std::vector<frag_ptr> children_ = {};
-
-  template <typename T>
-  std::unique_ptr<T> clone_as();
 };
 
 template <typename T>
-bool fragment::add_child(T frag)
+bool fragment::add_child(T frag, size_t idx)
 {
-  return add_child(frag_ptr{frag.clone()});
+  return add_child(frag_ptr{frag.clone()}, idx);
 }
 
 template <typename T>
-std::unique_ptr<T> fragment::clone_as()
+fragment::frag_ptr fragment::clone_as(T const& obj) const
 {
-  auto new_frag = std::make_unique<T>(args_);
-  for(auto const& child : children_) {
-    new_frag->add_child(frag_ptr{child->clone()});
-  }
-  return new_frag;
+  return fragment::frag_ptr(new T{obj});
+}
+
+template <typename... Children>
+std::array<std::reference_wrapper<fragment::frag_ptr>, sizeof...(Children)> 
+fragment::children_ref(Children&... chs) const
+{
+  return { std::ref(chs)... };
 }
 
 }

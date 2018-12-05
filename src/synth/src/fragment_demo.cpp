@@ -25,30 +25,30 @@ int main()
   auto frag = regular_loop_fragment{{
     value::with_param("x"), value::with_param("n")
   }};
-  frag.add_child(empty_fragment{{}});
-  frag.add_child(frag.clone());
-  frag.add_child(empty_fragment{{}});
-  frag.add_child(linear_fragment{{}});
+  /* frag.add_child(empty_fragment{{}}); */
+  /* frag.add_child(frag.clone()); */
+  /* frag.add_child(empty_fragment{{}}); */
+  /* frag.add_child(linear_fragment{{}}); */
 
-  frag.print(std::cout);
+  /* frag.print(std::cout); */
 
-  auto data = frag.compile(ctx);
-  errs() << *data.function << '\n';
+  /* auto data = frag.compile(ctx); */
+  /* errs() << *data.function << '\n'; */
 
-  errs() << "After compilation:\n";
+  /* errs() << "After compilation:\n"; */
 
-  errs() << "Data blocks:\n";
-  for(auto block : data.data_blocks) {
-    errs() << "\t" << block->getName() << '\n';
-  }
+  /* errs() << "Data blocks:\n"; */
+  /* for(auto block : data.data_blocks) { */
+  /*   errs() << "\t" << block->getName() << '\n'; */
+  /* } */
 
-  errs() << "Seeds:\n";
-  for(auto seed : data.seeds) {
-    errs() << "\t" << *seed << '\n';
-  }
+  /* errs() << "Seeds:\n"; */
+  /* for(auto seed : data.seeds) { */
+  /*   errs() << "\t" << *seed << '\n'; */
+  /* } */
 
-  errs() << "Outputs:\n";
-  for(auto out : data.outputs) {
-    errs() << "\t" << *out << '\n';
-  }
+  /* errs() << "Outputs:\n"; */
+  /* for(auto out : data.outputs) { */
+  /*   errs() << "\t" << *out << '\n'; */
+  /* } */
 }

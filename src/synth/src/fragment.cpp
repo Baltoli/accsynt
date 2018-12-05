@@ -15,32 +15,28 @@ fragment::fragment(std::vector<value> args) :
 {
 }
 
-void fragment::print_indent(std::ostream& os, size_t indent)
-{
-  for(auto i = 0u; i < indent; ++i) {
-    os << "  ";
-  }
-}
-
-void fragment::print(std::ostream& os)
-{
-  print(os, 0);
-}
-
 compile_metadata fragment::compile(compile_context& ctx)
 {
   splice(ctx, ctx.entry_, ctx.exit_);
   return ctx.metadata_;
 }
 
-size_t fragment::count_holes() const
+size_t fragment::count_or_empty(fragment::frag_ptr const& frag)
 {
-  using std::begin;
-  using std::end;
+  if(frag) {
+    return frag->count_holes();
+  } else {
+    return 1;
+  }
+}
 
-  return std::accumulate(begin(children_), end(children_), 0, [] (auto acc, auto&& ch) {
-    return acc + ch->count_holes();
-  }) + this->count_immediate_holes();
+std::string fragment::string_or_empty(frag_ptr const& frag, size_t ind)
+{
+  if(frag) {
+    return frag->to_str(ind);
+  } else {
+    return fmt::format("{}[?]", ::support::indent{ind});
+  }
 }
 
 /**
