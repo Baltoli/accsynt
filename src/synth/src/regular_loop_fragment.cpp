@@ -161,6 +161,32 @@ void regular_loop_fragment::splice(compile_context& ctx, llvm::BasicBlock *entry
 
 bool regular_loop_fragment::add_child(frag_ptr&& f, size_t idx)
 {
+  auto before_max = count_or_empty(before_);
+  auto body_max = count_or_empty(body_) + before_max;
+  auto after_max = count_or_empty(after_) + body_max;
+
+  if(idx < before_max) {
+    if(before_) {
+      before_->add_child(std::move(f), idx);
+    } else {
+      before_ = std::move(f);
+    }
+  } else if(idx < body_max) {
+    if(body_) {
+      body_->add_child(std::move(f), idx - before_max);
+    } else {
+      before_ = std::move(f);
+    }
+  } else if(idx < after_max) {
+    if(after_) {
+      after_->add_child(std::move(f), idx - body_max);
+    } else {
+      after_ = std::move(f);
+    }
+  } else {
+    throw std::invalid_argument("Too few holes remain in fragment");
+  }
+
   // TODO
   /* if(children_.size() < 3) { */
   /*   children_.push_back(std::move(f)); */
