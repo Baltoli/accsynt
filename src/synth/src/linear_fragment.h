@@ -27,7 +27,7 @@ private:
 template <bool use_data>
 fragment::frag_ptr linear_fragment_base<use_data>::clone()
 {
-  return fragment::frag_ptr{*this};;
+  return std::make_unique<linear_fragment_base<use_data>>(*this);
 }
 
 template <bool use_data>
