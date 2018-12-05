@@ -12,10 +12,6 @@ namespace synth {
 
 class fragment;
 
-class fragment_args_error : public std::runtime_error {
-  using std::runtime_error::runtime_error;
-};
-
 /**
  * The metadata we collect during compilation is:
  *  * The function itself will be returned as part of this object.

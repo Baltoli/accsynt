@@ -16,7 +16,7 @@ regular_loop_fragment::regular_loop_fragment(std::vector<props::value> args) :
   fragment(args)
 {
   if(args_.size() != 2) {
-    throw fragment_args_error("Regular loop requires exactly 2 arguments");
+    throw std::invalid_argument("Regular loop requires exactly 2 arguments");
   }
 
   auto const& ptr_arg = args_.at(0);
@@ -25,7 +25,7 @@ regular_loop_fragment::regular_loop_fragment(std::vector<props::value> args) :
   if(ptr_arg.value_type != value::type::parameter ||
      size_arg.value_type != value::type::parameter)
   { 
-    throw fragment_args_error("Regular loop arguments must both be parameter references");
+    throw std::invalid_argument("Regular loop arguments must both be parameter references");
   }
 }
 
