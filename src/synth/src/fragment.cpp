@@ -10,6 +10,12 @@ using namespace props;
 
 namespace synth {
 
+std::vector<fragment::frag_ptr> fragment::enumerate_all(std::vector<frag_ptr>&& fragments)
+{
+  // TODO: enumerating all fragments algorithm
+  return {};
+}
+
 fragment::fragment(std::vector<value> args) :
   args_(args)
 {

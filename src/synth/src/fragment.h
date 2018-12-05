@@ -79,6 +79,8 @@ class fragment {
 public:
   using frag_ptr = std::unique_ptr<fragment>;
 
+  static std::vector<frag_ptr> enumerate_all(std::vector<frag_ptr>&& fragments);
+
   /**
    * Instantiate a fragment based on matched arguments from an inference rule.
    * This doesn't receive a signature because the compilation context is
