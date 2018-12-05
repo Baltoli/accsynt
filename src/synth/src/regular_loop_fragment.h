@@ -16,6 +16,9 @@ public:
   regular_loop_fragment(regular_loop_fragment const& other);
   regular_loop_fragment& operator=(regular_loop_fragment other);
 
+  regular_loop_fragment(regular_loop_fragment&& other);
+  regular_loop_fragment& operator=(regular_loop_fragment&& other);
+
   virtual fragment::frag_ptr clone();
 
   virtual void print(std::ostream& os, size_t indent) override;
@@ -30,9 +33,9 @@ private:
   llvm::Argument *get_pointer(compile_context&);
   llvm::Argument *get_size(compile_context&);
 
-  fragment::frag_ptr before_ = nullptr;
-  fragment::frag_ptr body_ = nullptr;
-  fragment::frag_ptr after_ = nullptr;
+  fragment::frag_ptr before_;
+  fragment::frag_ptr body_;
+  fragment::frag_ptr after_;
 };
 
 }

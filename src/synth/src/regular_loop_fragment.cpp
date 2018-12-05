@@ -42,8 +42,25 @@ regular_loop_fragment::regular_loop_fragment(std::vector<value> args) :
 
 regular_loop_fragment::regular_loop_fragment(regular_loop_fragment const& other) :
   regular_loop_fragment(
-      other.args_, other.before_->clone(), other.body_->clone(), other.after_->clone())
+      other.args_, other.before_->clone(), 
+      other.body_->clone(), other.after_->clone())
 {
+}
+
+regular_loop_fragment::regular_loop_fragment(regular_loop_fragment&& other) :
+  regular_loop_fragment(
+      std::move(other.args_), std::move(other.before_),
+      std::move(other.body_), std::move(other.after_))
+{
+}
+
+regular_loop_fragment& regular_loop_fragment::operator=(regular_loop_fragment&& other)
+{
+  args_ = std::move(other.args_);
+  before_ = std::move(other.before_);
+  body_ = std::move(other.body_);
+  after_ = std::move(other.after_);
+  return *this;
 }
 
 regular_loop_fragment& regular_loop_fragment::operator=(regular_loop_fragment other)
