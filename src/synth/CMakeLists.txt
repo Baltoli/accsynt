@@ -22,6 +22,7 @@ add_executable(fragment-demo
 
 add_executable(synth_unit
   test/regular_loop_fragment.cpp
+  test/linear_fragment.cpp
   test/call_builder.cpp
   test/main.cpp)
 
