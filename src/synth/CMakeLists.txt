@@ -37,7 +37,11 @@ target_link_libraries(fragment-demo
   coresynth)
 
 target_link_libraries(synth_unit
+  coresynth
   CONAN_PKG::catch2)
+
+target_include_directories(synth_unit
+  PRIVATE src)
 
 install(
   TARGETS synth
