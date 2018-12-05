@@ -10,13 +10,13 @@ template <bool add_data>
 class linear_fragment_base : public fragment {
 public:
   using fragment::fragment;
-  using fragment::print;
 
   virtual fragment::frag_ptr clone();
 
-  virtual void print(std::ostream& os, size_t indent) override;
   virtual void splice(compile_context& ctx, llvm::BasicBlock *entry, llvm::BasicBlock *exit);
   virtual bool add_child(frag_ptr&& f, size_t idx);
+
+  virtual std::string to_str(size_t indent=0) override;
 
   virtual size_t count_holes() const override;
 
@@ -31,12 +31,10 @@ fragment::frag_ptr linear_fragment_base<use_data>::clone()
 }
 
 template <bool use_data>
-void linear_fragment_base<use_data>::print(std::ostream& os, size_t indent)
+std::string linear_fragment_base<use_data>::to_str(size_t indent)
 {
-  if constexpr(use_data) {
-    print_indent(os, indent);
-    os << "[linear region]" << '\n';
-  }
+  // TODO indent
+  return "[linear region]";
 }
 
 /**

@@ -15,18 +15,6 @@ fragment::fragment(std::vector<value> args) :
 {
 }
 
-void fragment::print_indent(std::ostream& os, size_t indent)
-{
-  for(auto i = 0u; i < indent; ++i) {
-    os << "  ";
-  }
-}
-
-void fragment::print(std::ostream& os)
-{
-  print(os, 0);
-}
-
 compile_metadata fragment::compile(compile_context& ctx)
 {
   splice(ctx, ctx.entry_, ctx.exit_);

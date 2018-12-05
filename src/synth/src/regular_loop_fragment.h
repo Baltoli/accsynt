@@ -7,7 +7,6 @@ namespace synth {
 class regular_loop_fragment : public fragment {
 public:
   using fragment::add_child;
-  using fragment::print;
 
   regular_loop_fragment(std::vector<props::value> args,
                         frag_ptr&& before, frag_ptr&& body, frag_ptr&& after);
@@ -21,7 +20,7 @@ public:
 
   virtual fragment::frag_ptr clone();
 
-  virtual void print(std::ostream& os, size_t indent) override;
+  virtual std::string to_str(size_t indent=0) override;
   virtual void splice(compile_context& ctx, llvm::BasicBlock *entry, llvm::BasicBlock *exit);
   virtual bool add_child(frag_ptr&& f, size_t idx);
 

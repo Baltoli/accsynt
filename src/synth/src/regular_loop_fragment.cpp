@@ -77,8 +77,27 @@ fragment::frag_ptr regular_loop_fragment::clone()
   return clone_as(*this);
 }
 
-void regular_loop_fragment::print(std::ostream& os, size_t indent)
+std::string regular_loop_fragment::to_str(size_t indent)
 {
+  using namespace fmt::literals;
+
+  auto shape = R"({ind1}{before}
+{ind1}regularLoop({ptr}, {sz}) {{
+{ind2}{body}
+{ind1}}}
+{ind1}{after})";
+
+  return fmt::format(shape,
+    "ind1"_a = "  ",
+    "ind2"_a = "    ",
+    "before"_a = "BEFORE",
+    "body"_a = "BODY",
+    "after"_a = "AFTER",
+    "ptr"_a = "PTR",
+    "sz"_a = "SZ"
+  );
+}
+
   // TODO
   /* auto n_childs = children_.size(); */
 
@@ -99,7 +118,6 @@ void regular_loop_fragment::print(std::ostream& os, size_t indent)
   /* if(n_childs >= 3) { */
   /*   children_.at(2)->print(os, indent); */
   /* } */
-}
 
 void regular_loop_fragment::splice(compile_context& ctx, llvm::BasicBlock *entry, llvm::BasicBlock *exit)
 {

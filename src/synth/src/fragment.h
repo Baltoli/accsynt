@@ -99,11 +99,9 @@ public:
   virtual frag_ptr clone() = 0;
 
   /**
-   * Print this fragment to an ostream, with an overload for indentation to
-   * allow for printing children nested as appropriate.
+   * Get a pretty-printed representation of this fragment.
    */
-  virtual void print(std::ostream& os, size_t indent) = 0;
-  void print(std::ostream& os);
+  virtual std::string to_str(size_t indent) = 0;
 
   /**
    * Compile this fragment to LLVM using ctx, which contains all the information
