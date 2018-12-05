@@ -131,44 +131,28 @@ public:
    * The child pointer passed into this one is moved from even if insertion
    * fails.
    */
-  virtual bool add_child(frag_ptr&& f) = 0;
+  virtual bool add_child(frag_ptr&& f, size_t idx) = 0;
 
   template <typename T>
-  bool add_child(T frag);
+  bool add_child(T frag, size_t idx);
 
   /**
    * Counts the number of holes left in this fragment that can be instantiated
    * with something else. Default implementation makes sure to recurse properly,
    * but needs to make a virtual call to get the immediate number.
    */
-  size_t count_holes() const;
+  virtual size_t count_holes() const = 0;
 
 protected:
   void print_indent(std::ostream& os, size_t indent);
 
-  virtual size_t count_immediate_holes() const = 0;
-
   std::vector<props::value> args_;
-  std::vector<frag_ptr> children_ = {};
-
-  template <typename T>
-  std::unique_ptr<T> clone_as();
 };
 
 template <typename T>
-bool fragment::add_child(T frag)
+bool fragment::add_child(T frag, size_t idx)
 {
-  return add_child(frag_ptr{frag.clone()});
-}
-
-template <typename T>
-std::unique_ptr<T> fragment::clone_as()
-{
-  auto new_frag = std::make_unique<T>(args_);
-  for(auto const& child : children_) {
-    new_frag->add_child(frag_ptr{child->clone()});
-  }
-  return new_frag;
+  return add_child(frag_ptr{frag.clone()}, idx);
 }
 
 }

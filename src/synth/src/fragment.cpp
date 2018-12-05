@@ -33,16 +33,6 @@ compile_metadata fragment::compile(compile_context& ctx)
   return ctx.metadata_;
 }
 
-size_t fragment::count_holes() const
-{
-  using std::begin;
-  using std::end;
-
-  return std::accumulate(begin(children_), end(children_), 0, [] (auto acc, auto&& ch) {
-    return acc + ch->count_holes();
-  }) + this->count_immediate_holes();
-}
-
 /**
  * From what I've thought about, I think the best thing to do is to have a
  * context "own" / manage a single function which is created when we create a

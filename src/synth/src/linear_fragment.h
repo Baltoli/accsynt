@@ -16,10 +16,9 @@ public:
 
   virtual void print(std::ostream& os, size_t indent) override;
   virtual void splice(compile_context& ctx, llvm::BasicBlock *entry, llvm::BasicBlock *exit);
-  virtual bool add_child(frag_ptr&& f);
+  virtual bool add_child(frag_ptr&& f, size_t idx);
 
-protected:
-  virtual size_t count_immediate_holes() const override;
+  virtual size_t count_holes() const override;
 
 private:
   llvm::BasicBlock *block_;
@@ -28,7 +27,7 @@ private:
 template <bool use_data>
 fragment::frag_ptr linear_fragment_base<use_data>::clone()
 {
-  return clone_as<linear_fragment_base<use_data>>();
+  return fragment::frag_ptr{*this};;
 }
 
 template <bool use_data>
@@ -66,13 +65,13 @@ void linear_fragment_base<use_data>::splice(compile_context& ctx, llvm::BasicBlo
 }
 
 template <bool use_data>
-bool linear_fragment_base<use_data>::add_child(frag_ptr&& f)
+bool linear_fragment_base<use_data>::add_child(frag_ptr&& f, size_t idx)
 {
   return false;
 }
 
 template <bool use_data>
-size_t linear_fragment_base<use_data>::count_immediate_holes() const
+size_t linear_fragment_base<use_data>::count_holes() const
 {
   return 0;
 }

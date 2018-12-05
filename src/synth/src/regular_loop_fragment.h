@@ -15,10 +15,9 @@ public:
 
   virtual void print(std::ostream& os, size_t indent) override;
   virtual void splice(compile_context& ctx, llvm::BasicBlock *entry, llvm::BasicBlock *exit);
-  virtual bool add_child(frag_ptr&& f);
+  virtual bool add_child(frag_ptr&& f, size_t idx);
 
-protected:
-  virtual size_t count_immediate_holes() const override;
+  virtual size_t count_holes() const override;
 
 private:
   llvm::Argument *get_pointer(compile_context&);
