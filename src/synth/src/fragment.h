@@ -146,6 +146,9 @@ public:
 protected:
   void print_indent(std::ostream& os, size_t indent);
 
+  template <typename T>
+  frag_ptr clone_as(T const& obj) const;
+
   std::vector<props::value> args_;
 };
 
@@ -153,6 +156,12 @@ template <typename T>
 bool fragment::add_child(T frag, size_t idx)
 {
   return add_child(frag_ptr{frag.clone()}, idx);
+}
+
+template <typename T>
+fragment::frag_ptr fragment::clone_as(T const& obj) const
+{
+  return fragment::frag_ptr(new T{obj});
 }
 
 }

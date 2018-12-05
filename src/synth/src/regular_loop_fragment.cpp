@@ -72,7 +72,7 @@ regular_loop_fragment& regular_loop_fragment::operator=(regular_loop_fragment ot
 
 fragment::frag_ptr regular_loop_fragment::clone()
 {
-  return nullptr; // TODO clone_as<regular_loop_fragment>();
+  return clone_as(*this);
 }
 
 void regular_loop_fragment::print(std::ostream& os, size_t indent)
