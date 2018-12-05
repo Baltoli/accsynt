@@ -12,8 +12,14 @@ namespace synth {
 
 // TODO: make an abstract validation function that can handle the common cases?
 
-regular_loop_fragment::regular_loop_fragment(std::vector<props::value> args) :
-  fragment(args)
+regular_loop_fragment::regular_loop_fragment(std::vector<value> args,
+                                             frag_ptr&& before, 
+                                             frag_ptr&& body,
+                                             frag_ptr&& after) :
+  fragment(args),
+  before_(std::move(before)),
+  body_(std::move(body)),
+  after_(std::move(after))
 {
   if(args_.size() != 2) {
     throw std::invalid_argument("Regular loop requires exactly 2 arguments");
@@ -29,11 +35,14 @@ regular_loop_fragment::regular_loop_fragment(std::vector<props::value> args) :
   }
 }
 
+regular_loop_fragment::regular_loop_fragment(std::vector<value> args) :
+  regular_loop_fragment(args, nullptr, nullptr, nullptr)
+{
+}
+
 regular_loop_fragment::regular_loop_fragment(regular_loop_fragment const& other) :
-  fragment(other.args_),
-  before_(other.before_->clone()),
-  body_(other.body_->clone()),
-  after_(other.after_->clone())
+  regular_loop_fragment(
+      other.args_, other.before_->clone(), other.body_->clone(), other.after_->clone())
 {
 }
 

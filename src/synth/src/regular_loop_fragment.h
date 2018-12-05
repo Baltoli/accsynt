@@ -9,6 +9,8 @@ public:
   using fragment::add_child;
   using fragment::print;
 
+  regular_loop_fragment(std::vector<props::value> args,
+                        frag_ptr&& before, frag_ptr&& body, frag_ptr&& after);
   regular_loop_fragment(std::vector<props::value> args);
 
   regular_loop_fragment(regular_loop_fragment const& other);
