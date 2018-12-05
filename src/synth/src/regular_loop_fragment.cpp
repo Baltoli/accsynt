@@ -81,43 +81,22 @@ std::string regular_loop_fragment::to_str(size_t indent)
 {
   using namespace fmt::literals;
 
-  auto shape = R"({ind1}{before}
-{ind1}regularLoop({ptr}, {sz}) {{
-{ind2}{body}
-{ind1}}}
-{ind1}{after})";
+  auto shape = R"({before}
+{{ind1}}regularLoop({ptr}, {sz}) {{
+{body}
+{{ind1}}}}
+{after})";
 
-  return fmt::format(shape,
-    "ind1"_a = "  ",
-    "ind2"_a = "    ",
-    "before"_a = "BEFORE",
-    "body"_a = "BODY",
-    "after"_a = "AFTER",
-    "ptr"_a = "PTR",
-    "sz"_a = "SZ"
+  auto to_indent = fmt::format(shape,
+    "before"_a = before_ ? before_->to_str(indent) : "{ind1}[?]",
+    "body"_a = body_ ? body_->to_str(indent+1) : "{ind2}[?]",
+    "after"_a = after_ ? after_->to_str(indent) : "{ind1}[?]",
+    "ptr"_a = args_.at(0).param_val,
+    "sz"_a = args_.at(1).param_val
   );
+
+  return to_indent;
 }
-
-  // TODO
-  /* auto n_childs = children_.size(); */
-
-  /* if(n_childs >= 1) { */
-  /*   children_.at(0)->print(os, indent); */
-  /* } */
-
-  /* if(n_childs >= 2) { */
-  /*   print_indent(os, indent); */ 
-  /*   os << "[regular loop: "; */
-  /*   os << args_.at(0).param_val << ", "; */
-  /*   os << args_.at(1).param_val << "] {\n"; */
-  /*   children_.at(1)->print(os, indent+1); */
-  /*   print_indent(os, indent); */
-  /*   os << "}\n"; */
-  /* } */
-
-  /* if(n_childs >= 3) { */
-  /*   children_.at(2)->print(os, indent); */
-  /* } */
 
 void regular_loop_fragment::splice(compile_context& ctx, llvm::BasicBlock *entry, llvm::BasicBlock *exit)
 {
