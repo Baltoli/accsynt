@@ -2,6 +2,8 @@
 
 #include <props/props.h>
 
+#include <support/indent.h>
+
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Module.h>
 
@@ -143,8 +145,6 @@ public:
   virtual size_t count_holes() const = 0;
 
 protected:
-  void print_indent(std::ostream& os, size_t indent);
-
   /**
    * Helper method to clone and copy with the right type - simplifies the
    * virtual clone method by having this handle the construction of a
@@ -163,6 +163,8 @@ protected:
    * fragment.
    */
   static size_t count_or_empty(frag_ptr const& frag);
+
+  static std::string string_or_empty(frag_ptr const& frag, size_t ind);
 
   std::vector<props::value> args_;
 };

@@ -54,8 +54,6 @@ TEST_CASE("Can copy and move fragments properly")
   auto args = std::vector{value::with_param("x"), value::with_param("x")};
   auto frag = regular_loop_fragment{args};
 
-  fmt::print("{}\n", frag.to_str());
-
   auto frag1{frag};
   auto frag2{std::move(frag)};
   auto frag3 = frag1;

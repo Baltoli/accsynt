@@ -1,5 +1,7 @@
 #include "regular_loop_fragment.h"
 
+#include <support/indent.h>
+
 #include <fmt/format.h>
 
 #include <llvm/IR/Instructions.h>
@@ -77,25 +79,25 @@ fragment::frag_ptr regular_loop_fragment::clone()
   return clone_as(*this);
 }
 
-std::string regular_loop_fragment::to_str(size_t indent)
+std::string regular_loop_fragment::to_str(size_t ind)
 {
   using namespace fmt::literals;
 
   auto shape = R"({before}
-{{ind1}}regularLoop({ptr}, {sz}) {{
+{ind1}regularLoop({ptr}, {sz}) {{
 {body}
-{{ind1}}}}
+{ind1}}}
 {after})";
 
-  auto to_indent = fmt::format(shape,
-    "before"_a = before_ ? before_->to_str(indent) : "{ind1}[?]",
-    "body"_a = body_ ? body_->to_str(indent+1) : "{ind2}[?]",
-    "after"_a = after_ ? after_->to_str(indent) : "{ind1}[?]",
+  return fmt::format(shape,
+    "ind1"_a = ::support::indent{ind}, 
+    "ind2"_a = ::support::indent{ind+1},
+    "before"_a = string_or_empty(before_, ind),
+    "body"_a = string_or_empty(body_, ind+1),
+    "after"_a = string_or_empty(after_, ind),
     "ptr"_a = args_.at(0).param_val,
     "sz"_a = args_.at(1).param_val
   );
-
-  return to_indent;
 }
 
 void regular_loop_fragment::splice(compile_context& ctx, llvm::BasicBlock *entry, llvm::BasicBlock *exit)

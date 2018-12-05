@@ -30,6 +30,15 @@ size_t fragment::count_or_empty(fragment::frag_ptr const& frag)
   }
 }
 
+std::string fragment::string_or_empty(frag_ptr const& frag, size_t ind)
+{
+  if(frag) {
+    return frag->to_str(ind);
+  } else {
+    return fmt::format("{}[?]", ::support::indent{ind});
+  }
+}
+
 /**
  * From what I've thought about, I think the best thing to do is to have a
  * context "own" / manage a single function which is created when we create a
