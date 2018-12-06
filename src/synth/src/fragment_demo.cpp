@@ -22,9 +22,25 @@ int main()
   auto mod = Module{"fragtest", thread_context::get()};
 
   auto ctx = compile_context{mod, sig};
-  auto frag = regular_loop_fragment{{
+
+  auto f1 = regular_loop_fragment{{
     value::with_param("x"), value::with_param("n")
   }};
+
+  auto f2 = regular_loop_fragment{{
+    value::with_param("y"), value::with_param("m")
+  }};
+
+  auto choices = std::vector<fragment::frag_ptr>{};
+  choices.push_back(f1.clone());
+  choices.push_back(f2.clone());
+
+  auto all = fragment::enumerate_all(std::move(choices));
+
+  for(auto& f : all) {
+    errs() << f->to_str() << '\n';
+  }
+
   /* frag.add_child(empty_fragment{{}}); */
   /* frag.add_child(frag.clone()); */
   /* frag.add_child(empty_fragment{{}}); */

@@ -105,7 +105,7 @@ public:
   /**
    * Get a pretty-printed representation of this fragment.
    */
-  virtual std::string to_str(size_t indent) = 0;
+  virtual std::string to_str(size_t indent = 0) = 0;
 
   /**
    * Compile this fragment to LLVM using ctx, which contains all the information
@@ -147,6 +147,9 @@ public:
   virtual size_t count_holes() const = 0;
 
 protected:
+  static std::vector<frag_ptr> enumerate_permutation(
+    std::vector<frag_ptr> const& perm);
+
   /**
    * Helper method to clone and copy with the right type - simplifies the
    * virtual clone method by having this handle the construction of a

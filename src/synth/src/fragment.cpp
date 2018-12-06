@@ -3,6 +3,7 @@
 #include <llvm/IR/Constant.h>
 #include <llvm/IR/Function.h>
 
+#include <algorithm>
 #include <numeric>
 
 using namespace llvm;
@@ -12,8 +13,32 @@ namespace synth {
 
 std::vector<fragment::frag_ptr> fragment::enumerate_all(std::vector<frag_ptr>&& fragments)
 {
-  // TODO: enumerating all fragments algorithm
-  return {};
+  auto ret = std::vector<fragment::frag_ptr>{};
+
+  std::sort(fragments.begin(), fragments.end());
+  do {
+    auto all_for_perm = enumerate_permutation(fragments);
+    for(auto&& frag : all_for_perm) {
+      ret.push_back(std::move(frag));
+    }
+  } while(std::next_permutation(fragments.begin(), fragments.end()));
+
+  return std::move(ret);
+}
+
+std::vector<fragment::frag_ptr> fragment::enumerate_permutation(std::vector<frag_ptr> const& perm)
+{
+  if(perm.empty()) {
+    return {};
+  }
+
+  auto ret = std::vector<fragment::frag_ptr>{};
+
+  auto it = std::next(perm.begin());
+
+  // needs to be a recursive helper
+
+  return std::move(ret);
 }
 
 fragment::fragment(std::vector<value> args) :
