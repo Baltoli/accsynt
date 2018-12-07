@@ -31,15 +31,23 @@ int main()
     value::with_param("y"), value::with_param("m")
   }};
 
+  auto f3 = regular_loop_fragment{{
+    value::with_param("z"), value::with_param("p")
+  }};
+
   auto choices = std::vector<fragment::frag_ptr>{};
   choices.push_back(f1.clone());
   choices.push_back(f2.clone());
+  choices.push_back(f3.clone());
 
   auto all = fragment::enumerate_all(std::move(choices));
 
   for(auto& f : all) {
-    errs() << f->to_str() << '\n';
+    errs() << "Version:\n";
+    errs() << f->to_str(1) << '\n';
   }
+
+  errs() << all.size() << '\n';
 
   /* frag.add_child(empty_fragment{{}}); */
   /* frag.add_child(frag.clone()); */

@@ -150,6 +150,12 @@ protected:
   static std::vector<frag_ptr> enumerate_permutation(
     std::vector<frag_ptr> const& perm);
 
+  template <typename Iterator>
+  static void enumerate_recursive(std::vector<frag_ptr>& results,
+                                  frag_ptr&& accum,
+                                  Iterator begin, Iterator end);
+
+
   /**
    * Helper method to clone and copy with the right type - simplifies the
    * virtual clone method by having this handle the construction of a
@@ -177,7 +183,7 @@ protected:
 template <typename T>
 bool fragment::add_child(T frag, size_t idx)
 {
-  return add_child(frag_ptr{frag.clone()}, idx);
+  return add_child(frag.clone(), idx);
 }
 
 template <typename T>
@@ -191,6 +197,25 @@ std::array<std::reference_wrapper<fragment::frag_ptr>, sizeof...(Children)>
 fragment::children_ref(Children&... chs) const
 {
   return { std::ref(chs)... };
+}
+
+template <typename Iterator>
+void fragment::enumerate_recursive(std::vector<fragment::frag_ptr>& results,
+                                   frag_ptr&& accum,
+                                   Iterator begin, Iterator end)
+{
+  if(begin == end) {
+    results.push_back(std::move(accum));
+  } else {
+    auto holes = accum->count_holes();
+    for(auto i = 0u; i < holes; ++i) {
+      auto cloned = accum->clone();
+      auto next_clone = (*begin)->clone();
+      
+      cloned->add_child(std::move(next_clone), i);
+      enumerate_recursive(results, std::move(cloned), std::next(begin), end);
+    }
+  }
 }
 
 }

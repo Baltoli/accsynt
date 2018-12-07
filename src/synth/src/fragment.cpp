@@ -34,10 +34,11 @@ std::vector<fragment::frag_ptr> fragment::enumerate_permutation(std::vector<frag
 
   auto ret = std::vector<fragment::frag_ptr>{};
 
-  auto it = std::next(perm.begin());
+  auto begin = std::next(perm.begin());
+  auto end = perm.end();
+  auto accum = perm.at(0)->clone();
 
-  // needs to be a recursive helper
-
+  enumerate_recursive(ret, std::move(accum), begin, end);
   return std::move(ret);
 }
 
