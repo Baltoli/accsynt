@@ -219,3 +219,16 @@ void fragment::enumerate_recursive(std::vector<fragment::frag_ptr>& results,
 }
 
 }
+
+namespace std {
+  template <>
+  struct hash<synth::fragment::frag_ptr> {
+    using argument_type = synth::fragment::frag_ptr;
+    using result_type = std::size_t;
+
+    result_type operator()(argument_type const& frag) const noexcept
+    {
+      return std::hash<std::string>{}(frag->to_str());
+    }
+  };
+}
