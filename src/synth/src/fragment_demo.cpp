@@ -40,7 +40,7 @@ int main()
   choices.push_back(f2.clone());
   choices.push_back(f3.clone());
 
-  auto all = fragment::enumerate_all(std::move(choices));
+  auto all = fragment::enumerate(std::move(choices), 2);
 
   for(auto& f : all) {
     errs() << "Version:\n";

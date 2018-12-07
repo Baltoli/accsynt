@@ -99,7 +99,7 @@ public:
     fragment_equal
   >;
 
-  static frag_set enumerate_all(std::vector<frag_ptr>&& fragments);
+  static frag_set enumerate(std::vector<frag_ptr>&& fragments, size_t data_blocks);
 
   /**
    * Instantiate a fragment based on matched arguments from an inference rule.
@@ -172,6 +172,8 @@ public:
   virtual bool equal_to(frag_ptr const& other) const = 0;
 
 protected:
+  static frag_set enumerate_all(std::vector<frag_ptr>&& fragments);
+
   static frag_set enumerate_permutation(
     std::vector<frag_ptr> const& perm);
 

@@ -1,4 +1,5 @@
 #include "fragment.h"
+#include "linear_fragment.h"
 
 #include <llvm/IR/Constant.h>
 #include <llvm/IR/Function.h>
@@ -10,6 +11,43 @@ using namespace llvm;
 using namespace props;
 
 namespace synth {
+
+fragment::frag_set fragment::enumerate(std::vector<frag_ptr>&& fragments, size_t data_blocks)
+{
+  auto lin_f = linear_fragment{{}};
+  auto empty_f = empty_fragment{{}};
+
+  auto control = enumerate_all(std::move(fragments));
+  auto results = fragment::frag_set{};
+
+  for(auto&& cf : control) {
+    auto holes = cf->count_holes();
+    auto vec = std::vector<fragment::frag_ptr>{};
+
+    for(auto i = 0u; i < holes; ++i) {
+      if(i < data_blocks) {
+        vec.push_back(lin_f.clone());
+      } else {
+        vec.push_back(empty_f.clone());
+      }
+    }
+
+    std::sort(vec.begin(), vec.end());
+
+    auto i =0;
+    do {
+      auto clone = cf->clone();
+
+      for(auto i = 0u; i < holes; ++i) {
+        clone->add_child(vec.at(i)->clone(), 0);
+      }
+
+      results.insert(std::move(clone));
+    } while(std::next_permutation(vec.begin(), vec.end()));
+  }
+
+  return std::move(results);
+}
 
 fragment::frag_set fragment::enumerate_all(std::vector<frag_ptr>&& fragments)
 {
