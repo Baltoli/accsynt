@@ -149,12 +149,17 @@ public:
   template <typename T>
   bool add_child(T frag, size_t idx);
 
+  template <typename T>
+  bool equal_as(T const& other) const;
+
   /**
    * Counts the number of holes left in this fragment that can be instantiated
    * with something else. Default implementation makes sure to recurse properly,
    * but needs to make a virtual call to get the immediate number.
    */
   virtual size_t count_holes() const = 0;
+
+  virtual bool equal_to(frag_ptr const& other) const = 0;
 
 protected:
   static std::unordered_set<frag_ptr> enumerate_permutation(
@@ -200,6 +205,16 @@ template <typename T>
 fragment::frag_ptr fragment::clone_as(T const& obj) const
 {
   return fragment::frag_ptr(new T{obj});
+}
+
+template <typename T>
+bool fragment::equal_as(T const& other) const
+{
+  if(auto ptr = dynamic_cast<T const*>(this)) {
+    return *ptr == other;
+  }
+
+  return false;
 }
 
 template <typename... Children>

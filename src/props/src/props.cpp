@@ -41,7 +41,7 @@ bool property_set::is_valid() const
   return true;
 }
 
-bool value::operator==(value const& other)
+bool value::operator==(value const& other) const
 {
   if(value_type != other.value_type) {
     return false;
@@ -61,7 +61,7 @@ bool value::operator==(value const& other)
   return false;
 }
 
-bool value::operator!=(value const& other)
+bool value::operator!=(value const& other) const
 {
   return !(*this == other);
 }

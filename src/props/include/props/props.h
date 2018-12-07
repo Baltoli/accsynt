@@ -73,8 +73,8 @@ struct value {
   std::string param_val;
   std::string string_val;
 
-  bool operator==(value const& other);
-  bool operator!=(value const& other);
+  bool operator==(value const& other) const;
+  bool operator!=(value const& other) const;
 
   static value with_int(int i);
   static value with_float(float f);

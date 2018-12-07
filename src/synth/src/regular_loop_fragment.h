@@ -18,6 +18,11 @@ public:
   regular_loop_fragment(regular_loop_fragment&& other);
   regular_loop_fragment& operator=(regular_loop_fragment&& other);
 
+  bool operator==(regular_loop_fragment const& other) const;
+  bool operator!=(regular_loop_fragment const& other) const;
+
+  virtual bool equal_to(frag_ptr const& other) const override;
+
   virtual fragment::frag_ptr clone();
 
   virtual std::string to_str(size_t indent=0) override;

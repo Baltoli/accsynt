@@ -23,6 +23,11 @@ public:
   linear_fragment_base(linear_fragment_base<use_data>&&) = default;
   linear_fragment_base<use_data>& operator=(linear_fragment_base<use_data>&&) = default;
 
+  bool operator==(linear_fragment_base<use_data> const& other) const;
+  bool operator!=(linear_fragment_base<use_data> const& other) const;
+
+  virtual bool equal_to(frag_ptr const& other) const override;
+
   virtual fragment::frag_ptr clone();
 
   virtual void splice(compile_context& ctx, llvm::BasicBlock *entry, llvm::BasicBlock *exit);
@@ -43,6 +48,24 @@ linear_fragment_base<use_data>::linear_fragment_base(
   if(!args.empty()) {
     throw std::invalid_argument("Linear fragments take no arguments");
   }
+}
+
+template <bool use_data>
+bool linear_fragment_base<use_data>::operator==(linear_fragment_base<use_data> const& other) const
+{
+  return true;
+}
+
+template <bool use_data>
+bool linear_fragment_base<use_data>::operator!=(linear_fragment_base<use_data> const& other) const
+{
+  return !(*this == other);
+}
+
+template <bool use_data>
+bool linear_fragment_base<use_data>::equal_to(frag_ptr const& other) const
+{
+  return other->equal_as(*this);
 }
 
 template <bool use_data>
