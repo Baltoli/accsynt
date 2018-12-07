@@ -11,9 +11,9 @@ using namespace props;
 
 namespace synth {
 
-std::unordered_set<fragment::frag_ptr> fragment::enumerate_all(std::vector<frag_ptr>&& fragments)
+fragment::frag_set fragment::enumerate_all(std::vector<frag_ptr>&& fragments)
 {
-  auto ret = std::unordered_set<fragment::frag_ptr>{};
+  auto ret = fragment::frag_set{};
 
   std::sort(fragments.begin(), fragments.end());
   do {
@@ -26,13 +26,13 @@ std::unordered_set<fragment::frag_ptr> fragment::enumerate_all(std::vector<frag_
   return std::move(ret);
 }
 
-std::unordered_set<fragment::frag_ptr> fragment::enumerate_permutation(std::vector<frag_ptr> const& perm)
+fragment::frag_set fragment::enumerate_permutation(std::vector<frag_ptr> const& perm)
 {
   if(perm.empty()) {
     return {};
   }
 
-  auto ret = std::unordered_set<fragment::frag_ptr>{};
+  auto ret = fragment::frag_set{};
 
   auto begin = std::next(perm.begin());
   auto end = perm.end();
@@ -103,6 +103,13 @@ llvm::Argument *compile_context::argument(std::string const& name)
 compile_metadata::compile_metadata(llvm::Function *fn)
   : function(fn)
 {
+}
+
+bool fragment_equal::operator()(std::unique_ptr<fragment> const& a,
+                                std::unique_ptr<fragment> const& b) const
+{
+  return a->to_str() == b->to_str();
+  /* return a->equal_to(b); */
 }
 
 }

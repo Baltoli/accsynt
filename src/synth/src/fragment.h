@@ -25,6 +25,11 @@ namespace std {
 
 namespace synth {
 
+struct fragment_equal {
+  bool operator()(std::unique_ptr<fragment> const& a,
+                  std::unique_ptr<fragment> const& b) const;
+};
+
 /**
  * The metadata we collect during compilation is:
  *  * The function itself will be returned as part of this object.
@@ -88,8 +93,13 @@ public:
 class fragment {
 public:
   using frag_ptr = std::unique_ptr<fragment>;
+  using frag_set = std::unordered_set<
+    frag_ptr,
+    std::hash<frag_ptr>,
+    fragment_equal
+  >;
 
-  static std::unordered_set<frag_ptr> enumerate_all(std::vector<frag_ptr>&& fragments);
+  static frag_set enumerate_all(std::vector<frag_ptr>&& fragments);
 
   /**
    * Instantiate a fragment based on matched arguments from an inference rule.
@@ -162,11 +172,11 @@ public:
   virtual bool equal_to(frag_ptr const& other) const = 0;
 
 protected:
-  static std::unordered_set<frag_ptr> enumerate_permutation(
+  static frag_set enumerate_permutation(
     std::vector<frag_ptr> const& perm);
 
   template <typename Iterator>
-  static void enumerate_recursive(std::unordered_set<frag_ptr>& results,
+  static void enumerate_recursive(frag_set& results,
                                   frag_ptr&& accum,
                                   Iterator begin, Iterator end);
 
@@ -225,7 +235,7 @@ fragment::children_ref(Children&... chs) const
 }
 
 template <typename Iterator>
-void fragment::enumerate_recursive(std::unordered_set<fragment::frag_ptr>& results,
+void fragment::enumerate_recursive(fragment::frag_set& results,
                                    frag_ptr&& accum,
                                    Iterator begin, Iterator end)
 {

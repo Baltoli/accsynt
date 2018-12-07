@@ -222,7 +222,6 @@ bool regular_loop_fragment::operator==(regular_loop_fragment const& other) const
     equal_non_null(before_, other.before_) &&
     equal_non_null(body_, other.body_) &&
     equal_non_null(after_, other.after_);
-
 }
 
 bool regular_loop_fragment::operator!=(regular_loop_fragment const& other) const
