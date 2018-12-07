@@ -38,7 +38,6 @@ int main()
   auto choices = std::vector<fragment::frag_ptr>{};
   choices.push_back(f1.clone());
   choices.push_back(f2.clone());
-  choices.push_back(f3.clone());
 
   auto all = fragment::enumerate(std::move(choices), 2);
 
