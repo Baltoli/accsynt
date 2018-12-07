@@ -9,11 +9,21 @@
 
 #include <functional>
 #include <set>
+#include <unordered_set>
 #include <vector>
 
 namespace synth {
+  class fragment;
+}
 
-class fragment;
+namespace std {
+  template <>
+  struct hash<std::unique_ptr<synth::fragment>> {
+    size_t operator()(std::unique_ptr<synth::fragment> const& frag) const noexcept;
+  };
+}
+
+namespace synth {
 
 /**
  * The metadata we collect during compilation is:
@@ -79,7 +89,7 @@ class fragment {
 public:
   using frag_ptr = std::unique_ptr<fragment>;
 
-  static std::vector<frag_ptr> enumerate_all(std::vector<frag_ptr>&& fragments);
+  static std::unordered_set<frag_ptr> enumerate_all(std::vector<frag_ptr>&& fragments);
 
   /**
    * Instantiate a fragment based on matched arguments from an inference rule.
@@ -147,11 +157,11 @@ public:
   virtual size_t count_holes() const = 0;
 
 protected:
-  static std::vector<frag_ptr> enumerate_permutation(
+  static std::unordered_set<frag_ptr> enumerate_permutation(
     std::vector<frag_ptr> const& perm);
 
   template <typename Iterator>
-  static void enumerate_recursive(std::vector<frag_ptr>& results,
+  static void enumerate_recursive(std::unordered_set<frag_ptr>& results,
                                   frag_ptr&& accum,
                                   Iterator begin, Iterator end);
 
@@ -200,12 +210,12 @@ fragment::children_ref(Children&... chs) const
 }
 
 template <typename Iterator>
-void fragment::enumerate_recursive(std::vector<fragment::frag_ptr>& results,
+void fragment::enumerate_recursive(std::unordered_set<fragment::frag_ptr>& results,
                                    frag_ptr&& accum,
                                    Iterator begin, Iterator end)
 {
   if(begin == end) {
-    results.push_back(std::move(accum));
+    results.insert(std::move(accum));
   } else {
     auto holes = accum->count_holes();
     for(auto i = 0u; i < holes; ++i) {
@@ -218,17 +228,4 @@ void fragment::enumerate_recursive(std::vector<fragment::frag_ptr>& results,
   }
 }
 
-}
-
-namespace std {
-  template <>
-  struct hash<synth::fragment::frag_ptr> {
-    using argument_type = synth::fragment::frag_ptr;
-    using result_type = std::size_t;
-
-    result_type operator()(argument_type const& frag) const noexcept
-    {
-      return std::hash<std::string>{}(frag->to_str());
-    }
-  };
 }

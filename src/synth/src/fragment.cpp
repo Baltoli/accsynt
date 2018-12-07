@@ -11,28 +11,28 @@ using namespace props;
 
 namespace synth {
 
-std::vector<fragment::frag_ptr> fragment::enumerate_all(std::vector<frag_ptr>&& fragments)
+std::unordered_set<fragment::frag_ptr> fragment::enumerate_all(std::vector<frag_ptr>&& fragments)
 {
-  auto ret = std::vector<fragment::frag_ptr>{};
+  auto ret = std::unordered_set<fragment::frag_ptr>{};
 
   std::sort(fragments.begin(), fragments.end());
   do {
     auto all_for_perm = enumerate_permutation(fragments);
     for(auto&& frag : all_for_perm) {
-      ret.push_back(std::move(frag));
+      ret.insert(frag->clone());
     }
   } while(std::next_permutation(fragments.begin(), fragments.end()));
 
   return std::move(ret);
 }
 
-std::vector<fragment::frag_ptr> fragment::enumerate_permutation(std::vector<frag_ptr> const& perm)
+std::unordered_set<fragment::frag_ptr> fragment::enumerate_permutation(std::vector<frag_ptr> const& perm)
 {
   if(perm.empty()) {
     return {};
   }
 
-  auto ret = std::vector<fragment::frag_ptr>{};
+  auto ret = std::unordered_set<fragment::frag_ptr>{};
 
   auto begin = std::next(perm.begin());
   auto end = perm.end();
@@ -105,4 +105,10 @@ compile_metadata::compile_metadata(llvm::Function *fn)
 {
 }
 
+}
+
+size_t std::hash<std::unique_ptr<synth::fragment>>::operator()(
+    std::unique_ptr<synth::fragment> const& frag) const noexcept
+{
+  return std::hash<std::string>{}(frag->to_str());
 }

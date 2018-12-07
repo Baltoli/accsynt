@@ -38,13 +38,13 @@ int main()
   auto choices = std::vector<fragment::frag_ptr>{};
   choices.push_back(f1.clone());
   choices.push_back(f2.clone());
-  choices.push_back(f3.clone());
 
   auto all = fragment::enumerate_all(std::move(choices));
 
   for(auto& f : all) {
     errs() << "Version:\n";
     errs() << f->to_str(1) << '\n';
+    errs() << std::hash<fragment::frag_ptr>{}(f) << '\n';
   }
 
   errs() << all.size() << '\n';
