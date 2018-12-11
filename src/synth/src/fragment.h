@@ -41,7 +41,7 @@ struct compile_metadata {
   llvm::Function *function;
   std::set<llvm::Value *> seeds = {};
   std::set<llvm::BasicBlock *> data_blocks = {};
-  std::set<llvm::Value *> outputs = {};
+  std::set<llvm::Instruction *> outputs = {};
 
   explicit compile_metadata(llvm::Function *fn);
 };

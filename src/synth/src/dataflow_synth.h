@@ -25,6 +25,7 @@ public:
   dataflow_synth(compile_context const& ctx);
 
   void seed(llvm::Value *);
+  void output(llvm::Instruction *);
   void create_dataflow();
   void create_outputs();
 
@@ -38,6 +39,7 @@ private:
   llvm::DominatorTree dom_tree_;
 
   std::vector<llvm::Value *> seeds_ = {};
+  std::vector<llvm::Instruction *> outputs_ = {};
   std::vector<llvm::PHINode *> phis_ = {};
   block_live_map final_live_ = {};
 
