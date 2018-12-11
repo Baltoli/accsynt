@@ -56,6 +56,8 @@ class compile_context {
 public:
   compile_context(llvm::Module& mod,
                   props::signature sig);
+
+  ~compile_context();
  
   /**
    * Don't want these to be copyable - once used to compile they are done as we

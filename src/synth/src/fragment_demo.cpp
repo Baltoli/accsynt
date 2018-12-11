@@ -21,8 +21,6 @@ int main()
   auto sig = signature::parse("int func(int n, float *x)");
   auto mod = Module{"fragtest", thread_context::get()};
 
-  auto ctx = compile_context{mod, sig};
-
   auto f1 = regular_loop_fragment{{
     value::with_param("x"), value::with_param("n")
   }};
@@ -33,6 +31,8 @@ int main()
   auto all = fragment::enumerate(std::move(choices), 1);
 
   for(auto& f : all) {
+    auto ctx = compile_context{mod, sig};
+
     errs() << "\u001b[41;1m" 
            << "########  Example  ########"
            << "\u001b[0m\n\n";
