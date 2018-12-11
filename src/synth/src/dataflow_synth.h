@@ -26,6 +26,7 @@ public:
 
   void seed(llvm::Value *);
   void create_dataflow();
+  void create_outputs();
 
   block_live_map const& block_live() const;
 
