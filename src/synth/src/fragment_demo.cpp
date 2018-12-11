@@ -30,7 +30,7 @@ int main()
   auto choices = std::vector<fragment::frag_ptr>{};
   choices.push_back(f1.clone());
 
-  auto all = fragment::enumerate(std::move(choices), 3);
+  auto all = fragment::enumerate(std::move(choices), 1);
 
   for(auto& f : all) {
     errs() << "\u001b[41;1m" 
@@ -47,32 +47,21 @@ int main()
            << "Code:"
            << "\u001b[0m";
     errs() << *data.function << '\n';
+
+    errs() << "Data blocks:\n";
+    for(auto block : data.data_blocks) {
+      errs() << "\t" << block->getName() << '\n';
+    }
+
+    errs() << "Seeds:\n";
+    for(auto seed : data.seeds) {
+      errs() << "\t" << *seed << '\n';
+    }
+
+    errs() << "Outputs:\n";
+    for(auto out : data.outputs) {
+      errs() << "\t" << *out << '\n';
+    }
   }
 
-  /* frag.add_child(empty_fragment{{}}); */
-  /* frag.add_child(frag.clone()); */
-  /* frag.add_child(empty_fragment{{}}); */
-  /* frag.add_child(linear_fragment{{}}); */
-
-  /* frag.print(std::cout); */
-
-  /* auto data = frag.compile(ctx); */
-  /* errs() << *data.function << '\n'; */
-
-  /* errs() << "After compilation:\n"; */
-
-  /* errs() << "Data blocks:\n"; */
-  /* for(auto block : data.data_blocks) { */
-  /*   errs() << "\t" << block->getName() << '\n'; */
-  /* } */
-
-  /* errs() << "Seeds:\n"; */
-  /* for(auto seed : data.seeds) { */
-  /*   errs() << "\t" << *seed << '\n'; */
-  /* } */
-
-  /* errs() << "Outputs:\n"; */
-  /* for(auto out : data.outputs) { */
-  /*   errs() << "\t" << *out << '\n'; */
-  /* } */
 }
