@@ -101,7 +101,8 @@ public:
     fragment_equal
   >;
 
-  static frag_set enumerate(std::vector<frag_ptr>&& fragments, size_t data_blocks);
+  static frag_set enumerate(std::vector<frag_ptr>&& fragments,
+                            size_t data_blocks = std::numeric_limits<size_t>::max());
 
   /**
    * Instantiate a fragment based on matched arguments from an inference rule.

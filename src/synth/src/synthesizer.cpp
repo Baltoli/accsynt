@@ -89,6 +89,11 @@ Function *synthesizer::generate()
     errs() << attempts << '\r';
 
     cand = candidate();
+
+    if(!cand) {
+      return nullptr;
+    }
+
     if(!satisfies_examples(cand)) {
       cand->eraseFromParent();
       cand = nullptr;

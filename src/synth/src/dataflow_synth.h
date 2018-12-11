@@ -1,5 +1,6 @@
 #pragma once
 
+#include "fragment.h"
 #include "value_sampler.h"
 
 #include <llvm/IR/BasicBlock.h>
@@ -21,8 +22,11 @@ public:
 
   dataflow_synth(llvm::Function *);
 
+  dataflow_synth(compile_context const& ctx);
+
   void seed(llvm::Value *);
   void create_dataflow();
+  void create_outputs();
 
   block_live_map const& block_live() const;
 

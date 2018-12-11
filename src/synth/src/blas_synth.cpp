@@ -107,7 +107,7 @@ Function *blas_synth::candidate()
     ReturnInst::Create(ctx, ret_val, exit);
   }
 
-  llvm::errs() << *fn << '\n';
+  /* llvm::errs() << *fn << '\n'; */
   return fn;
 }
 

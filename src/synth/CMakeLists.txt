@@ -7,6 +7,7 @@ add_library(coresynth
   src/loops.cpp
   src/synthesizer.cpp
   src/blas_synth.cpp
+  src/rule_synth.cpp
   src/generator.cpp
   src/call_builder.cpp
   src/call_wrapper.cpp

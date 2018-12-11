@@ -31,13 +31,13 @@ void generator::generate_value(call_builder& builder,
 
   if(param.pointer_depth == 0) {
     if(param.type == data_type::integer) {
-      builder.add(random_int());
+      builder.add(random_int(0, 128));
     } else if(param.type == data_type::floating) {
       builder.add(random_float(-10, 10));
     }
   } else if(param.pointer_depth == 1) {
     if(param.type == data_type::integer) {
-      builder.add(std::vector<int>{1});
+      builder.add(random_int_data(16 * 16 * 4, -128, 128));
     } else if(param.type == data_type::floating) {
       builder.add(random_float_data(16 * 16 * 4, -10, 10));
     }
@@ -61,6 +61,14 @@ generator::random_float_data(int length, float min, float max)
 {
   auto ret = std::vector<float>(length, 0.0f);
   std::generate(ret.begin(), ret.end(), [&] { return random_float(min, max); });
+  return ret;
+}
+
+std::vector<int>
+generator::random_int_data(int length, int min, int max)
+{
+  auto ret = std::vector<int>(length, 0);
+  std::generate(ret.begin(), ret.end(), [&] { return random_int(min, max); });
   return ret;
 }
 
