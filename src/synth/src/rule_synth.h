@@ -1,6 +1,9 @@
 #pragma once
 
+#include "fragment.h"
 #include "synthesizer.h"
+
+#include <unordered_set>
 
 namespace synth {
 
@@ -12,6 +15,10 @@ public:
 
 protected:
   virtual llvm::Function *candidate();
+
+private:
+  fragment::frag_set fragments_;
+  fragment::frag_set::iterator current_fragment_;
 };
 
 }

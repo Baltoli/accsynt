@@ -134,7 +134,9 @@ compile_context::compile_context(Module& mod, signature sig) :
 
 compile_context::~compile_context()
 {
-  func_->eraseFromParent();
+  // Don't actually do this - we want the function to outlive the context
+  // because the erasure happens elsewhere in the process.
+  /* func_->eraseFromParent(); */
 }
 
 llvm::Argument *compile_context::argument(std::string const& name)
