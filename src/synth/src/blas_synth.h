@@ -21,9 +21,10 @@ public:
 
   std::string name() const override;
 
-private:
+protected:
   llvm::Function *candidate() override;
 
+private:
   bool should_loop() const;
   void next_loop();
 

@@ -1,5 +1,6 @@
 #include "call_wrapper.h"
 #include "blas_synth.h"
+#include "rule_synth.h"
 
 #include <props/props.h>
 #include <support/dynamic_library.h>
@@ -61,6 +62,7 @@ int main(int argc, char **argv)
     auto synth = blas_synth(property_set, ref);
     report(synth.generate());
   } else {
-    report(nullptr);
+    auto synth = rule_synth(property_set, ref);
+    report(synth.generate());
   }
 }
