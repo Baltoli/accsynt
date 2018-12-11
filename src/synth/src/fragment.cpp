@@ -34,7 +34,6 @@ fragment::frag_set fragment::enumerate(std::vector<frag_ptr>&& fragments, size_t
 
     std::sort(vec.begin(), vec.end());
 
-    auto i =0;
     do {
       auto clone = cf->clone();
 
