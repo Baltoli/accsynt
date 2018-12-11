@@ -51,7 +51,6 @@ llvm::Function *rule_synth::candidate()
   data_synth.create_outputs();
 
   current_fragment_++;
-  llvm::errs() << *fn << '\n';
   return fn;
 }
 
