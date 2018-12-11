@@ -102,60 +102,55 @@ std::string regular_loop_fragment::to_str(size_t ind)
 
 void regular_loop_fragment::splice(compile_context& ctx, llvm::BasicBlock *entry, llvm::BasicBlock *exit)
 {
-  // TODO
-  /* auto& llvm_ctx = entry->getContext(); */
+  // TODO: throw if any children null - empty fragments fill this role
 
-  /* auto inter_first = BasicBlock::Create(llvm_ctx, "reg-loop.inter0", ctx.func_); */
-  /* auto inter_second = BasicBlock::Create(llvm_ctx, "reg-loop.inter1", ctx.func_); */
+  auto& llvm_ctx = entry->getContext();
 
-  /* auto n_childs = children_.size(); */
-  /* auto last_exit = entry; */
+  auto inter_first = BasicBlock::Create(llvm_ctx, "reg-loop.inter0", ctx.func_);
+  auto inter_second = BasicBlock::Create(llvm_ctx, "reg-loop.inter1", ctx.func_);
+
+  auto last_exit = entry;
+
+  // Before
   
-  /* if(n_childs >= 1) { */
-  /*   children_.at(0)->splice(ctx, last_exit, inter_first); */
-  /*   last_exit = inter_first; */
-  /* } */
+  before_->splice(ctx, last_exit, inter_first);
+  last_exit = inter_first;
 
-  /* if(n_childs >= 2) { */
-  /*   auto ptr = get_pointer(ctx); */
-  /*   auto size = get_size(ctx); */
+  // Body
 
-  /*   auto header = BasicBlock::Create(llvm_ctx, "reg-loop.header", ctx.func_); */
-  /*   auto pre_body = BasicBlock::Create(llvm_ctx, "reg-loop.pre-body", ctx.func_); */
-  /*   auto post_body = BasicBlock::Create(llvm_ctx, "reg-loop.post-body", ctx.func_); */
+  auto ptr = get_pointer(ctx);
+  auto size = get_size(ctx);
 
-  /*   auto B = IRBuilder<>(inter_first); */
-  /*   B.CreateBr(header); */
+  auto header = BasicBlock::Create(llvm_ctx, "reg-loop.header", ctx.func_);
+  auto pre_body = BasicBlock::Create(llvm_ctx, "reg-loop.pre-body", ctx.func_);
+  auto post_body = BasicBlock::Create(llvm_ctx, "reg-loop.post-body", ctx.func_);
 
-  /*   B.SetInsertPoint(header); */
-  /*   auto iter = B.CreatePHI(size->getType(), 2, "reg-loop.iter"); */
-  /*   iter->addIncoming(ConstantInt::get(iter->getType(), 0), inter_first); */
-  /*   auto cond = B.CreateICmpSLT(iter, size, "reg-loop.cond"); */
-  /*   B.CreateCondBr(cond, pre_body, inter_second); */
+  auto B = IRBuilder<>(inter_first);
+  B.CreateBr(header);
 
-  /*   B.SetInsertPoint(pre_body); */
-  /*   auto gep = B.CreateGEP(ptr, iter, "reg-loop.gep"); */
-  /*   auto load = B.CreateLoad(gep, "reg-loop.load"); */
+  B.SetInsertPoint(header);
+  auto iter = B.CreatePHI(size->getType(), 2, "reg-loop.iter");
+  iter->addIncoming(ConstantInt::get(iter->getType(), 0), inter_first);
+  auto cond = B.CreateICmpSLT(iter, size, "reg-loop.cond");
+  B.CreateCondBr(cond, pre_body, inter_second);
 
-  /*   B.SetInsertPoint(post_body); */
-  /*   auto next = B.CreateAdd(iter, ConstantInt::get(iter->getType(), 1), "reg-loop.next-iter"); */
-  /*   iter->addIncoming(next, post_body); */
-  /*   B.CreateBr(header); */
+  B.SetInsertPoint(pre_body);
+  auto gep = B.CreateGEP(ptr, iter, "reg-loop.gep");
+  auto load = B.CreateLoad(gep, "reg-loop.load");
 
-  /*   children_.at(1)->splice(ctx, pre_body, post_body); */
-  /*   last_exit = inter_second; */
+  B.SetInsertPoint(post_body);
+  auto next = B.CreateAdd(iter, ConstantInt::get(iter->getType(), 1), "reg-loop.next-iter");
+  iter->addIncoming(next, post_body);
+  B.CreateBr(header);
 
-  /*   ctx.metadata_.seeds.insert(load); */
-  /* } */
+  body_->splice(ctx, pre_body, post_body);
+  last_exit = inter_second;
 
-  /* if(n_childs >= 3) { */
-  /*   children_.at(2)->splice(ctx, last_exit, exit); */
-  /*   last_exit = exit; */
-  /* } */
+  ctx.metadata_.seeds.insert(load);
 
-  /* if(last_exit != exit) { */
-  /*   BranchInst::Create(exit, last_exit); */
-  /* } */
+  // After
+
+  after_->splice(ctx, last_exit, exit);
 }
 
 bool regular_loop_fragment::add_child(frag_ptr&& f, size_t idx)

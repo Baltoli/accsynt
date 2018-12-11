@@ -27,26 +27,27 @@ int main()
     value::with_param("x"), value::with_param("n")
   }};
 
-  auto f2 = regular_loop_fragment{{
-    value::with_param("y"), value::with_param("m")
-  }};
-
-  auto f3 = regular_loop_fragment{{
-    value::with_param("z"), value::with_param("p")
-  }};
-
   auto choices = std::vector<fragment::frag_ptr>{};
   choices.push_back(f1.clone());
-  choices.push_back(f2.clone());
 
-  auto all = fragment::enumerate(std::move(choices), 2);
+  auto all = fragment::enumerate(std::move(choices), 3);
 
   for(auto& f : all) {
-    errs() << "Version:\n";
-    errs() << f->to_str(1) << "\n\n";
-  }
+    errs() << "\u001b[41;1m" 
+           << "########  Example  ########"
+           << "\u001b[0m\n\n";
+    errs() << "\u001b[44;1m"
+           << "Version:"
+           << "\u001b[0m\n";
 
-  errs() << all.size() << '\n' << '\n';
+    errs() << f->to_str(0) << "\n\n";
+
+    auto data = f->compile(ctx);
+    errs() << "\u001b[42;1m"
+           << "Code:"
+           << "\u001b[0m";
+    errs() << *data.function << '\n';
+  }
 
   /* frag.add_child(empty_fragment{{}}); */
   /* frag.add_child(frag.clone()); */
