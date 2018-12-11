@@ -6,8 +6,11 @@
 namespace synth {
 
 rule_synth::rule_synth(props::property_set ps, call_wrapper& ref) :
-  synthesizer(ps, ref)
+  synthesizer(ps, ref),
+  gen_(ps)
 {
+  make_examples(gen_, 1'000);
+
   auto choices = std::vector<fragment::frag_ptr>{};
 
   for(auto rule : rule_registry::all()) {

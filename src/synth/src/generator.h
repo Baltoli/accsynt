@@ -37,6 +37,11 @@ protected:
       float min = std::numeric_limits<float>::min(),
       float max = std::numeric_limits<float>::max());
 
+  std::vector<int> random_int_data(
+      int length,
+      int min = std::numeric_limits<int>::min(),
+      int max = std::numeric_limits<int>::max());
+
   props::property_set properties_;
 
 private:
