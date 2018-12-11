@@ -17,6 +17,18 @@ dataflow_synth::dataflow_synth(Function *f) :
 {
 }
 
+dataflow_synth::dataflow_synth(compile_context const& ctx) :
+  dataflow_synth(ctx.func_, [&] (auto *b) {
+    auto const& meta = ctx.metadata_;
+    return std::find(meta.data_blocks.begin(), meta.data_blocks.end(), b) !=
+              meta.data_blocks.end();
+  })
+{
+  for(auto s : ctx.metadata_.seeds) {
+    seed(s);
+  }
+}
+
 void dataflow_synth::seed(Value *instr)
 {
   seeds_.push_back(instr);
