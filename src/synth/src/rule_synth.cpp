@@ -4,6 +4,15 @@
 #include "fragment.h"
 #include "rules.h"
 
+#include <llvm/Support/CommandLine.h>
+
+using namespace llvm;
+
+static cl::opt<int>
+MaxFragments(
+    "max-fragments", cl::desc("Maximum fragments to combine"), 
+    cl::init(-1));
+
 namespace synth {
 
 rule_synth::rule_synth(props::property_set ps, call_wrapper& ref) :
@@ -21,12 +30,17 @@ rule_synth::rule_synth(props::property_set ps, call_wrapper& ref) :
     }
   }
 
-  fragments_ = fragment::enumerate(std::move(choices), 3);
-  for(auto& f : fragments_) {
-    llvm::errs() << "#############################\n";
-    llvm::errs() << f->to_str() << "\n\n";
+  auto max_frags = std::optional<size_t>{};
+  if(MaxFragments >= 0) {
+    max_frags = MaxFragments;
   }
-  llvm::errs() << fragments_.size() << '\n';
+
+  fragments_ = fragment::enumerate(std::move(choices), max_frags);
+  for(auto& f : fragments_) {
+    errs() << "#############################\n";
+    errs() << f->to_str() << "\n\n";
+  }
+  errs() << fragments_.size() << '\n';
   __builtin_trap();
 }
 
@@ -35,7 +49,7 @@ std::string rule_synth::name() const
   return "rule_synth";
 }
 
-llvm::Function *rule_synth::candidate()
+Function *rule_synth::candidate()
 {
   if(fragments_.empty()) {
     return nullptr;
