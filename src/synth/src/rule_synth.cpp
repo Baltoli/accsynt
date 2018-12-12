@@ -36,6 +36,11 @@ rule_synth::rule_synth(props::property_set ps, call_wrapper& ref) :
   }
 
   fragments_ = fragment::enumerate(std::move(choices), max_frags);
+  for(auto& f : fragments_) {
+    errs() << "#####################\n";
+    errs() << f->to_str(1) << "\n\n";
+  }
+  __builtin_trap();
 }
 
 std::string rule_synth::name() const
