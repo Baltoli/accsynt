@@ -21,7 +21,13 @@ rule_synth::rule_synth(props::property_set ps, call_wrapper& ref) :
     }
   }
 
-  fragments_ = fragment::enumerate(std::move(choices));
+  fragments_ = fragment::enumerate(std::move(choices), 3);
+  for(auto& f : fragments_) {
+    llvm::errs() << "#############################\n";
+    llvm::errs() << f->to_str() << "\n\n";
+  }
+  llvm::errs() << fragments_.size() << '\n';
+  __builtin_trap();
 }
 
 std::string rule_synth::name() const

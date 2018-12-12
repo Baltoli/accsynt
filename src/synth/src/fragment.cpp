@@ -12,12 +12,30 @@ using namespace props;
 
 namespace synth {
 
-fragment::frag_set fragment::enumerate(std::vector<frag_ptr>&& fragments, size_t data_blocks)
+fragment::frag_set fragment::enumerate(std::vector<frag_ptr>&& fragments,
+                                       std::optional<size_t> max_size,
+                                       size_t data_blocks)
 {
+  if(max_size && max_size.value() == 0) {
+    return {};
+  }
+
   auto lin_f = linear_fragment{{}};
   auto empty_f = empty_fragment{{}};
 
-  auto control = enumerate_all(std::move(fragments));
+  auto control = [&] {
+    if(!max_size) {
+      return enumerate_all(std::move(fragments), max_size);
+    } else {
+      auto all = fragment::frag_set{};
+      for(auto i = 0u; i < max_size.value(); ++i) {
+        auto deep = enumerate_all(std::move(fragments), i + 1);
+        all.merge(std::move(deep));
+      }
+      return all;
+    }
+  }();
+
   auto results = fragment::frag_set{};
 
   for(auto&& cf : control) {
@@ -48,13 +66,14 @@ fragment::frag_set fragment::enumerate(std::vector<frag_ptr>&& fragments, size_t
   return std::move(results);
 }
 
-fragment::frag_set fragment::enumerate_all(std::vector<frag_ptr>&& fragments)
+fragment::frag_set fragment::enumerate_all(std::vector<frag_ptr>&& fragments,
+                                           std::optional<size_t> max_size)
 {
   auto ret = fragment::frag_set{};
 
   std::sort(fragments.begin(), fragments.end());
   do {
-    auto all_for_perm = enumerate_permutation(fragments);
+    auto all_for_perm = enumerate_permutation(fragments, max_size);
     for(auto&& frag : all_for_perm) {
       ret.insert(frag->clone());
     }
@@ -63,7 +82,8 @@ fragment::frag_set fragment::enumerate_all(std::vector<frag_ptr>&& fragments)
   return std::move(ret);
 }
 
-fragment::frag_set fragment::enumerate_permutation(std::vector<frag_ptr> const& perm)
+fragment::frag_set fragment::enumerate_permutation(std::vector<frag_ptr> const& perm,
+                                                   std::optional<size_t> max_size)
 {
   if(perm.empty()) {
     return {};
@@ -72,7 +92,18 @@ fragment::frag_set fragment::enumerate_permutation(std::vector<frag_ptr> const& 
   auto ret = fragment::frag_set{};
 
   auto begin = std::next(perm.begin());
-  auto end = perm.end();
+  auto end = [&] {
+    if(max_size) {
+      auto max = max_size.value();
+      if(max - 1 >= std::distance(begin, perm.end())) {
+        return perm.end();
+      } else {
+        return std::next(begin, max - 1);
+      }
+    } else {
+      return perm.end();
+    }
+  }();
   auto accum = perm.at(0)->clone();
 
   enumerate_recursive(ret, std::move(accum), begin, end);

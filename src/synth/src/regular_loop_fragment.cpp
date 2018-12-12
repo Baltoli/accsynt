@@ -177,8 +177,8 @@ bool regular_loop_fragment::add_child(frag_ptr&& f, size_t idx)
 
 size_t regular_loop_fragment::count_holes() const
 {
-  return count_or_empty(before_) + 
-         count_or_empty(body_) + 
+  return count_or_empty(before_) +
+         count_or_empty(body_) +
          count_or_empty(after_);
 }
 
