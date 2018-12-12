@@ -102,6 +102,7 @@ public:
   >;
 
   static frag_set enumerate(std::vector<frag_ptr>&& fragments,
+                            std::optional<size_t> max_size = std::nullopt,
                             size_t data_blocks = std::numeric_limits<size_t>::max());
 
   /**
@@ -175,10 +176,12 @@ public:
   virtual bool equal_to(frag_ptr const& other) const = 0;
 
 protected:
-  static frag_set enumerate_all(std::vector<frag_ptr>&& fragments);
+  static frag_set enumerate_all(std::vector<frag_ptr>&& fragments,
+                                std::optional<size_t> max_size);
 
   static frag_set enumerate_permutation(
-    std::vector<frag_ptr> const& perm);
+    std::vector<frag_ptr> const& perm,
+    std::optional<size_t> max_size);
 
   template <typename Iterator>
   static void enumerate_recursive(frag_set& results,
