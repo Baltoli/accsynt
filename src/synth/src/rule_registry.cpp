@@ -15,6 +15,12 @@ std::vector<rule> rule_registry::all()
       "regularLoop", {"sz", "ptrA", "ptrB"},
       { match("size", "ptrA", "sz"),
         match("size", "ptrB", "sz") }
+    },
+    {
+      "regularLoop", {"sz", "ptrA", "ptrB", "ptrC"},
+      { match("size", "ptrA", "sz"),
+        match("size", "ptrB", "sz"),
+        match("size", "ptrC", "sz") }
     }
   };
 }
