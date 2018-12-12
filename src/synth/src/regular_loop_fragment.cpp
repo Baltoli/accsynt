@@ -23,8 +23,8 @@ regular_loop_fragment::regular_loop_fragment(std::vector<value> args,
   body_(std::move(body)),
   after_(std::move(after))
 {
-  if(args_.size() != 2) {
-    throw std::invalid_argument("Regular loop requires exactly 2 arguments");
+  if(args_.size() < 2) {
+    throw std::invalid_argument("Regular loop requires at least 2 arguments");
   }
 
   auto const& ptr_arg = args_.at(0);

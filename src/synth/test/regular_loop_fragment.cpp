@@ -14,18 +14,6 @@ TEST_CASE("Fragment constructor validates arguments")
     REQUIRE_NOTHROW(regular_loop_fragment{args});
   }
 
-  SECTION("With too many arguments") {
-    auto args = std::vector{
-      value::with_param("x"), value::with_param("y"), value::with_param("z")};
-    REQUIRE_THROWS_AS(regular_loop_fragment{args}, std::invalid_argument);
-
-    auto args1 = std::vector{
-      value::with_param("x"), value::with_param("y"), value::with_param("z"),
-      value::with_param("x"), value::with_param("y"), value::with_param("z"),
-      value::with_param("x"), value::with_param("y"), value::with_param("z")};
-    REQUIRE_THROWS_AS(regular_loop_fragment{args1}, std::invalid_argument);
-  }
-
   SECTION("With too few arguments") {
     auto args = std::vector<value>{};
     REQUIRE_THROWS_AS(regular_loop_fragment{args}, std::invalid_argument);
