@@ -1,6 +1,8 @@
 #include "fragment.h"
 #include "linear_fragment.h"
 
+#include <support/choose.h>
+
 #include <llvm/IR/Constant.h>
 #include <llvm/IR/Function.h>
 
@@ -72,26 +74,22 @@ fragment::frag_set fragment::enumerate_all(std::vector<frag_ptr>&& fragments,
   auto ret = fragment::frag_set{};
   auto real_max = std::min(max_size.value_or(fragments.size()), fragments.size());
 
-  choose(real_max, fragments, [&] (auto const& subset) {
-    /* auto all_for_perm = enumerate_permutation(subset, real_max); */
-    /* for(auto&& frag : all_for_perm) { */
-    /*   ret.insert(frag->clone()); */
-    /* } */
-  });
+  ::support::choose(fragments.size(), real_max).for_each([&] (auto idxs) {
+      auto perm = std::vector<fragment::frag_ptr>{};
+      for(auto idx : idxs) {
+        perm.push_back(fragments.at(idx)->clone());
+      }
 
-  /* std::sort(fragments.begin(), fragments.end()); */
-  /* do { */
-  /*   auto all_for_perm = enumerate_permutation(fragments, max_size); */
-  /*   for(auto&& frag : all_for_perm) { */
-  /*     ret.insert(frag->clone()); */
-  /*   } */
-  /* } while(std::next_permutation(fragments.begin(), fragments.end())); */
+      auto all_for_perm = enumerate_permutation(perm);
+      for(auto&& frag : all_for_perm) {
+        ret.insert(frag->clone());
+      }
+  });
 
   return std::move(ret);
 }
 
-fragment::frag_set fragment::enumerate_permutation(std::vector<frag_ptr> const& perm,
-                                                   std::optional<size_t> max_size)
+fragment::frag_set fragment::enumerate_permutation(std::vector<frag_ptr> const& perm)
 {
   if(perm.empty()) {
     return {};
@@ -100,18 +98,7 @@ fragment::frag_set fragment::enumerate_permutation(std::vector<frag_ptr> const& 
   auto ret = fragment::frag_set{};
 
   auto begin = std::next(perm.begin());
-  auto end = [&] {
-    if(max_size) {
-      auto max = max_size.value();
-      if(max - 1 >= std::distance(begin, perm.end())) {
-        return perm.end();
-      } else {
-        return std::next(begin, max - 1);
-      }
-    } else {
-      return perm.end();
-    }
-  }();
+  auto end = perm.end();
   auto accum = perm.at(0)->clone();
 
   enumerate_recursive(ret, std::move(accum), begin, end);

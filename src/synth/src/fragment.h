@@ -190,14 +190,12 @@ protected:
                                 std::optional<size_t> max_size);
 
   static frag_set enumerate_permutation(
-    std::vector<frag_ptr> const& perm,
-    std::optional<size_t> max_size);
+    std::vector<frag_ptr> const& perm);
 
   template <typename Iterator>
   static void enumerate_recursive(frag_set& results,
                                   frag_ptr&& accum,
                                   Iterator begin, Iterator end);
-
 
   /**
    * Helper method to clone and copy with the right type - simplifies the
