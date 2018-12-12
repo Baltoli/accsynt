@@ -8,8 +8,13 @@ std::vector<rule> rule_registry::all()
 
   return {
     {
-      "regularLoop", {"ptr", "sz"},
+      "regularLoop", {"sz", "ptr"},
       { match("size", "ptr", "sz") }
+    },
+    {
+      "regularLoop", {"sz", "ptrA", "ptrB"},
+      { match("size", "ptrA", "sz"),
+        match("size", "ptrB", "sz") }
     }
   };
 }

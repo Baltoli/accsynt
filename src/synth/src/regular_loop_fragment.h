@@ -34,12 +34,14 @@ public:
   friend void swap(regular_loop_fragment& a, regular_loop_fragment& b);
 
 private:
-  llvm::Argument *get_pointer(compile_context&);
+  llvm::Argument *get_pointer(compile_context&, size_t idx);
   llvm::Argument *get_size(compile_context&);
 
   fragment::frag_ptr before_;
   fragment::frag_ptr body_;
   fragment::frag_ptr after_;
+
+  size_t num_pointers_;
 };
 
 }

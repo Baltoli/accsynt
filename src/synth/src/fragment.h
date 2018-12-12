@@ -176,18 +176,26 @@ public:
   virtual bool equal_to(frag_ptr const& other) const = 0;
 
 protected:
+  template <typename Func>
+  static void choose(size_t n, 
+                     std::vector<frag_ptr> const& fragments, 
+                     Func&& f);
+
+  template <typename Func>
+  static void choose(size_t n, 
+                     std::vector<frag_ptr> const& fragments, 
+                     std::vector<frag_ptr>& accum, Func&& f);
+
   static frag_set enumerate_all(std::vector<frag_ptr>&& fragments,
                                 std::optional<size_t> max_size);
 
   static frag_set enumerate_permutation(
-    std::vector<frag_ptr> const& perm,
-    std::optional<size_t> max_size);
+    std::vector<frag_ptr> const& perm);
 
   template <typename Iterator>
   static void enumerate_recursive(frag_set& results,
                                   frag_ptr&& accum,
                                   Iterator begin, Iterator end);
-
 
   /**
    * Helper method to clone and copy with the right type - simplifies the
@@ -259,6 +267,13 @@ void fragment::enumerate_recursive(fragment::frag_set& results,
       enumerate_recursive(results, std::move(cloned), std::next(begin), end);
     }
   }
+}
+
+template <typename Func>
+void fragment::choose(size_t n, 
+                      std::vector<fragment::frag_ptr> const& fragments, 
+                      Func&& f)
+{
 }
 
 }

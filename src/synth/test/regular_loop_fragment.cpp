@@ -12,18 +12,12 @@ TEST_CASE("Fragment constructor validates arguments")
   SECTION("With valid arguments") {
     auto args = std::vector{value::with_param("x"), value::with_param("y")};
     REQUIRE_NOTHROW(regular_loop_fragment{args});
-  }
 
-  SECTION("With too many arguments") {
-    auto args = std::vector{
-      value::with_param("x"), value::with_param("y"), value::with_param("z")};
-    REQUIRE_THROWS_AS(regular_loop_fragment{args}, std::invalid_argument);
+    auto args1 = std::vector(3, value::with_param("x"));
+    REQUIRE_NOTHROW(regular_loop_fragment{args1});
 
-    auto args1 = std::vector{
-      value::with_param("x"), value::with_param("y"), value::with_param("z"),
-      value::with_param("x"), value::with_param("y"), value::with_param("z"),
-      value::with_param("x"), value::with_param("y"), value::with_param("z")};
-    REQUIRE_THROWS_AS(regular_loop_fragment{args1}, std::invalid_argument);
+    auto args2 = std::vector(34, value::with_param("x"));
+    REQUIRE_NOTHROW(regular_loop_fragment{args2});
   }
 
   SECTION("With too few arguments") {
@@ -46,6 +40,14 @@ TEST_CASE("Fragment constructor validates arguments")
 
     auto args3 = std::vector{value::with_string("x"), value::with_float(0.1)};
     REQUIRE_THROWS_AS(regular_loop_fragment{args3}, std::invalid_argument);
+
+    auto args4 = std::vector{
+      value::with_param("x"), value::with_float(0.1),
+      value::with_param("x"), value::with_float(0.1),
+      value::with_param("x"), value::with_float(0.1),
+      value::with_param("x"), value::with_float(0.1)
+    };
+    REQUIRE_THROWS_AS(regular_loop_fragment{args4}, std::invalid_argument);
   }
 }
 

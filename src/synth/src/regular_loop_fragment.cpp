@@ -21,19 +21,20 @@ regular_loop_fragment::regular_loop_fragment(std::vector<value> args,
   fragment(args),
   before_(std::move(before)),
   body_(std::move(body)),
-  after_(std::move(after))
+  after_(std::move(after)),
+  num_pointers_(args_.size() - 1)
 {
-  if(args_.size() != 2) {
-    throw std::invalid_argument("Regular loop requires exactly 2 arguments");
+  if(args_.size() < 2) {
+    throw std::invalid_argument("Regular loop requires at least 2 arguments");
   }
 
-  auto const& ptr_arg = args_.at(0);
-  auto const& size_arg = args_.at(1);
+  auto all_params = std::all_of(args_.begin(), args_.end(), [] (auto arg) {
+    return arg.value_type == value::type::parameter;
+  });
 
-  if(ptr_arg.value_type != value::type::parameter ||
-     size_arg.value_type != value::type::parameter)
+  if(!all_params)
   { 
-    throw std::invalid_argument("Regular loop arguments must both be parameter references");
+    throw std::invalid_argument("Regular loop arguments must all be parameter references");
   }
 }
 
@@ -83,8 +84,13 @@ std::string regular_loop_fragment::to_str(size_t ind)
 {
   using namespace fmt::literals;
 
+  auto ptr_names = std::vector<std::string>{};
+  std::transform(args_.begin() + 1, args_.end(), std::back_inserter(ptr_names), [] (auto val) {
+    return val.param_val;
+  });
+
   auto shape = R"({before}
-{ind1}regularLoop({ptr}, {sz}) {{
+{ind1}regularLoop({sz}, {ptrs}) {{
 {body}
 {ind1}}}
 {after})";
@@ -95,8 +101,8 @@ std::string regular_loop_fragment::to_str(size_t ind)
     "before"_a = string_or_empty(before_, ind),
     "body"_a = string_or_empty(body_, ind+1),
     "after"_a = string_or_empty(after_, ind),
-    "ptr"_a = args_.at(0).param_val,
-    "sz"_a = args_.at(1).param_val
+    "ptrs"_a = fmt::join(ptr_names.begin(), ptr_names.end(), ", "),//args_.at(0).param_val,
+    "sz"_a = args_.at(0).param_val
   );
 }
 
@@ -118,7 +124,6 @@ void regular_loop_fragment::splice(compile_context& ctx, llvm::BasicBlock *entry
 
   // Body
 
-  auto ptr = get_pointer(ctx);
   auto size = get_size(ctx);
 
   auto header = BasicBlock::Create(llvm_ctx, "reg-loop.header", ctx.func_);
@@ -135,8 +140,12 @@ void regular_loop_fragment::splice(compile_context& ctx, llvm::BasicBlock *entry
   B.CreateCondBr(cond, pre_body, inter_second);
 
   B.SetInsertPoint(pre_body);
-  auto gep = B.CreateGEP(ptr, iter, "reg-loop.gep");
-  auto load = B.CreateLoad(gep, "reg-loop.load");
+  for(auto i = 0u; i < num_pointers_; ++i) {
+    auto ptr = get_pointer(ctx, i);
+    auto gep = B.CreateGEP(ptr, iter, "reg-loop.gep");
+    auto load = B.CreateLoad(gep, "reg-loop.load");
+    ctx.metadata_.seeds.insert(load);
+  }
 
   B.SetInsertPoint(post_body);
   auto next = B.CreateAdd(iter, ConstantInt::get(iter->getType(), 1), "reg-loop.next-iter");
@@ -145,8 +154,6 @@ void regular_loop_fragment::splice(compile_context& ctx, llvm::BasicBlock *entry
 
   body_->splice(ctx, pre_body, post_body);
   last_exit = inter_second;
-
-  ctx.metadata_.seeds.insert(load);
 
   // After
 
@@ -182,14 +189,14 @@ size_t regular_loop_fragment::count_holes() const
          count_or_empty(after_);
 }
 
-llvm::Argument *regular_loop_fragment::get_pointer(compile_context& ctx)
+llvm::Argument *regular_loop_fragment::get_pointer(compile_context& ctx, size_t idx)
 {
-  return ctx.argument(args_.at(0).param_val);
+  return ctx.argument(args_.at(idx + 1).param_val);
 }
 
 llvm::Argument *regular_loop_fragment::get_size(compile_context& ctx)
 {
-  return ctx.argument(args_.at(1).param_val);
+  return ctx.argument(args_.at(0).param_val);
 }
   
 void swap(regular_loop_fragment& a, regular_loop_fragment& b)

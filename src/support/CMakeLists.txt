@@ -7,6 +7,7 @@ add_library(support
   src/llvm_cloning.cpp
   src/load_module.cpp
   src/dynamic_library.cpp
+  src/choose.cpp
   src/thread_context.cpp)
 
 target_link_libraries(support
@@ -31,10 +32,12 @@ add_executable(support_unit
   test/floats.cpp
   test/traits.cpp
   test/load_module.cpp
+  test/choose.cpp
   test/main.cpp)
 
 target_link_libraries(support_unit
   support
+  CONAN_PKG::fmt
   CONAN_PKG::catch2)
 
 target_compile_options(support_unit
