@@ -70,14 +70,22 @@ fragment::frag_set fragment::enumerate_all(std::vector<frag_ptr>&& fragments,
                                            std::optional<size_t> max_size)
 {
   auto ret = fragment::frag_set{};
+  auto real_max = std::min(max_size.value_or(fragments.size()), fragments.size());
 
-  std::sort(fragments.begin(), fragments.end());
-  do {
-    auto all_for_perm = enumerate_permutation(fragments, max_size);
-    for(auto&& frag : all_for_perm) {
-      ret.insert(frag->clone());
-    }
-  } while(std::next_permutation(fragments.begin(), fragments.end()));
+  choose(real_max, fragments, [&] (auto const& subset) {
+    /* auto all_for_perm = enumerate_permutation(subset, real_max); */
+    /* for(auto&& frag : all_for_perm) { */
+    /*   ret.insert(frag->clone()); */
+    /* } */
+  });
+
+  /* std::sort(fragments.begin(), fragments.end()); */
+  /* do { */
+  /*   auto all_for_perm = enumerate_permutation(fragments, max_size); */
+  /*   for(auto&& frag : all_for_perm) { */
+  /*     ret.insert(frag->clone()); */
+  /*   } */
+  /* } while(std::next_permutation(fragments.begin(), fragments.end())); */
 
   return std::move(ret);
 }
