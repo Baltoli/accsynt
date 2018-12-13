@@ -38,7 +38,8 @@ public:
 
 /**
  * Similar to the fragment registry, this class stores all the heuristic rules
- * known by the 
+ * known by the library. They must also be registered manually by adding them to
+ * the definition of all().
  */
 class rule_registry {
 public:
@@ -47,6 +48,16 @@ public:
   rule_registry() = delete;
 };
 
+/**
+ * A match result represents the result of matching a single match expression
+ * against a property set. A matching line from the property set will yield one
+ * of these objects, which store a mapping from variable name to the value in
+ * the property set.
+ *
+ * Unification checks whether the bindings in this result are consistent with
+ * another result: that is, where they bind the same name, are the bindings to
+ * the same value?
+ */
 class match_result {
 public:
   match_result(std::map<std::string, props::value>);
@@ -68,6 +79,11 @@ protected:
   std::map<std::string, props::value> results_;
 };
 
+/**
+ * A match expression is one match(...) component in a rule. They comprise a
+ * property name to match against, and a vector of binding rules to associate
+ * variable names with values (or to ignore them).
+ */
 class match_expression {
   using binding_t = std::variant<
     std::string,
@@ -90,6 +106,11 @@ protected:
   std::vector<binding_t> bindings_;
 };
 
+/**
+ * A rule has a fragment name and argument list. When unification succeeds, the
+ * bound value corresponding to each argument is passed to the named fragment,
+ * and a handle to an instantiated fragment is returned.
+ */
 class rule {
 public:
   rule(std::string fragment,
@@ -105,6 +126,9 @@ private:
   std::vector<std::string> args_;
   std::vector<match_expression> exprs_;
 };
+
+
+// Template implementations
 
 template <typename Iterator>
 std::optional<match_result> match_result::unify_all(Iterator begin, Iterator end)

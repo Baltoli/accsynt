@@ -86,22 +86,17 @@ std::vector<std::unique_ptr<fragment>> rule::match(props::property_set ps)
     auto unified = match_result::unify_all(prod);
     if(unified) {
       auto call_args = std::vector<props::value>{};
-      auto all = true;
 
       for(auto arg_name : args_) {
         if(auto val = (*unified)(arg_name)) {
           call_args.push_back(*val);
         } else {
-          all = false;
+          throw 3; // TODO: a real exception
         }
       }
 
-      if(all) {
-        auto frag = fragment_registry::get(fragment_, call_args);
-        ret.push_back(std::move(frag));
-      } else {
-        throw 3; // TODO: a real exception
-      }
+      auto frag = fragment_registry::get(fragment_, call_args);
+      ret.push_back(std::move(frag));
     }
   }
 
