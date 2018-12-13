@@ -13,6 +13,11 @@ MaxFragments(
     "max-fragments", cl::desc("Maximum fragments to combine"), 
     cl::init(-1));
 
+static cl::opt<bool>
+DumpControl(
+    "dump-control", cl::desc("Dump control flow before synthesis"),
+    cl::init(false));
+
 namespace synth {
 
 rule_synth::rule_synth(props::property_set ps, call_wrapper& ref) :
@@ -36,6 +41,13 @@ rule_synth::rule_synth(props::property_set ps, call_wrapper& ref) :
   }
 
   fragments_ = fragment::enumerate(std::move(choices), max_frags);
+
+  if(DumpControl) {
+    for(auto const& frag : fragments_) {
+      errs() << "FRAGMENT:\n";
+      errs() << frag->to_str(1) << "\n\n";
+    }
+  }
 }
 
 std::string rule_synth::name() const
