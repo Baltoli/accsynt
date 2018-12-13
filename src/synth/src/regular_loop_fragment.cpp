@@ -99,12 +99,13 @@ std::string regular_loop_fragment::to_str(size_t ind)
   });
 
   auto shape = R"({before}
-{ind1}regularLoop({sz}, {ptrs}) {{
+{ind1}{name}({sz}, {ptrs}) {{
 {body}
 {ind1}}}
 {after})";
 
   return fmt::format(shape,
+    "name"_a = perform_output_ ? "outputLoop" : "regularLoop",
     "ind1"_a = ::support::indent{ind}, 
     "ind2"_a = ::support::indent{ind+1},
     "before"_a = string_or_empty(before_, ind),
@@ -159,6 +160,13 @@ void regular_loop_fragment::splice(compile_context& ctx, llvm::BasicBlock *entry
   B.SetInsertPoint(post_body);
   auto next = B.CreateAdd(iter, ConstantInt::get(iter->getType(), 1), "reg-loop.next-iter");
   iter->addIncoming(next, post_body);
+
+  if(perform_output_) {
+    auto ptr = get_pointer(ctx, 0);
+    auto gep = B.CreateGEP(ptr, iter, "out-loop.gep");
+    ctx.metadata_.outputs.insert(cast<Instruction>(gep));
+  }
+
   B.CreateBr(header);
 
   body_->splice(ctx, pre_body, post_body);

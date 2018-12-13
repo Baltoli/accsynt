@@ -14,6 +14,10 @@ std::unique_ptr<fragment> fragment_registry::get(
     return std::make_unique<regular_loop_fragment>(args);
   }
 
+  if(name == "outputLoop") {
+    return std::make_unique<regular_loop_fragment>(args, true);
+  }
+
   return nullptr;
 }
 
