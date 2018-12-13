@@ -14,10 +14,19 @@
 
 namespace synth {
 
+/**
+ * Placeholder type that indicates we don't care about the value bound at this
+ * position. It will be ignored when unifying names.
+ */
 struct ignore_value {};
 
 class rule;
 
+/**
+ * The set of all fragments known by the library. At the moment they need to be
+ * registered manually by adding a mapping from string name to something
+ * returning a fragment pointer.
+ */
 class fragment_registry {
 public:
   static std::unique_ptr<fragment> get(
@@ -27,6 +36,10 @@ public:
   fragment_registry() = delete;
 };
 
+/**
+ * Similar to the fragment registry, this class stores all the heuristic rules
+ * known by the 
+ */
 class rule_registry {
 public:
   static std::vector<rule> all();

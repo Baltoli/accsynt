@@ -1,7 +1,0 @@
-#!/bin/bash
-
-for input_file in "$@"
-do
-  output_file=$(basename "$input_file" .c)
-  gcc -g -shared -fpic "$input_file" -o "${output_file}.so"
-done

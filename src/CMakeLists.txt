@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 
 add_compile_options(
-  -std=c++17
-  -fvisibility-inlines-hidden
+  "$<$<COMPILE_LANGUAGE:CXX>:-std=c++17>"
+  "$<$<COMPILE_LANGUAGE:CXX>:-fvisibility-inlines-hidden>"
   -Wall -Werror -pedantic 
   -Wno-error=class-memaccess
   -Wno-error=unused-but-set-variable 

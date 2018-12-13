@@ -53,3 +53,5 @@ install(
 
 add_test(NAME synth_unit
          COMMAND $<TARGET_FILE:synth_unit>)
+
+add_subdirectory(test/inputs)
