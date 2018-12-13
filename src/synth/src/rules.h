@@ -120,8 +120,6 @@ public:
   std::vector<std::unique_ptr<fragment>> match(props::property_set ps);
 
 private:
-  std::unique_ptr<fragment> instantiate(std::vector<props::value> args);
-
   std::string fragment_;
   std::vector<std::string> args_;
   std::vector<match_expression> exprs_;

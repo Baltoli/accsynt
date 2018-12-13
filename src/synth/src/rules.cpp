@@ -103,9 +103,4 @@ std::vector<std::unique_ptr<fragment>> rule::match(props::property_set ps)
   return ret;
 }
 
-std::unique_ptr<fragment> rule::instantiate(std::vector<props::value> args)
-{
-  return std::make_unique<regular_loop_fragment>(args);
-}
-
 }
