@@ -17,12 +17,14 @@ namespace synth {
 regular_loop_fragment::regular_loop_fragment(std::vector<value> args,
                                              frag_ptr&& before, 
                                              frag_ptr&& body,
-                                             frag_ptr&& after) :
+                                             frag_ptr&& after,
+                                             bool output) :
   fragment(args),
   before_(std::move(before)),
   body_(std::move(body)),
   after_(std::move(after)),
-  num_pointers_(args_.size() - 1)
+  num_pointers_(args_.size() - 1),
+  perform_output_(output)
 {
   if(args_.size() < 2) {
     throw std::invalid_argument("Regular loop requires at least 2 arguments");
@@ -39,7 +41,12 @@ regular_loop_fragment::regular_loop_fragment(std::vector<value> args,
 }
 
 regular_loop_fragment::regular_loop_fragment(std::vector<value> args) :
-  regular_loop_fragment(args, nullptr, nullptr, nullptr)
+  regular_loop_fragment(args, nullptr, nullptr, nullptr, false)
+{
+}
+
+regular_loop_fragment::regular_loop_fragment(std::vector<value> args, bool out) :
+  regular_loop_fragment(args, nullptr, nullptr, nullptr, out)
 {
 }
 
@@ -48,14 +55,16 @@ regular_loop_fragment::regular_loop_fragment(regular_loop_fragment const& other)
       other.args_, 
       other.before_ ? other.before_->clone() : nullptr, 
       other.body_ ? other.body_->clone() : nullptr, 
-      other.after_ ? other.after_->clone() : nullptr)
+      other.after_ ? other.after_->clone() : nullptr,
+      other.perform_output_)
 {
 }
 
 regular_loop_fragment::regular_loop_fragment(regular_loop_fragment&& other) :
   regular_loop_fragment(
       std::move(other.args_), std::move(other.before_),
-      std::move(other.body_), std::move(other.after_))
+      std::move(other.body_), std::move(other.after_),
+      std::move(other.perform_output_))
 {
 }
 

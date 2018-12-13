@@ -9,8 +9,11 @@ public:
   using fragment::add_child;
 
   regular_loop_fragment(std::vector<props::value> args,
-                        frag_ptr&& before, frag_ptr&& body, frag_ptr&& after);
+                        frag_ptr&& before, frag_ptr&& body, frag_ptr&& after,
+                        bool output);
+
   regular_loop_fragment(std::vector<props::value> args);
+  regular_loop_fragment(std::vector<props::value> args, bool out);
 
   regular_loop_fragment(regular_loop_fragment const& other);
   regular_loop_fragment& operator=(regular_loop_fragment other);
@@ -42,6 +45,8 @@ private:
   fragment::frag_ptr after_;
 
   size_t num_pointers_;
+
+  bool perform_output_;
 };
 
 }
