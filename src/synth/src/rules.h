@@ -73,7 +73,7 @@ public:
   template <typename OStream>
   friend OStream& operator<<(OStream& os, match_result const& mr);
 
-  std::optional<props::value> operator()(std::string);
+  std::optional<props::value> operator()(std::string) const;
 
 protected:
   std::map<std::string, props::value> results_;
@@ -106,6 +106,21 @@ protected:
   std::vector<binding_t> bindings_;
 };
 
+class distinct {
+public:
+  template <typename... Strings>
+  distinct(Strings... vars);
+
+  bool validate(match_result const& unified) const;
+
+private:
+  std::set<std::string> vars_{};
+};
+
+using validator = std::variant<
+  distinct
+>;
+
 /**
  * A rule has a fragment name and argument list. When unification succeeds, the
  * bound value corresponding to each argument is passed to the named fragment,
@@ -115,14 +130,18 @@ class rule {
 public:
   rule(std::string fragment,
        std::vector<std::string> args,
-       std::vector<match_expression> es);
+       std::vector<match_expression> es,
+       std::vector<validator> vs);
 
   std::vector<std::unique_ptr<fragment>> match(props::property_set ps);
 
 private:
+  bool validate(match_result const& mr) const;
+
   std::string fragment_;
   std::vector<std::string> args_;
   std::vector<match_expression> exprs_;
+  std::vector<validator> validators_;
 };
 
 
@@ -185,6 +204,12 @@ OStream& operator<<(OStream& os, match_expression const& m)
   }
   os << ")";
   return os;
+}
+
+template <typename... Strings>
+distinct::distinct(Strings... vars)
+{
+  (vars_.insert(vars), ...);
 }
 
 }
