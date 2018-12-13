@@ -66,7 +66,8 @@ std::vector<match_result> match_expression::match(props::property_set ps)
   return ret;
 }
 
-bool distinct::validate(match_result const& unified) const
+bool distinct::validate(match_result const& unified, 
+                        props::property_set ps) const
 {
   for(auto v1 : vars_) {
     for(auto v2 : vars_) {
@@ -100,7 +101,7 @@ std::vector<std::unique_ptr<fragment>> rule::match(props::property_set ps)
   for(auto prod : support::cartesian_product(elements)) {
     auto unified = match_result::unify_all(prod);
     if(unified) {
-      if(validate(*unified)) {
+      if(validate(*unified, ps)) {
         auto call_args = std::vector<props::value>{};
 
         for(auto arg_name : args_) {
@@ -120,10 +121,10 @@ std::vector<std::unique_ptr<fragment>> rule::match(props::property_set ps)
   return ret;
 }
 
-bool rule::validate(match_result const& mr) const
+bool rule::validate(match_result const& mr, props::property_set ps) const
 {
   auto call_valid = [&] (auto v) {
-    return v.validate(mr);
+    return v.validate(mr, ps);
   };
 
   return std::all_of(validators_.begin(), validators_.end(), [&] (auto v) {

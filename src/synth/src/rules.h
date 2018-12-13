@@ -111,7 +111,7 @@ public:
   template <typename... Strings>
   distinct(Strings... vars);
 
-  bool validate(match_result const& unified) const;
+  bool validate(match_result const& unified, props::property_set ps) const;
 
 private:
   std::set<std::string> vars_{};
@@ -136,7 +136,7 @@ public:
   std::vector<std::unique_ptr<fragment>> match(props::property_set ps);
 
 private:
-  bool validate(match_result const& mr) const;
+  bool validate(match_result const& mr, props::property_set ps) const;
 
   std::string fragment_;
   std::vector<std::string> args_;
