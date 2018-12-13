@@ -28,7 +28,7 @@ std::optional<match_result> match_result::unify_with(match_result const& other)
   return match_result{map};
 }
 
-std::optional<props::value> match_result::operator()(std::string name)
+std::optional<props::value> match_result::operator()(std::string name) const
 {
   if(results_.find(name) != results_.end()) {
     return results_.at(name);
@@ -66,10 +66,25 @@ std::vector<match_result> match_expression::match(props::property_set ps)
   return ret;
 }
 
+bool distinct::validate(match_result const& unified) const
+{
+  for(auto v1 : vars_) {
+    for(auto v2 : vars_) {
+      if(v1 != v2 && unified(v1) == unified(v2)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
 rule::rule(std::string frag,
            std::vector<std::string> args,
-           std::vector<match_expression> es) :
-  fragment_(frag), args_(args), exprs_(es)
+           std::vector<match_expression> es,
+           std::vector<validator> vs) :
+  fragment_(frag), args_(args),
+  exprs_(es), validators_(vs)
 {
 }
 
@@ -85,22 +100,19 @@ std::vector<std::unique_ptr<fragment>> rule::match(props::property_set ps)
   for(auto prod : support::cartesian_product(elements)) {
     auto unified = match_result::unify_all(prod);
     if(unified) {
-      auto call_args = std::vector<props::value>{};
-      auto all = true;
+      if(validate(*unified)) {
+        auto call_args = std::vector<props::value>{};
 
-      for(auto arg_name : args_) {
-        if(auto val = (*unified)(arg_name)) {
-          call_args.push_back(*val);
-        } else {
-          all = false;
+        for(auto arg_name : args_) {
+          if(auto val = (*unified)(arg_name)) {
+            call_args.push_back(*val);
+          } else {
+            throw 3; // TODO: a real exception
+          }
         }
-      }
 
-      if(all) {
         auto frag = fragment_registry::get(fragment_, call_args);
         ret.push_back(std::move(frag));
-      } else {
-        throw 3; // TODO: a real exception
       }
     }
   }
@@ -108,9 +120,15 @@ std::vector<std::unique_ptr<fragment>> rule::match(props::property_set ps)
   return ret;
 }
 
-std::unique_ptr<fragment> rule::instantiate(std::vector<props::value> args)
+bool rule::validate(match_result const& mr) const
 {
-  return std::make_unique<regular_loop_fragment>(args);
+  auto call_valid = [&] (auto v) {
+    return v.validate(mr);
+  };
+
+  return std::all_of(validators_.begin(), validators_.end(), [&] (auto v) {
+    return std::visit(call_valid, v);
+  });
 }
 
 }
