@@ -55,7 +55,7 @@ public:
  * the property set.
  *
  * Unification checks whether the bindings in this result are consistent with
- * another result: that is, where they bind the same name, are the bindings to
+ * anegationher result: that is, where they bind the same name, are the bindings to
  * the same value?
  */
 class match_result {
@@ -117,8 +117,21 @@ private:
   std::set<std::string> vars_{};
 };
 
+class negation {
+public:
+  template <typename... Args>
+  negation(std::string name, Args... args);
+
+  bool validate(match_result const& unified, props::property_set ps) const;
+
+private:
+  std::string name_;
+  std::vector<std::string> args_{};
+};
+
 using validator = std::variant<
-  distinct
+  distinct,
+  negation
 >;
 
 /**
@@ -210,6 +223,13 @@ template <typename... Strings>
 distinct::distinct(Strings... vars)
 {
   (vars_.insert(vars), ...);
+}
+
+template <typename... Args>
+negation::negation(std::string name, Args... args) :
+  name_(name)
+{
+  (args_.push_back(args), ...);
 }
 
 }

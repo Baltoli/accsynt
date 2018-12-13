@@ -80,6 +80,27 @@ bool distinct::validate(match_result const& unified,
   return true;
 }
 
+bool negation::validate(match_result const& unified, props::property_set ps) const
+{
+  auto vals = std::vector<props::value>{};
+
+  for(auto arg : args_) {
+    if(auto val = unified(arg)) {
+      vals.push_back(*val);
+    } else {
+      return true;
+    }
+  }
+
+  for(auto prop : ps.properties) {
+    if(prop.name == name_ && prop.values == vals) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 rule::rule(std::string frag,
            std::vector<std::string> args,
            std::vector<match_expression> es,
