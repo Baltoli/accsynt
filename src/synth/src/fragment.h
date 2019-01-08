@@ -1,5 +1,7 @@
 #pragma once
 
+#include "accessor.h"
+
 #include <props/props.h>
 
 #include <support/indent.h>
