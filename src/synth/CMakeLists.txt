@@ -11,6 +11,7 @@ add_library(coresynth
   src/generator.cpp
   src/call_builder.cpp
   src/call_wrapper.cpp
+  src/accessor.cpp
   src/fragment.cpp
   src/fragment_registry.cpp
   src/regular_loop_fragment.cpp)
