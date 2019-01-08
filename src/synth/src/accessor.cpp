@@ -5,9 +5,11 @@ using namespace llvm;
 namespace synth {
 
 std::set<Value *> accessor::create_geps(
-    Value *index, Value *base, IRBuilder<>& builder) const
+    compile_metadata const& meta,
+    Value *index, Value *base, 
+    IRBuilder<>& builder) const
 {
-  auto mapped = map_index(index);
+  auto mapped = map_index(meta, index);
   auto geps = std::set<Value *>{};
 
   for(auto idx : mapped) {
@@ -18,7 +20,8 @@ std::set<Value *> accessor::create_geps(
 }
 
 // Default implementation that other accessors can override if needed
-std::set<Value *> accessor::map_index(Value* index) const
+std::set<Value *> accessor::map_index(
+    compile_metadata const& meta, Value* index) const
 {
   return { index };
 }

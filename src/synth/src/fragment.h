@@ -1,6 +1,5 @@
 #pragma once
 
-#include "accessor.h"
 #include "compile_context.h"
 #include "compile_metadata.h"
 

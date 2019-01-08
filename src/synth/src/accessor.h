@@ -1,5 +1,7 @@
 #pragma once
 
+#include "compile_metadata.h"
+
 #include <llvm/IR/Value.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Value.h>
@@ -27,12 +29,15 @@ public:
   accessor() = default;
 
   std::set<llvm::Value *> create_geps(
+      compile_metadata const& meta,
       llvm::Value *index,
       llvm::Value *base, 
       llvm::IRBuilder<>& builder) const;
 
 private:
-  virtual std::set<llvm::Value *> map_index(llvm::Value * index) const;
+  virtual std::set<llvm::Value *> map_index(
+      compile_metadata const& meta,
+      llvm::Value * index) const;
 };
 
 }
