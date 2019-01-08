@@ -35,8 +35,6 @@ struct compile_metadata {
  * interfacing with an LLVM function, keeping track of a signature etc.
  */
 class compile_context {
-  friend class fragment;
-
 public:
   compile_context(llvm::Module& mod,
                   props::signature sig);
