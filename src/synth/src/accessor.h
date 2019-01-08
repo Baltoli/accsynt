@@ -27,13 +27,12 @@ public:
   accessor() = default;
 
   std::set<llvm::Value *> create_geps(
-      std::set<llvm::Value *> indices,
+      llvm::Value *index,
       llvm::Value *base, 
       llvm::IRBuilder<>& builder) const;
 
 private:
-  virtual std::set<llvm::Value *> map_indices(
-      std::set<llvm::Value *> indices) const;
+  virtual std::set<llvm::Value *> map_index(llvm::Value * index) const;
 };
 
 }
