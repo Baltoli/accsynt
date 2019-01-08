@@ -41,9 +41,4 @@ llvm::Argument *compile_context::argument(std::string const& name)
   return std::next(func_->arg_begin(), sig_.param_index(name));
 }
 
-compile_metadata::compile_metadata(llvm::Function *fn)
-  : function(fn)
-{
-}
-
 }
