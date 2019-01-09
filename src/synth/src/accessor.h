@@ -41,13 +41,15 @@ public:
 private:
   virtual std::set<llvm::Value *> map_index(
       compile_metadata const& meta,
-      llvm::Value * index) const;
+      llvm::Value * index,
+      llvm::IRBuilder<>& builder) const;
 };
 
 class offset_accessor : public accessor {
   virtual std::set<llvm::Value *> map_index(
       compile_metadata const& meta,
-      llvm::Value *index) const override;
+      llvm::Value *index,
+      llvm::IRBuilder<>& builder) const override;
 };
 
 /**
