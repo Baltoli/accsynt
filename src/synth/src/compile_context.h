@@ -1,5 +1,6 @@
 #pragma once
 
+#include "accessor.h"
 #include "compile_metadata.h"
 
 #include <props/props.h>
@@ -20,10 +21,9 @@ namespace synth {
 class compile_context {
 public:
   compile_context(llvm::Module& mod,
-                  props::signature sig);
+                  props::signature sig,
+                  accessor_map&& accessor_map = {});
 
-  ~compile_context();
- 
   /**
    * Don't want these to be copyable - once used to compile they are done as we
    * create the function and fill it up.
@@ -40,7 +40,9 @@ public:
    * Get the LLVM arg for the parameter name passed in. This lives in the
    * context because it depends on the signature.
    */
-  llvm::Argument *argument(std::string const& name);
+  llvm::Argument *argument(std::string const& name) const;
+
+  accessor const& accessor_for(std::string const& name) const;
 
 // TODO: work out encapsulation for context - need to make information available
 // to derived fragment classes?
@@ -55,6 +57,9 @@ public:
   llvm::ReturnInst *return_;
 
   compile_metadata metadata_;
+
+private:
+  accessor_map accessor_map_;
 };
 
 }

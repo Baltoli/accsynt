@@ -37,7 +37,7 @@ accessor_map::accessor_map(accessor_map::backing_map_t&& map) :
 {
 }
 
-accessor const& accessor_map::operator()(std::string name) const
+accessor const& accessor_map::operator()(std::string const& name) const
 {
   if(backing_map_.find(name) != backing_map_.end()) {
     return *backing_map_.at(name);

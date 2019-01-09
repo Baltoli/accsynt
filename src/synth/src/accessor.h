@@ -63,7 +63,7 @@ public:
    * This is the mapping interface - contexts pass through a request to it and
    * get back a reference to an accessor (to allow for polymorphism).
    */
-  accessor const& operator()(std::string) const;
+  accessor const& operator()(std::string const&) const;
 
 private:
   backing_map_t backing_map_;
