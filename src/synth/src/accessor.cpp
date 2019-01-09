@@ -1,5 +1,7 @@
 #include "accessor.h"
 
+#include <llvm/IR/Constants.h>
+
 using namespace llvm;
 
 namespace synth {
@@ -31,7 +33,9 @@ std::set<Value *> accessor::map_index(
 std::set<Value *> offset_accessor::map_index(
     compile_metadata const& meta, Value* index, IRBuilder<>& builder) const
 {
-  throw "unimplemented";
+  auto idx_ty = index->getType();
+  auto offset = builder.CreateAdd(ConstantInt::get(idx_ty, 1), index);
+  return { offset };
 }
 
 accessor_map::accessor_map() :
