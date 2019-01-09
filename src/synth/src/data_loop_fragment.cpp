@@ -69,4 +69,29 @@ fragment::frag_ptr data_loop_fragment::clone()
   return clone_as(*this);
 }
 
+std::string data_loop_fragment::to_str(size_t ind)
+{
+  using namespace fmt::literals;
+
+  auto ptr_names = std::vector<std::string>{};
+  std::transform(args_.begin(), args_.end(), std::back_inserter(ptr_names), [] (auto val) {
+    return val.param_val;
+  });
+
+  auto shape = R"({before}
+{ind1}dataLoop({ptrs}) {{
+{body}
+{ind1}}}
+{after})";
+
+  return fmt::format(shape,
+    "ind1"_a = ::support::indent{ind}, 
+    "ind2"_a = ::support::indent{ind+1},
+    "before"_a = string_or_empty(before_, ind),
+    "body"_a = string_or_empty(body_, ind+1),
+    "after"_a = string_or_empty(after_, ind),
+    "ptrs"_a = fmt::join(ptr_names.begin(), ptr_names.end(), ", ")
+  );
+}
+
 }
