@@ -1,0 +1,4 @@
+float offset_sum(int n, float *x, float *y)
+size x, n
+size y, n
+offset y
