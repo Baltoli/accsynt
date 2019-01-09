@@ -7,13 +7,14 @@ namespace synth {
 std::set<Value *> accessor::create_geps(
     compile_metadata const& meta,
     Value *index, Value *base, 
-    IRBuilder<>& builder) const
+    IRBuilder<>& builder,
+    std::string const& prefix) const
 {
   auto mapped = map_index(meta, index);
   auto geps = std::set<Value *>{};
 
   for(auto idx : mapped) {
-    geps.insert(builder.CreateGEP(base, idx));
+    geps.insert(builder.CreateGEP(base, idx, prefix));
   }
 
   return geps;

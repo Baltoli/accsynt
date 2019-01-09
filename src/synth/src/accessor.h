@@ -35,7 +35,8 @@ public:
       compile_metadata const& meta,
       llvm::Value *index,
       llvm::Value *base, 
-      llvm::IRBuilder<>& builder) const;
+      llvm::IRBuilder<>& builder,
+      std::string const& prefix = "") const;
 
 private:
   virtual std::set<llvm::Value *> map_index(
