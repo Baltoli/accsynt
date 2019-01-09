@@ -41,8 +41,18 @@ std::vector<rule> rule_registry::all()
         match("size", "ptrB", "sz"),
         match("size", "ptrC", "sz"), 
         match("output", "ptrA") },
-      { distinct("ptrA", "ptrB", "ptrC") } 
-    } 
+      { distinct("ptrA", "ptrB", "ptrC") }
+    },
+    {
+      "dataLoop", {"ptr"},
+      { match("data_ptr", "ptr") },
+      {}
+    },
+    {
+      "dataLoop", {"ptrA", "ptrB"},
+      { match("data_ptr", "ptrA", "ptrB") },
+      { distinct("ptrA", "ptrB") }
+    }
   };
   // clang-format on
 }
