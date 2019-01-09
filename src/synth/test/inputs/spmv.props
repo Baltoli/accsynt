@@ -1,0 +1,4 @@
+void spmv(float *ov, float *a, float *iv, int *rowstr, int *colidx, int rows)
+size rowstr, rows
+size ov, rows
+output ov
