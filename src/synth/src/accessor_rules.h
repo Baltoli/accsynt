@@ -6,7 +6,9 @@
 
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
+#include <utility>
 
 namespace synth {
 
@@ -16,10 +18,17 @@ namespace synth {
  */
 template <typename Acc>
 class accessor_rule {
+  using optional_entry = std::optional<
+    std::pair<
+      std::string,
+      std::unique_ptr<accessor>
+    >
+  >;
+
 public:
   accessor_rule(std::string property);
 
-  std::unique_ptr<accessor> operator()(props::property p) const;
+  optional_entry operator()(props::property p) const;
 
 private:
   std::string property_;
@@ -32,13 +41,16 @@ accessor_rule<Acc>::accessor_rule(std::string property) :
 }
 
 template <typename Acc>
-std::unique_ptr<accessor> accessor_rule<Acc>::operator()(props::property p) const
+typename accessor_rule<Acc>::optional_entry 
+accessor_rule<Acc>::operator()(props::property p) const
 {
-  if(p.name == property_ && p.values.empty()) {
-    return std::make_unique<Acc>();
+  // TODO: validate that this is actually a parameter reference
+
+  if(p.name == property_ && p.values.size() == 1) {
+    return std::pair{p.values.at(0).param_val, std::make_unique<Acc>()};
   }
 
-  return nullptr;
+  return std::nullopt;
 }
 
 accessor_map accessors_from_rules(props::property_set ps);
