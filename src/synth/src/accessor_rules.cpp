@@ -19,7 +19,6 @@ accessor_map accessors_from_rules(props::property_set ps)
   support::for_each(rules, [&] (auto rule) {
     for(auto prop : ps.properties) {
       if(auto opt_entry = rule(prop)) {
-        __builtin_trap();
         map.insert(std::move(opt_entry.value()));
       }
     }
