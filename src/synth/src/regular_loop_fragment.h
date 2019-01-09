@@ -2,6 +2,8 @@
 
 #include "fragment.h"
 
+#include <utility>
+
 namespace synth {
 
 class regular_loop_fragment : public fragment {
@@ -37,7 +39,7 @@ public:
   friend void swap(regular_loop_fragment& a, regular_loop_fragment& b);
 
 private:
-  llvm::Argument *get_pointer(compile_context&, size_t idx);
+  std::pair<llvm::Argument *, std::string> get_pointer(compile_context&, size_t idx);
   llvm::Argument *get_size(compile_context&);
 
   fragment::frag_ptr before_;

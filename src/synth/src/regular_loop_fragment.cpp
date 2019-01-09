@@ -151,10 +151,14 @@ void regular_loop_fragment::splice(compile_context& ctx, llvm::BasicBlock *entry
 
   B.SetInsertPoint(pre_body);
   for(auto i = 0u; i < num_pointers_; ++i) {
-    auto ptr = get_pointer(ctx, i);
-    auto gep = B.CreateGEP(ptr, iter, "reg-loop.gep");
-    auto load = B.CreateLoad(gep, "reg-loop.load");
-    ctx.metadata_.seeds.insert(load);
+    auto [ptr, name] = get_pointer(ctx, i);
+    auto geps = ctx.accessor_for(name).create_geps(ctx.metadata_, iter, ptr, B);
+
+    /* auto gep = B.CreateGEP(ptr, iter, "reg-loop.gep"); */
+    for(auto gep : geps) {
+      auto load = B.CreateLoad(gep, "reg-loop.load");
+      ctx.metadata_.seeds.insert(load);
+    }
   }
 
   B.SetInsertPoint(post_body);
@@ -162,9 +166,13 @@ void regular_loop_fragment::splice(compile_context& ctx, llvm::BasicBlock *entry
   iter->addIncoming(next, post_body);
 
   if(perform_output_) {
-    auto ptr = get_pointer(ctx, 0);
-    auto gep = B.CreateGEP(ptr, iter, "out-loop.gep");
-    ctx.metadata_.outputs.insert(cast<Instruction>(gep));
+    auto [ptr, name] = get_pointer(ctx, 0);
+    auto geps = ctx.accessor_for(name).create_geps(ctx.metadata_, iter, ptr, B);
+
+    for(auto gep : geps) {
+      /* auto gep = B.CreateGEP(ptr, iter, "out-loop.gep"); */
+      ctx.metadata_.outputs.insert(cast<Instruction>(gep));
+    }
   }
 
   B.CreateBr(header);
@@ -206,12 +214,13 @@ size_t regular_loop_fragment::count_holes() const
          count_or_empty(after_);
 }
 
-llvm::Argument *regular_loop_fragment::get_pointer(compile_context& ctx, size_t idx)
+std::pair<Argument *, std::string> regular_loop_fragment::get_pointer(compile_context& ctx, size_t idx)
 {
-  return ctx.argument(args_.at(idx + 1).param_val);
+  auto name = args_.at(idx + 1).param_val;
+  return { ctx.argument(name), name };
 }
 
-llvm::Argument *regular_loop_fragment::get_size(compile_context& ctx)
+Argument *regular_loop_fragment::get_size(compile_context& ctx)
 {
   return ctx.argument(args_.at(0).param_val);
 }
