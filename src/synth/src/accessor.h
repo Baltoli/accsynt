@@ -6,6 +6,8 @@
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Value.h>
 
+#include <map>
+#include <memory>
 #include <set>
 
 namespace synth {
@@ -27,6 +29,7 @@ namespace synth {
 class accessor {
 public:
   accessor() = default;
+  virtual ~accessor() = default;
 
   std::set<llvm::Value *> create_geps(
       compile_metadata const& meta,
@@ -38,6 +41,33 @@ private:
   virtual std::set<llvm::Value *> map_index(
       compile_metadata const& meta,
       llvm::Value * index) const;
+};
+
+/**
+ * This class is responsible for mapping names to accessors. Contexts own one of
+ * these objects and are responsible for passing through mapping requests when
+ * they're made during compilation.
+ *
+ * Contexts aren't copyable so we don't need these guys to be either - they can
+ * validly store their internal state as unique_ptrs to accessors and give out
+ * const references as the API.
+ */
+class accessor_map {
+  using backing_map_t = std::map<std::string, std::unique_ptr<accessor>>;
+
+public:
+  accessor_map();
+  accessor_map(backing_map_t&&);
+
+  /**
+   * This is the mapping interface - contexts pass through a request to it and
+   * get back a reference to an accessor (to allow for polymorphism).
+   */
+  accessor const& operator()(std::string) const;
+
+private:
+  backing_map_t backing_map_;
+  accessor default_accessor_;
 };
 
 }

@@ -26,4 +26,24 @@ std::set<Value *> accessor::map_index(
   return { index };
 }
 
+accessor_map::accessor_map() :
+  accessor_map(accessor_map::backing_map_t{})
+{
+}
+
+accessor_map::accessor_map(accessor_map::backing_map_t&& map) :
+  backing_map_(std::move(map)),
+  default_accessor_()
+{
+}
+
+accessor const& accessor_map::operator()(std::string name) const
+{
+  if(backing_map_.find(name) != backing_map_.end()) {
+    return *backing_map_.at(name);
+  } else {
+    return default_accessor_;
+  }
+}
+
 }
