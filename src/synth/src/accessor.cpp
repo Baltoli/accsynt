@@ -27,6 +27,12 @@ std::set<Value *> accessor::map_index(
   return { index };
 }
 
+std::set<Value *> offset_accessor::map_index(
+    compile_metadata const& meta, Value* index) const
+{
+  throw "unimplemented";
+}
+
 accessor_map::accessor_map() :
   accessor_map(accessor_map::backing_map_t{})
 {
