@@ -36,6 +36,12 @@ public:
 
 private:
   std::pair<llvm::Argument *, std::string> get_pointer(compile_context&, size_t idx);
+
+  fragment::frag_ptr before_;
+  fragment::frag_ptr body_;
+  fragment::frag_ptr after_;
+
+  size_t num_pointers_;
 };
 
 }
