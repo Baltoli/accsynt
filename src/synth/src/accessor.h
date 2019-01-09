@@ -52,6 +52,13 @@ class offset_accessor : public accessor {
       llvm::IRBuilder<>& builder) const override;
 };
 
+class paired_accessor : public accessor {
+  virtual std::set<llvm::Value *> map_index(
+      compile_metadata const& meta,
+      llvm::Value *index,
+      llvm::IRBuilder<>& builder) const override;
+};
+
 /**
  * This class is responsible for mapping names to accessors. Contexts own one of
  * these objects and are responsible for passing through mapping requests when

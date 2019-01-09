@@ -38,6 +38,14 @@ std::set<Value *> offset_accessor::map_index(
   return { offset };
 }
 
+std::set<Value *> paired_accessor::map_index(
+    compile_metadata const& meta, Value* index, IRBuilder<>& builder) const
+{
+  auto idx_ty = index->getType();
+  auto offset = builder.CreateAdd(ConstantInt::get(idx_ty, 1), index);
+  return { index, offset };
+}
+
 accessor_map::accessor_map() :
   accessor_map(accessor_map::backing_map_t{})
 {
