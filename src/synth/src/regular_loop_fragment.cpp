@@ -190,6 +190,7 @@ void swap(regular_loop_fragment& a, regular_loop_fragment& b)
   swap(a.body_, b.body_);
   swap(a.after_, b.after_);
   swap(a.args_, b.args_);
+  swap(a.perform_output_, b.perform_output_);
 }
 
 bool regular_loop_fragment::operator==(regular_loop_fragment const& other) const
@@ -206,7 +207,8 @@ bool regular_loop_fragment::operator==(regular_loop_fragment const& other) const
 
   return args_ == other.args_ && equal_non_null(before_, other.before_)
       && equal_non_null(body_, other.body_)
-      && equal_non_null(after_, other.after_);
+      && equal_non_null(after_, other.after_)
+      && perform_output_ == other.perform_output_;
 }
 
 bool regular_loop_fragment::operator!=(regular_loop_fragment const& other) const
