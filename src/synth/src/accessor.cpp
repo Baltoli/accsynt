@@ -1,5 +1,7 @@
 #include "accessor.h"
 
+#include <llvm/IR/Constants.h>
+
 using namespace llvm;
 
 namespace synth {
@@ -10,7 +12,7 @@ std::set<Value *> accessor::create_geps(
     IRBuilder<>& builder,
     std::string const& prefix) const
 {
-  auto mapped = map_index(meta, index);
+  auto mapped = map_index(meta, index, builder);
   auto geps = std::set<Value *>{};
 
   for(auto idx : mapped) {
@@ -22,9 +24,18 @@ std::set<Value *> accessor::create_geps(
 
 // Default implementation that other accessors can override if needed
 std::set<Value *> accessor::map_index(
-    compile_metadata const& meta, Value* index) const
+    compile_metadata const& meta, 
+    Value* index, IRBuilder<>&) const
 {
   return { index };
+}
+
+std::set<Value *> offset_accessor::map_index(
+    compile_metadata const& meta, Value* index, IRBuilder<>& builder) const
+{
+  auto idx_ty = index->getType();
+  auto offset = builder.CreateAdd(ConstantInt::get(idx_ty, 1), index);
+  return { offset };
 }
 
 accessor_map::accessor_map() :

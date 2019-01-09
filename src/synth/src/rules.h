@@ -1,5 +1,6 @@
 #pragma once
 
+#include "accessor.h"
 #include "fragment.h"
 
 #include <props/props.h>

@@ -1,4 +1,5 @@
 add_library(coresynth
+  src/accessor_rules.cpp
   src/rules.cpp
   src/rule_registry.cpp
   src/dataflow_synth.cpp
