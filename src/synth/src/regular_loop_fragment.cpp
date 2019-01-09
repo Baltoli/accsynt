@@ -152,7 +152,7 @@ void regular_loop_fragment::splice(compile_context& ctx, llvm::BasicBlock *entry
   B.SetInsertPoint(pre_body);
   for(auto i = 0u; i < num_pointers_; ++i) {
     auto [ptr, name] = get_pointer(ctx, i);
-    auto geps = ctx.accessor_for(name).create_geps(ctx.metadata_, iter, ptr, B);
+    auto geps = ctx.create_geps_for(name, iter, ptr, B);
 
     /* auto gep = B.CreateGEP(ptr, iter, "reg-loop.gep"); */
     for(auto gep : geps) {
@@ -167,7 +167,7 @@ void regular_loop_fragment::splice(compile_context& ctx, llvm::BasicBlock *entry
 
   if(perform_output_) {
     auto [ptr, name] = get_pointer(ctx, 0);
-    auto geps = ctx.accessor_for(name).create_geps(ctx.metadata_, iter, ptr, B);
+    auto geps = ctx.create_geps_for(name, iter, ptr, B);
 
     for(auto gep : geps) {
       /* auto gep = B.CreateGEP(ptr, iter, "out-loop.gep"); */

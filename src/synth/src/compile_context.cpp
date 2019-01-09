@@ -40,4 +40,11 @@ accessor const& compile_context::accessor_for(std::string const& name) const
   return accessor_map_(name);
 }
 
+std::set<llvm::Value *> compile_context::create_geps_for(
+    std::string const& name, llvm::Value *base, llvm::Value *ptr,
+    llvm::IRBuilder<>& builder) const
+{
+  return accessor_for(name).create_geps(metadata_, base, ptr, builder);
+}
+
 }

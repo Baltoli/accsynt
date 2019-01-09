@@ -44,6 +44,10 @@ public:
 
   accessor const& accessor_for(std::string const& name) const;
 
+  std::set<llvm::Value *> create_geps_for(
+      std::string const& name, llvm::Value *base, llvm::Value *ptr,
+      llvm::IRBuilder<>& builder) const;
+
 // TODO: work out encapsulation for context - need to make information available
 // to derived fragment classes?
 /* protected: */
