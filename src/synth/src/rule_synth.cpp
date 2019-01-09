@@ -1,5 +1,6 @@
 #include "rule_synth.h"
 
+#include "accessor_rules.h"
 #include "dataflow_synth.h"
 #include "fragment.h"
 #include "rules.h"
@@ -65,7 +66,11 @@ Function *rule_synth::candidate()
     current_fragment_ = fragments_.begin();
   }
 
-  auto ctx = compile_context{mod_, properties_.type_signature};
+  auto ctx = compile_context{
+    mod_, 
+    properties_.type_signature, 
+    accessors_from_rules(properties_)
+  };
   auto& frag = *current_fragment_;
 
   frag->compile(ctx);
