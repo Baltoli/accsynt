@@ -2,6 +2,8 @@
 
 #include <interfind/analysis.h>
 
+#include <props/props.h>
+
 #include <nlohmann/json_fwd.hpp>
 
 #include <filesystem>
@@ -22,14 +24,6 @@ namespace interfind {
  * it modifies the module given to it and returns some analysis information.
  */
 class finder {
-  struct config {
-    config(std::string, std::string);
-    config(nlohmann::json);
-
-    std::string signature;
-    std::filesystem::path library_path;
-  };
-
 public:
   static analysis_result run(llvm::Module&, nlohmann::json);
 
@@ -37,7 +31,8 @@ private:
   finder(llvm::Module&, nlohmann::json);
 
   llvm::Module& module_;
-  config config_;
+  props::signature signature_;
+  std::filesystem::path library_path_;
 };
 
 }
