@@ -26,4 +26,5 @@ endfunction(add_json_example)
 
 add_bc_example(empty)
 
+add_json_example(basic)
 add_json_example(empty)

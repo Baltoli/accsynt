@@ -7,6 +7,9 @@ add_library(interfind
 
 target_link_libraries(interfind
   ${llvm_libs}
+  stdc++fs
+  support
+  props
   CONAN_PKG::fmt
   CONAN_PKG::jsonformoderncpp
 )
