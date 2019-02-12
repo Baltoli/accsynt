@@ -24,6 +24,7 @@ function(add_json_example name)
   add_custom_target("${name}json" ALL DEPENDS "${OUTPUT_F}")
 endfunction(add_json_example)
 
+add_bc_example(adds)
 add_bc_example(empty)
 
 add_json_example(basic)
