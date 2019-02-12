@@ -4,6 +4,7 @@
 
 namespace llvm {
   class Function;
+  class FunctionType;
   class Type;
   class Value;
 }
@@ -36,6 +37,7 @@ public:
    * function to search in.
    */
   region_finder(llvm::Function &, llvm::Type *, std::vector<llvm::Type *>);
+  region_finder(llvm::Function &, llvm::FunctionType *);
 
   // TODO: should really be unordered_set
   /**
