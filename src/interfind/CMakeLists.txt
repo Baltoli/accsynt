@@ -3,6 +3,7 @@ project(libinterfind VERSION 0.1 LANGUAGES CXX)
 add_library(interfind
   src/analysis.cpp
   src/finder.cpp
+  src/region.cpp
 )
 
 target_link_libraries(interfind
