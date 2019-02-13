@@ -5,6 +5,7 @@ add_library(interfind
   src/common.cpp
   src/finder.cpp
   src/region.cpp
+  src/use_def.cpp
   src/visitors.cpp
 )
 
