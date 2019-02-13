@@ -38,32 +38,34 @@ region_finder::region_finder(Function& fn, FunctionType *fn_t) :
 {
 }
 
-bool region_finder::dominates(Value *a, Value *b) const
+bool region_finder::available(Value *ret, Value *arg) const
 {
+  if(arg->getType()->isVoidTy()) {
+    return false;
+  }
+
   auto is_global = [] (auto *val) {
     return isa<Constant>(val) || isa<Argument>(val) || isa<GlobalValue>(val);
   };
 
-  if(is_global(a)) {
+  if(is_global(ret) || is_global(arg)) {
     return true;
-  } else if(!is_global(a) && is_global(b)) {
-    return false;
   } else {
-    auto ai = dyn_cast<Instruction>(a);
-    auto bi = dyn_cast<Instruction>(b);
+    auto ret_i = dyn_cast<Instruction>(ret);
+    auto arg_i = dyn_cast<Instruction>(arg);
 
-    if(!ai || !bi) {
+    if(!ret_i || !arg_i) {
       throw std::runtime_error("Non-global, non-instructions passed to dominance");
     }
 
-    return dom_tree_.dominates(bi, ai);
+    return dom_tree_.dominates(arg_i, ret_i);
   }
 }
 
-std::set<llvm::Value *> region_finder::dominated_set(Value *val) const
+std::set<llvm::Value *> region_finder::available_set(Value *ret) const
 {
-  return values_by_pred(function_, [=] (auto& other) {
-    return dominates(val, &other);
+  return values_by_pred(function_, [=] (auto& arg) {
+    return available(ret, &arg);
   });
 }
 
@@ -71,9 +73,9 @@ std::vector<region> region_finder::all_candidates() const
 {
   auto vt = values_of_type(function_, return_type_);
   for(auto v : vt) {
-    auto ds = dominated_set(v);
-    errs() << "Value: " << *v << '\n';
-    errs() << "Dominates:\n";
+    auto ds = available_set(v);
+    errs() << "Return Value: " << *v << '\n';
+    errs() << "Available:\n";
     for(auto dv : ds) {
       errs() << '\t' << *dv << '\n';
     }

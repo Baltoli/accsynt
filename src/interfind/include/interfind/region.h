@@ -51,24 +51,23 @@ public:
 
 private:
   /**
-   * Returns true if value a must have been reached by the time value b is
-   * reached. This function is a generalisation of the analysis provided by the
-   * built in dominance tree to extend to global values, constants and
-   * arguments to functions.
+   * Returns true if arg could be an argument to a function-like region that
+   * returns the value ret.
    *
-   * Any such "global" value can be seen as dominating any other value, even if
-   * the other is also global. If both a and b are actually instructions, then
-   * the logic delegates to the dominance tree for the function associated with
-   * this finder.
+   * In detail:
+   *  - if either is global, then true - globals are always available to pass or
+   *    return from a region.
+   *  - if neither is global, then they must be instructions, and we delegate to
+   *    the LLVM dominance analysis.
    */
-  bool dominates(llvm::Value *a, llvm::Value *b) const;
+  bool available(llvm::Value *ret, llvm::Value *arg) const;
 
   /**
    * Compute the set of values dominated by this value. This can then be used to
    * work out which values could be function arguments to a function that
    * returns this value.
    */
-  std::set<llvm::Value *> dominated_set(llvm::Value *) const;
+  std::set<llvm::Value *> available_set(llvm::Value *) const;
 
   llvm::Function& function_;
   llvm::Type *return_type_;
