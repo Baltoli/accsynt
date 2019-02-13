@@ -1,3 +1,4 @@
+#include <interfind/common.h>
 #include <interfind/region.h>
 #include <interfind/visitors.h>
 
@@ -64,10 +65,6 @@ bool region_finder::available(Value *ret, Value *arg) const
   if(arg->getType()->isVoidTy()) {
     return false;
   }
-
-  auto is_global = [] (auto *val) {
-    return isa<Constant>(val) || isa<Argument>(val) || isa<GlobalValue>(val);
-  };
 
   if(is_global(ret) || is_global(arg)) {
     return true;
