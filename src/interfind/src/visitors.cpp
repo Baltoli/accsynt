@@ -1,5 +1,6 @@
 #include <interfind/visitors.h>
 
+#include <llvm/IR/Constant.h>
 #include <llvm/IR/Instruction.h>
 
 using namespace llvm;
@@ -20,6 +21,14 @@ void type_collect_visitor::visitInstruction(llvm::Instruction& inst)
 {
   if(inst.getType() == type_) {
     vals_.insert(&inst);
+  }
+
+  for(auto& op : inst.operands()) {
+    if(auto* cst = dyn_cast<Constant>(&op)) {
+      if(cst->getType() == type_) {
+        vals_.insert(cst);
+      }
+    }
   }
 }
 
