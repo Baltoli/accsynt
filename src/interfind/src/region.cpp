@@ -98,11 +98,11 @@ bool region_finder::partition_is_valid(region_finder::partition const& part) con
 
 std::vector<region> region_finder::all_candidates() const
 {
-  auto vt = values_of_type(function_, return_type_);
+  auto regions = std::vector<region>{};
 
+  auto vt = values_of_type(function_, return_type_);
   for(auto v : vt) {
-    auto ds = available_set(v);
-    auto parts = type_partition(ds);
+    auto parts = type_partition(available_set(v));
 
     if(!partition_is_valid(parts)) {
       continue;
@@ -114,16 +114,12 @@ std::vector<region> region_finder::all_candidates() const
     }
 
     auto prod = cartesian_product(arg_components);
-    errs() << "Returning: " << *v << '\n';
-    for(auto p : prod) {
-      errs() << "  Using:\n";
-      for(auto a : p) {
-        errs() << "    " << *a << '\n';
-      }
+    for(auto arg_list : prod) {
+      regions.emplace_back(v, arg_list);
     }
   }
 
-  return {};
+  return regions;
 }
 
 }

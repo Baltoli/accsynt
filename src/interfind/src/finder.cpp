@@ -32,7 +32,6 @@ analysis_result finder::run(Module& mod, json config)
       auto rf = region_finder(fn, sig_t);
 
       for(auto cand : rf.all_candidates()) {
-        errs() << "A candidate!\n";
       }
     }
   }
