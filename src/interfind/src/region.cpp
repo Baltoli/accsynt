@@ -1,9 +1,11 @@
 #include <interfind/region.h>
 #include <interfind/visitors.h>
 
+#include <llvm/IR/Argument.h>
+#include <llvm/IR/Constant.h>
 #include <llvm/IR/DerivedTypes.h>
-#include <llvm/IR/Dominators.h>
 #include <llvm/IR/Function.h>
+#include <llvm/IR/GlobalValue.h>
 #include <llvm/IR/Type.h>
 #include <llvm/IR/Value.h>
 
@@ -11,15 +13,23 @@ using namespace llvm;
 
 namespace interfind {
 
+/*
+ * Region methods
+ */
+
 region::region(Value *out, std::vector<Value *> in) :
   output_(out), inputs_(in)
 {
 }
 
+/*
+ * Region finder methods
+ */
 
 region_finder::region_finder(Function& fn, Type *out_t, 
                              std::vector<Type *> in_ts) :
-  function_(fn), return_type_(out_t), argument_types_(in_ts)
+  function_(fn), return_type_(out_t), argument_types_(in_ts),
+  dom_tree_(function_)
 {
 }
 
@@ -28,10 +38,35 @@ region_finder::region_finder(Function& fn, FunctionType *fn_t) :
 {
 }
 
+bool region_finder::dominates(Value *a, Value *b) const
+{
+  auto is_global = [] (auto *val) {
+    return isa<Constant>(val) || isa<Argument>(val) || isa<GlobalValue>(val);
+  };
+
+  if(is_global(a)) {
+    return true;
+  } else if(!is_global(a) && is_global(b)) {
+    return false;
+  } else {
+    auto ai = dyn_cast<Instruction>(a);
+    auto bi = dyn_cast<Instruction>(b);
+
+    if(!ai || !bi) {
+      throw std::runtime_error("Non-global, non-instructions passed to dominance");
+    }
+
+    return dom_tree_.dominates(ai, bi);
+  }
+}
+
+std::set<llvm::Value *> region_finder::dominated_set(Value *val) const
+{
+  return {};
+}
+
 std::vector<region> region_finder::all_candidates() const
 {
-  auto dom_tree = DominatorTree(function_);
-
   auto vt = values_of_type(function_, return_type_);
   for(auto v : vt) {
     errs() << *v << '\n';
