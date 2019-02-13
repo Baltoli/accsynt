@@ -32,7 +32,11 @@ analysis_result finder::run(Module& mod, json config)
       auto rf = region_finder(fn, sig_t);
 
       for(auto cand : rf.all_candidates()) {
-        auto f = cand.extract();
+        errs() << "Region returning: " << *cand.output() << '\n';
+        errs() << "Using:\n";
+        for(auto arg : cand.inputs()) {
+          errs() << "  " << *arg << '\n';
+        }
       }
     }
   }

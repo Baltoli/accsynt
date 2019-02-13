@@ -32,6 +32,9 @@ public:
    */
   llvm::Function *extract() const;
 
+  llvm::Value* output() const;
+  std::vector<llvm::Value *> const& inputs() const;
+
 private:
   llvm::Value *output_;
   std::vector<llvm::Value *> inputs_;

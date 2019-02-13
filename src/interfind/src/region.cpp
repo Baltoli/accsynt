@@ -26,6 +26,16 @@ region::region(Value *out, std::vector<Value *> in,
 {
 }
 
+llvm::Value* region::output() const
+{
+  return output_;
+}
+
+std::vector<llvm::Value *> const& region::inputs() const
+{
+  return inputs_;
+}
+
 llvm::Function *region::extract() const
 {
   auto mod = original_.getParent();
