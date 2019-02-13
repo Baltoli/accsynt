@@ -1,4 +1,5 @@
 #include <interfind/region.h>
+#include <interfind/visitors.h>
 
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/Dominators.h>
@@ -30,6 +31,12 @@ region_finder::region_finder(Function& fn, FunctionType *fn_t) :
 std::vector<region> region_finder::all_candidates() const
 {
   auto dom_tree = DominatorTree(function_);
+
+  auto vt = values_of_type(function_, return_type_);
+  for(auto v : vt) {
+    errs() << *v << '\n';
+  }
+
   return {};
 }
 

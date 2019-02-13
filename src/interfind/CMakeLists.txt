@@ -4,6 +4,7 @@ add_library(interfind
   src/analysis.cpp
   src/finder.cpp
   src/region.cpp
+  src/visitors.cpp
 )
 
 target_link_libraries(interfind
