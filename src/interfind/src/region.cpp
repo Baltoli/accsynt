@@ -9,6 +9,9 @@
 #include <llvm/IR/Type.h>
 #include <llvm/IR/Value.h>
 
+#include <support/cartesian_product.h>
+
+using namespace support;
 using namespace llvm;
 
 namespace interfind {
@@ -88,7 +91,7 @@ bool region_finder::partition_is_valid(region_finder::partition const& part) con
   auto begin = argument_types_.begin();
   auto end = argument_types_.end();
 
-  return std::any_of(begin, end, [&] (auto arg_t) {
+  return std::none_of(begin, end, [&] (auto arg_t) {
     return part.find(arg_t) == part.end();
   });
 }
@@ -96,11 +99,28 @@ bool region_finder::partition_is_valid(region_finder::partition const& part) con
 std::vector<region> region_finder::all_candidates() const
 {
   auto vt = values_of_type(function_, return_type_);
+
   for(auto v : vt) {
     auto ds = available_set(v);
     auto parts = type_partition(ds);
 
-    // now turn partition if valid into regions.
+    if(!partition_is_valid(parts)) {
+      continue;
+    }
+
+    auto arg_components = std::vector<std::set<llvm::Value *>>{};
+    for(auto arg_t : argument_types_) {
+      arg_components.push_back(parts.at(arg_t));
+    }
+
+    auto prod = cartesian_product(arg_components);
+    errs() << "Returning: " << *v << '\n';
+    for(auto p : prod) {
+      errs() << "  Using:\n";
+      for(auto a : p) {
+        errs() << "    " << *a << '\n';
+      }
+    }
   }
 
   return {};

@@ -13,7 +13,7 @@ function(add_bc_example name)
 
   add_custom_command(
     OUTPUT "${OUTPUT_F}"
-    COMMAND ${OPT} -mem2reg ${NAIVE_F} -o ${OUTPUT_F}
+    COMMAND ${OPT} -mem2reg -constprop -die ${NAIVE_F} -o ${OUTPUT_F}
     MAIN_DEPENDENCY "${NAIVE_F}"
   )
 
