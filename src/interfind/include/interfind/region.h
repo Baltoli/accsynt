@@ -24,12 +24,6 @@ public:
    */
   region(llvm::Value *, std::vector<llvm::Value *>);
 
-  /**
-   * Get the function type that this region represents - when extracted, it will
-   * create a function with this type.
-   */
-  llvm::FunctionType *get_function_type() const;
-
 private:
   llvm::Value *output_;
   std::vector<llvm::Value *> inputs_;

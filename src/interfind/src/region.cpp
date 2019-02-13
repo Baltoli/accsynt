@@ -25,20 +25,6 @@ region::region(Value *out, std::vector<Value *> in) :
 {
 }
 
-FunctionType *region::get_function_type() const
-{
-  auto ret_t = output_->getType();
-  auto arg_ts = std::vector<llvm::Type *>{};
-
-  std::transform(inputs_.begin(), inputs_.end(), std::back_inserter(arg_ts),
-      [] (auto arg) {
-        return arg->getType();
-      }
-  );
-
-  return FunctionType::get(ret_t, arg_ts, false);
-}
-
 /*
  * Region finder methods
  */

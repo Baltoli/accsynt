@@ -1,8 +1,7 @@
-float adds(float a)
+float adds(float a, float b)
 {
-  float x = 1.2;
-  float y = 3.4;
-  float z = x + y;
-  float b = a * (z + a);
-  return b + 1.4;
+  float c = a + a;
+  float d = b * 3;
+  float e = c * (d + 2);
+  return e + b;
 }
