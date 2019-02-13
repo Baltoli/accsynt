@@ -69,8 +69,8 @@ std::set<llvm::Value *> region_finder::available_set(Value *ret) const
   });
 }
 
-std::map<Type *, std::set<Value *>> 
-  region_finder::type_partition(std::set<Value *> const& vs) const
+region_finder::partition region_finder::type_partition(
+    std::set<Value *> const& vs) const
 {
   auto partitions = std::map<Type *, std::set<Value *>>{};
 
@@ -81,6 +81,16 @@ std::map<Type *, std::set<Value *>>
   }
 
   return partitions;
+}
+
+bool region_finder::partition_is_valid(region_finder::partition const& part) const
+{
+  auto begin = argument_types_.begin();
+  auto end = argument_types_.end();
+
+  return std::any_of(begin, end, [&] (auto arg_t) {
+    return part.find(arg_t) == part.end();
+  });
 }
 
 std::vector<region> region_finder::all_candidates() const

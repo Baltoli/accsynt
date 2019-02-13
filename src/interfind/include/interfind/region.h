@@ -51,6 +51,8 @@ public:
   std::vector<region> all_candidates() const;
 
 private:
+  using partition = std::map<llvm::Type *, std::set<llvm::Value *>>;
+
   /**
    * Returns true if arg could be an argument to a function-like region that
    * returns the value ret.
@@ -74,8 +76,14 @@ private:
    * Partition a set of available values by type, such that all the values of a
    * particular type are in the same entry in the map (indexed by their type).
    */
-  std::map<llvm::Type *, std::set<llvm::Value *>> type_partition(
-      std::set<llvm::Value *> const&) const;
+  partition type_partition(std::set<llvm::Value *> const&) const;
+
+  /**
+   * Check whether a generated partition is able to satisfy the type signature
+   * we're looking for - all we need is for there to be at least one value of
+   * each argument type available to generate regions.
+   */
+  bool partition_is_valid(partition const&) const;
 
   llvm::Function& function_;
   llvm::Type *return_type_;
