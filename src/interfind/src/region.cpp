@@ -117,6 +117,10 @@ std::vector<region> region_finder::all_candidates() const
 
   auto vt = values_of_type(function_, return_type_);
   for(auto v : vt) {
+    if(is_global(v)) {
+      continue;
+    }
+
     auto parts = type_partition(available_set(v));
 
     if(!partition_is_valid(parts)) {
