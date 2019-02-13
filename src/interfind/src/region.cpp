@@ -100,14 +100,7 @@ std::vector<region> region_finder::all_candidates() const
     auto ds = available_set(v);
     auto parts = type_partition(ds);
 
-    errs() << "Return Value: " << *v << '\n';
-    errs() << "Available:\n";
-    for(auto const& [ty, vals] : parts) {
-      errs() << "  Type: " << *ty << '\n';
-      for(auto val : vals) {
-        errs() << "    " << *val << '\n';
-      }
-    }
+    // now turn partition if valid into regions.
   }
 
   return {};
