@@ -2,6 +2,7 @@
 
 #include <llvm/IR/Dominators.h>
 
+#include <map>
 #include <vector>
 
 namespace llvm {
@@ -68,6 +69,13 @@ private:
    * returns this value.
    */
   std::set<llvm::Value *> available_set(llvm::Value *) const;
+
+  /**
+   * Partition a set of available values by type, such that all the values of a
+   * particular type are in the same entry in the map (indexed by their type).
+   */
+  std::map<llvm::Type *, std::set<llvm::Value *>> type_partition(
+      std::set<llvm::Value *> const&) const;
 
   llvm::Function& function_;
   llvm::Type *return_type_;

@@ -69,15 +69,34 @@ std::set<llvm::Value *> region_finder::available_set(Value *ret) const
   });
 }
 
+std::map<Type *, std::set<Value *>> 
+  region_finder::type_partition(std::set<Value *> const& vs) const
+{
+  auto partitions = std::map<Type *, std::set<Value *>>{};
+
+  for(auto val : vs) {
+    auto ty = val->getType();
+    partitions.try_emplace(ty);
+    partitions.at(ty).insert(val);
+  }
+
+  return partitions;
+}
+
 std::vector<region> region_finder::all_candidates() const
 {
   auto vt = values_of_type(function_, return_type_);
   for(auto v : vt) {
     auto ds = available_set(v);
+    auto parts = type_partition(ds);
+
     errs() << "Return Value: " << *v << '\n';
     errs() << "Available:\n";
-    for(auto dv : ds) {
-      errs() << '\t' << *dv << '\n';
+    for(auto const& [ty, vals] : parts) {
+      errs() << "  Type: " << *ty << '\n';
+      for(auto val : vals) {
+        errs() << "    " << *val << '\n';
+      }
     }
   }
 
