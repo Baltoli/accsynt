@@ -7,27 +7,31 @@ using namespace llvm;
 namespace interfind {
 
 type_collect_visitor::type_collect_visitor(Type *ty) :
-  type_(ty), instrs_()
+  type_(ty), vals_()
 {
 }
 
-std::set<Value *> type_collect_visitor::instructions() const
+std::set<Value *> type_collect_visitor::values() const
 {
-  return instrs_;
+  return vals_;
 }
 
 void type_collect_visitor::visitInstruction(llvm::Instruction& inst)
 {
   if(inst.getType() == type_) {
-    instrs_.insert(&inst);
+    vals_.insert(&inst);
   }
 }
 
 std::set<Value *> values_of_type(Function &fn, Type *ty)
 {
   auto vis = type_collect_visitor(ty);
+
   vis.visit(fn);
-  return vis.instructions();
+  vis.visitValues(fn.getParent()->globals());
+  vis.visitValues(fn.args());
+
+  return vis.values();
 }
 
 }
