@@ -20,9 +20,17 @@ namespace interfind {
  * Region methods
  */
 
-region::region(Value *out, std::vector<Value *> in) :
-  output_(out), inputs_(in)
+region::region(Value *out, std::vector<Value *> in, 
+               Function& orig, FunctionType *ty) :
+  output_(out), inputs_(in), original_(orig), function_type_(ty)
 {
+}
+
+llvm::Function *region::extract() const
+{
+  auto mod = original_.getParent();
+  auto func = Function::Create(function_type_, GlobalValue::ExternalLinkage, "extracted_region", mod);
+  return func;
 }
 
 /*
@@ -115,7 +123,8 @@ std::vector<region> region_finder::all_candidates() const
 
     auto prod = cartesian_product(arg_components);
     for(auto arg_list : prod) {
-      regions.emplace_back(v, arg_list);
+      auto f_ty = FunctionType::get(return_type_, argument_types_, false);
+      regions.emplace_back(v, arg_list, function_, f_ty);
     }
   }
 

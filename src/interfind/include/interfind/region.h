@@ -22,11 +22,22 @@ public:
   /**
    * Direct constructor from the values comprising this region.
    */
-  region(llvm::Value *, std::vector<llvm::Value *>);
+  region(llvm::Value *, std::vector<llvm::Value *>, 
+         llvm::Function &, llvm::FunctionType *);
+
+  /**
+   * Extract this region from its containing function and create a new function
+   * that behaves equivalently to the region, taking care to map inputs /
+   * outputs etc. properly.
+   */
+  llvm::Function *extract() const;
 
 private:
   llvm::Value *output_;
   std::vector<llvm::Value *> inputs_;
+
+  llvm::Function &original_;
+  llvm::FunctionType *function_type_;
 };
 
 /**
