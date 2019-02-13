@@ -1,4 +1,5 @@
 #include <interfind/finder.h>
+#include <interfind/region.h>
 
 #include <llvm/IR/Module.h>
 
@@ -24,6 +25,17 @@ finder::finder(llvm::Module& mod, nlohmann::json conf) :
 analysis_result finder::run(Module& mod, json config)
 {
   auto find = finder(mod, config);
+  auto sig_t = find.signature_.function_type();
+
+  for(auto& fn : mod) {
+    if(!fn.isDeclaration()) {
+      auto rf = region_finder(fn, sig_t);
+
+      for(auto cand : rf.all_candidates()) {
+      }
+    }
+  }
+
   return {};
 }
 

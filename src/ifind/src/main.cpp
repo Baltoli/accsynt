@@ -14,6 +14,8 @@
 
 #include <nlohmann/json.hpp>
 
+#include <support/thread_context.h>
+
 #include <filesystem>
 #include <string>
 
@@ -78,7 +80,7 @@ int main(int argc, char **argv) try
 {
   cl::ParseCommandLineOptions(argc, argv);
 
-  auto ctx = LLVMContext{};
+  auto& ctx = ::support::thread_context::get();
   auto err = SMDiagnostic{};
 
   auto mod = parseIRFile(InputFilename, err, ctx, true, "");
