@@ -56,20 +56,27 @@ bool region_finder::dominates(Value *a, Value *b) const
       throw std::runtime_error("Non-global, non-instructions passed to dominance");
     }
 
-    return dom_tree_.dominates(ai, bi);
+    return dom_tree_.dominates(bi, ai);
   }
 }
 
 std::set<llvm::Value *> region_finder::dominated_set(Value *val) const
 {
-  return {};
+  return values_by_pred(function_, [=] (auto& other) {
+    return dominates(val, &other);
+  });
 }
 
 std::vector<region> region_finder::all_candidates() const
 {
   auto vt = values_of_type(function_, return_type_);
   for(auto v : vt) {
-    errs() << *v << '\n';
+    auto ds = dominated_set(v);
+    errs() << "Value: " << *v << '\n';
+    errs() << "Dominates:\n";
+    for(auto dv : ds) {
+      errs() << '\t' << *dv << '\n';
+    }
   }
 
   return {};
