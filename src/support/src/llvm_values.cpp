@@ -4,7 +4,7 @@ using namespace llvm;
 
 namespace support {
 
-std::set<Value *> all_uses(Value *v)
+std::set<Value *> all_uses(Value *v, bool ignore_stores)
 {
   auto work = std::queue<Value *>{};
   work.push(v);
@@ -13,7 +13,8 @@ std::set<Value *> all_uses(Value *v)
   while(!work.empty()) {
     auto use = work.front();
     work.pop();
-    if(isa<StoreInst>(use)) {
+
+    if(ignore_stores && isa<StoreInst>(use)) {
       continue;
     }
 

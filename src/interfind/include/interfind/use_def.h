@@ -1,5 +1,7 @@
 #pragma once
 
+#include <llvm/IR/InstVisitor.h>
+
 #include <map>
 #include <set>
 
