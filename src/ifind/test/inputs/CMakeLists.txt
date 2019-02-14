@@ -34,6 +34,7 @@ function(add_json_example name)
 endfunction(add_json_example)
 
 add_bc_example(adds)
+add_bc_example(deps)
 add_bc_example(empty)
 add_bc_example(gemv)
 
