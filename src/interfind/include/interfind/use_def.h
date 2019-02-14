@@ -28,21 +28,10 @@ public:
   using use_def_map = std::map<llvm::Instruction *, std::set<llvm::Value *>>;
 
   /**
-   * Default constructor does not compute the map - left to the user to do so by
-   * explicitly calling recompute.
-   */
-  use_def_analysis();
-
-  /**
    * Construct the analysis for the given function, computing the map of
    * instructions to dependencies.
    */
   use_def_analysis(llvm::Function&);
-
-  /**
-   * Perform analysis again, discarding previous results.
-   */
-  void recompute(llvm::Function&);
 
   /**
    * Does the value `use` depend on the value `def`?

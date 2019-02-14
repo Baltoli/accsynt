@@ -7,15 +7,8 @@ using namespace llvm;
 
 namespace interfind {
 
-use_def_analysis::use_def_analysis()
-{
-}
-
-use_def_analysis::use_def_analysis(Function& fn)
-{
-}
-
-void use_def_analysis::recompute(Function& fn)
+use_def_analysis::use_def_analysis(Function& fn) :
+  function_(&fn)
 {
 }
 
