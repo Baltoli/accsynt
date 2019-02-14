@@ -29,4 +29,23 @@ std::set<Value *> all_uses(Value *v)
   return ret;
 }
 
+llvm::Value *get_by_name(Function& fn, std::string name)
+{
+  for(auto& arg : fn.args()) {
+    if(arg.getName() == name) {
+      return &arg;
+    }
+  }
+
+  for(auto& bb : fn) {
+    for(auto& inst : bb) {
+      if(inst.getName() == name) {
+        return &inst;
+      }
+    }
+  }
+
+  return nullptr;
+}
+
 }
