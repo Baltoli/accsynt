@@ -1,6 +1,6 @@
 #pragma once
 
-#include <llvm/IR/Dominators.h>
+#include <interfind/use_def.h>
 
 #include <map>
 #include <vector>
@@ -103,7 +103,7 @@ private:
   llvm::Type *return_type_;
   std::vector<llvm::Type *> argument_types_;
 
-  llvm::DominatorTree dom_tree_;
+  use_def_analysis ud_analysis_;
 };
 
 }

@@ -51,7 +51,7 @@ llvm::Function *region::extract() const
 region_finder::region_finder(Function& fn, Type *out_t, 
                              std::vector<Type *> in_ts) :
   function_(fn), return_type_(out_t), argument_types_(in_ts),
-  dom_tree_(function_)
+  ud_analysis_(function_)
 {
 }
 
@@ -76,7 +76,7 @@ bool region_finder::available(Value *ret, Value *arg) const
       throw std::runtime_error("Non-global, non-instructions passed to dominance");
     }
 
-    return dom_tree_.dominates(arg_i, ret_i);
+    return ud_analysis_.depends(ret, arg);
   }
 }
 
@@ -132,8 +132,20 @@ std::vector<region> region_finder::all_candidates() const
       arg_components.push_back(parts.at(arg_t));
     }
 
-    auto prod = cartesian_product(arg_components);
-    for(auto arg_list : prod) {
+    // There's a big opportunity for optimisation here - if we replace the naive
+    // cartesian product with a backtracking search across possible root sets,
+    // then we should be able to enumerate through far fewer possible
+    // combinations.
+    //
+    // For now the product + prune method works but slowly so I'll keep it in
+    // place, but it will need to be replaced in order to scale the method. It
+    // will hopefully be the smart approach that I've had half in my mind all
+    // the way through this work.
+    //
+    // Additionally, I can probably reduce memory requirements of this part by
+    // rewriting the enumeration logic to take a callback so that we don't need
+    // to store everything up front?
+    for(auto arg_list : cartesian_product(arg_components)) {
       auto f_ty = FunctionType::get(return_type_, argument_types_, false);
       regions.emplace_back(v, arg_list, function_, f_ty);
     }
