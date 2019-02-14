@@ -24,6 +24,18 @@ TEST_CASE("can compute use-def analyses", "[use_def]")
   VALUE(v0); VALUE(v1); VALUE(v2);
   VALUE(v3); VALUE(v4); VALUE(v5);
 
-  REQUIRE(analysis.depends(v0, arg0));
-  REQUIRE(analysis.depends(v0, arg1));
+  SECTION("basic dependency queries") {
+    REQUIRE(!analysis.depends(arg0, v5));
+    REQUIRE(!analysis.depends(arg1, v3));
+    REQUIRE(!analysis.depends(arg2, v1));
+
+    REQUIRE(analysis.depends(v0, arg0));
+    REQUIRE(analysis.depends(v0, arg1));
+    REQUIRE(!analysis.depends(v0, arg2));
+
+    REQUIRE(analysis.depends(v1, v0));
+    REQUIRE(analysis.depends(v1, arg0));
+    REQUIRE(analysis.depends(v1, arg1));
+    REQUIRE(analysis.depends(v1, arg2));
+  }
 }

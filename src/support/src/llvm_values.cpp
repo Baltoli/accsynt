@@ -4,7 +4,7 @@ using namespace llvm;
 
 namespace support {
 
-std::set<Value *> all_uses(Value *v, bool ignore_stores)
+std::set<Value *> all_uses(Value *v)
 {
   auto work = std::queue<Value *>{};
   work.push(v);
@@ -14,7 +14,7 @@ std::set<Value *> all_uses(Value *v, bool ignore_stores)
     auto use = work.front();
     work.pop();
 
-    if(ignore_stores && isa<StoreInst>(use)) {
+    if(isa<StoreInst>(use)) {
       continue;
     }
 
@@ -24,6 +24,29 @@ std::set<Value *> all_uses(Value *v, bool ignore_stores)
         work.push(user);
       }
     }
+  }
+
+  ret.erase(v);
+  return ret;
+}
+
+std::set<llvm::Value *> all_deps(llvm::Value *v)
+{
+  auto work = std::queue<Value *>{};
+  work.push(v);
+
+  auto ret = std::set<Value *>{};
+  while(!work.empty()) {
+    auto dep = work.front();
+    work.pop();
+
+    if(auto user = dyn_cast<User>(dep)) {
+      for(auto& op : user->operands()) {
+        work.push(op);
+      }
+    }
+
+    ret.insert(dep);
   }
 
   ret.erase(v);

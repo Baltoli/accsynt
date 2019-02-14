@@ -15,7 +15,7 @@ use_def_analysis::use_def_analysis(Function& fn) :
 {
   for(auto& bb : fn) {
     for(auto& inst : bb) {
-      deps_.emplace(&inst, all_uses(&inst, false));
+      deps_.emplace(&inst, all_deps(&inst));
     }
   }
 }
@@ -23,11 +23,10 @@ use_def_analysis::use_def_analysis(Function& fn) :
 bool use_def_analysis::depends(Value *use, Value *def) const
 {
   if(auto inst_use = dyn_cast<Instruction>(use)) {
-    auto ids = deps_.at(inst_use);
-    for(auto d : ids) {
-      errs() << *inst_use << "  ->  " << *d << '\n';
-    }
+    auto const& ids = deps_.at(inst_use);
+    return ids.find(def) != ids.end();
   }
+
   return false;
 }
 
