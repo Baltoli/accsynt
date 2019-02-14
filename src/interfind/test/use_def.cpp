@@ -37,5 +37,47 @@ TEST_CASE("can compute use-def analyses", "[use_def]")
     REQUIRE(analysis.depends(v1, arg0));
     REQUIRE(analysis.depends(v1, arg1));
     REQUIRE(analysis.depends(v1, arg2));
+    REQUIRE(!analysis.depends(v1, v2));
+    REQUIRE(!analysis.depends(v1, v3));
+    REQUIRE(!analysis.depends(v1, v4));
+    REQUIRE(!analysis.depends(v1, v5));
+
+    REQUIRE(analysis.depends(v5, arg0));
+    REQUIRE(analysis.depends(v5, arg1));
+    REQUIRE(analysis.depends(v5, arg2));
+    REQUIRE(analysis.depends(v5, v0));
+    REQUIRE(analysis.depends(v5, v1));
+    REQUIRE(analysis.depends(v5, v2));
+    REQUIRE(analysis.depends(v5, v3));
+    REQUIRE(analysis.depends(v5, v4));
+
+    REQUIRE(!analysis.depends(v0, v0));
+    REQUIRE(!analysis.depends(v1, v1));
+    REQUIRE(!analysis.depends(v2, v2));
+  }
+
+  SECTION("root set queries") {
+    REQUIRE(analysis.is_root_set(v0, {arg0, arg1}));
+    REQUIRE(!analysis.is_root_set(v0, {arg0}));
+    REQUIRE(!analysis.is_root_set(v0, {arg1}));
+    REQUIRE(!analysis.is_root_set(v0, {}));
+
+    REQUIRE(analysis.is_root_set(v1, {arg0, arg1, arg2}));
+    REQUIRE(analysis.is_root_set(v1, {v0, arg2}));
+    REQUIRE(!analysis.is_root_set(v1, {arg0, arg1}));
+    REQUIRE(!analysis.is_root_set(v1, {arg0, arg2}));
+    REQUIRE(!analysis.is_root_set(v1, {arg1, arg2}));
+    REQUIRE(!analysis.is_root_set(v1, {v0}));
+    REQUIRE(!analysis.is_root_set(v1, {arg2}));
+
+    REQUIRE(analysis.is_root_set(v2, {arg0, arg1, arg2}));
+    REQUIRE(analysis.is_root_set(v2, {v1, arg1}));
+    REQUIRE(analysis.is_root_set(v2, {v0, arg1, arg2}));
+    REQUIRE(!analysis.is_root_set(v2, {arg0, arg1}));
+
+    REQUIRE(analysis.is_root_set(v3, {v2, arg2}));
+    REQUIRE(analysis.is_root_set(v3, {v1, arg1, arg2}));
+    REQUIRE(analysis.is_root_set(v3, {arg0, arg1, arg2}));
+    REQUIRE(!analysis.is_root_set(v3, {v0, arg2}));
   }
 }

@@ -45,7 +45,8 @@ public:
    * values contained in `roots` without any improper cutting of edges? That is,
    * can `use` be expressed purely in terms of the values in `roots`?
    */
-  bool is_root_set(llvm::Value *use, std::set<llvm::Value *> roots) const;
+  bool is_root_set(
+      llvm::Value *use, std::set<llvm::Value *> const& roots) const;
 
 private:
   /**

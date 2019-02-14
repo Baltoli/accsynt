@@ -3,7 +3,11 @@
 #include <support/llvm_values.h>
 
 #include <llvm/IR/Function.h>
+#include <llvm/IR/Instruction.h>
 #include <llvm/IR/Value.h>
+
+#include <queue>
+#include <set>
 
 using namespace support;
 using namespace llvm;
@@ -30,9 +34,35 @@ bool use_def_analysis::depends(Value *use, Value *def) const
   return false;
 }
 
-bool use_def_analysis::is_root_set(Value *use, std::set<Value *> roots) const
+bool use_def_analysis::is_root_set(
+    Value *use, std::set<Value *> const& roots) const
 {
-  return false;
+  auto queue = std::queue<Value *>{{use}};
+
+  while(!queue.empty()) {
+    auto work = queue.front();
+    queue.pop();
+
+    if(roots.find(work) != roots.end()) {
+      // If the value we're looking at is in the query set, then we don't
+      // recurse into it.
+      continue;
+    }
+
+    if(auto inst = dyn_cast<Instruction>(work)) {
+      // If we find an instruction that isn't in the query set, we need to
+      // recurse into its operands.
+      for(auto& op : inst->operands()) {
+        queue.push(op);
+      }
+    } else {
+      // If we find something that isn't an instruction, but isn't in the query
+      // set, then it's an extra root and the query set isn't valid.
+      return false;
+    }
+  }
+
+  return true;
 }
 
 }
