@@ -57,10 +57,15 @@ TEST_CASE("can compute use-def analyses", "[use_def]")
   }
 
   SECTION("root set queries") {
-    REQUIRE(analysis.is_root_set(v0, {arg0, arg1}));
-    REQUIRE(!analysis.is_root_set(v0, {arg0}));
-    REQUIRE(!analysis.is_root_set(v0, {arg1}));
-    REQUIRE(!analysis.is_root_set(v0, {}));
+#define IS_ROOT(val, ...) \
+  REQUIRE(analysis.is_root_set(val, std::set{__VA_ARGS__}));
+
+#define IS_NOT_ROOT(val, ...) \
+  REQUIRE(!analysis.is_root_set(val, std::set{__VA_ARGS__}));
+
+    IS_ROOT(v0, arg0, arg1);
+    IS_NOT_ROOT(v0, arg0);
+    IS_NOT_ROOT(v0, arg1);
 
     REQUIRE(analysis.is_root_set(v1, {arg0, arg1, arg2}));
     REQUIRE(analysis.is_root_set(v1, {v0, arg2}));
@@ -79,5 +84,8 @@ TEST_CASE("can compute use-def analyses", "[use_def]")
     REQUIRE(analysis.is_root_set(v3, {v1, arg1, arg2}));
     REQUIRE(analysis.is_root_set(v3, {arg0, arg1, arg2}));
     REQUIRE(!analysis.is_root_set(v3, {v0, arg2}));
+
+#undef IS_ROOT
+#undef IS_NOT_ROOT
   }
 }
