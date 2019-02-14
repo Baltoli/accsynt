@@ -40,6 +40,9 @@ target_link_libraries(interfind_unit
   support
   CONAN_PKG::catch2)
 
+target_compile_options(interfind_unit
+  PUBLIC -DRESOURCE_DIR="${CMAKE_BINARY_DIR}/inputs/")
+
 add_test(
   NAME interfind_unit
   COMMAND $<TARGET_FILE:interfind_unit>)
