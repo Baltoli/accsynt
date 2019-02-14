@@ -13,8 +13,9 @@ function(add_bc_example name)
 
   add_custom_command(
     OUTPUT "${OUTPUT_F}"
-    COMMAND ${OPT} -mem2reg -constprop -die ${NAIVE_F} -o ${OUTPUT_F}
+    COMMAND ${OPT} -mem2reg -constprop -die -load $<TARGET_FILE:AccsyntPasses> -name ${NAIVE_F} -o ${OUTPUT_F}
     MAIN_DEPENDENCY "${NAIVE_F}"
+    DEPENDS $<TARGET_FILE:AccsyntPasses>
   )
 
   add_custom_target("${name}bc" ALL DEPENDS "${OUTPUT_F}")
@@ -33,6 +34,7 @@ function(add_json_example name)
 endfunction(add_json_example)
 
 add_bc_example(adds)
+add_bc_example(deps)
 add_bc_example(empty)
 add_bc_example(gemv)
 

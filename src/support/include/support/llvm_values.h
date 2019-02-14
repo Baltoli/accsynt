@@ -32,4 +32,8 @@ std::set<llvm::Type *> all_types(Container&& c)
 
 std::set<llvm::Value *> all_uses(llvm::Value *v);
 
+std::set<llvm::Value *> all_deps(llvm::Value *v);
+
+llvm::Value *get_by_name(llvm::Function& fn, std::string name);
+
 }

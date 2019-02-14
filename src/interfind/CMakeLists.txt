@@ -5,6 +5,7 @@ add_library(interfind
   src/common.cpp
   src/finder.cpp
   src/region.cpp
+  src/use_def.cpp
   src/visitors.cpp
 )
 
@@ -31,11 +32,16 @@ install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 install(EXPORT InterFindConfig DESTINATION share/InterFind/cmake)
 
 add_executable(interfind_unit
+  test/use_def.cpp
   test/main.cpp)
 
 target_link_libraries(interfind_unit
   interfind
+  support
   CONAN_PKG::catch2)
+
+target_compile_options(interfind_unit
+  PUBLIC -DRESOURCE_DIR="${CMAKE_BINARY_DIR}/inputs/")
 
 add_test(
   NAME interfind_unit

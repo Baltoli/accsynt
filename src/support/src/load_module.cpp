@@ -10,7 +10,7 @@ using namespace llvm;
 
 namespace support {
 
-std::unique_ptr<llvm::Module> parse_module(const std::string& str)
+std::unique_ptr<Module> parse_module(std::string const& str)
 {
   auto sm = SMDiagnostic{};
   auto buf = MemoryBuffer::getMemBuffer(str);
@@ -21,7 +21,21 @@ std::unique_ptr<llvm::Module> parse_module(const std::string& str)
     std::exit(1);
   }
 
-  llvm::verifyModule(*mod, &llvm::errs());
+  verifyModule(*mod, &errs());
+  return mod;
+}
+
+std::unique_ptr<Module> load_module(std::string const& path)
+{
+  auto& ctx = thread_context::get();
+  auto err = SMDiagnostic{};
+
+  auto mod = parseIRFile(path, err, ctx, true, "");
+  if(!mod) {
+    err.print("load_module", errs());
+    throw std::runtime_error("Error loading module: " + path);
+  }
+
   return mod;
 }
 
