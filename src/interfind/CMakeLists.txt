@@ -32,10 +32,12 @@ install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 install(EXPORT InterFindConfig DESTINATION share/InterFind/cmake)
 
 add_executable(interfind_unit
+  test/use_def.cpp
   test/main.cpp)
 
 target_link_libraries(interfind_unit
   interfind
+  support
   CONAN_PKG::catch2)
 
 add_test(
