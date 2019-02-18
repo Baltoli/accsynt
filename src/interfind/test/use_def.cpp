@@ -58,32 +58,32 @@ TEST_CASE("can compute use-def analyses", "[use_def]")
 
   SECTION("root set queries") {
 #define IS_ROOT(val, ...) \
-  REQUIRE(analysis.is_root_set(val, std::set{__VA_ARGS__}));
+  REQUIRE(analysis.is_root_set(val, std::set<llvm::Value *>{__VA_ARGS__}));
 
 #define IS_NOT_ROOT(val, ...) \
-  REQUIRE(!analysis.is_root_set(val, std::set{__VA_ARGS__}));
+  REQUIRE(!analysis.is_root_set(val, std::set<llvm::Value *>{__VA_ARGS__}));
 
     IS_ROOT(v0, arg0, arg1);
     IS_NOT_ROOT(v0, arg0);
     IS_NOT_ROOT(v0, arg1);
 
-    REQUIRE(analysis.is_root_set(v1, {arg0, arg1, arg2}));
-    REQUIRE(analysis.is_root_set(v1, {v0, arg2}));
-    REQUIRE(!analysis.is_root_set(v1, {arg0, arg1}));
-    REQUIRE(!analysis.is_root_set(v1, {arg0, arg2}));
-    REQUIRE(!analysis.is_root_set(v1, {arg1, arg2}));
-    REQUIRE(!analysis.is_root_set(v1, {v0}));
-    REQUIRE(!analysis.is_root_set(v1, {arg2}));
+    IS_ROOT(v1, arg0, arg1, arg2);
+    IS_ROOT(v1, v0, arg2);
+    IS_NOT_ROOT(v1, arg0, arg1);
+    IS_NOT_ROOT(v1, arg0, arg2);
+    IS_NOT_ROOT(v1, arg1, arg2);
+    IS_NOT_ROOT(v1, v0);
+    IS_NOT_ROOT(v1, arg2);
 
-    REQUIRE(analysis.is_root_set(v2, {arg0, arg1, arg2}));
-    REQUIRE(analysis.is_root_set(v2, {v1, arg1}));
-    REQUIRE(analysis.is_root_set(v2, {v0, arg1, arg2}));
-    REQUIRE(!analysis.is_root_set(v2, {arg0, arg1}));
+    IS_ROOT(v2, arg0, arg1, arg2);
+    IS_ROOT(v2, v1, arg1);
+    IS_ROOT(v2, v0, arg1, arg2);
+    IS_NOT_ROOT(v2, arg0, arg1);
 
-    REQUIRE(analysis.is_root_set(v3, {v2, arg2}));
-    REQUIRE(analysis.is_root_set(v3, {v1, arg1, arg2}));
-    REQUIRE(analysis.is_root_set(v3, {arg0, arg1, arg2}));
-    REQUIRE(!analysis.is_root_set(v3, {v0, arg2}));
+    IS_ROOT(v3, v2, arg2);
+    IS_ROOT(v3, v1, arg1, arg2);
+    IS_ROOT(v3, arg0, arg1, arg2);
+    IS_NOT_ROOT(v3, v0, arg2);
 
 #undef IS_ROOT
 #undef IS_NOT_ROOT

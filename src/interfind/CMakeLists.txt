@@ -35,6 +35,10 @@ add_executable(interfind_unit
   test/use_def.cpp
   test/main.cpp)
 
+target_compile_options(interfind_unit
+  PUBLIC -Wno-unused-value
+)
+
 target_link_libraries(interfind_unit
   interfind
   support
