@@ -34,7 +34,7 @@ llvm_map_components_to_libnames(llvm_libs
   x86asmprinter x86asmparser 
   x86codegen x86desc x86info 
   target mcjit interpreter 
-  passes IDLSolver)
+  passes transformutils IDLSolver)
 
 include(GNUInstallDirs)
 enable_testing()

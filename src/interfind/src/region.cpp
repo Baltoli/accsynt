@@ -7,10 +7,13 @@
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/Function.h>
 #include <llvm/IR/GlobalValue.h>
+#include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Type.h>
 #include <llvm/IR/Value.h>
+#include <llvm/Transforms/Utils/ValueMapper.h>
 
 #include <support/cartesian_product.h>
+#include <support/llvm_values.h>
 
 using namespace support;
 using namespace llvm;
@@ -27,20 +30,47 @@ region::region(Value *out, std::vector<Value *> in,
 {
 }
 
-llvm::Value* region::output() const
+Value* region::output() const
 {
   return output_;
 }
 
-std::vector<llvm::Value *> const& region::inputs() const
+std::vector<Value *> const& region::inputs() const
 {
   return inputs_;
 }
 
-llvm::Function *region::extract() const
+Function *region::extract() const
 {
   auto mod = original_.getParent();
   auto func = Function::Create(function_type_, GlobalValue::ExternalLinkage, "extracted_region", mod);
+
+  // TODO: handle other cases properly or refactor return type
+  auto i_out = dyn_cast<Instruction>(output_);
+  if(!i_out) {
+    throw std::runtime_error("Output value must be an instruction");
+  }
+
+  // map bbs and values to their translated equivalents?
+  /* auto v_map = ValueToValueMapTy{}; */
+  /* auto mapper = ValueMapper(v_map); */
+
+  /* auto bb = BasicBlock::Create(mod->getContext(), "", func); */
+  /* v_map[i_out->getParent()] = bb; */
+
+  /* auto i_clone = i_out->clone(); */
+  /* v_map[i_out] = i_clone; */
+
+  /* auto build = IRBuilder<>(bb); */
+  /* build.Insert(i_clone); */
+  /* build.CreateRet(i_clone); */
+
+  auto deps = all_deps(i_out);
+  for(auto dep : deps) {
+    errs() << *i_out << " depends on " << *dep << '\n';
+  }
+  errs() << '\n';
+
   return func;
 }
 
