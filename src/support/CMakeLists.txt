@@ -33,6 +33,7 @@ add_executable(support_unit
   test/traits.cpp
   test/load_module.cpp
   test/choose.cpp
+  test/llvm_values.cpp
   test/main.cpp)
 
 target_link_libraries(support_unit
@@ -41,7 +42,7 @@ target_link_libraries(support_unit
   CONAN_PKG::catch2)
 
 target_compile_options(support_unit
-  PUBLIC -DRESOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/test/inputs")
+  PUBLIC -DRESOURCE_DIR="${CMAKE_BINARY_DIR}/inputs/")
 
 add_test(NAME support_unit
          COMMAND $<TARGET_FILE:support_unit>)

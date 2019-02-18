@@ -65,7 +65,7 @@ Function *region::extract() const
   /* build.Insert(i_clone); */
   /* build.CreateRet(i_clone); */
 
-  auto deps = all_deps(i_out);
+  auto deps = topo_sort(all_deps(i_out));
   for(auto dep : deps) {
     errs() << *i_out << " depends on " << *dep << '\n';
   }
