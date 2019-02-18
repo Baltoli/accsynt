@@ -49,6 +49,12 @@ TEST_CASE("has_member_find works") {
     auto set = std::set{1, 2, 3};
     auto vec = std::vector{7, 5, 3, 1};
 
+    static_assert(has_member_find_v<decltype(set)>,
+                  "Set variable should have member find");
+
+    static_assert(!has_member_find_v<decltype(vec)>,
+                  "Vector variable should not have member find");
+
     auto s_found = container_find(set, 2);
     REQUIRE(s_found != set.end());
     REQUIRE(*s_found == 2);
