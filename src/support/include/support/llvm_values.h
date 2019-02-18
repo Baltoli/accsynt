@@ -34,6 +34,8 @@ std::set<llvm::Value *> all_uses(llvm::Value *v);
 
 std::set<llvm::Value *> all_deps(llvm::Value *v);
 
+std::vector<llvm::Value *> topo_sort(std::set<llvm::Value *> const& vals);
+
 llvm::Value *get_by_name(llvm::Function& fn, std::string name);
 
 }
