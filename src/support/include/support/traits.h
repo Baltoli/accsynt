@@ -58,3 +58,5 @@ decltype(auto) container_find(Container&& c, Key const& key)
 }
 
 #define static_fail(str) static_assert(support::lazy_false_v<void>, str)
+
+#define FWD(x) std::forward<decltype(x)>(x)

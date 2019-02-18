@@ -1,8 +1,12 @@
 #pragma once
 
 #include <llvm/IR/InstVisitor.h>
+#include <llvm/IR/Value.h>
+
+#include <support/traits.h>
 
 #include <map>
+#include <queue>
 #include <set>
 
 namespace llvm {
@@ -45,8 +49,8 @@ public:
    * values contained in `roots` without any improper cutting of edges? That is,
    * can `use` be expressed purely in terms of the values in `roots`?
    */
-  bool is_root_set(
-      llvm::Value *use, std::set<llvm::Value *> const& roots) const;
+  template <typename Container>
+  bool is_root_set(llvm::Value *use, Container&& roots) const;
 
 private:
   /**
@@ -60,5 +64,44 @@ private:
    */
   llvm::Function *function_;
 };
+
+
+/**
+ * Member function implementations.
+ */
+
+template <typename Container>
+bool use_def_analysis::is_root_set(llvm::Value *use, Container&& roots) const
+{
+  using std::end;
+
+  auto queue = std::queue<llvm::Value *>{{use}};
+
+  while(!queue.empty()) {
+    auto work = queue.front();
+    queue.pop();
+
+    auto&& found = support::container_find(FWD(roots), work);
+    if(found != end(roots)) {
+      // If the value we're looking at is in the query set, then we don't
+      // recurse into it.
+      continue;
+    }
+
+    if(auto inst = llvm::dyn_cast<llvm::Instruction>(work)) {
+      // If we find an instruction that isn't in the query set, we need to
+      // recurse into its operands.
+      for(auto& op : inst->operands()) {
+        queue.push(op);
+      }
+    } else {
+      // If we find something that isn't an instruction, but isn't in the query
+      // set, then it's an extra root and the query set isn't valid.
+      return false;
+    }
+  }
+
+  return true;
+}
 
 }
