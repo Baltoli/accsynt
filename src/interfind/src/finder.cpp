@@ -27,13 +27,19 @@ analysis_result finder::run(Module& mod, json config)
   auto find = finder(mod, config);
   auto sig_t = find.signature_.function_type();
 
+  auto fns = std::vector<Function *>{};
+
   for(auto& fn : mod) {
     if(!fn.isDeclaration()) {
-      auto rf = region_finder(fn, sig_t);
+      fns.push_back(&fn);
+    }
+  }
 
-      for(auto cand : rf.all_candidates()) {
-        auto f = cand.extract();
-      }
+  for(auto fn : fns) {
+    auto rf = region_finder(*fn, sig_t);
+
+    for(auto cand : rf.all_candidates()) {
+      auto f = cand.extract();
     }
   }
 

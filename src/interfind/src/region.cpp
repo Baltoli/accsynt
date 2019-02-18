@@ -52,24 +52,44 @@ Function *region::extract() const
   }
 
   // map bbs and values to their translated equivalents?
-  /* auto v_map = ValueToValueMapTy{}; */
-  /* auto mapper = ValueMapper(v_map); */
+  auto v_map = ValueToValueMapTy{};
+  auto mapper = ValueMapper(v_map);
 
-  /* auto bb = BasicBlock::Create(mod->getContext(), "", func); */
-  /* v_map[i_out->getParent()] = bb; */
+  auto i = 0;
+  for(auto input : inputs_) {
+    v_map[input] = func->arg_begin() + i;
+    ++i;
+  }
 
-  /* auto i_clone = i_out->clone(); */
-  /* v_map[i_out] = i_clone; */
+  auto bb = BasicBlock::Create(mod->getContext(), "", func);
+  v_map[i_out->getParent()] = bb;
 
-  /* auto build = IRBuilder<>(bb); */
-  /* build.Insert(i_clone); */
-  /* build.CreateRet(i_clone); */
+  auto build = IRBuilder<>(bb);
 
   auto deps = topo_sort(all_deps(i_out));
   for(auto dep : deps) {
-    errs() << *i_out << " depends on " << *dep << '\n';
+    if(auto i_dep = dyn_cast<Instruction>(dep)) {
+      if(v_map.find(i_dep) == v_map.end()) {
+        auto i_clone = i_dep->clone();
+        v_map[i_dep] = i_clone;
+        build.Insert(i_clone);
+
+        for(auto j = 0u; j < i_clone->getNumOperands(); ++j) {
+          i_clone->setOperand(j, v_map[i_clone->getOperand(j)]);
+        }
+      }
+    }
   }
-  errs() << '\n';
+
+  auto out_clone = build.Insert(i_out->clone());
+  for(auto j = 0u; j < out_clone->getNumOperands(); ++j) {
+    auto op = out_clone->getOperand(j);
+    if(v_map.find(op) != v_map.end()) {
+      out_clone->setOperand(j, v_map[op]);
+    }
+  }
+
+  build.CreateRet(out_clone);
 
   return func;
 }
