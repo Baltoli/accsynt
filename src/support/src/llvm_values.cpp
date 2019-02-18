@@ -59,8 +59,6 @@ namespace {
 
 void visit(Value *v, std::map<Value *, int>& marks, std::vector<Value *>& ret)
 {
-  marks.try_emplace(v, 0);
-
   // Permanently marked
   if(marks.at(v) == 1) {
     return;
@@ -89,9 +87,26 @@ std::vector<Value *> topo_sort(std::set<Value *> const& vals)
 
   if(!vals.empty()) {
     auto marks = std::map<Value *, int>{};
-    auto node = *vals.begin();
+    for(auto v : vals) {
+      marks.emplace(v, 0);
+    }
 
-    visit(node, marks, ret);
+    bool unmarked = true;
+    while(unmarked) {
+      unmarked = false;
+
+      for(auto [v, mark] : marks) {
+        if(mark == 0) {
+          visit(v, marks, ret);
+        }
+      }
+
+      for(auto [v, mark] : marks) {
+        if(mark == 0) {
+          unmarked = true;
+        }
+      }
+    }
   }
 
   return ret;
