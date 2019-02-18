@@ -146,11 +146,7 @@ std::vector<region> region_finder::all_candidates() const
     // rewriting the enumeration logic to take a callback so that we don't need
     // to store everything up front?
     for(auto arg_list : cartesian_product(arg_components)) {
-      auto root_set = std::set<llvm::Value *>{};
-      std::copy(arg_list.begin(), arg_list.end(),
-                std::inserter(root_set, root_set.begin()));
-
-      if(ud_analysis_.is_root_set(v, root_set)) {
+      if(ud_analysis_.is_root_set(v, arg_list)) {
         auto f_ty = FunctionType::get(return_type_, argument_types_, false);
         regions.emplace_back(v, arg_list, function_, f_ty);
       }
