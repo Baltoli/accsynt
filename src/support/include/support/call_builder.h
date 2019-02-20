@@ -12,8 +12,12 @@ namespace support {
 
 namespace detail {
 
+/**
+ * Extract the nth byte of a value, using memcpy (the only portable way to do
+ * type punning of the kind required here).
+ */
 template <typename T>
-constexpr uint8_t nth_byte(T val, size_t n)
+uint8_t nth_byte(T val, size_t n)
 {
   uint8_t data[sizeof(T)] = { 0 };
   memcpy(data, &val, sizeof(T));
@@ -22,32 +26,92 @@ constexpr uint8_t nth_byte(T val, size_t n)
 
 }
 
+/**
+ * Custom exception class for errors that occur during argument pack
+ * construction.
+ */
 class call_builder_error : public std::runtime_error {
 public:
   using std::runtime_error::runtime_error;
 };
 
+/**
+ * Responsible for accepting input arguments according to a type signature and
+ * combining them into an array of bytes that can be passed to a call wrapper.
+ *
+ * Builders can accept integer and floating point scalar values, and vectors of
+ * the same. Scalars are copied directly into the output array, while vector
+ * data is handled by storing copies of passed vector arguments inside the
+ * builder.
+ *
+ * The reason for this is that the implementation functions inside call wrappers
+ * accept pointers - an alternative design choice would be to copy data out into
+ * a central vector, and store argument pointers as offsets into that vector.
+ */
 class call_builder {
 public:
+  /**
+   * Construct with a type signature - the signature is used to check that each
+   * argument is correct when it is added to the pack.
+   */
   call_builder(props::signature sig);
 
+  /**
+   * Copy constructor and assignment using copy-and-swap. The copy constructor
+   * performs a deep copy of stored vectors, ensuring that the newly constructed
+   * builder has pointers into its own vectors.
+   */
   call_builder(call_builder const&);
   call_builder& operator=(call_builder);
 
+  /**
+   * Destroy the currently accumulated arguments and return to the beginning of
+   * the building process.
+   */
   void reset();
 
+  /**
+   * Add a scalar value to the argument pack, copying its bytes in directly. If
+   * the builder is not expecting a scalar argument of the passed type, an
+   * exception is thrown.
+   *
+   * T must be int or float.
+   */
   template <typename T>
   void add(T arg);
 
+  /**
+   * Add a vector to the argument pack. Copies the vector into the builder's
+   * internal storage, then writes the raw bytes of the newly copied vector's
+   * data pointer into the argument pack. If the builder is not expecting a
+   * vector argument of the passed type, an exception is thrown.
+   *
+   * T must be int or float.
+   */
   template <typename T>
   void add(std::vector<T> arg);
 
+  /**
+   * Access the signature being used to validate arguments.
+   */
   props::signature const& signature() const;
+
+  /**
+   * Get a pointer to the raw argument data being stored, suitable for being
+   * passed to a call wrapper function.
+   */
   uint8_t* args();
 
+  /**
+   * Deep equality comparison - descends into stored vectors rather than
+   * comparing pointer data for equality.
+   */
   bool operator==(call_builder const& other) const;
   bool operator!=(call_builder const& other) const;
 
+  /**
+   * ADL swap for copy-and-swap.
+   */
   friend void swap(call_builder& left, call_builder& right);
 
 private:
