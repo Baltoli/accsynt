@@ -66,7 +66,7 @@ Function *region::extract() const
 
   auto build = IRBuilder<>(bb);
 
-  auto deps = topo_sort(all_deps(i_out));
+  auto deps = topo_sort(all_deps(i_out, inputs_));
   for(auto dep : deps) {
     if(auto i_dep = dyn_cast<Instruction>(dep)) {
       if(v_map.find(i_dep) == v_map.end()) {
