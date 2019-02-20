@@ -10,6 +10,7 @@ add_library(support
   src/load_module.cpp
   src/dynamic_library.cpp
   src/choose.cpp
+  src/argument_generator.cpp
   src/thread_context.cpp)
 
 target_link_libraries(support
@@ -37,6 +38,7 @@ add_executable(support_unit
   test/traits.cpp
   test/load_module.cpp
   test/choose.cpp
+  test/argument_generator.cpp
   test/llvm_values.cpp
   test/main.cpp)
 
