@@ -10,7 +10,7 @@ using namespace support;
 
 using namespace llvm;
 
-namespace synth {
+namespace support {
 
 call_wrapper::call_wrapper(signature sig, 
                            llvm::Module const& mod, 

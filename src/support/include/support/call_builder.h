@@ -8,7 +8,7 @@
 #include <vector>
 #include <type_traits>
 
-namespace synth {
+namespace support {
 
 namespace detail {
 

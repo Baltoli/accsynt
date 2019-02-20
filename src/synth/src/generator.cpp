@@ -3,6 +3,7 @@
 #include <fmt/format.h>
 
 using namespace props;
+using namespace support;
 
 namespace synth {
 

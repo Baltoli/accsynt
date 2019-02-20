@@ -14,7 +14,7 @@
 
 #include <memory>
 
-namespace synth {
+namespace support {
 
 class call_wrapper {
 public:

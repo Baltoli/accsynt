@@ -7,6 +7,7 @@
 
 #include <llvm/Support/CommandLine.h>
 
+using namespace support;
 using namespace llvm;
 
 static cl::opt<int>

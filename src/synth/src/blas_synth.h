@@ -5,6 +5,7 @@
 #include "synthesizer.h"
 
 #include <props/props.h>
+#include <support/call_wrapper.h>
 
 namespace synth {
 
@@ -17,7 +18,7 @@ struct blas_control_data {
 
 class blas_synth : public synthesizer {
 public:
-  blas_synth(props::property_set ps, call_wrapper& wrap);
+  blas_synth(props::property_set ps, support::call_wrapper& wrap);
 
   std::string name() const override;
 

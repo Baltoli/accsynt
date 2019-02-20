@@ -6,7 +6,7 @@ using namespace support;
 
 using namespace llvm;
 
-namespace synth {
+namespace support {
 
 call_builder::call_builder(props::signature sig) :
   signature_(sig)
