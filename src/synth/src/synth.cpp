@@ -1,8 +1,8 @@
-#include "call_wrapper.h"
 #include "blas_synth.h"
 #include "rule_synth.h"
 
 #include <props/props.h>
+#include <support/call_wrapper.h>
 #include <support/dynamic_library.h>
 #include <support/thread_context.h>
 
