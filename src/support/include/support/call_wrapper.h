@@ -16,23 +16,79 @@
 
 namespace support {
 
+/**
+ * Encapsulates a callable object in an LLVM module and provides access to a
+ * builder that can be used to pass type-safe arguments at runtime based on the
+ * type signature of the object.
+ *
+ * The objects currently supported by this class are:
+ * - Shared library functions loaded using dlsym.
+ * - LLVM functions constructed using the LLVM API.
+ *
+ * A rough overview of how this class works is as follows:
+ *
+ * On construction, it creates a JIT execution engine. If constructed with a
+ * dynamic library, the library is registered with the engine. A reference to
+ * the "implementation" (shared library or LLVM function) is stored, and a
+ * wrapper function is created.
+ *
+ * This wrapper function always has the same type signature (returns i64,
+ * accepts pointer to i8) so that the builder can assemble arguments
+ * byte-by-byte, and the wrapper code can interpret the same. It is responsible
+ * for marshalling the bytewise data into values of the correct type and calling
+ * the implementation with them.
+ */
 class call_wrapper {
 public:
-  call_wrapper(props::signature sig, llvm::Module const& mod, std::string const& name);
-  call_wrapper(props::signature sig, llvm::Module const& mod, std::string const& name, support::dynamic_library const& dl);
+  /**
+   * Construct a wrapper for an existing function contained in a module. The
+   * function is looked up by name in the module.
+   */
+  call_wrapper(
+      props::signature sig, llvm::Module const& mod, std::string const& name);
 
+  /**
+   * Construct a wrapper for a symbol contained in a dynamic library. The name
+   * is looked up using dlsym and registered with the execution engine.
+   */
+  call_wrapper(
+      props::signature sig, llvm::Module const& mod, std::string const& name, 
+      dynamic_library const& dl);
+
+  /**
+   * Construct a call builder with the correct type signature for this wrapper.
+   */
   call_builder get_builder() const;
+
+  /**
+   * Call the wrapped function with an assembled argument pack, returning the
+   * function's return value.
+   */
   uint64_t call(call_builder& builder);
 
 private:
+  /**
+   * Runtime sizeof() for LLVM types - gets the size of a type when it is
+   * converted to raw bytes.
+   */
   size_t marshalled_size(llvm::Type const* type) const;
 
+  /**
+   * Creates a vector of i8 with the given size.
+   */
   template <typename Builder>
   llvm::Value *make_vector(Builder &B, size_t size) const;
 
+  /**
+   * Create a return instruction from the wrapper function, optionally returning
+   * a value if the type signature has a non-void return.
+   */
   template <typename Builder>
   llvm::Value *make_return(Builder &B, llvm::Value *ret = nullptr) const;
 
+  /**
+   * Build the marshalling and call logic for a function.
+   */
   llvm::Function *build_wrapper_function(llvm::Module& mod, llvm::Function *fn) const;
 
   props::signature signature_;
