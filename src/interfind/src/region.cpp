@@ -167,7 +167,7 @@ std::vector<region> region_finder::all_candidates() const
 
   auto vt = values_of_type(function_, return_type_);
   for(auto v : vt) {
-    if(is_global(v)) {
+    if(is_global(v) || isa<CastInst>(v)) {
       continue;
     }
 

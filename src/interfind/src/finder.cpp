@@ -45,19 +45,7 @@ analysis_result finder::run(Module& mod, json config)
     auto rf = region_finder(*fn, sig_t);
 
     for(auto cand : rf.all_candidates()) {
-      auto v_map = ValueToValueMapTy{};
-      auto cloned = CloneFunction(fn, v_map);
-
       auto f = cand.extract();
-      auto build = IRBuilder<>(cast<Instruction>(v_map[cand.output()]));
-
-      auto new_inputs = std::vector<llvm::Value *>{};
-      for(auto inp : cand.inputs()) {
-        new_inputs.push_back(v_map[inp]);
-      }
-
-      auto call = build.CreateCall(f, new_inputs);
-      v_map[cand.output()]->replaceAllUsesWith(call);
     }
   }
 
