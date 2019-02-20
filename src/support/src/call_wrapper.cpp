@@ -1,5 +1,4 @@
-#include "call_wrapper.h"
-
+#include <support/call_wrapper.h>
 #include <support/llvm_cloning.h>
 #include <support/thread_context.h>
 
@@ -11,7 +10,7 @@ using namespace support;
 
 using namespace llvm;
 
-namespace synth {
+namespace support {
 
 call_wrapper::call_wrapper(signature sig, 
                            llvm::Module const& mod, 
@@ -20,7 +19,11 @@ call_wrapper::call_wrapper(signature sig,
 {
   auto mod_copy = copy_module_to(thread_context::get(), mod);
 
-  impl_ = sig.create_function(*mod_copy);
+  impl_ = mod_copy->getFunction(name);
+  if(!impl_) {
+    impl_ = sig.create_function(*mod_copy);
+  }
+
   wrapper_ = build_wrapper_function(*mod_copy, impl_);
 
   auto topts = TargetOptions{};

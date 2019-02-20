@@ -28,7 +28,7 @@ TEST_CASE("can collect uses of values") {
   REQUIRE(v2_uses.find(v5) != v2_uses.end());
 }
 
-TEST_CASE("can collect dependents of values") {
+TEST_CASE("can collect dependencies of values") {
   auto mod = load_module(RESOURCE_DIR "deps.bc");
   auto& fn = *mod->begin();
 
@@ -36,30 +36,67 @@ TEST_CASE("can collect dependents of values") {
   VALUE(v0); VALUE(v1); VALUE(v2); 
   VALUE(v3); VALUE(v4); VALUE(v5);
 
-  auto v5_deps = all_deps(v5);
-  REQUIRE(v5_deps.size() == 8);
-  REQUIRE(v5_deps.find(arg0) != v5_deps.end());
-  REQUIRE(v5_deps.find(arg1) != v5_deps.end());
-  REQUIRE(v5_deps.find(arg2) != v5_deps.end());
-  REQUIRE(v5_deps.find(v0) != v5_deps.end());
-  REQUIRE(v5_deps.find(v1) != v5_deps.end());
-  REQUIRE(v5_deps.find(v2) != v5_deps.end());
-  REQUIRE(v5_deps.find(v3) != v5_deps.end());
-  REQUIRE(v5_deps.find(v4) != v5_deps.end());
+  SECTION("full tracing") {
+    auto v5_deps = all_deps(v5);
+    REQUIRE(v5_deps.size() == 8);
+    REQUIRE(v5_deps.find(arg0) != v5_deps.end());
+    REQUIRE(v5_deps.find(arg1) != v5_deps.end());
+    REQUIRE(v5_deps.find(arg2) != v5_deps.end());
+    REQUIRE(v5_deps.find(v0) != v5_deps.end());
+    REQUIRE(v5_deps.find(v1) != v5_deps.end());
+    REQUIRE(v5_deps.find(v2) != v5_deps.end());
+    REQUIRE(v5_deps.find(v3) != v5_deps.end());
+    REQUIRE(v5_deps.find(v4) != v5_deps.end());
 
-  auto arg0_deps = all_deps(arg0);
-  REQUIRE(arg0_deps.empty());
+    auto arg0_deps = all_deps(arg0);
+    REQUIRE(arg0_deps.empty());
 
-  auto v4_deps = all_deps(v4);
-  REQUIRE(v4_deps.size() == 2);
-  REQUIRE(v4_deps.find(arg0) != v4_deps.end());
-  REQUIRE(v4_deps.find(arg1) != v4_deps.end());
-  REQUIRE(v4_deps.find(arg2) == v4_deps.end());
-  REQUIRE(v4_deps.find(v0) == v4_deps.end());
-  REQUIRE(v4_deps.find(v1) == v4_deps.end());
-  REQUIRE(v4_deps.find(v2) == v4_deps.end());
-  REQUIRE(v4_deps.find(v3) == v4_deps.end());
-  REQUIRE(v4_deps.find(v4) == v4_deps.end());
+    auto v4_deps = all_deps(v4);
+    REQUIRE(v4_deps.size() == 2);
+    REQUIRE(v4_deps.find(arg0) != v4_deps.end());
+    REQUIRE(v4_deps.find(arg1) != v4_deps.end());
+    REQUIRE(v4_deps.find(arg2) == v4_deps.end());
+    REQUIRE(v4_deps.find(v0) == v4_deps.end());
+    REQUIRE(v4_deps.find(v1) == v4_deps.end());
+    REQUIRE(v4_deps.find(v2) == v4_deps.end());
+    REQUIRE(v4_deps.find(v3) == v4_deps.end());
+    REQUIRE(v4_deps.find(v4) == v4_deps.end());
+  }
+
+  SECTION("tracing to roots") {
+    auto v5_deps = all_deps(v5, {v3});
+    REQUIRE(v5_deps.size() == 4);
+    REQUIRE(v5_deps.find(arg0) != v5_deps.end());
+    REQUIRE(v5_deps.find(arg1) != v5_deps.end());
+    REQUIRE(v5_deps.find(arg2) == v5_deps.end());
+    REQUIRE(v5_deps.find(v0) == v5_deps.end());
+    REQUIRE(v5_deps.find(v1) == v5_deps.end());
+    REQUIRE(v5_deps.find(v2) == v5_deps.end());
+    REQUIRE(v5_deps.find(v3) != v5_deps.end());
+    REQUIRE(v5_deps.find(v4) != v5_deps.end());
+
+    auto v2_deps = all_deps(v2, {v1, arg1});
+    REQUIRE(v2_deps.size() == 2);
+    REQUIRE(v2_deps.find(arg0) == v2_deps.end());
+    REQUIRE(v2_deps.find(arg1) != v2_deps.end());
+    REQUIRE(v2_deps.find(arg2) == v2_deps.end());
+    REQUIRE(v2_deps.find(v0) == v2_deps.end());
+    REQUIRE(v2_deps.find(v1) != v2_deps.end());
+    REQUIRE(v2_deps.find(v2) == v2_deps.end());
+    REQUIRE(v2_deps.find(v3) == v2_deps.end());
+    REQUIRE(v2_deps.find(v4) == v2_deps.end());
+
+    auto v4_deps = all_deps(v4, {v0, v1, v2, v3});
+    REQUIRE(v4_deps.size() == 2);
+    REQUIRE(v4_deps.find(arg0) != v4_deps.end());
+    REQUIRE(v4_deps.find(arg1) != v4_deps.end());
+    REQUIRE(v4_deps.find(arg2) == v4_deps.end());
+    REQUIRE(v4_deps.find(v0) == v4_deps.end());
+    REQUIRE(v4_deps.find(v1) == v4_deps.end());
+    REQUIRE(v4_deps.find(v2) == v4_deps.end());
+    REQUIRE(v4_deps.find(v3) == v4_deps.end());
+    REQUIRE(v4_deps.find(v4) == v4_deps.end());
+  }
 }
 
 TEST_CASE("can topologically sort collections of values") {

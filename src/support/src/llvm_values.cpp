@@ -34,6 +34,11 @@ std::set<Value *> all_uses(Value *v)
 
 std::set<Value *> all_deps(Value *v)
 {
+  return all_deps(v, {});
+}
+
+std::set<Value *> all_deps(Value *v, std::vector<Value *> const& roots)
+{
   auto work = std::queue<Value *>{};
   work.push(v);
 
@@ -43,8 +48,12 @@ std::set<Value *> all_deps(Value *v)
     work.pop();
 
     if(auto user = dyn_cast<User>(dep)) {
-      for(auto& op : user->operands()) {
-        work.push(op);
+      auto found = std::find(roots.begin(), roots.end(), dep);
+
+      if(found == roots.end()) {
+        for(auto& op : user->operands()) {
+          work.push(op);
+        }
       }
     }
 
@@ -57,7 +66,7 @@ std::set<Value *> all_deps(Value *v)
 
 namespace {
 
-void visit(Value *v, std::map<Value *, int>& marks, std::vector<Value *>& ret)
+void visit(Value *v, std::set<Value *> const& vals, std::map<Value *, int>& marks, std::vector<Value *>& ret)
 {
   // Permanently marked
   if(marks.at(v) == 1) {
@@ -72,7 +81,9 @@ void visit(Value *v, std::map<Value *, int>& marks, std::vector<Value *>& ret)
   marks.at(v) = 2;
   if(auto user_v = dyn_cast<User>(v)) {
     for(auto& op : user_v->operands()) {
-      visit(op, marks, ret);
+      if(vals.find(op) != vals.end()) {
+        visit(op, vals, marks, ret);
+      }
     }
   }
   marks.at(v) = 1;
@@ -97,7 +108,7 @@ std::vector<Value *> topo_sort(std::set<Value *> const& vals)
 
       for(auto [v, mark] : marks) {
         if(mark == 0) {
-          visit(v, marks, ret);
+          visit(v, vals, marks, ret);
         }
       }
 

@@ -1,9 +1,9 @@
 #pragma once
 
 #include "blas_properties.h"
-#include "call_builder.h"
 
 #include <props/props.h>
+#include <support/call_builder.h>
 
 #include <limits>
 #include <map>
@@ -21,10 +21,10 @@ class generator {
 public:
   generator(props::property_set ps);
 
-  virtual void generate(call_builder& builder);
+  virtual void generate(support::call_builder& builder);
 
 protected:
-  virtual void generate_value(call_builder& builder,
+  virtual void generate_value(support::call_builder& builder,
                               props::param param);
 
   int random_int(int min = std::numeric_limits<int>::min(), 
@@ -55,7 +55,7 @@ class blas_generator : public generator {
 public:
   blas_generator(props::property_set ps);
 
-  void generate(call_builder& builder) override;
+  void generate(support::call_builder& builder) override;
 
 private:
   blas_properties blas_props_;

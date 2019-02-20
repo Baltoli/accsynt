@@ -1,9 +1,9 @@
-#include "call_builder.h"
+#include <support/call_builder.h>
 
 #include <catch2/catch.hpp>
 
 using namespace props;
-using namespace synth;
+using namespace support;
 
 TEST_CASE("Can extract the nth byte of values") {
   SECTION("for easy int vals") {

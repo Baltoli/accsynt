@@ -1,5 +1,4 @@
-#include "call_builder.h"
-
+#include <support/call_builder.h>
 #include <support/float_compare.h>
 
 using namespace props;
@@ -7,7 +6,7 @@ using namespace support;
 
 using namespace llvm;
 
-namespace synth {
+namespace support {
 
 call_builder::call_builder(props::signature sig) :
   signature_(sig)

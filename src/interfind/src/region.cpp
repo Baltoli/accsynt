@@ -66,7 +66,7 @@ Function *region::extract() const
 
   auto build = IRBuilder<>(bb);
 
-  auto deps = topo_sort(all_deps(i_out));
+  auto deps = topo_sort(all_deps(i_out, inputs_));
   for(auto dep : deps) {
     if(auto i_dep = dyn_cast<Instruction>(dep)) {
       if(v_map.find(i_dep) == v_map.end()) {
@@ -75,7 +75,17 @@ Function *region::extract() const
         build.Insert(i_clone);
 
         for(auto j = 0u; j < i_clone->getNumOperands(); ++j) {
-          i_clone->setOperand(j, v_map[i_clone->getOperand(j)]);
+          auto new_operand = [&] () -> llvm::Value * {
+            auto oper = i_clone->getOperand(j);
+            if(v_map.find(oper) == v_map.end()) {
+              // Can we assert anything about the operand?
+              return oper;
+            } else {
+              return v_map[oper];
+            }
+          }();
+
+          i_clone->setOperand(j, new_operand);
         }
       }
     }
@@ -167,7 +177,7 @@ std::vector<region> region_finder::all_candidates() const
 
   auto vt = values_of_type(function_, return_type_);
   for(auto v : vt) {
-    if(is_global(v)) {
+    if(is_global(v) || isa<CastInst>(v)) {
       continue;
     }
 
