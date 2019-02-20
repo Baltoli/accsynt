@@ -1,5 +1,6 @@
 #pragma once
 
+#include <llvm/IR/Constant.h>
 #include <llvm/IR/InstVisitor.h>
 #include <llvm/IR/Value.h>
 
@@ -94,7 +95,7 @@ bool use_def_analysis::is_root_set(llvm::Value *use, Container&& roots) const
       for(auto& op : inst->operands()) {
         queue.push(op);
       }
-    } else {
+    } else if(!llvm::isa<llvm::Constant>(work)) {
       // If we find something that isn't an instruction, but isn't in the query
       // set, then it's an extra root and the query set isn't valid.
       return false;

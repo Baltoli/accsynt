@@ -75,7 +75,17 @@ Function *region::extract() const
         build.Insert(i_clone);
 
         for(auto j = 0u; j < i_clone->getNumOperands(); ++j) {
-          i_clone->setOperand(j, v_map[i_clone->getOperand(j)]);
+          auto new_operand = [&] () -> llvm::Value * {
+            auto oper = i_clone->getOperand(j);
+            if(v_map.find(oper) == v_map.end()) {
+              // Can we assert anything about the operand?
+              return oper;
+            } else {
+              return v_map[oper];
+            }
+          }();
+
+          i_clone->setOperand(j, new_operand);
         }
       }
     }

@@ -3,6 +3,7 @@
 #include <interfind/analysis.h>
 
 #include <props/props.h>
+#include <support/dynamic_library.h>
 
 #include <nlohmann/json_fwd.hpp>
 
@@ -33,6 +34,7 @@ private:
   llvm::Module& module_;
   props::signature signature_;
   std::filesystem::path library_path_;
+  support::dynamic_library dynamic_library_;
 };
 
 }

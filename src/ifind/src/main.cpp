@@ -10,6 +10,7 @@
 #include <llvm/Support/MemoryBuffer.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Support/SourceMgr.h>
+#include <llvm/Support/TargetSelect.h>
 #include <llvm/Transforms/Utils/Cloning.h>
 
 #include <nlohmann/json.hpp>
@@ -78,6 +79,10 @@ cl::alias OutputShort(
 
 int main(int argc, char **argv) try
 {
+  InitializeNativeTarget();
+  LLVMInitializeX86AsmPrinter();
+  LLVMInitializeX86AsmParser();
+
   cl::ParseCommandLineOptions(argc, argv);
 
   auto& ctx = ::support::thread_context::get();
