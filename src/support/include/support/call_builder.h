@@ -172,8 +172,15 @@ void call_builder::add(std::vector<T> arg)
   assert(current_arg_ < signature_.parameters.size());
 
   auto param = signature_.parameters.at(current_arg_);
-  assert((std::is_same_v<T, int> == (param.type == props::data_type::integer)));
-  assert((std::is_same_v<T, float> == (param.type == props::data_type::floating)));
+
+  if constexpr(std::is_same_v<T, int>) {
+    assert(param.type == props::data_type::integer);
+  }
+
+  if constexpr(std::is_same_v<T, float>) { 
+    assert(param.type == props::data_type::floating);
+  }
+
   assert(param.pointer_depth == 1);
 
   void *data = nullptr;
