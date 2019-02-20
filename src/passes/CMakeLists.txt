@@ -4,6 +4,7 @@ add_library(AccsyntPasses SHARED
   src/namer.cpp
   src/to_idl.cpp
   src/translate.cpp
+  src/deduplicate.cpp
   src/opcode.cpp)
 
 target_link_libraries(AccsyntPasses

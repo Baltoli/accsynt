@@ -7,6 +7,8 @@
 
 #include <nlohmann/json.hpp>
 
+#include <passes/passes.h>
+
 using namespace llvm;
 using namespace props;
 using json = nlohmann::json;
@@ -38,6 +40,8 @@ analysis_result finder::run(Module& mod, json config)
   }
 
   for(auto fn : fns) {
+    createDeduplicatePass()->runOnFunction(*fn);
+
     auto rf = region_finder(*fn, sig_t);
 
     for(auto cand : rf.all_candidates()) {
