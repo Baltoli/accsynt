@@ -10,8 +10,6 @@ add_library(coresynth
   src/blas_synth.cpp
   src/rule_synth.cpp
   src/generator.cpp
-  src/call_builder.cpp
-  src/call_wrapper.cpp
   src/accessor.cpp
   src/compile_context.cpp
   src/compile_metadata.cpp
@@ -28,7 +26,6 @@ add_executable(fragment-demo
 add_executable(synth_unit
   test/regular_loop_fragment.cpp
   test/linear_fragment.cpp
-  test/call_builder.cpp
   test/main.cpp)
 
 target_link_libraries(coresynth

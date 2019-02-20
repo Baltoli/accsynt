@@ -1,7 +1,8 @@
 #pragma once
 
-#include "call_wrapper.h"
 #include "generator.h"
+
+#include <support/call_wrapper.h>
 
 #include <llvm/IR/Function.h>
 #include <llvm/IR/Module.h>

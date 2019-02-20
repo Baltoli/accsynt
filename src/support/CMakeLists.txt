@@ -1,6 +1,8 @@
 project(libsupport VERSION 0.1 LANGUAGES CXX)
 
 add_library(support
+  src/call_builder.cpp
+  src/call_wrapper.cpp
   src/float_compare.cpp
   src/random.cpp
   src/llvm_values.cpp
@@ -12,6 +14,7 @@ add_library(support
 
 target_link_libraries(support
   ${llvm_libs}
+  props
   dl)
 
 target_include_directories(support PUBLIC
@@ -28,6 +31,7 @@ install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 install(EXPORT SupportConfig DESTINATION share/Support/cmake)
 
 add_executable(support_unit
+  test/call_builder.cpp
   test/cartesian_product.cpp
   test/floats.cpp
   test/traits.cpp
