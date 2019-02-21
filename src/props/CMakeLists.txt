@@ -10,6 +10,7 @@ add_library(props
 target_link_libraries(props
   ${llvm_libs}
   support
+  CONAN_PKG::fmt
   CONAN_PKG::pegtl)
 
 target_include_directories(props PUBLIC
@@ -29,6 +30,7 @@ add_executable(props_unit
   test/main.cpp
   test/llvm.cpp
   test/usage.cpp
+  test/printing.cpp
   test/parsing.cpp)
 
 target_link_libraries(props_unit

@@ -2,6 +2,11 @@
 
 #include <interfind/use_def.h>
 
+#include <support/llvm_format.h>
+
+#include <fmt/format.h>
+#include <nlohmann/json.hpp>
+
 #include <map>
 #include <vector>
 
@@ -42,6 +47,8 @@ private:
   llvm::Function &original_;
   llvm::FunctionType *function_type_;
 };
+
+void to_json(nlohmann::json&, region const&);
 
 /**
  * Responsible for searching a function for candidate regions with the given
@@ -107,3 +114,18 @@ private:
 };
 
 }
+
+template <>
+struct fmt::formatter<interfind::region> {
+  template <typename ParseContext>
+  constexpr auto parse(ParseContext& ctx)
+  {
+    return ctx.begin();
+  }
+
+  template <typename FormatContext>
+  auto format(const interfind::region& region, FormatContext& ctx)
+  {
+    return format_to(ctx.out(), nlohmann::json(region).dump(2));
+  }
+};
