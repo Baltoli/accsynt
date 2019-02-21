@@ -1,4 +1,6 @@
-#include <interfind/interfind.h>
+#include <interfind/analysis.h>
+#include <interfind/format.h>
+#include <interfind/region.h>
 
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
