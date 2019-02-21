@@ -42,3 +42,17 @@ TEST_CASE("can print signatures") {
   auto sig3 = signature::parse(str3);
   REQUIRE_THAT(fmt::format("{}", sig3), Equals(str3));
 }
+
+TEST_CASE("can print values") {
+  auto v1 = value::with_int(3);
+  REQUIRE_THAT(fmt::format("{}", v1), Equals(fmt::format("{}", 3)));
+
+  auto v2 = value::with_float(45.2);
+  REQUIRE_THAT(fmt::format("{}", v2), Equals(fmt::format("{}", 45.2)));
+
+  auto v3 = value::with_param("wef");
+  REQUIRE_THAT(fmt::format("{}", v3), Equals(fmt::format("{}", "wef")));
+
+  auto v4 = value::with_string("woo");
+  REQUIRE_THAT(fmt::format("{}", v4), Equals(fmt::format("\"{}\"", "woo")));
+}

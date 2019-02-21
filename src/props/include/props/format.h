@@ -68,3 +68,33 @@ struct fmt::formatter<props::signature> {
       ret, sig.name, join(sig.parameters.begin(), sig.parameters.end(), ", "));
   }
 };
+
+template <>
+struct fmt::formatter<props::value> {
+  template <typename ParseContext>
+  constexpr auto parse(ParseContext& ctx)
+  {
+    return ctx.begin();
+  }
+
+  template <typename FormatContext>
+  auto format(const props::value& val, FormatContext& ctx)
+  {
+    switch(val.value_type) {
+      case props::value::type::integer:
+        return format_to(ctx.out(), "{}", val.int_val);
+        break;
+      case props::value::type::floating:
+        return format_to(ctx.out(), "{}", val.float_val);
+        break;
+      case props::value::type::parameter:
+        return format_to(ctx.out(), "{}", val.param_val);
+        break;
+      case props::value::type::string:
+        return format_to(ctx.out(), "\"{}\"", val.string_val);
+        break;
+    }
+
+    return format_to(ctx.out(), "<BADVAL>");
+  }
+};
