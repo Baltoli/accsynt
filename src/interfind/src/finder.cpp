@@ -3,6 +3,7 @@
 
 #include <passes/passes.h>
 
+#include <support/argument_generator.h>
 #include <support/call_wrapper.h>
 
 #include <llvm/IR/IRBuilder.h>
@@ -57,18 +58,20 @@ analysis_result finder::run(Module& mod, json config)
       auto f = cand.extract();
       auto wrapped = call_wrapper(find.signature_, mod, f->getName());
 
-      auto ref_b = reference.get_builder();
-      auto wrap_b = wrapped.get_builder();
+      auto gen = argument_generator(uniform_generator());
 
-      ref_b.add(3.0f);
-      ref_b.add(7.0f);
-      wrap_b.add(3.0f);
-      wrap_b.add(7.0f);
+      for(auto i = 0; i < 100; ++i) {
+        auto build = reference.get_builder();
+        gen.gen_args(build);
 
-      auto rr = reference.call(ref_b);
-      auto wr = wrapped.call(wrap_b);
+        auto rr = reference.call(build);
+        auto wr = wrapped.call(build);
 
-      f->removeFromParent();
+        if(rr != wr) {
+          f->removeFromParent();
+          break;
+        }
+      }
     }
   }
 
