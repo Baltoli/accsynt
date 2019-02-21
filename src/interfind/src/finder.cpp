@@ -6,6 +6,7 @@
 #include <support/argument_generator.h>
 #include <support/call_wrapper.h>
 
+#include <llvm/IR/Instructions.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Module.h>
 #include <llvm/Transforms/Utils/Cloning.h>
@@ -38,6 +39,7 @@ analysis_result finder::run(Module& mod, json config)
   auto reference = call_wrapper(
     find.signature_, mod, find.signature_.name,
     find.dynamic_library_);
+  auto ref_decl = find.signature_.create_function(mod);
 
   auto sig_t = find.signature_.function_type();
 
@@ -60,6 +62,7 @@ analysis_result finder::run(Module& mod, json config)
 
       auto gen = argument_generator(uniform_generator());
 
+      auto remap = true;
       for(auto i = 0; i < 100; ++i) {
         auto build = reference.get_builder();
         gen.gen_args(build);
@@ -68,9 +71,17 @@ analysis_result finder::run(Module& mod, json config)
         auto wr = wrapped.call(build);
 
         if(rr != wr) {
-          f->removeFromParent();
-          break;
+          remap = false;
         }
+      }
+          
+      f->removeFromParent();
+
+      if(remap) {
+        auto pos = dyn_cast<Instruction>(cand.output());
+        auto call = CallInst::Create(ref_decl, cand.inputs(), "remap_call", pos);
+        pos->replaceAllUsesWith(call);
+        break;
       }
     }
   }
