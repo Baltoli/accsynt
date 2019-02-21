@@ -5,7 +5,7 @@
 #include <support/llvm_format.h>
 
 #include <fmt/format.h>
-#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 
 #include <map>
 #include <vector>

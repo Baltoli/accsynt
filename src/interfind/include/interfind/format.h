@@ -3,6 +3,7 @@
 #include <interfind/interfind.h>
 
 #include <fmt/format.h>
+#include <nlohmann/json.hpp>
 
 template <>
 struct fmt::formatter<interfind::region> {

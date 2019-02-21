@@ -5,7 +5,7 @@
 #include <props/props.h>
 
 #include <fmt/format.h>
-#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 
 #include <vector>
 
