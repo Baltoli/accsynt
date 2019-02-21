@@ -6,6 +6,8 @@
 
 namespace support {
 
+std::random_device& get_random_device();
+
 template <typename Iterator>
 auto uniform_sample(Iterator begin, Iterator end)
 {
