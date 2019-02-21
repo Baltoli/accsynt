@@ -116,7 +116,15 @@ int main(int argc, char **argv) try
     buffer.get()->getBufferStart(), 
     buffer.get()->getBufferEnd());
 
-  auto result = finder::run(*mod, config);
+  auto result = [&] {
+    if(AnalysisOnly) {
+      auto clone = CloneModule(*mod);
+      return finder::run(*clone, config);
+    } else {
+      return finder::run(*mod, config);
+    }
+  }();
+
   if(!Silent) {
     if(AnalysisOutput == "-") {
       errs() << fmt::format("{}\n", result);
@@ -135,16 +143,8 @@ int main(int argc, char **argv) try
     }
   }
 
-  auto output_mod = [&] {
-    if(AnalysisOnly) {
-      return CloneModule(*mod);
-    } else {
-      return std::move(mod);
-    }
-  }();
-
   if(Output == "-") {
-    outs() << *output_mod << '\n';
+    outs() << *mod << '\n';
   } else {
     auto ec = std::error_code{};
     auto fout = raw_fd_ostream(Output, ec);
@@ -156,7 +156,7 @@ int main(int argc, char **argv) try
       return 5;
     }
 
-    WriteBitcodeToFile(*output_mod, fout);
+    WriteBitcodeToFile(*mod, fout);
   }
 } catch(json::parse_error const& pe) {
   errs() << fmt::format("Error parsing JSON file: {}\n", pe.what());
