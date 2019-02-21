@@ -1,4 +1,6 @@
 #pragma once
+
+#include <support/traits.h>
  
 #include <limits>
 #include <memory>
@@ -35,7 +37,7 @@ public:
 
   template <typename T>
   struct model : concept {
-    model(T& obj) :
+    model(T obj) :
       object_(obj)
     {
     }
@@ -51,7 +53,7 @@ public:
     }
 
   private:
-    T& object_;
+    T object_;
   };
 
 private:
