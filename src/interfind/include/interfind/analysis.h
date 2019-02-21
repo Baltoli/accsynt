@@ -35,19 +35,3 @@ private:
 void to_json(nlohmann::json& j, analysis_result const& ar);
 
 }
-
-template <>
-struct fmt::formatter<interfind::analysis_result> {
-  template <typename ParseContext>
-  constexpr auto parse(ParseContext& ctx)
-  {
-    return ctx.begin();
-  }
-
-  template <typename FormatContext>
-  auto format(interfind::analysis_result const& ar, FormatContext& ctx)
-  {
-    auto js = nlohmann::json(ar);
-    return format_to(ctx.out(), "{}\n", js.dump(2));
-  }
-};

@@ -6,3 +6,5 @@
 #include <interfind/region.h>
 #include <interfind/use_def.h>
 #include <interfind/visitors.h>
+
+#include <interfind/format.h>
