@@ -32,11 +32,11 @@ struct not_gen3 {
 };
 
 TEST_CASE("argument concepts work") {
-  static_assert(is_generator_v<gen>, "gen is not a generator");
-  static_assert(is_generator_v<gen2>, "gen2 is not a generator");
-  static_assert(!is_generator_v<not_gen>, "not_gen is a generator");
-  static_assert(!is_generator_v<not_gen2>, "not_gen2 is a generator");
-  static_assert(!is_generator_v<not_gen3>, "not_gen3 is a generator");
+  static_assert(detail::is_generator_v<gen>, "gen is not a generator");
+  static_assert(detail::is_generator_v<gen2>, "gen2 is not a generator");
+  static_assert(!detail::is_generator_v<not_gen>, "not_gen is a generator");
+  static_assert(!detail::is_generator_v<not_gen2>, "not_gen2 is a generator");
+  static_assert(!detail::is_generator_v<not_gen3>, "not_gen3 is a generator");
 }
 
 TEST_CASE("type erasure works") {
