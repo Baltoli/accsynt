@@ -44,6 +44,15 @@ struct fmt::formatter<interfind::analysis_result> {
   template <typename FormatContext>
   auto format(const interfind::analysis_result& ar, FormatContext& ctx)
   {
-    return format_to(ctx.out(), "ANALYSIS");
+    using namespace fmt::literals;
+
+    auto format = ""
+R"(ANALYSIS
+signature: {sig}
+)";
+
+    return format_to(ctx.out(), format, 
+      "sig"_a = ar.signature()
+    );
   }
 };
