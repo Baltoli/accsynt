@@ -32,6 +32,8 @@ private:
   std::vector<region> regions_;
 };
 
+void to_json(nlohmann::json& j, analysis_result const& ar);
+
 }
 
 template <>
@@ -43,19 +45,9 @@ struct fmt::formatter<interfind::analysis_result> {
   }
 
   template <typename FormatContext>
-  auto format(const interfind::analysis_result& ar, FormatContext& ctx)
+  auto format(interfind::analysis_result const& ar, FormatContext& ctx)
   {
-    using namespace fmt::literals;
-
-    auto format = 1 + R"(
-ANALYSIS
-signature: {sig}
-
-{regions})";
-
-    return format_to(ctx.out(), format, 
-      "sig"_a = ar.signature(),
-      "regions"_a = join(ar.regions().begin(), ar.regions().end(), "\n")
-    );
+    auto js = nlohmann::json(ar);
+    return format_to(ctx.out(), "{}\n", js.dump(2));
   }
 };

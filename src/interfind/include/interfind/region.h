@@ -5,6 +5,7 @@
 #include <support/llvm_format.h>
 
 #include <fmt/format.h>
+#include <nlohmann/json.hpp>
 
 #include <map>
 #include <vector>
@@ -46,6 +47,8 @@ private:
   llvm::Function &original_;
   llvm::FunctionType *function_type_;
 };
+
+void to_json(nlohmann::json&, region const&);
 
 /**
  * Responsible for searching a function for candidate regions with the given
@@ -123,18 +126,6 @@ struct fmt::formatter<interfind::region> {
   template <typename FormatContext>
   auto format(const interfind::region& region, FormatContext& ctx)
   {
-    using namespace fmt::literals;
-
-    auto format = 1 + R"(
-region:
-  output: {out}
-  inputs:
-    {in}
-)";
-
-    return format_to(ctx.out(), format,
-      "out"_a = region.output(),
-      "in"_a = join(region.inputs().begin(), region.inputs().end(), "\n    ")
-    );
+    return format_to(ctx.out(), nlohmann::json(region).dump(2));
   }
 };
