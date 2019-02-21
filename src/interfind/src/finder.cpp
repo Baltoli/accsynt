@@ -64,7 +64,7 @@ analysis_result finder::run(Module& mod, json config)
 
       auto gen = argument_generator(uniform_generator());
 
-      auto remap = true;
+      auto correct = true;
       for(auto i = 0; i < 100; ++i) {
         auto build = reference.get_builder();
         gen.gen_args(build);
@@ -73,19 +73,15 @@ analysis_result finder::run(Module& mod, json config)
         auto wr = wrapped.call(build);
 
         if(rr != wr) {
-          remap = false;
+          correct = false;
+          break;
         }
       }
           
       f->removeFromParent();
 
-      if(remap) {
+      if(correct) {
         result.add_candidate_region(cand);
-
-        auto pos = dyn_cast<Instruction>(cand.output());
-        auto call = CallInst::Create(ref_decl, cand.inputs(), "remap_call", pos);
-        pos->replaceAllUsesWith(call);
-        break;
       }
     }
   }
