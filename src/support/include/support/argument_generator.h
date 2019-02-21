@@ -4,6 +4,7 @@
  
 #include <limits>
 #include <memory>
+#include <random>
 #include <type_traits>
 
 namespace support {
@@ -36,7 +37,8 @@ struct is_generator<T,
       int>,
     std::is_same<
       decltype(std::declval<T>().gen_float(0.0f, 0.0f)), 
-      float>
+      float>,
+    std::is_copy_constructible<T>
   > {};
 
 /**
@@ -132,6 +134,18 @@ private:
 
 protected:
   std::unique_ptr<concept> strategy_;
+};
+
+class uniform_generator {
+public:
+  uniform_generator();
+
+  int gen_int(int min, int max);
+  float gen_float(float min, float max);
+
+private:
+  /* std::random_device rd_; */
+  /* std::default_random_engine engine_; */
 };
 
 }

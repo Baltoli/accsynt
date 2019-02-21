@@ -103,3 +103,6 @@ TEST_CASE("rule of 5 works") {
     REQUIRE(ag.gen_float() == ag5.gen_float());
   }
 }
+
+TEST_CASE("uniform generator works") {
+}
