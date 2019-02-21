@@ -1,6 +1,9 @@
 #pragma once
 
+#include <support/call_builder.h>
 #include <support/traits.h>
+
+#include <props/props.h>
  
 #include <limits>
 #include <memory>
@@ -97,6 +100,12 @@ public:
   {
     return strategy_->gen_float(min, max);
   }
+
+  /**
+   * Generate arguments using the wrapped strategy, filling them into the call
+   * builder.
+   */
+  void gen_args(call_builder&);
 
 private:
   // Type erasure
