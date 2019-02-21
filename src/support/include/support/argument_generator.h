@@ -4,8 +4,30 @@
  
 #include <limits>
 #include <memory>
+#include <type_traits>
 
 namespace support {
+
+template <typename, typename = std::void_t<>>
+struct is_generator : std::false_type {};
+
+template <typename T>
+struct is_generator<T,
+  std::void_t<
+    decltype(std::declval<T>().gen_int(0, 0)),
+    decltype(std::declval<T>().gen_float(0.0f, 0.0f))
+  >> : 
+  std::conjunction<
+    std::is_same<
+      decltype(std::declval<T>().gen_int(0, 0)), 
+      int>,
+    std::is_same<
+      decltype(std::declval<T>().gen_float(0.0f, 0.0f)), 
+      float>
+  > {};
+
+template <typename T>
+constexpr bool is_generator_v = is_generator<T>::value;
 
 class argument_generator {
 public:
@@ -13,6 +35,7 @@ public:
   argument_generator(T&& strat) :
     strategy_(std::make_unique<model<T>>(strat))
   {
+    static_assert(is_generator_v<std::decay_t<T>>, "Not a generator");
   }
 
   // Interface
