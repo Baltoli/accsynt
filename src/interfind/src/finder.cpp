@@ -34,9 +34,9 @@ finder::finder(llvm::Module& mod, nlohmann::json conf) :
 
 analysis_result finder::run(Module& mod, json config)
 {
-  auto result = analysis_result();
-
   auto find = finder(mod, config);
+
+  auto result = analysis_result(find.signature_);
 
   auto reference = call_wrapper(
     find.signature_, mod, find.signature_.name,
@@ -80,6 +80,8 @@ analysis_result finder::run(Module& mod, json config)
       f->removeFromParent();
 
       if(remap) {
+        result.add_candidate_region(cand);
+
         auto pos = dyn_cast<Instruction>(cand.output());
         auto call = CallInst::Create(ref_decl, cand.inputs(), "remap_call", pos);
         pos->replaceAllUsesWith(call);
