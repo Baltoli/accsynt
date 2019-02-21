@@ -37,6 +37,7 @@ add_bc_example(adds)
 add_bc_example(deps)
 add_bc_example(empty)
 add_bc_example(gemv)
+add_bc_example(branch)
 
 add_json_example(basic)
 add_json_example(empty)
