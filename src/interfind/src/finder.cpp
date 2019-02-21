@@ -34,6 +34,8 @@ finder::finder(llvm::Module& mod, nlohmann::json conf) :
 
 analysis_result finder::run(Module& mod, json config)
 {
+  auto result = analysis_result();
+
   auto find = finder(mod, config);
 
   auto reference = call_wrapper(
@@ -86,7 +88,7 @@ analysis_result finder::run(Module& mod, json config)
     }
   }
 
-  return {};
+  return result;
 }
 
 }

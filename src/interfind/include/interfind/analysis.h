@@ -1,5 +1,7 @@
 #pragma once
 
+#include <props/props.h>
+
 #include <fmt/format.h>
 
 namespace interfind {
