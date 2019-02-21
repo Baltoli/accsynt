@@ -38,7 +38,8 @@ struct is_generator<T,
     std::is_same<
       decltype(std::declval<T>().gen_float(0.0f, 0.0f)), 
       float>,
-    std::is_copy_constructible<T>
+    std::is_copy_constructible<T>,
+    std::is_move_constructible<T>
   > {};
 
 /**
@@ -139,13 +140,13 @@ protected:
 class uniform_generator {
 public:
   uniform_generator();
+  uniform_generator(std::random_device::result_type);
 
   int gen_int(int min, int max);
   float gen_float(float min, float max);
 
 private:
-  /* std::random_device rd_; */
-  /* std::default_random_engine engine_; */
+  std::default_random_engine engine_;
 };
 
 }

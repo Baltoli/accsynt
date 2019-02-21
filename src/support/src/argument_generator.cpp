@@ -1,4 +1,5 @@
 #include <support/argument_generator.h>
+#include <support/random.h>
 
 namespace support {
 
@@ -23,21 +24,24 @@ void swap(argument_generator& a, argument_generator& b)
 
 
 // Uniform generator implementation
-uniform_generator::uniform_generator()
-  /* rd_(), engine_(rd_()) */
+uniform_generator::uniform_generator() :
+  engine_(get_random_device()())
+{
+}
+
+uniform_generator::uniform_generator(std::random_device::result_type seed) :
+  engine_(seed)
 {
 }
 
 int uniform_generator::gen_int(int min, int max)
 {
-  return 0;
-  /* return std::uniform_int_distribution<int>(min, max)(engine_); */
+  return std::uniform_int_distribution<int>(min, max)(engine_);
 }
 
 float uniform_generator::gen_float(float min, float max)
 {
-  return 0;
-  /* return std::uniform_real_distribution<float>(min, max)(engine_); */
+  return std::uniform_real_distribution<float>(min, max)(engine_);
 }
 
 }

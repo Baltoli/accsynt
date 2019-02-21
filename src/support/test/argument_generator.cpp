@@ -105,4 +105,51 @@ TEST_CASE("rule of 5 works") {
 }
 
 TEST_CASE("uniform generator works") {
+  SECTION("it is a valid generator") {
+    static_assert(detail::is_generator_v<uniform_generator>, 
+                  "Uniform generator needs to be a valid generator");
+  }
+
+  SECTION("it can generate values") {
+    auto ug = uniform_generator();
+
+    for(int i = 0; i < 100; ++i) {
+      auto v1 = ug.gen_int(-10, 10);
+      REQUIRE(v1 >= -10);
+      REQUIRE(v1 <= 10);
+
+      auto v2 = ug.gen_float(20.1, 33.7);
+      REQUIRE(v2 >= 20.1);
+      REQUIRE(v2 < 33.7);
+    }
+  }
+
+  SECTION("it can be seeded") {
+    auto ug1 = uniform_generator(10);
+    auto ug2 = uniform_generator(10);
+
+    for(int i = 0; i < 100; ++i) {
+      REQUIRE(ug1.gen_int(-100, 100) == ug2.gen_int(-100, 100));
+      REQUIRE(ug1.gen_float(2.22, 3.33) == Approx(ug2.gen_float(2.22, 3.33)));
+    }
+  }
+
+  SECTION("it can be wrapped properly") {
+    auto ug = uniform_generator();
+    auto g = argument_generator(ug);
+
+    for(int i = 0; i < 100; ++i) {
+      REQUIRE(g.gen_int(0) >= 0);
+
+      auto v = g.gen_int(-10, -6);
+      REQUIRE(v >= -10);
+      REQUIRE(v <= -6);
+
+      REQUIRE(g.gen_float(-10) >= -10);
+
+      auto v2 = g.gen_float(3, 4);
+      REQUIRE(v2 >= 3);
+      REQUIRE(v2 < 4);
+    }
+  }
 }
