@@ -7,6 +7,7 @@ add_library(interfind
   src/region.cpp
   src/use_def.cpp
   src/visitors.cpp
+  src/json.cpp
 )
 
 target_link_libraries(interfind

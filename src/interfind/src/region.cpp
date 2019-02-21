@@ -12,12 +12,8 @@
 #include <llvm/IR/Value.h>
 #include <llvm/Transforms/Utils/ValueMapper.h>
 
-#include <nlohmann/json.hpp>
-
 #include <support/cartesian_product.h>
 #include <support/llvm_values.h>
-
-using nlohmann::json;
 
 using namespace support;
 using namespace llvm;
@@ -57,7 +53,6 @@ Function *region::extract() const
 
   // map bbs and values to their translated equivalents?
   auto v_map = ValueToValueMapTy{};
-  auto mapper = ValueMapper(v_map);
 
   auto i = 0;
   for(auto input : inputs_) {
@@ -106,23 +101,6 @@ Function *region::extract() const
   build.CreateRet(out_clone);
 
   return func;
-}
-
-void to_json(json& j, region const& r)
-{
-  auto ins = std::vector<std::string>{};
-  auto beg = r.inputs().begin();
-  auto end = r.inputs().end();
-  auto back = std::back_inserter(ins);
-
-  std::transform(beg, end, back, [] (auto in) {
-    return fmt::format("{}", in);
-  });
-
-  j = {
-    {"output", fmt::format("{}", r.output())},
-    {"inputs", ins}
-  };
 }
 
 /*
