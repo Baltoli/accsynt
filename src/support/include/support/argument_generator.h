@@ -71,6 +71,17 @@ public:
     static_assert(detail::is_generator_v<std::decay_t<T>>, "Not a generator");
   }
 
+  // Rule of 5 to make thus class copyable
+  argument_generator(argument_generator& other);
+  argument_generator& operator=(argument_generator other);
+  
+  argument_generator(argument_generator&&) = default;
+  argument_generator& operator=(argument_generator&&) = default;
+
+  ~argument_generator() = default;
+
+  friend void swap(argument_generator& a, argument_generator& b);
+
   // Interface
   int gen_int(int min = std::numeric_limits<int>::min(),
               int max = std::numeric_limits<int>::max())
@@ -88,6 +99,7 @@ private:
   // Type erasure
   struct concept {
     virtual ~concept() {}
+    virtual concept* clone() = 0;
     virtual int gen_int(int min, int max) = 0;
     virtual float gen_float(float min, float max) = 0;
   };
@@ -97,6 +109,11 @@ private:
     model(T obj) :
       object_(obj)
     {
+    }
+
+    model<T> *clone() override
+    {
+      return new model<T>(object_);
     }
 
     int gen_int(int min, int max) override
@@ -113,6 +130,7 @@ private:
     T object_;
   };
 
+protected:
   std::unique_ptr<concept> strategy_;
 };
 

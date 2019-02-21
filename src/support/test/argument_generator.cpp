@@ -63,3 +63,43 @@ TEST_CASE("type erasure works") {
     REQUIRE(ag2.gen_float() == 4.5_a);
   }
 }
+
+TEST_CASE("rule of 5 works") {
+  SECTION("on simple stateless generators") {
+    auto ag = argument_generator(gen());
+    auto ag2{ag};
+    auto ag3 = ag;
+
+    REQUIRE(ag.gen_int() == ag2.gen_int());
+    REQUIRE(ag.gen_int() == ag3.gen_int());
+    REQUIRE(ag.gen_float() == ag2.gen_float());
+    REQUIRE(ag.gen_float() == ag3.gen_float());
+
+    auto ag4{std::move(ag2)};
+    auto ag5 = std::move(ag3);
+
+    REQUIRE(ag.gen_int() == ag4.gen_int());
+    REQUIRE(ag.gen_int() == ag5.gen_int());
+    REQUIRE(ag.gen_float() == ag4.gen_float());
+    REQUIRE(ag.gen_float() == ag5.gen_float());
+  }
+
+  SECTION("when generators have state") {
+    auto ag = argument_generator(gen2(11));
+    auto ag2{ag};
+    auto ag3 = ag;
+
+    REQUIRE(ag.gen_int() == ag2.gen_int());
+    REQUIRE(ag.gen_int() == ag3.gen_int());
+    REQUIRE(ag.gen_float() == ag2.gen_float());
+    REQUIRE(ag.gen_float() == ag3.gen_float());
+
+    auto ag4{std::move(ag2)};
+    auto ag5 = std::move(ag3);
+
+    REQUIRE(ag.gen_int() == ag4.gen_int());
+    REQUIRE(ag.gen_int() == ag5.gen_int());
+    REQUIRE(ag.gen_float() == ag4.gen_float());
+    REQUIRE(ag.gen_float() == ag5.gen_float());
+  }
+}
