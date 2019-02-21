@@ -11,7 +11,7 @@ add_library(interfind
 
 target_link_libraries(interfind
   ${llvm_libs}
-  AccsyntPasses
+  AccsyntPasses_static
   stdc++fs
   support
   props
