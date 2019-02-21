@@ -3,9 +3,9 @@
 #include <interfind/region.h>
 
 #include <props/props.h>
-#include <support/llvm_format.h>
 
 #include <fmt/format.h>
+#include <nlohmann/json.hpp>
 
 #include <vector>
 
@@ -33,33 +33,6 @@ private:
 };
 
 }
-
-template <>
-struct fmt::formatter<interfind::region> {
-  template <typename ParseContext>
-  constexpr auto parse(ParseContext& ctx)
-  {
-    return ctx.begin();
-  }
-
-  template <typename FormatContext>
-  auto format(const interfind::region& region, FormatContext& ctx)
-  {
-    using namespace fmt::literals;
-
-    auto format = 1 + R"(
-region:
-  output: {out}
-  inputs:
-    {in}
-)";
-
-    return format_to(ctx.out(), format,
-      "out"_a = region.output(),
-      "in"_a = join(region.inputs().begin(), region.inputs().end(), "\n    ")
-    );
-  }
-};
 
 template <>
 struct fmt::formatter<interfind::analysis_result> {

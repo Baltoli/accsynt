@@ -1,5 +1,7 @@
 #pragma once
 
+#include <support/string.h>
+
 #include <fmt/format.h>
 
 #include <llvm/Support/raw_ostream.h>
@@ -19,6 +21,6 @@ struct fmt::formatter<llvm::Value *> {
     auto os = llvm::raw_string_ostream(str);
 
     os << *v;
-    return format_to(ctx.out(), str);
+    return format_to(ctx.out(), support::left_trim(str));
   }
 };
