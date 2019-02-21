@@ -11,6 +11,7 @@ add_library(support
   src/dynamic_library.cpp
   src/choose.cpp
   src/argument_generator.cpp
+  src/string.cpp
   src/thread_context.cpp)
 
 target_link_libraries(support
@@ -40,6 +41,7 @@ add_executable(support_unit
   test/choose.cpp
   test/argument_generator.cpp
   test/llvm_values.cpp
+  test/string.cpp
   test/main.cpp)
 
 target_link_libraries(support_unit
