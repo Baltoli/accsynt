@@ -55,8 +55,19 @@ private:
   void make_initial_value_map(
     llvm::ValueToValueMapTy&, llvm::Function *) const;
 
+  /**
+   * Clone a single instruction across to the extracted region, remapping its
+   * operands appropriately and creating an entry in the value map for
+   * subsequent instructions to follow.
+   */
   void clone_instruction(
     llvm::Instruction *, llvm::ValueToValueMapTy&, llvm::IRBuilder<>&) const;
+
+  /**
+   * Clone the output instruction to the extracted region, creating a return
+   * statement in the right place.
+   */
+  void clone_output(llvm::ValueToValueMapTy&, llvm::IRBuilder<>&) const;
 
   llvm::Instruction *output_;
   std::vector<llvm::Value *> inputs_;

@@ -59,15 +59,7 @@ Function *region::extract() const
     }
   }
 
-  auto out_clone = build.Insert(output()->clone());
-  for(auto j = 0u; j < out_clone->getNumOperands(); ++j) {
-    auto op = out_clone->getOperand(j);
-    if(v_map.find(op) != v_map.end()) {
-      out_clone->setOperand(j, v_map[op]);
-    }
-  }
-
-  build.CreateRet(out_clone);
+  clone_output(v_map, build);
 
   return func;
 }
@@ -104,6 +96,19 @@ void region::clone_instruction(
       i_clone->setOperand(j, new_operand);
     }
   }
+}
+
+void region::clone_output(ValueToValueMapTy& v_map, IRBuilder<>& build) const
+{
+  auto out_clone = build.Insert(output()->clone());
+  for(auto j = 0u; j < out_clone->getNumOperands(); ++j) {
+    auto op = out_clone->getOperand(j);
+    if(v_map.find(op) != v_map.end()) {
+      out_clone->setOperand(j, v_map[op]);
+    }
+  }
+
+  build.CreateRet(out_clone);
 }
 
 /*
