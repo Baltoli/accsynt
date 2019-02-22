@@ -7,10 +7,8 @@
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/Function.h>
 #include <llvm/IR/GlobalValue.h>
-#include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Type.h>
 #include <llvm/IR/Value.h>
-#include <llvm/Transforms/Utils/ValueMapper.h>
 
 #include <support/cartesian_product.h>
 #include <support/llvm_values.h>
@@ -47,12 +45,7 @@ Function *region::extract() const
 
   // map bbs and values to their translated equivalents?
   auto v_map = ValueToValueMapTy{};
-
-  auto i = 0;
-  for(auto input : inputs_) {
-    v_map[input] = func->arg_begin() + i;
-    ++i;
-  }
+  make_initial_value_map(v_map, func);
 
   auto bb = BasicBlock::Create(mod->getContext(), "", func);
   v_map[output()->getParent()] = bb;
@@ -62,25 +55,7 @@ Function *region::extract() const
   auto deps = topo_sort(all_deps(output(), inputs_));
   for(auto dep : deps) {
     if(auto i_dep = dyn_cast<Instruction>(dep)) {
-      if(v_map.find(i_dep) == v_map.end()) {
-        auto i_clone = i_dep->clone();
-        v_map[i_dep] = i_clone;
-        build.Insert(i_clone);
-
-        for(auto j = 0u; j < i_clone->getNumOperands(); ++j) {
-          auto new_operand = [&] () -> llvm::Value * {
-            auto oper = i_clone->getOperand(j);
-            if(v_map.find(oper) == v_map.end()) {
-              // Can we assert anything about the operand?
-              return oper;
-            } else {
-              return v_map[oper];
-            }
-          }();
-
-          i_clone->setOperand(j, new_operand);
-        }
-      }
+      clone_instruction(i_dep, v_map, build);
     }
   }
 
@@ -95,6 +70,40 @@ Function *region::extract() const
   build.CreateRet(out_clone);
 
   return func;
+}
+
+void region::make_initial_value_map(
+    ValueToValueMapTy &v_map, Function *func) const
+{
+  auto i = 0;
+  for(auto input : inputs_) {
+    v_map[input] = func->arg_begin() + i;
+    ++i;
+  }
+}
+
+void region::clone_instruction(
+    Instruction *inst, ValueToValueMapTy& v_map, IRBuilder<>& build) const
+{
+  if(v_map.find(inst) == v_map.end()) {
+    auto i_clone = inst->clone();
+    v_map[inst] = i_clone;
+    build.Insert(i_clone);
+
+    for(auto j = 0u; j < i_clone->getNumOperands(); ++j) {
+      auto new_operand = [&] () -> llvm::Value * {
+        auto oper = i_clone->getOperand(j);
+        if(v_map.find(oper) == v_map.end()) {
+          // Can we assert anything about the operand?
+          return oper;
+        } else {
+          return v_map[oper];
+        }
+      }();
+
+      i_clone->setOperand(j, new_operand);
+    }
+  }
 }
 
 /*

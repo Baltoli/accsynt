@@ -7,6 +7,9 @@
 #include <fmt/format.h>
 #include <nlohmann/json_fwd.hpp>
 
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/Transforms/Utils/ValueMapper.h>
+
 #include <map>
 #include <vector>
 
@@ -38,10 +41,23 @@ public:
    */
   llvm::Function *extract() const;
 
+  /**
+   * Accessors to the stored region inputs and output.
+   */
   llvm::Instruction* output() const;
   std::vector<llvm::Value *> const& inputs() const;
 
 private:
+  /**
+   * Populate a value map by mapping region inputs to the extracted function's
+   * arguments.
+   */
+  void make_initial_value_map(
+    llvm::ValueToValueMapTy&, llvm::Function *) const;
+
+  void clone_instruction(
+    llvm::Instruction *, llvm::ValueToValueMapTy&, llvm::IRBuilder<>&) const;
+
   llvm::Instruction *output_;
   std::vector<llvm::Value *> inputs_;
 
