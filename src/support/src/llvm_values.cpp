@@ -47,6 +47,10 @@ std::set<Value*> all_deps(Value* v, std::vector<Value*> const& roots)
     auto dep = work.front();
     work.pop();
 
+    if (ret.find(dep) != ret.end()) {
+      continue;
+    }
+
     if (auto user = dyn_cast<Instruction>(dep)) {
       auto found = std::find(roots.begin(), roots.end(), dep);
 

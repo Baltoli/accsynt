@@ -76,10 +76,16 @@ bool use_def_analysis::is_root_set(llvm::Value* use, Container&& roots) const
   using std::end;
 
   auto queue = std::queue<llvm::Value*>{ { use } };
+  auto visited = std::set<llvm::Value*>{};
 
   while (!queue.empty()) {
     auto work = queue.front();
     queue.pop();
+
+    if (visited.find(work) != visited.end()) {
+      continue;
+    }
+    visited.insert(work);
 
     auto&& found = support::container_find(FWD(roots), work);
     if (found != end(roots)) {
