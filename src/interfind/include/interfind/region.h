@@ -13,6 +13,7 @@
 namespace llvm {
   class Function;
   class FunctionType;
+  class Instruction;
   class Type;
   class Value;
 }
@@ -27,7 +28,7 @@ public:
   /**
    * Direct constructor from the values comprising this region.
    */
-  region(llvm::Value *, std::vector<llvm::Value *>, 
+  region(llvm::Instruction *, std::vector<llvm::Value *>, 
          llvm::Function &, llvm::FunctionType *);
 
   /**
@@ -37,11 +38,11 @@ public:
    */
   llvm::Function *extract() const;
 
-  llvm::Value* output() const;
+  llvm::Instruction* output() const;
   std::vector<llvm::Value *> const& inputs() const;
 
 private:
-  llvm::Value *output_;
+  llvm::Instruction *output_;
   std::vector<llvm::Value *> inputs_;
 
   llvm::Function &original_;

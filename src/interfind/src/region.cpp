@@ -24,13 +24,13 @@ namespace interfind {
  * Region methods
  */
 
-region::region(Value *out, std::vector<Value *> in, 
+region::region(Instruction *out, std::vector<Value *> in, 
                Function& orig, FunctionType *ty) :
   output_(out), inputs_(in), original_(orig), function_type_(ty)
 {
 }
 
-Value* region::output() const
+Instruction* region::output() const
 {
   return output_;
 }
@@ -45,12 +45,6 @@ Function *region::extract() const
   auto mod = original_.getParent();
   auto func = Function::Create(function_type_, GlobalValue::ExternalLinkage, "extracted_region", mod);
 
-  // TODO: handle other cases properly or refactor return type
-  auto i_out = dyn_cast<Instruction>(output_);
-  if(!i_out) {
-    throw std::runtime_error("Output value must be an instruction");
-  }
-
   // map bbs and values to their translated equivalents?
   auto v_map = ValueToValueMapTy{};
 
@@ -61,11 +55,11 @@ Function *region::extract() const
   }
 
   auto bb = BasicBlock::Create(mod->getContext(), "", func);
-  v_map[i_out->getParent()] = bb;
+  v_map[output()->getParent()] = bb;
 
   auto build = IRBuilder<>(bb);
 
-  auto deps = topo_sort(all_deps(i_out, inputs_));
+  auto deps = topo_sort(all_deps(output(), inputs_));
   for(auto dep : deps) {
     if(auto i_dep = dyn_cast<Instruction>(dep)) {
       if(v_map.find(i_dep) == v_map.end()) {
@@ -90,7 +84,7 @@ Function *region::extract() const
     }
   }
 
-  auto out_clone = build.Insert(i_out->clone());
+  auto out_clone = build.Insert(output()->clone());
   for(auto j = 0u; j < out_clone->getNumOperands(); ++j) {
     auto op = out_clone->getOperand(j);
     if(v_map.find(op) != v_map.end()) {
@@ -205,9 +199,11 @@ std::vector<region> region_finder::all_candidates() const
     // rewriting the enumeration logic to take a callback so that we don't need
     // to store everything up front?
     for(auto arg_list : cartesian_product(arg_components)) {
-      if(ud_analysis_.is_root_set(v, arg_list)) {
-        auto f_ty = FunctionType::get(return_type_, argument_types_, false);
-        regions.emplace_back(v, arg_list, function_, f_ty);
+      if(auto inst = dyn_cast<Instruction>(v)) {
+        if(ud_analysis_.is_root_set(v, arg_list)) {
+          auto f_ty = FunctionType::get(return_type_, argument_types_, false);
+          regions.emplace_back(inst, arg_list, function_, f_ty);
+        }
       }
     }
   }
