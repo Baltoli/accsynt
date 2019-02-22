@@ -101,6 +101,19 @@ void region::clone_instruction(
 
       i_clone->setOperand(j, new_operand);
     }
+
+    if (auto branch = dyn_cast<BranchInst>(i_clone)) {
+      for (auto i = 0u; i < branch->getNumSuccessors(); ++i) {
+        auto bb = branch->getSuccessor(i);
+
+        auto extract_func = build.GetInsertBlock()->getParent();
+        auto new_succ = BasicBlock::Create(
+            inst->getContext(), bb->getName(), extract_func);
+        v_map[bb] = new_succ;
+
+        branch->setSuccessor(i, new_succ);
+      }
+    }
   }
 }
 
@@ -110,16 +123,30 @@ void region::clone_output(ValueToValueMapTy& v_map, IRBuilder<>& build) const
   auto out_clone = build.Insert(output()->clone());
 
   if (auto pn = dyn_cast<PHINode>(out_clone)) {
-  } else {
-    for (auto j = 0u; j < out_clone->getNumOperands(); ++j) {
-      auto op = out_clone->getOperand(j);
-      if (v_map.find(op) != v_map.end()) {
-        out_clone->setOperand(j, v_map[op]);
+    for (auto i = 0u; i < pn->getNumIncomingValues(); ++i) {
+      auto bb = pn->getIncomingBlock(i);
+      if (v_map.find(bb) != v_map.end()) {
+        auto incoming = cast<BasicBlock>(v_map[bb]);
+        pn->setIncomingBlock(i, incoming);
+
+        auto ip = build.saveIP();
+        build.SetInsertPoint(incoming);
+        build.CreateBr(pn->getParent());
+        build.restoreIP(ip);
+      } else {
+        pn->removeIncomingValue(i);
       }
     }
-
-    build.CreateRet(out_clone);
   }
+
+  for (auto j = 0u; j < out_clone->getNumOperands(); ++j) {
+    auto op = out_clone->getOperand(j);
+    if (v_map.find(op) != v_map.end()) {
+      out_clone->setOperand(j, v_map[op]);
+    }
+  }
+
+  build.CreateRet(out_clone);
 }
 
 void region::set_insert_block(
@@ -129,13 +156,16 @@ void region::set_insert_block(
 
   if (v_map.find(bb) == v_map.end()) {
     auto extract_func = build.GetInsertBlock()->getParent();
-    v_map[bb]
+    auto new_bb
         = BasicBlock::Create(inst->getContext(), bb->getName(), extract_func);
+    v_map[bb] = new_bb;
   }
 
   if (auto block = dyn_cast<BasicBlock>(v_map[bb])) {
     if (block != build.GetInsertBlock()) {
-      build.CreateBr(block);
+      if (!build.GetInsertBlock()->getTerminator()) {
+        build.CreateBr(block);
+      }
       build.SetInsertPoint(block);
     }
   } else {

@@ -94,6 +94,24 @@ bool use_def_analysis::is_root_set(llvm::Value* use, Container&& roots) const
       for (auto& op : inst->operands()) {
         queue.push(op);
       }
+
+      // Handle PHI nodes by ensuring that their branch dependencies are tracked
+      // properly - what this means is that we iterate over all the incoming
+      // blocks to find conditional branches that lead to them. For each one, we
+      // then add the branch and associated condition to the queue as well.
+      // TODO: make sure that PHI handling code can also track selects if we
+      // ever come across any code that uses them.
+      if (auto phi = llvm::dyn_cast<llvm::PHINode>(inst)) {
+        for (auto bb : phi->blocks()) {
+          for (auto label_use : bb->users()) {
+            if (auto branch = llvm::dyn_cast<llvm::BranchInst>(label_use);
+                branch->isConditional()) {
+              queue.push(branch);
+              queue.push(branch->getCondition());
+            }
+          }
+        }
+      }
     } else if (!llvm::isa<llvm::Constant>(work)) {
       // If we find something that isn't an instruction, but isn't in the query
       // set, then it's an extra root and the query set isn't valid.

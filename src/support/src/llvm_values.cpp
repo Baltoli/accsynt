@@ -47,12 +47,24 @@ std::set<Value*> all_deps(Value* v, std::vector<Value*> const& roots)
     auto dep = work.front();
     work.pop();
 
-    if (auto user = dyn_cast<User>(dep)) {
+    if (auto user = dyn_cast<Instruction>(dep)) {
       auto found = std::find(roots.begin(), roots.end(), dep);
 
       if (found == roots.end()) {
         for (auto& op : user->operands()) {
           work.push(op);
+        }
+      }
+    }
+
+    if (auto phi = dyn_cast<PHINode>(dep)) {
+      for (auto bb : phi->blocks()) {
+        for (auto label_use : bb->users()) {
+          if (auto branch = dyn_cast<BranchInst>(label_use);
+              branch->isConditional()) {
+            work.push(branch);
+            work.push(branch->getCondition());
+          }
         }
       }
     }
