@@ -51,8 +51,8 @@ Function* region::extract() const
   auto v_map = ValueToValueMapTy{};
   make_initial_value_map(v_map, func);
 
-  auto bb = BasicBlock::Create(mod->getContext(), "", func);
-  v_map[output()->getParent()] = bb;
+  auto bb = BasicBlock::Create(mod->getContext(), "entry", func);
+  /* v_map[output()->getParent()] = bb; */
 
   auto build = IRBuilder<>(bb);
 
@@ -82,6 +82,12 @@ void region::clone_instruction(
     Instruction* inst, ValueToValueMapTy& v_map, IRBuilder<>& build) const
 {
   if (v_map.find(inst) == v_map.end()) {
+    auto block = get_block(inst, v_map, build);
+    if (block != build.GetInsertBlock()) {
+      build.CreateBr(block);
+      build.SetInsertPoint(block);
+    }
+
     auto i_clone = inst->clone();
     v_map[inst] = i_clone;
     build.Insert(i_clone);
@@ -104,6 +110,12 @@ void region::clone_instruction(
 
 void region::clone_output(ValueToValueMapTy& v_map, IRBuilder<>& build) const
 {
+  auto block = get_block(output(), v_map, build);
+  if (block != build.GetInsertBlock()) {
+    build.CreateBr(block);
+    build.SetInsertPoint(block);
+  }
+
   auto out_clone = build.Insert(output()->clone());
   for (auto j = 0u; j < out_clone->getNumOperands(); ++j) {
     auto op = out_clone->getOperand(j);
@@ -113,6 +125,24 @@ void region::clone_output(ValueToValueMapTy& v_map, IRBuilder<>& build) const
   }
 
   build.CreateRet(out_clone);
+}
+
+BasicBlock* region::get_block(
+    Instruction* inst, ValueToValueMapTy& v_map, IRBuilder<>& build) const
+{
+  auto bb = inst->getParent();
+
+  if (v_map.find(bb) == v_map.end()) {
+    auto extract_func = build.GetInsertBlock()->getParent();
+    v_map[bb]
+        = BasicBlock::Create(inst->getContext(), bb->getName(), extract_func);
+  }
+
+  if (auto mapped_bb = dyn_cast<BasicBlock>(v_map[bb])) {
+    return mapped_bb;
+  } else {
+    throw std::runtime_error("Mapped value is not a block");
+  }
 }
 
 /*

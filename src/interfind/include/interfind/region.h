@@ -68,6 +68,13 @@ class region {
    */
   void clone_output(llvm::ValueToValueMapTy&, llvm::IRBuilder<>&) const;
 
+  /**
+   * Get the basic block corresponding to this instruction from the value map -
+   * if one doesn't exist then we create it.
+   */
+  llvm::BasicBlock* get_block(
+      llvm::Instruction*, llvm::ValueToValueMapTy&, llvm::IRBuilder<>&) const;
+
   llvm::Instruction* output_;
   std::vector<llvm::Value*> inputs_;
 
