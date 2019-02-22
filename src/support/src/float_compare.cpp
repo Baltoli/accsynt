@@ -9,5 +9,4 @@ int ulp_diff(float A, float B)
 
   return std::abs(a_wrap.as_int() - b_wrap.as_int());
 }
-
 }

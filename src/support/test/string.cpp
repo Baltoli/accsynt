@@ -5,7 +5,8 @@
 using namespace support;
 using namespace std::literals::string_literals;
 
-TEST_CASE("can left trim strings") {
+TEST_CASE("can left trim strings")
+{
   REQUIRE(left_trim("  abc") == "abc");
   REQUIRE(left_trim("\t") == "");
   REQUIRE(left_trim("\nwoo\n") == "woo\n");

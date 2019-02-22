@@ -5,9 +5,9 @@
 #include <llvm/IR/Module.h>
 
 #include <iosfwd>
+#include <optional>
 #include <string>
 #include <string_view>
-#include <optional>
 #include <vector>
 
 // TODO: abstract parser state from PODs used for domain
@@ -16,20 +16,17 @@ namespace props {
 
 struct property_set;
 
-enum class data_type {
-  integer,
-  floating
-};
+enum class data_type { integer, floating };
 
-llvm::Type *base_llvm_type(data_type dt);
-llvm::Type *base_llvm_return_type(std::optional<data_type> dt);
+llvm::Type* base_llvm_type(data_type dt);
+llvm::Type* base_llvm_return_type(std::optional<data_type> dt);
 
 struct param {
   std::string name;
   data_type type;
   int pointer_depth;
 
-  llvm::Type *llvm_type() const;
+  llvm::Type* llvm_type() const;
 
   bool operator==(param const& other) const;
   bool operator!=(param const& other) const;
@@ -41,31 +38,26 @@ struct signature {
   std::optional<data_type> return_type;
   std::string name;
   std::vector<param> parameters;
-  
+
   size_t param_index(std::string const& name) const;
 
-  llvm::FunctionType *function_type() const;
-  llvm::Function *create_function(llvm::Module &mod) const;
+  llvm::FunctionType* function_type() const;
+  llvm::Function* create_function(llvm::Module& mod) const;
 
   static signature parse(std::string_view str);
 
-  template <typename Input>
-  void success(Input const& in, property_set& parent);
+  template <typename Input> void success(Input const& in, property_set& parent);
 
-  template <typename Input>
-  signature(Input const& in, property_set& parent) {}
+  template <typename Input> signature(Input const& in, property_set& parent)
+  {
+  }
 
   bool operator==(signature const& other) const;
   bool operator!=(signature const& other) const;
 };
 
 struct value {
-  enum class type {
-    integer,
-    floating,
-    parameter,
-    string
-  };
+  enum class type { integer, floating, parameter, string };
 
   type value_type;
   int int_val;
@@ -84,19 +76,19 @@ struct value {
   template <typename OStream>
   friend OStream& operator<<(OStream& os, value const& v)
   {
-    switch(v.value_type) {
-      case type::integer:
-        os << v.int_val;
-        break;
-      case type::floating:
-        os << v.float_val;
-        break;
-      case type::parameter:
-        os << v.param_val;
-        break;
-      case type::string:
-        os << "\"" << v.string_val << "\"";
-        break;
+    switch (v.value_type) {
+    case type::integer:
+      os << v.int_val;
+      break;
+    case type::floating:
+      os << v.float_val;
+      break;
+    case type::parameter:
+      os << v.param_val;
+      break;
+    case type::string:
+      os << "\"" << v.string_val << "\"";
+      break;
     }
     return os;
   }
@@ -110,15 +102,15 @@ struct property {
 
   static property parse(std::string_view str);
 
-  template <typename Input>
-  void success(Input const& in, property_set& parent);
+  template <typename Input> void success(Input const& in, property_set& parent);
 
-  template <typename Input>
-  property(Input const& in, property_set& parent) {}
+  template <typename Input> property(Input const& in, property_set& parent)
+  {
+  }
 };
 
 class property_set {
-public:
+  public:
   signature type_signature;
   std::vector<property> properties;
 
@@ -128,7 +120,7 @@ public:
   static property_set parse(std::string_view str);
   static property_set load(std::string_view str);
 
-private:
+  private:
   bool is_valid() const;
 };
 
@@ -147,13 +139,12 @@ void signature::success(Input const& in, property_set& parent)
 template <typename Func>
 void property_set::for_each_named(std::string const& name, Func&& fn) const
 {
-  for(auto const& prop : properties) {
-    if(prop.name == name) {
+  for (auto const& prop : properties) {
+    if (prop.name == name) {
       fn(prop);
     }
   }
 }
-
 }
 
 std::ostream& operator<<(std::ostream& os, const props::data_type& dt);

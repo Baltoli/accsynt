@@ -16,7 +16,7 @@ std::unique_ptr<Module> parse_module(std::string const& str)
   auto buf = MemoryBuffer::getMemBuffer(str);
   auto mod = parseIR(*buf, sm, thread_context::get());
 
-  if(!mod) {
+  if (!mod) {
     sm.print(nullptr, llvm::errs());
     std::exit(1);
   }
@@ -31,12 +31,11 @@ std::unique_ptr<Module> load_module(std::string const& path)
   auto err = SMDiagnostic{};
 
   auto mod = parseIRFile(path, err, ctx, true, "");
-  if(!mod) {
+  if (!mod) {
     err.print("load_module", errs());
     throw std::runtime_error("Error loading module: " + path);
   }
 
   return mod;
 }
-
 }

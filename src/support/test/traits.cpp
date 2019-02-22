@@ -2,16 +2,20 @@
 
 #include <catch2/catch.hpp>
 
-#include <set>
 #include <map>
+#include <set>
 
 using namespace support;
 
-struct s {};
-struct t {};
+struct s {
+};
+struct t {
+};
 
-TEST_CASE("pointer depth calculations work") {
-  SECTION("basic types") {
+TEST_CASE("pointer depth calculations work")
+{
+  SECTION("basic types")
+  {
     REQUIRE(pointer_depth_v<int> == 0);
     REQUIRE(pointer_depth_v<float> == 0);
     REQUIRE(pointer_depth_v<void> == 0);
@@ -19,7 +23,8 @@ TEST_CASE("pointer depth calculations work") {
     REQUIRE(pointer_depth_v<t> == 0);
   }
 
-  SECTION("pointers") {
+  SECTION("pointers")
+  {
     REQUIRE(pointer_depth_v<int*> == 1);
     REQUIRE(pointer_depth_v<float**> == 2);
     REQUIRE(pointer_depth_v<void***> == 3);
@@ -33,27 +38,30 @@ struct has_find {
   int find(key_type);
 };
 
-TEST_CASE("has_member_find works") {
-  SECTION("trait works correctly") {
-    static_assert(has_member_find_v<std::set<int>>,
-                  "Set should have member find");
+TEST_CASE("has_member_find works")
+{
+  SECTION("trait works correctly")
+  {
+    static_assert(
+        has_member_find_v<std::set<int>>, "Set should have member find");
 
     static_assert(!has_member_find_v<std::vector<std::string>>,
-                  "Vector should not have member find");
+        "Vector should not have member find");
 
-    static_assert(has_member_find_v<has_find>,
-                  "Types that look OK should also");
+    static_assert(
+        has_member_find_v<has_find>, "Types that look OK should also");
   }
 
-  SECTION("generic find works") {
-    auto set = std::set{1, 2, 3};
-    auto vec = std::vector{7, 5, 3, 1};
+  SECTION("generic find works")
+  {
+    auto set = std::set{ 1, 2, 3 };
+    auto vec = std::vector{ 7, 5, 3, 1 };
 
     static_assert(has_member_find_v<decltype(set)>,
-                  "Set variable should have member find");
+        "Set variable should have member find");
 
     static_assert(!has_member_find_v<decltype(vec)>,
-                  "Vector variable should not have member find");
+        "Vector variable should not have member find");
 
     auto s_found = container_find(set, 2);
     REQUIRE(s_found != set.end());

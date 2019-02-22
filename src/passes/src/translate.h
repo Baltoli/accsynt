@@ -10,7 +10,6 @@
 namespace convert {
 
 std::optional<std::string> to_idl(llvm::Function const& F);
-
 }
 
 namespace convert::detail {
@@ -24,7 +23,6 @@ std::string nth_arg_constraint(llvm::Instruction const& I, size_t n);
 std::optional<std::string> constraint(llvm::Instruction const& I);
 std::optional<std::string> constraint(llvm::Function const& F);
 
-
 // Combine constraints into one by wrapping them in braces and forming their
 // conjunction
 template <typename Iterator>
@@ -37,13 +35,11 @@ std::string constraint_and(Iterator begin, Iterator end)
 }
 
 // Comvenience overload
-template <typename Container>
-std::string constraint_and(Container c)
+template <typename Container> std::string constraint_and(Container c)
 {
   using std::begin;
   using std::end;
 
   return constraint_and(begin(c), end(c));
 }
-
 }

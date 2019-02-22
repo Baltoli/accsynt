@@ -19,10 +19,9 @@ namespace synth {
  * interfacing with an LLVM function, keeping track of a signature etc.
  */
 class compile_context {
-public:
-  compile_context(llvm::Module& mod,
-                  props::signature sig,
-                  accessor_map&& accessor_map = {});
+  public:
+  compile_context(llvm::Module& mod, props::signature sig,
+      accessor_map&& accessor_map = {});
 
   /**
    * Don't want these to be copyable - once used to compile they are done as we
@@ -40,30 +39,29 @@ public:
    * Get the LLVM arg for the parameter name passed in. This lives in the
    * context because it depends on the signature.
    */
-  llvm::Argument *argument(std::string const& name) const;
+  llvm::Argument* argument(std::string const& name) const;
 
   accessor const& accessor_for(std::string const& name) const;
 
-  std::set<llvm::Value *> create_geps_for(
-      std::string const& name, llvm::Value *base, llvm::Value *ptr,
-      llvm::IRBuilder<>& builder, std::string const& prefix = "") const;
+  std::set<llvm::Value*> create_geps_for(std::string const& name,
+      llvm::Value* base, llvm::Value* ptr, llvm::IRBuilder<>& builder,
+      std::string const& prefix = "") const;
 
-// TODO: work out encapsulation for context - need to make information available
-// to derived fragment classes?
-/* protected: */
+  // TODO: work out encapsulation for context - need to make information
+  // available to derived fragment classes?
+  /* protected: */
   props::signature sig_;
 
   llvm::Module& mod_;
 
-  llvm::Function *func_;
-  llvm::BasicBlock *entry_;
-  llvm::BasicBlock *exit_;
-  llvm::ReturnInst *return_;
+  llvm::Function* func_;
+  llvm::BasicBlock* entry_;
+  llvm::BasicBlock* exit_;
+  llvm::ReturnInst* return_;
 
   compile_metadata metadata_;
 
-private:
+  private:
   accessor_map accessor_map_;
 };
-
 }

@@ -7,12 +7,11 @@
 namespace synth {
 
 class regular_loop_fragment : public fragment {
-public:
+  public:
   using fragment::add_child;
 
-  regular_loop_fragment(std::vector<props::value> args,
-                        frag_ptr&& before, frag_ptr&& body, frag_ptr&& after,
-                        bool output);
+  regular_loop_fragment(std::vector<props::value> args, frag_ptr&& before,
+      frag_ptr&& body, frag_ptr&& after, bool output);
 
   regular_loop_fragment(std::vector<props::value> args);
   regular_loop_fragment(std::vector<props::value> args, bool out);
@@ -30,17 +29,19 @@ public:
 
   virtual fragment::frag_ptr clone();
 
-  virtual std::string to_str(size_t indent=0) override;
-  virtual void splice(compile_context& ctx, llvm::BasicBlock *entry, llvm::BasicBlock *exit);
+  virtual std::string to_str(size_t indent = 0) override;
+  virtual void splice(
+      compile_context& ctx, llvm::BasicBlock* entry, llvm::BasicBlock* exit);
   virtual bool add_child(frag_ptr&& f, size_t idx);
 
   virtual size_t count_holes() const override;
 
   friend void swap(regular_loop_fragment& a, regular_loop_fragment& b);
 
-private:
-  std::pair<llvm::Argument *, std::string> get_pointer(compile_context&, size_t idx);
-  llvm::Argument *get_size(compile_context&);
+  private:
+  std::pair<llvm::Argument*, std::string> get_pointer(
+      compile_context&, size_t idx);
+  llvm::Argument* get_size(compile_context&);
 
   fragment::frag_ptr before_;
   fragment::frag_ptr body_;
@@ -50,5 +51,4 @@ private:
 
   bool perform_output_;
 };
-
 }

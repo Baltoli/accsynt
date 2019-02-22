@@ -11,31 +11,30 @@ using namespace llvm;
 namespace synth {
 
 void value_sampler::add_incoming(
-    PHINode *phi, 
-    std::map<llvm::BasicBlock *, std::vector<Value *>> const& live)
+    PHINode* phi, std::map<llvm::BasicBlock*, std::vector<Value*>> const& live)
 {
   auto ty = phi->getType();
   auto block = phi->getParent();
 
   auto uses = all_uses(phi);
 
-  for(auto pred : predecessors(block)) {
+  for (auto pred : predecessors(block)) {
     auto pred_live = with_type(ty, live.at(pred));
     pred_live.insert(Constant::getNullValue(ty));
     pred_live.erase(phi);
 
-    if(uses.empty()) {
+    if (uses.empty()) {
       auto val = uniform_sample(pred_live);
       phi->addIncoming(*val, pred);
     } else {
-      auto use_live = std::set<llvm::Value *>{};
-      for(auto p : pred_live) {
-        if(uses.find(p) != uses.end()) {
+      auto use_live = std::set<llvm::Value*>{};
+      for (auto p : pred_live) {
+        if (uses.find(p) != uses.end()) {
           use_live.insert(p);
         }
       }
-      
-      if(use_live.empty()) {
+
+      if (use_live.empty()) {
         auto val = uniform_sample(pred_live);
         phi->addIncoming(*val, pred);
       } else {
@@ -46,9 +45,8 @@ void value_sampler::add_incoming(
   }
 }
 
-Value *value_sampler::constant(Type *ty) const
+Value* value_sampler::constant(Type* ty) const
 {
   return Constant::getNullValue(ty);
 }
-
 }

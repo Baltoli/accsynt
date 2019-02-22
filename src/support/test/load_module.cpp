@@ -2,7 +2,8 @@
 
 #include <catch2/catch.hpp>
 
-TEST_CASE("can parse modules from strings") {
+TEST_CASE("can parse modules from strings")
+{
   auto str = R"(
 ; ModuleID = 'test.c'
 source_filename = "test.c"

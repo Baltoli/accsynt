@@ -9,15 +9,15 @@ namespace {
  * https://blog.tartanllama.xyz/exploding-tuples-fold-expressions/
  */
 template <std::size_t... Idx>
-auto make_index_dispatcher(std::index_sequence<Idx...>) {
-    return [] (auto&& f) { (f(std::integral_constant<std::size_t,Idx>{}), ...); };
+auto make_index_dispatcher(std::index_sequence<Idx...>)
+{
+  return [](auto&& f) { (f(std::integral_constant<std::size_t, Idx>{}), ...); };
 }
 
-template <std::size_t N>
-auto make_index_dispatcher() {
-    return make_index_dispatcher(std::make_index_sequence<N>{}); 
+template <std::size_t N> auto make_index_dispatcher()
+{
+  return make_index_dispatcher(std::make_index_sequence<N>{});
 }
-
 }
 
 namespace support {
@@ -28,24 +28,22 @@ namespace support {
  * The callable \p f is called for each element of \p t, which can be any type
  * that supports \p std::get and \p std::tuple_size.
  */
-template <typename Tuple, typename Func>
-void for_each(Tuple&& t, Func&& f) {
+template <typename Tuple, typename Func> void for_each(Tuple&& t, Func&& f)
+{
   constexpr auto n = std::tuple_size_v<std::decay_t<Tuple>>;
   auto dispatcher = ::make_index_dispatcher<n>();
 
-  dispatcher([&f,&t](auto idx) {
-    f(std::get<idx>(std::forward<Tuple>(t)));
-  });
+  dispatcher([&f, &t](auto idx) { f(std::get<idx>(std::forward<Tuple>(t))); });
 }
 
 template <typename Tuple, typename Func>
-void index_for_each(Tuple&& t, Func&& f) {
+void index_for_each(Tuple&& t, Func&& f)
+{
   constexpr auto n = std::tuple_size_v<std::decay_t<Tuple>>;
   auto dispatcher = ::make_index_dispatcher<n>();
 
-  dispatcher([&f,&t](auto idx) {
-    f(std::get<idx>(std::forward<Tuple>(t)), idx);
-  });
+  dispatcher(
+      [&f, &t](auto idx) { f(std::get<idx>(std::forward<Tuple>(t)), idx); });
 }
 
 /**
@@ -57,7 +55,8 @@ void index_for_each(Tuple&& t, Func&& f) {
  * of \p Tuple2.
  */
 template <typename Tuple1, typename Tuple2, typename Func>
-void zip_for_each(Tuple1&& t1, Tuple2&& t2, Func&& f) {
+void zip_for_each(Tuple1&& t1, Tuple2&& t2, Func&& f)
+{
   constexpr auto a1_size = std::tuple_size_v<std::decay_t<Tuple1>>;
   constexpr auto a2_size = std::tuple_size_v<std::decay_t<Tuple2>>;
 
@@ -66,10 +65,9 @@ void zip_for_each(Tuple1&& t1, Tuple2&& t2, Func&& f) {
   constexpr auto n = std::tuple_size_v<std::decay_t<Tuple1>>;
   auto dispatcher = ::make_index_dispatcher<n>();
 
-  dispatcher([&f,&t1,&t2](auto idx) {
-    f(std::get<idx>(std::forward<Tuple1>(t1)), 
-      std::get<idx>(std::forward<Tuple2>(t2))); 
+  dispatcher([&f, &t1, &t2](auto idx) {
+    f(std::get<idx>(std::forward<Tuple1>(t1)),
+        std::get<idx>(std::forward<Tuple2>(t2)));
   });
 }
-
 }

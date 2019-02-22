@@ -4,9 +4,8 @@ using namespace llvm;
 
 namespace synth {
 
-compile_metadata::compile_metadata(llvm::Function *fn)
-  : function(fn)
+compile_metadata::compile_metadata(llvm::Function* fn)
+    : function(fn)
 {
 }
-
 }

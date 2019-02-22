@@ -10,8 +10,8 @@
 
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/Constants.h>
-#include <llvm/IR/Instructions.h>
 #include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/Instructions.h>
 #include <llvm/Support/raw_ostream.h>
 
 #include <iostream>
@@ -23,11 +23,12 @@ using namespace llvm;
 
 namespace synth {
 
-blas_synth::blas_synth(property_set ps, call_wrapper& ref) :
-  synthesizer(ps, ref),
-  blas_props_(ps), gen_(ps),
-  loops_(loop::loops(blas_props_.merged_loop_count())),
-  current_loop_(loops_.begin())
+blas_synth::blas_synth(property_set ps, call_wrapper& ref)
+    : synthesizer(ps, ref)
+    , blas_props_(ps)
+    , gen_(ps)
+    , loops_(loop::loops(blas_props_.merged_loop_count()))
+    , current_loop_(loops_.begin())
 {
   make_examples(gen_, 1'000);
 }
@@ -37,35 +38,35 @@ std::string blas_synth::name() const
   return "BLAS";
 }
 
-Function *blas_synth::candidate()
+Function* blas_synth::candidate()
 {
   next_loop();
 
   auto fn = create_stub();
 
-  auto [seeds, outputs, blocks, exit] = should_loop() ?
-    build_control_flow(fn, *current_loop_) :
-    build_control_flow(fn);
+  auto [seeds, outputs, blocks, exit] = should_loop()
+      ? build_control_flow(fn, *current_loop_)
+      : build_control_flow(fn);
 
-  auto data_synth = dataflow_synth(fn, [&] (auto *b) {
+  auto data_synth = dataflow_synth(fn, [&](auto* b) {
     auto ret = std::find(blocks.begin(), blocks.end(), b) != blocks.end();
     return ret;
   });
 
   // TODO: maybe put this code inside the control flow generator and pass a
   // reference to the dataflow synth?
-  for(auto* instr : seeds) {
+  for (auto* instr : seeds) {
     data_synth.seed(instr);
   }
 
-  for(auto& arg : fn->args()) {
+  for (auto& arg : fn->args()) {
     data_synth.seed(&arg);
   }
 
   auto& ctx = fn->getContext();
 
   auto rt = fn->getReturnType();
-  if(rt->isVoidTy()) {
+  if (rt->isVoidTy()) {
     ReturnInst::Create(ctx, exit);
   } else {
     ReturnInst::Create(ctx, Constant::getNullValue(rt), exit);
@@ -74,14 +75,14 @@ Function *blas_synth::candidate()
   data_synth.create_dataflow();
   auto const& live = data_synth.block_live();
 
-  for(auto out_ptr : outputs) {
+  for (auto out_ptr : outputs) {
     // TODO: unsafe cast
     auto type = cast<PointerType>(out_ptr->getType())->getElementType();
 
     auto block = out_ptr->getParent();
     auto block_live = with_type(type, live.at(block));
 
-    if(!block_live.empty()) {
+    if (!block_live.empty()) {
       // TODO: in some situations phis are preferable - basically if we have
       // nested loops. Work out a way to integrate this.
 
@@ -98,7 +99,7 @@ Function *blas_synth::candidate()
     }
   }
 
-  if(!rt->isVoidTy()) {
+  if (!rt->isVoidTy()) {
     auto ret = exit->getTerminator();
     ret->eraseFromParent();
 
@@ -111,8 +112,7 @@ Function *blas_synth::candidate()
   return fn;
 }
 
-blas_control_data
-blas_synth::build_control_flow(Function *fn, loop shape) const
+blas_control_data blas_synth::build_control_flow(Function* fn, loop shape) const
 {
   // TODO: runtime option to log or not
   std::cerr << shape << '\n';
@@ -131,9 +131,9 @@ blas_synth::build_control_flow(Function *fn, loop shape) const
    * Data flow follows.
    */
   auto& ctx = fn->getContext();
-  auto seeds = std::vector<Instruction *>{};
-  auto outputs = std::vector<Instruction *>{};
-  auto blocks = std::vector<BasicBlock *>{};
+  auto seeds = std::vector<Instruction*>{};
+  auto outputs = std::vector<Instruction*>{};
+  auto blocks = std::vector<BasicBlock*>{};
 
   auto entry = BasicBlock::Create(ctx, "entry", fn);
   auto exit = BasicBlock::Create(ctx, "exit", fn);
@@ -144,8 +144,7 @@ blas_synth::build_control_flow(Function *fn, loop shape) const
   return { seeds, outputs, blocks, exit };
 }
 
-blas_control_data
-blas_synth::build_control_flow(Function *fn) const
+blas_control_data blas_synth::build_control_flow(Function* fn) const
 {
   auto& ctx = fn->getContext();
 
@@ -162,11 +161,9 @@ blas_synth::build_control_flow(Function *fn) const
 // TODO: handle nested loops in this method - loop over the children of shape
 // and build them appropriately.
 // TODO: logic to lay out sequences of loops when there's no parent.
-BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst, 
-                                   std::vector<Instruction *>& seeds,
-                                   std::vector<Instruction *>& outputs,
-                                   std::vector<BasicBlock *>& data_blocks,
-                                   std::vector<Value *> iters) const
+BasicBlock* blas_synth::build_loop(loop shape, BasicBlock* end_dst,
+    std::vector<Instruction*>& seeds, std::vector<Instruction*>& outputs,
+    std::vector<BasicBlock*>& data_blocks, std::vector<Value*> iters) const
 {
   auto loop_id = *shape.ID();
   auto indexes = blas_props_.size_indexes();
@@ -198,29 +195,29 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
 
   B.SetInsertPoint(body_pre);
   auto with_size = blas_props_.pointers_with_size(size_idx);
-  for(auto ptr_idx : with_size) {
+  for (auto ptr_idx : with_size) {
     auto pack = blas_props_.pack_size(ptr_idx);
     auto base_idx = B.CreateMul(iter, B.getInt32(pack));
 
     auto ptr_arg = std::next(fn->arg_begin(), ptr_idx);
 
-    for(auto i = 0u; i < pack; ++i) {
+    for (auto i = 0u; i < pack; ++i) {
       auto real_idx = B.CreateAdd(base_idx, B.getInt32(i));
 
-      auto gep = B.CreateGEP(ptr_arg, {real_idx});
+      auto gep = B.CreateGEP(ptr_arg, { real_idx });
       auto load = B.CreateLoad(gep);
-      
+
       seeds.push_back(load);
     }
 
-    if(blas_props_.is_output(ptr_idx)) {
+    if (blas_props_.is_output(ptr_idx)) {
       // TODO: unsafe cast
       // TODO: store to packs?
 
       auto ip = B.saveIP();
 
       B.SetInsertPoint(body_post);
-      auto store_gep = B.CreateGEP(ptr_arg, {iter});
+      auto store_gep = B.CreateGEP(ptr_arg, { iter });
       outputs.push_back(cast<Instruction>(store_gep));
 
       B.restoreIP(ip);
@@ -228,8 +225,8 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
   }
 
   iters.push_back(iter);
-  if(iters.size() == 2) {
-    for(auto idx : blas_props_.unsized_pointers()) {
+  if (iters.size() == 2) {
+    for (auto idx : blas_props_.unsized_pointers()) {
       auto ptr_arg = std::next(fn->arg_begin(), idx);
 
       // TODO: make properly generic: push this code into an indexing
@@ -238,7 +235,7 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
       auto stride = std::next(fn->arg_begin());
       auto mul = B.CreateMul(iters.at(0), stride);
       auto array_index = B.CreateAdd(iters.at(1), mul);
-      auto gep = B.CreateGEP(ptr_arg, {array_index});
+      auto gep = B.CreateGEP(ptr_arg, { array_index });
       auto load = B.CreateLoad(gep);
 
       seeds.push_back(load);
@@ -251,13 +248,13 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
       /* auto cond = B.CreateICmpSLT(diff, B.getInt32(0)); */
       // TODO: MOVE ME TO the regular GEP section of code
       // ------- end shortcut
-      
-      if(blas_props_.is_output(idx)) {
+
+      if (blas_props_.is_output(idx)) {
         // TODO: deduplicate store code?
         auto ip = B.saveIP();
 
         B.SetInsertPoint(body_post);
-        auto store_gep = B.CreateGEP(ptr_arg, {array_index});
+        auto store_gep = B.CreateGEP(ptr_arg, { array_index });
         outputs.push_back(cast<Instruction>(store_gep));
 
         B.restoreIP(ip);
@@ -265,8 +262,8 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
     }
   }
 
-  BasicBlock *dest = body_post;
-  for(auto& ch : shape) {
+  BasicBlock* dest = body_post;
+  for (auto& ch : shape) {
     dest = build_loop(*ch, dest, seeds, outputs, data_blocks, iters);
   }
   B.CreateBr(dest);
@@ -274,7 +271,7 @@ BasicBlock *blas_synth::build_loop(loop shape, BasicBlock* end_dst,
   B.SetInsertPoint(body_post);
   B.CreateBr(check);
 
-  if(shape.children_size() > 0) {
+  if (shape.children_size() > 0) {
     data_blocks.push_back(body_post);
   }
 
@@ -291,14 +288,13 @@ bool blas_synth::should_loop() const
 
 void blas_synth::next_loop()
 {
-  if(loops_.begin() == loops_.end()) {
+  if (loops_.begin() == loops_.end()) {
     return;
   }
 
   current_loop_++;
-  if(current_loop_ == loops_.end()) {
+  if (current_loop_ == loops_.end()) {
     current_loop_ = loops_.begin();
   }
 }
-
 }

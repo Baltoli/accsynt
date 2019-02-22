@@ -6,23 +6,23 @@ using namespace llvm;
 
 namespace support {
 
-std::set<Value *> all_uses(Value *v)
+std::set<Value*> all_uses(Value* v)
 {
-  auto work = std::queue<Value *>{};
+  auto work = std::queue<Value*>{};
   work.push(v);
 
-  auto ret = std::set<Value *>{};
-  while(!work.empty()) {
+  auto ret = std::set<Value*>{};
+  while (!work.empty()) {
     auto use = work.front();
     work.pop();
 
-    if(isa<StoreInst>(use)) {
+    if (isa<StoreInst>(use)) {
       continue;
     }
 
     auto [it, inserted] = ret.insert(use);
-    if(inserted) {
-      for(auto user : use->users()) {
+    if (inserted) {
+      for (auto user : use->users()) {
         work.push(user);
       }
     }
@@ -32,27 +32,39 @@ std::set<Value *> all_uses(Value *v)
   return ret;
 }
 
-std::set<Value *> all_deps(Value *v)
+std::set<Value*> all_deps(Value* v)
 {
   return all_deps(v, {});
 }
 
-std::set<Value *> all_deps(Value *v, std::vector<Value *> const& roots)
+std::set<Value*> all_deps(Value* v, std::vector<Value*> const& roots)
 {
-  auto work = std::queue<Value *>{};
+  auto work = std::queue<Value*>{};
   work.push(v);
 
-  auto ret = std::set<Value *>{};
-  while(!work.empty()) {
+  auto ret = std::set<Value*>{};
+  while (!work.empty()) {
     auto dep = work.front();
     work.pop();
 
-    if(auto user = dyn_cast<User>(dep)) {
+    if (auto user = dyn_cast<Instruction>(dep)) {
       auto found = std::find(roots.begin(), roots.end(), dep);
 
-      if(found == roots.end()) {
-        for(auto& op : user->operands()) {
+      if (found == roots.end()) {
+        for (auto& op : user->operands()) {
           work.push(op);
+        }
+      }
+    }
+
+    if (auto phi = dyn_cast<PHINode>(dep)) {
+      for (auto bb : phi->blocks()) {
+        for (auto label_use : bb->users()) {
+          if (auto branch = dyn_cast<BranchInst>(label_use);
+              branch->isConditional()) {
+            work.push(branch);
+            work.push(branch->getCondition());
+          }
         }
       }
     }
@@ -66,22 +78,23 @@ std::set<Value *> all_deps(Value *v, std::vector<Value *> const& roots)
 
 namespace {
 
-void visit(Value *v, std::set<Value *> const& vals, std::map<Value *, int>& marks, std::vector<Value *>& ret)
+void visit(Value* v, std::set<Value*> const& vals, std::map<Value*, int>& marks,
+    std::vector<Value*>& ret)
 {
   // Permanently marked
-  if(marks.at(v) == 1) {
+  if (marks.at(v) == 1) {
     return;
   }
 
   // Temp. marked
-  if(marks.at(v) == 2) {
+  if (marks.at(v) == 2) {
     throw std::runtime_error("Graph is not a DAG");
   }
 
   marks.at(v) = 2;
-  if(auto user_v = dyn_cast<User>(v)) {
-    for(auto& op : user_v->operands()) {
-      if(vals.find(op) != vals.end()) {
+  if (auto user_v = dyn_cast<User>(v)) {
+    for (auto& op : user_v->operands()) {
+      if (vals.find(op) != vals.end()) {
         visit(op, vals, marks, ret);
       }
     }
@@ -89,31 +102,30 @@ void visit(Value *v, std::set<Value *> const& vals, std::map<Value *, int>& mark
   marks.at(v) = 1;
   ret.push_back(v);
 }
-
 }
 
-std::vector<Value *> topo_sort(std::set<Value *> const& vals)
+std::vector<Value*> topo_sort(std::set<Value*> const& vals)
 {
-  auto ret = std::vector<Value *>{};
+  auto ret = std::vector<Value*>{};
 
-  if(!vals.empty()) {
-    auto marks = std::map<Value *, int>{};
-    for(auto v : vals) {
+  if (!vals.empty()) {
+    auto marks = std::map<Value*, int>{};
+    for (auto v : vals) {
       marks.emplace(v, 0);
     }
 
     bool unmarked = true;
-    while(unmarked) {
+    while (unmarked) {
       unmarked = false;
 
-      for(auto [v, mark] : marks) {
-        if(mark == 0) {
+      for (auto [v, mark] : marks) {
+        if (mark == 0) {
           visit(v, vals, marks, ret);
         }
       }
 
-      for(auto [v, mark] : marks) {
-        if(mark == 0) {
+      for (auto [v, mark] : marks) {
+        if (mark == 0) {
           unmarked = true;
         }
       }
@@ -123,17 +135,17 @@ std::vector<Value *> topo_sort(std::set<Value *> const& vals)
   return ret;
 }
 
-llvm::Value *get_by_name(Function& fn, std::string name)
+llvm::Value* get_by_name(Function& fn, std::string name)
 {
-  for(auto& arg : fn.args()) {
-    if(arg.getName() == name) {
+  for (auto& arg : fn.args()) {
+    if (arg.getName() == name) {
       return &arg;
     }
   }
 
-  for(auto& bb : fn) {
-    for(auto& inst : bb) {
-      if(inst.getName() == name) {
+  for (auto& bb : fn) {
+    for (auto& inst : bb) {
+      if (inst.getName() == name) {
         return &inst;
       }
     }
@@ -141,5 +153,4 @@ llvm::Value *get_by_name(Function& fn, std::string name)
 
   return nullptr;
 }
-
 }

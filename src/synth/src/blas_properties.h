@@ -8,12 +8,12 @@
 namespace synth {
 
 class blas_properties {
-public:
+  public:
   blas_properties(props::property_set ps);
 
   size_t loop_count() const;
   std::map<size_t, size_t> const& loop_sizes() const;
-  
+
   // The merged loop count is the number of unique loop sizes in this
   // property set
   size_t merged_loop_count() const;
@@ -27,9 +27,9 @@ public:
 
   size_t pack_size(size_t idx) const;
 
-private:
+  private:
   size_t count_ = 0;
-  
+
   // Stores a mapping from ptr_index -> size_index, where the indexes are into
   // the arguments of the property_set's type signature
   std::map<size_t, size_t> sizes_ = {};
@@ -44,5 +44,4 @@ private:
   // iteration
   std::map<size_t, size_t> packing_ = {};
 };
-
 }

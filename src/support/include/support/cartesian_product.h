@@ -10,37 +10,42 @@
 
 namespace support {
 
-template <typename T, typename It>
-class cartesian_product_iterator;
+template <typename T, typename It> class cartesian_product_iterator;
 
 template <typename ElementType, typename NestedIterator>
 class cartesian_product {
-public:
+  public:
   using iterator = cartesian_product_iterator<ElementType, NestedIterator>;
   friend iterator;
 
-  cartesian_product(NestedIterator b, NestedIterator e) :
-    begin_(b),
-    product_size_(std::distance(b, e)),
-    element_sizes_(product_size_)
+  cartesian_product(NestedIterator b, NestedIterator e)
+      : begin_(b)
+      , product_size_(std::distance(b, e))
+      , element_sizes_(product_size_)
   {
     using std::begin;
     using std::end;
 
-    auto i = size_t{0};
-    for(auto it = b; it != e; ++it) {
+    auto i = size_t{ 0 };
+    for (auto it = b; it != e; ++it) {
       element_sizes_[i++] = std::distance(begin(*it), end(*it));
     }
 
-    n_products_ = std::accumulate(element_sizes_.begin(), element_sizes_.end(), 1, std::multiplies{});
+    n_products_ = std::accumulate(
+        element_sizes_.begin(), element_sizes_.end(), 1, std::multiplies{});
   }
 
   template <typename Container>
-  cartesian_product(Container&& c) :
-    cartesian_product(
-      [&] { using std::begin; return begin(c); }(),
-      [&] { using std::end; return end(c); }()
-    )
+  cartesian_product(Container&& c)
+      : cartesian_product(
+            [&] {
+              using std::begin;
+              return begin(c);
+            }(),
+            [&] {
+              using std::end;
+              return end(c);
+            }())
   {
   }
 
@@ -64,24 +69,24 @@ public:
     return iterator(n_products_, n_products_, *this);
   }
 
-protected:
+  protected:
   std::vector<ElementType> get(size_t idx)
   {
     using std::begin;
 
     auto offsets = std::vector<size_t>(product_size_, 0);
 
-    for(auto i = 0u; i < idx; ++i) {
-      auto ptr = size_t{0};
+    for (auto i = 0u; i < idx; ++i) {
+      auto ptr = size_t{ 0 };
       offsets[ptr]++;
-      while(offsets[ptr] == element_sizes_[ptr]) {
+      while (offsets[ptr] == element_sizes_[ptr]) {
         offsets[ptr++] = 0;
         offsets[ptr]++;
       }
     }
 
     auto ret = std::vector<ElementType>();
-    for(auto i = 0u; i < product_size_; ++i) {
+    for (auto i = 0u; i < product_size_; ++i) {
       auto it = begin_;
       std::advance(it, i);
 
@@ -93,7 +98,7 @@ protected:
     return ret;
   }
 
-private:
+  private:
   NestedIterator begin_;
 
   size_t product_size_;
@@ -111,47 +116,42 @@ private:
  * an iterator typedef within it.
  */
 template <typename NestedIterator>
-cartesian_product(NestedIterator, NestedIterator) ->
-  cartesian_product<
-    typename std::iterator_traits<
-      typename std::iterator_traits<
-        NestedIterator
-      >::value_type::iterator
-    >::value_type,
-    NestedIterator
-  >;
+cartesian_product(NestedIterator, NestedIterator)
+    ->cartesian_product<
+        typename std::iterator_traits<typename std::iterator_traits<
+            NestedIterator>::value_type::iterator>::value_type,
+        NestedIterator>;
 
 template <typename Container>
-cartesian_product(Container&&) ->
-  cartesian_product<
-    typename std::iterator_traits<
-      typename std::iterator_traits<
-        typename std::decay_t<Container>::iterator
-      >::value_type::iterator
-    >::value_type,
-    typename std::decay_t<Container>::iterator
-  >;
+cartesian_product(Container &&)
+    ->cartesian_product<
+        typename std::iterator_traits<typename std::iterator_traits<
+            typename std::decay_t<Container>::iterator>::value_type::iterator>::
+            value_type,
+        typename std::decay_t<Container>::iterator>;
 
 template <typename ElementType, typename NestedIterator>
 class cartesian_product_iterator {
-private:
+  private:
   using iter_t = cartesian_product_iterator<ElementType, NestedIterator>;
   using product_t = cartesian_product<ElementType, NestedIterator>;
 
-public:
+  public:
   using value_type = std::vector<ElementType>;
   using difference_type = size_t;
   using pointer = std::vector<ElementType>*;
   using reference = std::vector<ElementType> const&;
   using iterator_category = std::random_access_iterator_tag;
 
-  cartesian_product_iterator(size_t idx, size_t size, product_t& data) :
-    index_(idx), size_(size), data_(&data)
+  cartesian_product_iterator(size_t idx, size_t size, product_t& data)
+      : index_(idx)
+      , size_(size)
+      , data_(&data)
   {
   }
 
-  cartesian_product_iterator() :
-    cartesian_product_iterator(0, 0, nullptr)
+  cartesian_product_iterator()
+      : cartesian_product_iterator(0, 0, nullptr)
   {
   }
 
@@ -244,8 +244,8 @@ public:
 
   bool operator==(iter_t const& other)
   {
-    return std::tie(index_, size_, data_) ==
-           std::tie(other.index_, other.size_, other.data_);
+    return std::tie(index_, size_, data_)
+        == std::tie(other.index_, other.size_, other.data_);
   }
 
   bool operator!=(iter_t const& other)
@@ -255,14 +255,14 @@ public:
 
   bool operator<(iter_t const& other)
   {
-    return std::tie(index_, size_, data_) <
-           std::tie(other.index_, other.size_, other.data_);
+    return std::tie(index_, size_, data_)
+        < std::tie(other.index_, other.size_, other.data_);
   }
 
   bool operator>(iter_t const& other)
   {
-    return std::tie(index_, size_, data_) >
-           std::tie(other.index_, other.size_, other.data_);
+    return std::tie(index_, size_, data_)
+        > std::tie(other.index_, other.size_, other.data_);
   }
 
   bool operator<=(iter_t const& other)
@@ -284,7 +284,7 @@ public:
     swap(a.state_, b.state_);
   }
 
-private:
+  private:
   size_t index_;
   size_t size_;
   product_t* data_;
@@ -295,12 +295,11 @@ private:
 
   void reload()
   {
-    if(needs_reload_) {
+    if (needs_reload_) {
       state_ = data_->get(index_);
     }
 
     needs_reload_ = false;
   }
 };
-
 }

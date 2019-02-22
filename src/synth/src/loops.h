@@ -13,26 +13,23 @@
 #include <vector>
 
 namespace synth {
-  struct hole;
-  struct loop_id;
-  class loop;
+struct hole;
+struct loop_id;
+class loop;
 }
 
 namespace std {
-  template <>
-  struct hash<synth::hole> {
-    size_t operator()(synth::hole const& h) const;
-  };
+template <> struct hash<synth::hole> {
+  size_t operator()(synth::hole const& h) const;
+};
 
-  template <>
-  struct hash<synth::loop_id> {
-    size_t operator()(synth::loop_id const& h) const;
-  };
+template <> struct hash<synth::loop_id> {
+  size_t operator()(synth::loop_id const& h) const;
+};
 
-  template <>
-  struct hash<synth::loop> {
-    size_t operator()(synth::loop const& h) const;
-  };
+template <> struct hash<synth::loop> {
+  size_t operator()(synth::loop const& h) const;
+};
 }
 
 namespace synth {
@@ -45,16 +42,22 @@ namespace synth {
  */
 struct hole {
   /// Always returns true; all holes are equivalent.
-  bool operator==(hole const& other) const { return true; }
+  bool operator==(hole const& other) const
+  {
+    return true;
+  }
 
   /// Always returns false; all holes are equivalent.
-  bool operator!=(hole const& other) const { return false; }
+  bool operator!=(hole const& other) const
+  {
+    return false;
+  }
 };
 
 /**
  * \brief Small type-safe wrapper around a loop identifier.
  */
-struct loop_id { 
+struct loop_id {
   loop_id() = delete;
 
   /// Comparisons use underlying id.
@@ -119,7 +122,7 @@ class loop {
   // If a loop has no slot, it represents a sequence of its children.
   std::optional<slot> slot_ = hole{};
 
-public:
+  public:
   /**
    * \brief The default state for a loop object is a hole with no child loops.
    *
@@ -139,7 +142,10 @@ public:
    * This constructor can be used to construct a container loop (one that does
    * not have an outer iterator) by passing an empty optional.
    */
-  loop(std::optional<slot> s) : slot_{s} {}
+  loop(std::optional<slot> s)
+      : slot_{ s }
+  {
+  }
 
   /**
    * \brief Copy-construct a loop by copying all child loops.
@@ -160,7 +166,7 @@ public:
   ///@{
   bool operator==(loop const& other) const;
   bool operator!=(loop const& other) const;
-  
+
   /**
    * \brief Public hash function that can access private state.
    *
@@ -185,8 +191,7 @@ public:
   ///@{
   loop& add_child(loop const& l);
 
-  template <typename Container>
-  void instantiate(Container c);
+  template <typename Container> void instantiate(Container c);
   ///@}
 
   /**
@@ -205,15 +210,33 @@ public:
    * \name Iteration
    */
   ///@{
-  size_t children_size() const { return loops_.size(); }
-  loop& nth_child(size_t n) const { return *loops_.at(n); }
+  size_t children_size() const
+  {
+    return loops_.size();
+  }
+  loop& nth_child(size_t n) const
+  {
+    return *loops_.at(n);
+  }
 
-  auto begin() const { return loops_.begin(); }
-  auto end() const { return loops_.end(); }
-  auto rbegin() const { return loops_.rbegin(); }
-  auto rend() const { return loops_.rend(); }
+  auto begin() const
+  {
+    return loops_.begin();
+  }
+  auto end() const
+  {
+    return loops_.end();
+  }
+  auto rbegin() const
+  {
+    return loops_.rbegin();
+  }
+  auto rend() const
+  {
+    return loops_.rend();
+  }
   ///@}
-  
+
   /**
    * \name Enumeration
    *
@@ -239,43 +262,42 @@ std::unordered_set<loop> loop::loops(size_t n, Iterator begin, Iterator end)
   auto ret = std::unordered_set<loop>{};
   auto all_shapes = shapes(n);
   do {
-    for(const auto& shape : all_shapes) {
+    for (const auto& shape : all_shapes) {
       auto inst = shape.instantiated(begin, end).first;
       ret.insert(inst);
     }
-  } while(std::next_permutation(begin, end));
+  } while (std::next_permutation(begin, end));
 
   return ret;
 }
 
-template <typename Container>
-void loop::instantiate(Container c)
+template <typename Container> void loop::instantiate(Container c)
 {
-  using std::begin; using std::end;
+  using std::begin;
+  using std::end;
   *this = instantiated(begin(c), end(c)).first;
 }
 
 template <typename Iterator>
 std::pair<loop, Iterator> loop::instantiated(Iterator begin, Iterator end) const
 {
-  if(begin == end) {
-    return {*this, begin};
+  if (begin == end) {
+    return { *this, begin };
   }
 
   auto ret = *this;
   auto it = begin;
-  if(ret.slot_) {
-    ret.slot_ = loop_id{*it++};
+  if (ret.slot_) {
+    ret.slot_ = loop_id{ *it++ };
   }
 
-  for(auto i = 0u; i < ret.children_size(); ++i) {
+  for (auto i = 0u; i < ret.children_size(); ++i) {
     auto& ch = ret.nth_child(i);
     auto pair = ch.instantiated(it++, end);
     ch = pair.first;
     it = pair.second;
   }
 
-  return {ret, it};
+  return { ret, it };
 }
-
 }

@@ -20,39 +20,36 @@ namespace synth {
  * build their dataflow. Keeping instructions restricted for now.
  */
 class value_sampler {
-public:
+  public:
   value_sampler() = default;
 
   template <typename Builder>
-  void block(Builder&&, size_t, std::vector<llvm::Value *>&);
+  void block(Builder&&, size_t, std::vector<llvm::Value*>&);
 
-  void add_incoming(
-    llvm::PHINode *phi, 
-    std::map<llvm::BasicBlock *, std::vector<llvm::Value *>> const& live);
+  void add_incoming(llvm::PHINode* phi,
+      std::map<llvm::BasicBlock*, std::vector<llvm::Value*>> const& live);
 
-  llvm::Value *constant(llvm::Type *ty) const;
+  llvm::Value* constant(llvm::Type* ty) const;
 
-protected:
+  protected:
   template <typename Builder>
-  llvm::Value *arithmetic(Builder&& B, llvm::Value *v1, llvm::Value *v2) const;
+  llvm::Value* arithmetic(Builder&& B, llvm::Value* v1, llvm::Value* v2) const;
 
-private:
+  private:
   // Internal state kept during the generation process
 };
 
 template <typename Builder>
-void value_sampler::block(Builder&& B, size_t n, 
-                          std::vector<llvm::Value *>& live)
+void value_sampler::block(
+    Builder&& B, size_t n, std::vector<llvm::Value*>& live)
 {
-  auto non_const = [] (auto *v) {
-    return !llvm::isa<llvm::Constant>(v);
-  };
+  auto non_const = [](auto* v) { return !llvm::isa<llvm::Constant>(v); };
 
-  for(auto i = 0u; i < n; ++i) {
-    if(!live.empty()) {
+  for (auto i = 0u; i < n; ++i) {
+    if (!live.empty()) {
       auto v1 = support::uniform_sample_if(live, non_const);
       auto v2 = support::uniform_sample_if(live, non_const);
-      if(v1 != live.end() && v2 != live.end()) { 
+      if (v1 != live.end() && v2 != live.end()) {
         live.push_back(arithmetic(B, *v1, *v2));
       }
     }
@@ -60,7 +57,8 @@ void value_sampler::block(Builder&& B, size_t n,
 }
 
 template <typename Builder>
-llvm::Value *make_intrinsic(Builder&& B, llvm::Intrinsic::ID id, llvm::Value *v1)
+llvm::Value* make_intrinsic(
+    Builder&& B, llvm::Intrinsic::ID id, llvm::Value* v1)
 {
   auto mod = B.GetInsertBlock()->getParent()->getParent();
   auto intrinsic = llvm::Intrinsic::getDeclaration(mod, id, v1->getType());
@@ -68,7 +66,7 @@ llvm::Value *make_intrinsic(Builder&& B, llvm::Intrinsic::ID id, llvm::Value *v1
 }
 
 template <typename Builder>
-llvm::Value *make_clamp(Builder&& B, llvm::Value *v1)
+llvm::Value* make_clamp(Builder&& B, llvm::Value* v1)
 {
   auto zero = llvm::ConstantFP::get(B.getFloatTy(), 0.0);
   auto cond = B.CreateFCmpOLT(v1, zero);
@@ -76,32 +74,38 @@ llvm::Value *make_clamp(Builder&& B, llvm::Value *v1)
 }
 
 template <typename Builder>
-llvm::Value *value_sampler::arithmetic(
-    Builder&& B, llvm::Value *v1, llvm::Value *v2) const
+llvm::Value* value_sampler::arithmetic(
+    Builder&& B, llvm::Value* v1, llvm::Value* v2) const
 {
   // TODO: be more forgiving to different types being passed in here - look for
   // common base type etc and try to do some extensions / upcasting
-  
-  if(v1->getType() != v2->getType()) {
+
+  if (v1->getType() != v2->getType()) {
     return nullptr;
   }
 
   // TODO: check integer vs. floating point etc
-  auto options = std::vector{0,1};
+  auto options = std::vector{ 0, 1 };
   auto choice = *support::uniform_sample(options);
-  switch(choice) {
-    case 0: return B.CreateFAdd(v1, v2);
-    case 1: return B.CreateFMul(v1, v2);
-    case 2: return B.CreateFSub(v1, v2);
-    case 3: return make_intrinsic(B, llvm::Intrinsic::fabs, v1);
-    case 4: return make_intrinsic(B, llvm::Intrinsic::sqrt, v1);
-    case 5: return make_intrinsic(B, llvm::Intrinsic::exp, v1);
-    case 6: return make_clamp(B, v1);
-    case 7: return B.CreateFDiv(v1, v2);
+  switch (choice) {
+  case 0:
+    return B.CreateFAdd(v1, v2);
+  case 1:
+    return B.CreateFMul(v1, v2);
+  case 2:
+    return B.CreateFSub(v1, v2);
+  case 3:
+    return make_intrinsic(B, llvm::Intrinsic::fabs, v1);
+  case 4:
+    return make_intrinsic(B, llvm::Intrinsic::sqrt, v1);
+  case 5:
+    return make_intrinsic(B, llvm::Intrinsic::exp, v1);
+  case 6:
+    return make_clamp(B, v1);
+  case 7:
+    return B.CreateFDiv(v1, v2);
   }
 
   __builtin_unreachable();
 }
-
-
 }

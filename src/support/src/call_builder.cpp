@@ -8,8 +8,8 @@ using namespace llvm;
 
 namespace support {
 
-call_builder::call_builder(props::signature sig) :
-  signature_(sig)
+call_builder::call_builder(props::signature sig)
+    : signature_(sig)
 {
 }
 
@@ -18,10 +18,11 @@ signature const& call_builder::signature() const
   return signature_;
 }
 
-call_builder::call_builder(call_builder const& other) :
-  signature_(other.signature_),
-  current_arg_(0),
-  int_data_(other.int_data_), float_data_(other.float_data_)
+call_builder::call_builder(call_builder const& other)
+    : signature_(other.signature_)
+    , current_arg_(0)
+    , int_data_(other.int_data_)
+    , float_data_(other.float_data_)
 {
   args_.clear();
 
@@ -29,27 +30,27 @@ call_builder::call_builder(call_builder const& other) :
   size_t int_offset = 0;
   size_t float_offset = 0;
 
-  for(auto const& param : signature_.parameters) {
-    if(current_arg_ >= other.current_arg_) {
+  for (auto const& param : signature_.parameters) {
+    if (current_arg_ >= other.current_arg_) {
       break;
     }
 
-    if(param.pointer_depth == 0) {
+    if (param.pointer_depth == 0) {
       // TODO: fix size for more types
-      for(auto i = 0u; i < 4; ++i, ++offset) {
+      for (auto i = 0u; i < 4; ++i, ++offset) {
         args_.push_back(other.args_.at(offset));
       }
     } else {
       assert(param.pointer_depth == 1 && "Can't copy nested pointers");
 
-      void *data = nullptr;
-      if(param.type == data_type::integer) {
+      void* data = nullptr;
+      if (param.type == data_type::integer) {
         data = int_data_.at(int_offset++).data();
-      } else if(param.type == data_type::floating) {
+      } else if (param.type == data_type::floating) {
         data = float_data_.at(float_offset++).data();
       }
 
-      for(auto i = 0u; i < sizeof(void*); ++i) {
+      for (auto i = 0u; i < sizeof(void*); ++i) {
         args_.push_back(detail::nth_byte(data, i));
       }
 
@@ -83,8 +84,8 @@ void swap(call_builder& left, call_builder& right)
 
 uint8_t* call_builder::args()
 {
-  assert(current_arg_ == signature_.parameters.size() &&
-         "Argument pack not fully built yet!");
+  assert(current_arg_ == signature_.parameters.size()
+      && "Argument pack not fully built yet!");
   return args_.data();
 }
 
@@ -92,11 +93,11 @@ bool call_builder::operator==(call_builder const& other) const
 {
   // Easy up front checks - we need to be storing the same quantity of argument
   // data, and we need the same signature.
-  if(args_.size() != other.args_.size()) {
+  if (args_.size() != other.args_.size()) {
     return false;
   }
 
-  if(signature_ != other.signature_) {
+  if (signature_ != other.signature_) {
     return false;
   }
 
@@ -111,15 +112,15 @@ bool call_builder::operator==(call_builder const& other) const
 
   bool all_eq = true;
 
-  for(auto const& param : signature_.parameters) {
-    if(!all_eq) {
+  for (auto const& param : signature_.parameters) {
+    if (!all_eq) {
       return false;
     }
 
-    if(param.pointer_depth == 0) {
+    if (param.pointer_depth == 0) {
       // Value comparisons done on the raw byte data
       // TODO: fix hard-coded size assumption when I have more types
-      for(auto i = 0u; i < 4; ++i, ++offset) {
+      for (auto i = 0u; i < 4; ++i, ++offset) {
         all_eq = all_eq && (args_.at(offset) == other.args_.at(offset));
       }
     } else {
@@ -128,16 +129,15 @@ bool call_builder::operator==(call_builder const& other) const
       // different
       offset += 8;
 
-      if(param.type == data_type::integer) {
-        all_eq = all_eq && 
-          (int_data_.at(int_data_offset) == 
-           other.int_data_.at(int_data_offset));
+      if (param.type == data_type::integer) {
+        all_eq = all_eq
+            && (int_data_.at(int_data_offset)
+                   == other.int_data_.at(int_data_offset));
         int_data_offset++;
-      } else if(param.type == data_type::floating) {
-        all_eq = all_eq && 
-          approx_equal(
-            float_data_.at(float_data_offset),
-            other.float_data_.at(float_data_offset));
+      } else if (param.type == data_type::floating) {
+        all_eq = all_eq
+            && approx_equal(float_data_.at(float_data_offset),
+                   other.float_data_.at(float_data_offset));
         float_data_offset++;
       }
     }
@@ -150,5 +150,4 @@ bool call_builder::operator!=(call_builder const& other) const
 {
   return !(*this == other);
 }
-
 }

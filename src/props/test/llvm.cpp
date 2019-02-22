@@ -10,23 +10,27 @@ using namespace support;
 
 using namespace llvm;
 
-TEST_CASE("can get LLVM types from parameters") {
-  SECTION("for integer values") {
-    auto p = param{"any_name", data_type::integer, 0};
+TEST_CASE("can get LLVM types from parameters")
+{
+  SECTION("for integer values")
+  {
+    auto p = param{ "any_name", data_type::integer, 0 };
     auto t = p.llvm_type();
 
     REQUIRE(t->isIntegerTy(32));
   }
 
-  SECTION("for floating values") {
-    auto p = param{"name", data_type::floating, 0};
+  SECTION("for floating values")
+  {
+    auto p = param{ "name", data_type::floating, 0 };
     auto t = p.llvm_type();
 
     REQUIRE(t->isFloatTy());
   }
 
-  SECTION("for integer pointers") {
-    auto p = param{"woo", data_type::integer, 1};
+  SECTION("for integer pointers")
+  {
+    auto p = param{ "woo", data_type::integer, 1 };
     auto t = p.llvm_type();
 
     REQUIRE(t->isPointerTy());
@@ -35,8 +39,9 @@ TEST_CASE("can get LLVM types from parameters") {
     REQUIRE(t1->isIntegerTy(32));
   }
 
-  SECTION("for floating pointers") {
-    auto p = param{"rwe", data_type::floating, 2};
+  SECTION("for floating pointers")
+  {
+    auto p = param{ "rwe", data_type::floating, 2 };
     auto t = p.llvm_type();
 
     REQUIRE(t->isPointerTy());
@@ -49,8 +54,10 @@ TEST_CASE("can get LLVM types from parameters") {
   }
 }
 
-TEST_CASE("can get LLVM types from signatures") {
-  SECTION("with return") {
+TEST_CASE("can get LLVM types from signatures")
+{
+  SECTION("with return")
+  {
     auto sig = signature::parse("int func()");
     auto ft = sig.function_type();
 
@@ -62,7 +69,8 @@ TEST_CASE("can get LLVM types from signatures") {
     REQUIRE(ft->getNumParams() == 0);
   }
 
-  SECTION("with void return") {
+  SECTION("with void return")
+  {
     auto sig = signature::parse("void fj_io(int *x, float y, float **z)");
     auto ft = sig.function_type();
 
@@ -87,12 +95,13 @@ TEST_CASE("can get LLVM types from signatures") {
     REQUIRE(p2_t->isPointerTy());
 
     auto p2_t_t = cast<PointerType>(p2_t)->getElementType();
-    
+
     REQUIRE(p2_t_t->isFloatTy());
   }
 }
 
-TEST_CASE("can create functions from signatures") {
+TEST_CASE("can create functions from signatures")
+{
   auto mod = Module("test-mod", thread_context::get());
   auto sig = signature::parse("void test(int x, float *y)");
   auto fn = sig.create_function(mod);

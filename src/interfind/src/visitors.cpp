@@ -7,11 +7,8 @@ using namespace llvm;
 
 namespace interfind {
 
-std::set<Value *> values_of_type(Function &fn, Type *ty)
+std::set<Value*> values_of_type(Function& fn, Type* ty)
 {
-  return values_by_pred(fn, [ty] (auto& val) {
-    return val.getType() == ty;
-  });
+  return values_by_pred(fn, [ty](auto& val) { return val.getType() == ty; });
 }
-
 }

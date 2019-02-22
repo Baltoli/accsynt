@@ -7,14 +7,18 @@
 #include <fmt/format.h>
 #include <nlohmann/json_fwd.hpp>
 
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/Transforms/Utils/ValueMapper.h>
+
 #include <map>
 #include <vector>
 
 namespace llvm {
-  class Function;
-  class FunctionType;
-  class Type;
-  class Value;
+class Function;
+class FunctionType;
+class Instruction;
+class Type;
+class Value;
 }
 
 namespace interfind {
@@ -23,29 +27,59 @@ namespace interfind {
  * Represents a separable region of code that can be extracted into a function.
  */
 class region {
-public:
+  public:
   /**
    * Direct constructor from the values comprising this region.
    */
-  region(llvm::Value *, std::vector<llvm::Value *>, 
-         llvm::Function &, llvm::FunctionType *);
+  region(llvm::Instruction*, std::vector<llvm::Value*>, llvm::Function&,
+      llvm::FunctionType*);
 
   /**
    * Extract this region from its containing function and create a new function
    * that behaves equivalently to the region, taking care to map inputs /
    * outputs etc. properly.
    */
-  llvm::Function *extract() const;
+  llvm::Function* extract() const;
 
-  llvm::Value* output() const;
-  std::vector<llvm::Value *> const& inputs() const;
+  /**
+   * Accessors to the stored region inputs and output.
+   */
+  llvm::Instruction* output() const;
+  std::vector<llvm::Value*> const& inputs() const;
 
-private:
-  llvm::Value *output_;
-  std::vector<llvm::Value *> inputs_;
+  private:
+  /**
+   * Populate a value map by mapping region inputs to the extracted function's
+   * arguments.
+   */
+  void make_initial_value_map(llvm::ValueToValueMapTy&, llvm::Function*) const;
 
-  llvm::Function &original_;
-  llvm::FunctionType *function_type_;
+  /**
+   * Clone a single instruction across to the extracted region, remapping its
+   * operands appropriately and creating an entry in the value map for
+   * subsequent instructions to follow.
+   */
+  void clone_instruction(
+      llvm::Instruction*, llvm::ValueToValueMapTy&, llvm::IRBuilder<>&) const;
+
+  /**
+   * Clone the output instruction to the extracted region, creating a return
+   * statement in the right place.
+   */
+  void clone_output(llvm::ValueToValueMapTy&, llvm::IRBuilder<>&) const;
+
+  /**
+   * Get the basic block corresponding to this instruction from the value map -
+   * if one doesn't exist then we create it.
+   */
+  void set_insert_block(
+      llvm::Instruction*, llvm::ValueToValueMapTy&, llvm::IRBuilder<>&) const;
+
+  llvm::Instruction* output_;
+  std::vector<llvm::Value*> inputs_;
+
+  llvm::Function& original_;
+  llvm::FunctionType* function_type_;
 };
 
 void to_json(nlohmann::json&, region const&);
@@ -55,13 +89,13 @@ void to_json(nlohmann::json&, region const&);
  * type.
  */
 class region_finder {
-public:
+  public:
   /**
    * Construct a region with the given return and argument types, as well as a
    * function to search in.
    */
-  region_finder(llvm::Function &, llvm::Type *, std::vector<llvm::Type *>);
-  region_finder(llvm::Function &, llvm::FunctionType *);
+  region_finder(llvm::Function&, llvm::Type*, std::vector<llvm::Type*>);
+  region_finder(llvm::Function&, llvm::FunctionType*);
 
   // TODO: should really be unordered_set but needs boilerplate on the region
   //       class to support this.
@@ -71,8 +105,8 @@ public:
    */
   std::vector<region> all_candidates() const;
 
-private:
-  using partition = std::map<llvm::Type *, std::set<llvm::Value *>>;
+  private:
+  using partition = std::map<llvm::Type*, std::set<llvm::Value*>>;
 
   /**
    * Returns true if arg could be an argument to a function-like region that
@@ -84,20 +118,20 @@ private:
    *  - if neither is global, then they must be instructions, and we delegate to
    *    the LLVM dominance analysis.
    */
-  bool available(llvm::Value *ret, llvm::Value *arg) const;
+  bool available(llvm::Value* ret, llvm::Value* arg) const;
 
   /**
    * Compute the set of values dominated by this value. This can then be used to
    * work out which values could be function arguments to a function that
    * returns this value.
    */
-  std::set<llvm::Value *> available_set(llvm::Value *) const;
+  std::set<llvm::Value*> available_set(llvm::Value*) const;
 
   /**
    * Partition a set of available values by type, such that all the values of a
    * particular type are in the same entry in the map (indexed by their type).
    */
-  partition type_partition(std::set<llvm::Value *> const&) const;
+  partition type_partition(std::set<llvm::Value*> const&) const;
 
   /**
    * Check whether a generated partition is able to satisfy the type signature
@@ -107,10 +141,9 @@ private:
   bool partition_is_valid(partition const&) const;
 
   llvm::Function& function_;
-  llvm::Type *return_type_;
-  std::vector<llvm::Type *> argument_types_;
+  llvm::Type* return_type_;
+  std::vector<llvm::Type*> argument_types_;
 
   use_def_analysis ud_analysis_;
 };
-
 }

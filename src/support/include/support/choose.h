@@ -10,30 +10,29 @@
 namespace support {
 
 class choose {
-public:
+  public:
   choose(size_t n, size_t k);
 
-  template <typename Func>
-  void for_each(Func&& f) const;
+  template <typename Func> void for_each(Func&& f) const;
 
-private:
+  private:
   template <typename Func>
-  void recursive_step(std::vector<size_t> idxs,
-                      std::vector<size_t> accum, Func&& f) const;
+  void recursive_step(
+      std::vector<size_t> idxs, std::vector<size_t> accum, Func&& f) const;
 
   size_t elements_;
   size_t choice_size_;
 };
 
 template <typename Func>
-void choose::recursive_step(std::vector<size_t> idxs,
-                            std::vector<size_t> accum,
-                            Func&& f) const
+void choose::recursive_step(
+    std::vector<size_t> idxs, std::vector<size_t> accum, Func&& f) const
 {
-  if(accum.size() == choice_size_) {
-    FWD(f)(accum);
+  if (accum.size() == choice_size_) {
+    FWD(f)
+    (accum);
   } else {
-    for(auto i = 0u; i < idxs.size(); ++i) {
+    for (auto i = 0u; i < idxs.size(); ++i) {
       auto remain = idxs;
       remain.erase(remain.begin() + i);
 
@@ -46,8 +45,7 @@ void choose::recursive_step(std::vector<size_t> idxs,
   }
 }
 
-template <typename Func>
-void choose::for_each(Func&& f) const
+template <typename Func> void choose::for_each(Func&& f) const
 {
   auto indices = std::vector<size_t>(elements_);
   std::iota(indices.begin(), indices.end(), 0);
@@ -56,5 +54,4 @@ void choose::for_each(Func&& f) const
 }
 
 #undef FWD
-
 }

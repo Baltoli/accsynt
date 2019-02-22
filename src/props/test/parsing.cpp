@@ -9,8 +9,10 @@
 namespace fs = std::filesystem;
 using namespace props;
 
-TEST_CASE("signatures can be parsed") {
-  SECTION("with valid signatures") {
+TEST_CASE("signatures can be parsed")
+{
+  SECTION("with valid signatures")
+  {
     auto s = signature::parse("float x()");
     REQUIRE(s.name == "x");
     REQUIRE(s.return_type);
@@ -27,7 +29,7 @@ TEST_CASE("signatures can be parsed") {
     REQUIRE(s2.parameters.at(1).name == "zz_");
     REQUIRE(s2.parameters.at(1).type == data_type::floating);
     REQUIRE(s2.parameters.at(1).pointer_depth == 0);
-    
+
     auto s3 = signature::parse("void fwio(int ***woo)");
     REQUIRE(s3.name == "fwio");
     REQUIRE(!s3.return_type);
@@ -36,7 +38,8 @@ TEST_CASE("signatures can be parsed") {
     REQUIRE(s3.parameters.at(0).pointer_depth == 3);
   }
 
-  SECTION("without valid signatures") {
+  SECTION("without valid signatures")
+  {
     REQUIRE_THROWS(signature::parse("aefjio"));
     REQUIRE_THROWS(signature::parse(""));
     REQUIRE_THROWS(signature::parse("int *woo()"));
@@ -48,8 +51,10 @@ TEST_CASE("signatures can be parsed") {
   }
 }
 
-TEST_CASE("properties can be parsed") {
-  SECTION("with no values") {
+TEST_CASE("properties can be parsed")
+{
+  SECTION("with no values")
+  {
     auto s1 = "name";
     auto pr1 = property::parse(s1);
 
@@ -58,7 +63,8 @@ TEST_CASE("properties can be parsed") {
   }
 }
 
-TEST_CASE("files can be parsed") {
+TEST_CASE("files can be parsed")
+{
   auto file = R"(;hello
 
 ;qwd
@@ -87,7 +93,8 @@ wefjop
   REQUIRE(ps.properties.size() == 3);
 }
 
-TEST_CASE("files can be loaded") {
+TEST_CASE("files can be loaded")
+{
   auto current_path = fs::path(RESOURCE_DIR);
 
   auto test_a_path = current_path / "test_a.props";

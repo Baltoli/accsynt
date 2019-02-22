@@ -17,13 +17,12 @@ namespace synth {
  *  * A set of output locations to be stored to.
  */
 struct compile_metadata {
-  llvm::Function *function;
-  std::set<llvm::Value *> seeds = {};
-  std::set<llvm::BasicBlock *> data_blocks = {};
-  std::set<llvm::Instruction *> outputs = {};
-  std::set<llvm::Value *> indices = {};
+  llvm::Function* function;
+  std::set<llvm::Value*> seeds = {};
+  std::set<llvm::BasicBlock*> data_blocks = {};
+  std::set<llvm::Instruction*> outputs = {};
+  std::set<llvm::Value*> indices = {};
 
-  explicit compile_metadata(llvm::Function *fn);
+  explicit compile_metadata(llvm::Function* fn);
 };
-
 }

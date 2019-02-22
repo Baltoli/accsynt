@@ -2,8 +2,9 @@
 
 namespace interfind {
 
-analysis_result::analysis_result(props::signature sig) :
-  signature_(sig), regions_{}
+analysis_result::analysis_result(props::signature sig)
+    : signature_(sig)
+    , regions_{}
 {
 }
 
@@ -21,5 +22,4 @@ std::vector<region> const& analysis_result::regions() const
 {
   return regions_;
 }
-
 }

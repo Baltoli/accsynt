@@ -4,7 +4,7 @@
 #include <support/traits.h>
 
 #include <props/props.h>
- 
+
 #include <limits>
 #include <memory>
 #include <random>
@@ -19,7 +19,8 @@ namespace detail {
  * of the template specialisation below.
  */
 template <typename, typename = std::void_t<>>
-struct is_generator : std::false_type {};
+struct is_generator : std::false_type {
+};
 
 /**
  * SFINAE specialisation to detect valid generators. This needs both arms
@@ -30,27 +31,19 @@ struct is_generator : std::false_type {};
  */
 template <typename T>
 struct is_generator<T,
-  std::void_t<
-    decltype(std::declval<T>().gen_int(0, 0)),
-    decltype(std::declval<T>().gen_float(0.0f, 0.0f))
-  >> : 
-  std::conjunction<
-    std::is_same<
-      decltype(std::declval<T>().gen_int(0, 0)), 
-      int>,
-    std::is_same<
-      decltype(std::declval<T>().gen_float(0.0f, 0.0f)), 
-      float>,
-    std::is_copy_constructible<T>,
-    std::is_move_constructible<T>
-  > {};
+    std::void_t<decltype(std::declval<T>().gen_int(0, 0)),
+        decltype(std::declval<T>().gen_float(0.0f, 0.0f))>>
+    : std::conjunction<
+          std::is_same<decltype(std::declval<T>().gen_int(0, 0)), int>,
+          std::is_same<decltype(std::declval<T>().gen_float(0.0f, 0.0f)),
+              float>,
+          std::is_copy_constructible<T>, std::is_move_constructible<T>> {
+};
 
 /**
  * Helper value for convenience.
  */
-template <typename T>
-constexpr bool is_generator_v = is_generator<T>::value;
-
+template <typename T> constexpr bool is_generator_v = is_generator<T>::value;
 }
 
 /**
@@ -69,10 +62,10 @@ constexpr bool is_generator_v = is_generator<T>::value;
  * using a type trait against a definition of valid generators.
  */
 class argument_generator {
-public:
+  public:
   template <typename T>
-  argument_generator(T&& strat) :
-    strategy_(std::make_unique<model<T>>(FWD(strat)))
+  argument_generator(T&& strat)
+      : strategy_(std::make_unique<model<T>>(FWD(strat)))
   {
     static_assert(detail::is_generator_v<std::decay_t<T>>, "Not a generator");
   }
@@ -80,7 +73,7 @@ public:
   // Rule of 5 to make thus class copyable
   argument_generator(argument_generator& other);
   argument_generator& operator=(argument_generator other);
-  
+
   argument_generator(argument_generator&&) = default;
   argument_generator& operator=(argument_generator&&) = default;
 
@@ -90,13 +83,13 @@ public:
 
   // Interface
   int gen_int(int min = std::numeric_limits<int>::min(),
-              int max = std::numeric_limits<int>::max())
+      int max = std::numeric_limits<int>::max())
   {
     return strategy_->gen_int(min, max);
   }
 
   float gen_float(float min = std::numeric_limits<float>::min(),
-                  float max = std::numeric_limits<float>::max())
+      float max = std::numeric_limits<float>::max())
   {
     return strategy_->gen_float(min, max);
   }
@@ -107,23 +100,25 @@ public:
    */
   void gen_args(call_builder&);
 
-private:
+  private:
   // Type erasure
-  struct concept {
-    virtual ~concept() {}
+  struct concept
+  {
+    virtual ~concept()
+    {
+    }
     virtual concept* clone() = 0;
     virtual int gen_int(int min, int max) = 0;
     virtual float gen_float(float min, float max) = 0;
   };
 
-  template <typename T>
-  struct model : concept {
-    model(T obj) :
-      object_(obj)
+  template <typename T> struct model : concept {
+    model(T obj)
+        : object_(obj)
     {
     }
 
-    model<T> *clone() override
+    model<T>* clone() override
     {
       return new model<T>(object_);
     }
@@ -138,24 +133,23 @@ private:
       return object_.gen_float(min, max);
     }
 
-  private:
+private:
     T object_;
   };
 
-protected:
+  protected:
   std::unique_ptr<concept> strategy_;
 };
 
 class uniform_generator {
-public:
+  public:
   uniform_generator();
   uniform_generator(std::random_device::result_type);
 
   int gen_int(int min, int max);
   float gen_float(float min, float max);
 
-private:
+  private:
   std::default_random_engine engine_;
 };
-
 }

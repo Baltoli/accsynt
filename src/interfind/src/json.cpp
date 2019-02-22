@@ -16,22 +16,14 @@ void to_json(json& j, region const& r)
   auto end = r.inputs().end();
   auto back = std::back_inserter(ins);
 
-  std::transform(beg, end, back, [] (auto in) {
-    return fmt::format("{}", in);
-  });
+  std::transform(beg, end, back, [](auto in) { return fmt::format("{}", in); });
 
-  j = {
-    {"output", fmt::format("{}", r.output())},
-    {"inputs", ins}
-  };
+  j = { { "output", fmt::format("{}", r.output()) }, { "inputs", ins } };
 }
 
 void to_json(json& j, analysis_result const& ar)
 {
-  j = {
-    { "signature", fmt::format("{}", ar.signature()) },
-    { "regions", ar.regions() }
-  };
+  j = { { "signature", fmt::format("{}", ar.signature()) },
+    { "regions", ar.regions() } };
 }
-
 }

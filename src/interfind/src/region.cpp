@@ -7,10 +7,8 @@
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/Function.h>
 #include <llvm/IR/GlobalValue.h>
-#include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Type.h>
 #include <llvm/IR/Value.h>
-#include <llvm/Transforms/Utils/ValueMapper.h>
 
 #include <support/cartesian_product.h>
 #include <support/llvm_values.h>
@@ -24,134 +22,208 @@ namespace interfind {
  * Region methods
  */
 
-region::region(Value *out, std::vector<Value *> in, 
-               Function& orig, FunctionType *ty) :
-  output_(out), inputs_(in), original_(orig), function_type_(ty)
+region::region(
+    Instruction* out, std::vector<Value*> in, Function& orig, FunctionType* ty)
+    : output_(out)
+    , inputs_(in)
+    , original_(orig)
+    , function_type_(ty)
 {
 }
 
-Value* region::output() const
+Instruction* region::output() const
 {
   return output_;
 }
 
-std::vector<Value *> const& region::inputs() const
+std::vector<Value*> const& region::inputs() const
 {
   return inputs_;
 }
 
-Function *region::extract() const
+Function* region::extract() const
 {
   auto mod = original_.getParent();
-  auto func = Function::Create(function_type_, GlobalValue::ExternalLinkage, "extracted_region", mod);
-
-  // TODO: handle other cases properly or refactor return type
-  auto i_out = dyn_cast<Instruction>(output_);
-  if(!i_out) {
-    throw std::runtime_error("Output value must be an instruction");
-  }
+  auto func = Function::Create(
+      function_type_, GlobalValue::ExternalLinkage, "extracted_region", mod);
 
   // map bbs and values to their translated equivalents?
   auto v_map = ValueToValueMapTy{};
+  make_initial_value_map(v_map, func);
 
-  auto i = 0;
-  for(auto input : inputs_) {
-    v_map[input] = func->arg_begin() + i;
-    ++i;
-  }
-
-  auto bb = BasicBlock::Create(mod->getContext(), "", func);
-  v_map[i_out->getParent()] = bb;
+  auto bb = BasicBlock::Create(mod->getContext(), "entry", func);
+  /* v_map[output()->getParent()] = bb; */
 
   auto build = IRBuilder<>(bb);
 
-  auto deps = topo_sort(all_deps(i_out, inputs_));
-  for(auto dep : deps) {
-    if(auto i_dep = dyn_cast<Instruction>(dep)) {
-      if(v_map.find(i_dep) == v_map.end()) {
-        auto i_clone = i_dep->clone();
-        v_map[i_dep] = i_clone;
-        build.Insert(i_clone);
+  auto deps = topo_sort(all_deps(output(), inputs_));
+  for (auto dep : deps) {
+    if (auto i_dep = dyn_cast<Instruction>(dep)) {
+      clone_instruction(i_dep, v_map, build);
+    }
+  }
 
-        for(auto j = 0u; j < i_clone->getNumOperands(); ++j) {
-          auto new_operand = [&] () -> llvm::Value * {
-            auto oper = i_clone->getOperand(j);
-            if(v_map.find(oper) == v_map.end()) {
-              // Can we assert anything about the operand?
-              return oper;
-            } else {
-              return v_map[oper];
-            }
-          }();
+  clone_output(v_map, build);
 
-          i_clone->setOperand(j, new_operand);
+  return func;
+}
+
+void region::make_initial_value_map(
+    ValueToValueMapTy& v_map, Function* func) const
+{
+  auto i = 0;
+  for (auto input : inputs_) {
+    v_map[input] = func->arg_begin() + i;
+    ++i;
+  }
+}
+
+void region::clone_instruction(
+    Instruction* inst, ValueToValueMapTy& v_map, IRBuilder<>& build) const
+{
+  if (v_map.find(inst) == v_map.end()) {
+    set_insert_block(inst, v_map, build);
+
+    auto i_clone = inst->clone();
+    v_map[inst] = i_clone;
+    build.Insert(i_clone);
+
+    for (auto j = 0u; j < i_clone->getNumOperands(); ++j) {
+      auto new_operand = [&]() -> llvm::Value* {
+        auto oper = i_clone->getOperand(j);
+        if (v_map.find(oper) == v_map.end()) {
+          // Can we assert anything about the operand?
+          return oper;
+        } else {
+          return v_map[oper];
         }
+      }();
+
+      i_clone->setOperand(j, new_operand);
+    }
+
+    if (auto branch = dyn_cast<BranchInst>(i_clone)) {
+      for (auto i = 0u; i < branch->getNumSuccessors(); ++i) {
+        auto bb = branch->getSuccessor(i);
+
+        auto extract_func = build.GetInsertBlock()->getParent();
+        auto new_succ = BasicBlock::Create(
+            inst->getContext(), bb->getName(), extract_func);
+        v_map[bb] = new_succ;
+
+        branch->setSuccessor(i, new_succ);
+      }
+    }
+  }
+}
+
+void region::clone_output(ValueToValueMapTy& v_map, IRBuilder<>& build) const
+{
+  set_insert_block(output(), v_map, build);
+  auto out_clone = build.Insert(output()->clone());
+
+  if (auto pn = dyn_cast<PHINode>(out_clone)) {
+    for (auto i = 0u; i < pn->getNumIncomingValues(); ++i) {
+      auto bb = pn->getIncomingBlock(i);
+      if (v_map.find(bb) != v_map.end()) {
+        auto incoming = cast<BasicBlock>(v_map[bb]);
+        pn->setIncomingBlock(i, incoming);
+
+        auto ip = build.saveIP();
+        build.SetInsertPoint(incoming);
+        build.CreateBr(pn->getParent());
+        build.restoreIP(ip);
+      } else {
+        pn->removeIncomingValue(i);
       }
     }
   }
 
-  auto out_clone = build.Insert(i_out->clone());
-  for(auto j = 0u; j < out_clone->getNumOperands(); ++j) {
+  for (auto j = 0u; j < out_clone->getNumOperands(); ++j) {
     auto op = out_clone->getOperand(j);
-    if(v_map.find(op) != v_map.end()) {
+    if (v_map.find(op) != v_map.end()) {
       out_clone->setOperand(j, v_map[op]);
     }
   }
 
   build.CreateRet(out_clone);
+}
 
-  return func;
+void region::set_insert_block(
+    Instruction* inst, ValueToValueMapTy& v_map, IRBuilder<>& build) const
+{
+  auto bb = inst->getParent();
+
+  if (v_map.find(bb) == v_map.end()) {
+    auto extract_func = build.GetInsertBlock()->getParent();
+    auto new_bb
+        = BasicBlock::Create(inst->getContext(), bb->getName(), extract_func);
+    v_map[bb] = new_bb;
+  }
+
+  if (auto block = dyn_cast<BasicBlock>(v_map[bb])) {
+    if (block != build.GetInsertBlock()) {
+      if (!build.GetInsertBlock()->getTerminator()) {
+        build.CreateBr(block);
+      }
+      build.SetInsertPoint(block);
+    }
+  } else {
+    throw std::runtime_error("Mapped value is not a block");
+  }
 }
 
 /*
  * Region finder methods
  */
 
-region_finder::region_finder(Function& fn, Type *out_t, 
-                             std::vector<Type *> in_ts) :
-  function_(fn), return_type_(out_t), argument_types_(in_ts),
-  ud_analysis_(function_)
+region_finder::region_finder(
+    Function& fn, Type* out_t, std::vector<Type*> in_ts)
+    : function_(fn)
+    , return_type_(out_t)
+    , argument_types_(in_ts)
+    , ud_analysis_(function_)
 {
 }
 
-region_finder::region_finder(Function& fn, FunctionType *fn_t) :
-  region_finder(fn, fn_t->getReturnType(), fn_t->params())
+region_finder::region_finder(Function& fn, FunctionType* fn_t)
+    : region_finder(fn, fn_t->getReturnType(), fn_t->params())
 {
 }
 
-bool region_finder::available(Value *ret, Value *arg) const
+bool region_finder::available(Value* ret, Value* arg) const
 {
-  if(arg->getType()->isVoidTy()) {
+  if (arg->getType()->isVoidTy()) {
     return false;
   }
 
-  if(is_global(ret) || is_global(arg)) {
+  if (is_global(ret) || is_global(arg)) {
     return true;
   } else {
     auto ret_i = dyn_cast<Instruction>(ret);
     auto arg_i = dyn_cast<Instruction>(arg);
 
-    if(!ret_i || !arg_i) {
-      throw std::runtime_error("Non-global, non-instructions passed to dominance");
+    if (!ret_i || !arg_i) {
+      throw std::runtime_error(
+          "Non-global, non-instructions passed to dominance");
     }
 
     return ud_analysis_.depends(ret, arg);
   }
 }
 
-std::set<llvm::Value *> region_finder::available_set(Value *ret) const
+std::set<llvm::Value*> region_finder::available_set(Value* ret) const
 {
-  return values_by_pred(function_, [=] (auto& arg) {
-    return available(ret, &arg);
-  });
+  return values_by_pred(
+      function_, [=](auto& arg) { return available(ret, &arg); });
 }
 
 region_finder::partition region_finder::type_partition(
-    std::set<Value *> const& vs) const
+    std::set<Value*> const& vs) const
 {
-  auto partitions = std::map<Type *, std::set<Value *>>{};
+  auto partitions = std::map<Type*, std::set<Value*>>{};
 
-  for(auto val : vs) {
+  for (auto val : vs) {
     auto ty = val->getType();
     partitions.try_emplace(ty);
     partitions.at(ty).insert(val);
@@ -160,14 +232,14 @@ region_finder::partition region_finder::type_partition(
   return partitions;
 }
 
-bool region_finder::partition_is_valid(region_finder::partition const& part) const
+bool region_finder::partition_is_valid(
+    region_finder::partition const& part) const
 {
   auto begin = argument_types_.begin();
   auto end = argument_types_.end();
 
-  return std::none_of(begin, end, [&] (auto arg_t) {
-    return part.find(arg_t) == part.end();
-  });
+  return std::none_of(
+      begin, end, [&](auto arg_t) { return part.find(arg_t) == part.end(); });
 }
 
 std::vector<region> region_finder::all_candidates() const
@@ -175,19 +247,19 @@ std::vector<region> region_finder::all_candidates() const
   auto regions = std::vector<region>{};
 
   auto vt = values_of_type(function_, return_type_);
-  for(auto v : vt) {
-    if(is_global(v) || isa<CastInst>(v)) {
+  for (auto v : vt) {
+    if (is_global(v) || isa<CastInst>(v)) {
       continue;
     }
 
     auto parts = type_partition(available_set(v));
 
-    if(!partition_is_valid(parts)) {
+    if (!partition_is_valid(parts)) {
       continue;
     }
 
-    auto arg_components = std::vector<std::set<llvm::Value *>>{};
-    for(auto arg_t : argument_types_) {
+    auto arg_components = std::vector<std::set<llvm::Value*>>{};
+    for (auto arg_t : argument_types_) {
       arg_components.push_back(parts.at(arg_t));
     }
 
@@ -204,15 +276,16 @@ std::vector<region> region_finder::all_candidates() const
     // Additionally, I can probably reduce memory requirements of this part by
     // rewriting the enumeration logic to take a callback so that we don't need
     // to store everything up front?
-    for(auto arg_list : cartesian_product(arg_components)) {
-      if(ud_analysis_.is_root_set(v, arg_list)) {
-        auto f_ty = FunctionType::get(return_type_, argument_types_, false);
-        regions.emplace_back(v, arg_list, function_, f_ty);
+    for (auto arg_list : cartesian_product(arg_components)) {
+      if (auto inst = dyn_cast<Instruction>(v)) {
+        if (ud_analysis_.is_root_set(v, arg_list)) {
+          auto f_ty = FunctionType::get(return_type_, argument_types_, false);
+          regions.emplace_back(inst, arg_list, function_, f_ty);
+        }
       }
     }
   }
 
   return regions;
 }
-
 }
