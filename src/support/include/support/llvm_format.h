@@ -34,6 +34,6 @@ struct fmt::formatter<T, Char, support::detail::is_value<T>> {
     auto os = llvm::raw_string_ostream(str);
 
     os << *v;
-    return format_to(ctx.out(), support::left_trim(str));
+    return format_to(ctx.out(), "{}", support::left_trim(str));
   }
 };

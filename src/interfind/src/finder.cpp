@@ -59,6 +59,11 @@ analysis_result finder::run(Module& mod, json config)
 
     for (auto cand : rf.all_candidates()) {
       auto f = cand.extract();
+
+      fmt::print(stderr, "Out: {}\nIns:\n  {}\n", cand.output(),
+          fmt::join(cand.inputs(), "\n  "));
+      fmt::print(stderr, "{}\n", f);
+
       auto wrapped = call_wrapper(find.signature_, mod, f->getName());
 
       auto gen = argument_generator(uniform_generator());
