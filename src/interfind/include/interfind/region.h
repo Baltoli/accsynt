@@ -72,7 +72,7 @@ class region {
    * Get the basic block corresponding to this instruction from the value map -
    * if one doesn't exist then we create it.
    */
-  llvm::BasicBlock* get_block(
+  void set_insert_block(
       llvm::Instruction*, llvm::ValueToValueMapTy&, llvm::IRBuilder<>&) const;
 
   llvm::Instruction* output_;
