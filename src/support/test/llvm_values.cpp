@@ -6,15 +6,19 @@
 using namespace support;
 using namespace llvm;
 
-#define VALUE(name) \
+#define VALUE(name)                   \
   auto name = get_by_name(fn, #name); \
   REQUIRE(name);
 
-TEST_CASE("can collect uses of values") {
+TEST_CASE("can collect uses of values")
+{
   auto mod = load_module(RESOURCE_DIR "deps.bc");
   auto& fn = *mod->begin();
 
-  VALUE(v2); VALUE(v3); VALUE(v4); VALUE(v5);
+  VALUE(v2);
+  VALUE(v3);
+  VALUE(v4);
+  VALUE(v5);
 
   auto v4_uses = all_uses(v4);
   REQUIRE(v4_uses.size() == 2);
@@ -28,15 +32,23 @@ TEST_CASE("can collect uses of values") {
   REQUIRE(v2_uses.find(v5) != v2_uses.end());
 }
 
-TEST_CASE("can collect dependencies of values") {
+TEST_CASE("can collect dependencies of values")
+{
   auto mod = load_module(RESOURCE_DIR "deps.bc");
   auto& fn = *mod->begin();
 
-  VALUE(arg0); VALUE(arg1); VALUE(arg2);
-  VALUE(v0); VALUE(v1); VALUE(v2); 
-  VALUE(v3); VALUE(v4); VALUE(v5);
+  VALUE(arg0);
+  VALUE(arg1);
+  VALUE(arg2);
+  VALUE(v0);
+  VALUE(v1);
+  VALUE(v2);
+  VALUE(v3);
+  VALUE(v4);
+  VALUE(v5);
 
-  SECTION("full tracing") {
+  SECTION("full tracing")
+  {
     auto v5_deps = all_deps(v5);
     REQUIRE(v5_deps.size() == 8);
     REQUIRE(v5_deps.find(arg0) != v5_deps.end());
@@ -63,8 +75,9 @@ TEST_CASE("can collect dependencies of values") {
     REQUIRE(v4_deps.find(v4) == v4_deps.end());
   }
 
-  SECTION("tracing to roots") {
-    auto v5_deps = all_deps(v5, {v3});
+  SECTION("tracing to roots")
+  {
+    auto v5_deps = all_deps(v5, { v3 });
     REQUIRE(v5_deps.size() == 4);
     REQUIRE(v5_deps.find(arg0) != v5_deps.end());
     REQUIRE(v5_deps.find(arg1) != v5_deps.end());
@@ -75,7 +88,7 @@ TEST_CASE("can collect dependencies of values") {
     REQUIRE(v5_deps.find(v3) != v5_deps.end());
     REQUIRE(v5_deps.find(v4) != v5_deps.end());
 
-    auto v2_deps = all_deps(v2, {v1, arg1});
+    auto v2_deps = all_deps(v2, { v1, arg1 });
     REQUIRE(v2_deps.size() == 2);
     REQUIRE(v2_deps.find(arg0) == v2_deps.end());
     REQUIRE(v2_deps.find(arg1) != v2_deps.end());
@@ -86,7 +99,7 @@ TEST_CASE("can collect dependencies of values") {
     REQUIRE(v2_deps.find(v3) == v2_deps.end());
     REQUIRE(v2_deps.find(v4) == v2_deps.end());
 
-    auto v4_deps = all_deps(v4, {v0, v1, v2, v3});
+    auto v4_deps = all_deps(v4, { v0, v1, v2, v3 });
     REQUIRE(v4_deps.size() == 2);
     REQUIRE(v4_deps.find(arg0) != v4_deps.end());
     REQUIRE(v4_deps.find(arg1) != v4_deps.end());
@@ -99,16 +112,24 @@ TEST_CASE("can collect dependencies of values") {
   }
 }
 
-TEST_CASE("can topologically sort collections of values") {
+TEST_CASE("can topologically sort collections of values")
+{
   auto mod = load_module(RESOURCE_DIR "deps.bc");
   auto& fn = *mod->begin();
 
-  VALUE(arg0); VALUE(arg1); VALUE(arg2);
-  VALUE(v0); VALUE(v1); VALUE(v2); 
-  VALUE(v3); VALUE(v4); VALUE(v5);
+  VALUE(arg0);
+  VALUE(arg1);
+  VALUE(arg2);
+  VALUE(v0);
+  VALUE(v1);
+  VALUE(v2);
+  VALUE(v3);
+  VALUE(v4);
+  VALUE(v5);
 
-  SECTION("values aren't lost or created") {
-    for(auto v : { arg0, arg1, arg2, v0, v1, v2, v3, v4, v5 }) {
+  SECTION("values aren't lost or created")
+  {
+    for (auto v : { arg0, arg1, arg2, v0, v1, v2, v3, v4, v5 }) {
       auto deps = all_deps(v);
       auto s_deps = topo_sort(deps);
 
@@ -116,7 +137,8 @@ TEST_CASE("can topologically sort collections of values") {
     }
   }
 
-  SECTION("sorting is correct") {
+  SECTION("sorting is correct")
+  {
 #define LOC(v) std::find(beg, end, v)
 
     auto v5_sort = topo_sort(all_deps(v5));
@@ -124,7 +146,7 @@ TEST_CASE("can topologically sort collections of values") {
     auto beg = v5_sort.begin();
     auto end = v5_sort.end();
 
-    for(auto v : { arg0, arg1, arg2, v0, v1, v2, v3, v4}) {
+    for (auto v : { arg0, arg1, arg2, v0, v1, v2, v3, v4 }) {
       REQUIRE(std::find(beg, end, v) != end);
     }
 

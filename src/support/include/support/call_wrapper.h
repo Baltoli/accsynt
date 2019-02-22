@@ -39,7 +39,7 @@ namespace support {
  * the implementation with them.
  */
 class call_wrapper {
-public:
+  public:
   /**
    * Construct a wrapper for an existing function contained in a module. The
    * function is looked up by name in the module.
@@ -52,7 +52,7 @@ public:
    * is looked up using dlsym and registered with the execution engine.
    */
   call_wrapper(
-      props::signature sig, llvm::Module const& mod, std::string const& name, 
+      props::signature sig, llvm::Module const& mod, std::string const& name,
       dynamic_library const& dl);
 
   /**
@@ -66,7 +66,7 @@ public:
    */
   uint64_t call(call_builder& builder);
 
-private:
+  private:
   /**
    * Runtime sizeof() for LLVM types - gets the size of a type when it is
    * converted to raw bytes.
@@ -77,47 +77,46 @@ private:
    * Creates a vector of i8 with the given size.
    */
   template <typename Builder>
-  llvm::Value *make_vector(Builder &B, size_t size) const;
+  llvm::Value* make_vector(Builder& B, size_t size) const;
 
   /**
    * Create a return instruction from the wrapper function, optionally returning
    * a value if the type signature has a non-void return.
    */
   template <typename Builder>
-  llvm::Value *make_return(Builder &B, llvm::Value *ret = nullptr) const;
+  llvm::Value* make_return(Builder& B, llvm::Value* ret = nullptr) const;
 
   /**
    * Build the marshalling and call logic for a function.
    */
-  llvm::Function *build_wrapper_function(llvm::Module& mod, llvm::Function *fn) const;
+  llvm::Function* build_wrapper_function(llvm::Module& mod, llvm::Function* fn) const;
 
   props::signature signature_;
-  llvm::Function *impl_;
-  llvm::Function *wrapper_;
+  llvm::Function* impl_;
+  llvm::Function* wrapper_;
   std::unique_ptr<llvm::ExecutionEngine> engine_;
 };
 
 template <typename Builder>
-llvm::Value *call_wrapper::make_vector(Builder &B, size_t size) const
+llvm::Value* call_wrapper::make_vector(Builder& B, size_t size) const
 {
   auto vec_ty = llvm::VectorType::get(B.getInt8Ty(), size);
   return llvm::Constant::getNullValue(vec_ty);
 }
 
 template <typename Builder>
-llvm::Value *call_wrapper::make_return(Builder &B, llvm::Value *ret) const
+llvm::Value* call_wrapper::make_return(Builder& B, llvm::Value* ret) const
 {
-  if(!ret) {
+  if (!ret) {
     ret = B.getInt64(0);
   }
 
   auto* to_extend = ret;
-  if(ret->getType()->isFloatTy()) {
+  if (ret->getType()->isFloatTy()) {
     to_extend = B.CreateBitCast(ret, B.getInt32Ty());
   }
 
   auto* return_val = B.CreateZExt(to_extend, B.getInt64Ty());
   return B.CreateRet(return_val);
 }
-
 }

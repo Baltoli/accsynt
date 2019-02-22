@@ -19,21 +19,19 @@ using namespace llvm;
 int main()
 {
   auto sig = signature::parse("int func(int n, float *x)");
-  auto mod = Module{"fragtest", thread_context::get()};
+  auto mod = Module{ "fragtest", thread_context::get() };
 
-  auto f1 = regular_loop_fragment{{
-    value::with_param("x"), value::with_param("n")
-  }};
+  auto f1 = regular_loop_fragment{ { value::with_param("x"), value::with_param("n") } };
 
   auto choices = std::vector<fragment::frag_ptr>{};
   choices.push_back(f1.clone());
 
   auto all = fragment::enumerate(std::move(choices), 1);
 
-  for(auto& f : all) {
-    auto ctx = compile_context{mod, sig};
+  for (auto& f : all) {
+    auto ctx = compile_context{ mod, sig };
 
-    errs() << "\u001b[41;1m" 
+    errs() << "\u001b[41;1m"
            << "########  Example  ########"
            << "\u001b[0m\n\n";
     errs() << "\u001b[44;1m"
@@ -49,19 +47,18 @@ int main()
     errs() << *data.function << '\n';
 
     errs() << "Data blocks:\n";
-    for(auto block : data.data_blocks) {
+    for (auto block : data.data_blocks) {
       errs() << "\t" << block->getName() << '\n';
     }
 
     errs() << "Seeds:\n";
-    for(auto seed : data.seeds) {
+    for (auto seed : data.seeds) {
       errs() << "\t" << *seed << '\n';
     }
 
     errs() << "Outputs:\n";
-    for(auto out : data.outputs) {
+    for (auto out : data.outputs) {
       errs() << "\t" << *out << '\n';
     }
   }
-
 }

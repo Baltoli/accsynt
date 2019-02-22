@@ -6,8 +6,8 @@ using namespace llvm;
 
 namespace interfind {
 
-bool is_global(Value *val) {
+bool is_global(Value* val)
+{
   return isa<Constant>(val) || isa<Argument>(val) || isa<GlobalValue>(val);
 }
-
 }

@@ -11,35 +11,35 @@ namespace synth {
  *  Basic generator
  */
 
-generator::generator(property_set ps) :
-  properties_(ps), 
-  rd_(), random_(rd_())
+generator::generator(property_set ps)
+    : properties_(ps)
+    , rd_()
+    , random_(rd_())
 {
 }
 
 void generator::generate(call_builder& builder)
 {
-  for(auto param : properties_.type_signature.parameters) {
+  for (auto param : properties_.type_signature.parameters) {
     generate_value(builder, param);
   }
 }
 
 void generator::generate_value(call_builder& builder,
-                               props::param param)
+    props::param param)
 {
-  assert(param.pointer_depth < 2 &&   
-         "Nested pointers not supported");
+  assert(param.pointer_depth < 2 && "Nested pointers not supported");
 
-  if(param.pointer_depth == 0) {
-    if(param.type == data_type::integer) {
+  if (param.pointer_depth == 0) {
+    if (param.type == data_type::integer) {
       builder.add(random_int(0, 128));
-    } else if(param.type == data_type::floating) {
+    } else if (param.type == data_type::floating) {
       builder.add(random_float(-10, 10));
     }
-  } else if(param.pointer_depth == 1) {
-    if(param.type == data_type::integer) {
+  } else if (param.pointer_depth == 1) {
+    if (param.type == data_type::integer) {
       builder.add(random_int_data(16 * 16 * 4, -128, 128));
-    } else if(param.type == data_type::floating) {
+    } else if (param.type == data_type::floating) {
       builder.add(random_float_data(16 * 16 * 4, -10, 10));
     }
   }
@@ -77,8 +77,10 @@ generator::random_int_data(int length, int min, int max)
  *  BLAS-specific generator
  */
 
-blas_generator::blas_generator(props::property_set ps) :
-  generator(ps), blas_props_(ps), sizes_()
+blas_generator::blas_generator(props::property_set ps)
+    : generator(ps)
+    , blas_props_(ps)
+    , sizes_()
 {
 }
 
@@ -86,14 +88,14 @@ void blas_generator::create_next_sizes()
 {
   sizes_.clear();
 
-  for(auto [ptr_idx, size_idx] : blas_props_.loop_sizes()) {
-    if(sizes_.find(size_idx) == sizes_.end()) {
+  for (auto [ptr_idx, size_idx] : blas_props_.loop_sizes()) {
+    if (sizes_.find(size_idx) == sizes_.end()) {
       auto new_size_val = random_size();
-      sizes_.insert({size_idx, new_size_val});
+      sizes_.insert({ size_idx, new_size_val });
     }
 
-    auto [p_it, p_ins] = sizes_.insert({ptr_idx, sizes_.at(size_idx)});
-    if(!p_ins) {
+    auto [p_it, p_ins] = sizes_.insert({ ptr_idx, sizes_.at(size_idx) });
+    if (!p_ins) {
       throw std::runtime_error("Invalid size specification for blas");
     }
   }
@@ -106,9 +108,9 @@ void blas_generator::generate(call_builder& builder)
   create_next_sizes();
 
   auto const& params = properties_.type_signature.parameters;
-  for(auto i = 0u; i < params.size(); ++i) {
-    if(auto found = sizes_.find(i); found != sizes_.end()) {
-      if(params.at(i).pointer_depth == 0) {
+  for (auto i = 0u; i < params.size(); ++i) {
+    if (auto found = sizes_.find(i); found != sizes_.end()) {
+      if (params.at(i).pointer_depth == 0) {
         builder.add(found->second);
       } else {
         builder.add(random_float_data(found->second * blas_props_.pack_size(i), -10, 10));
@@ -124,5 +126,4 @@ int blas_generator::random_size()
   auto dis = std::uniform_int_distribution<int>(0, max_size_);
   return dis(random_);
 }
-
 }

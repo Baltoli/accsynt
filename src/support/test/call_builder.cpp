@@ -5,8 +5,10 @@
 using namespace props;
 using namespace support;
 
-TEST_CASE("Can extract the nth byte of values") {
-  SECTION("for easy int vals") {
+TEST_CASE("Can extract the nth byte of values")
+{
+  SECTION("for easy int vals")
+  {
     auto val = 0xDEADBEEF;
     REQUIRE(detail::nth_byte(val, 0) == 239);
     REQUIRE(detail::nth_byte(val, 1) == 190);
@@ -14,17 +16,19 @@ TEST_CASE("Can extract the nth byte of values") {
     REQUIRE(detail::nth_byte(val, 3) == 222);
   }
 
-  SECTION("for floating values") {
-    auto val = float{12.345};
+  SECTION("for floating values")
+  {
+    auto val = float{ 12.345 };
     REQUIRE(detail::nth_byte(val, 0) == 31);
     REQUIRE(detail::nth_byte(val, 1) == 133);
     REQUIRE(detail::nth_byte(val, 2) == 69);
     REQUIRE(detail::nth_byte(val, 3) == 65);
   }
 
-  SECTION("for pointers") {
+  SECTION("for pointers")
+  {
     auto long_val = 0xDEADBEEF01020304;
-    int *val;
+    int* val;
 
     REQUIRE(sizeof(long_val) == sizeof(val));
     memcpy(&val, &long_val, sizeof(long_val));

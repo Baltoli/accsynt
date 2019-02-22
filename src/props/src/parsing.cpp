@@ -10,188 +10,169 @@ using namespace pegtl;
 
 std::optional<data_type> data_type_from_string(std::string const& str)
 {
-  if(str == "int") { return data_type::integer; }
-  else if(str == "float") { return data_type::floating; }
-  else { return std::nullopt; }
+  if (str == "int") {
+    return data_type::integer;
+  } else if (str == "float") {
+    return data_type::floating;
+  } else {
+    return std::nullopt;
+  }
 }
 
 template <typename Rule>
-struct signature_action : nothing<Rule>
-{};
+struct signature_action : nothing<Rule> {
+};
 
 template <typename Rule>
-struct param_action : nothing<Rule>
-{};
+struct param_action : nothing<Rule> {
+};
 
 template <typename Rule>
-struct property_action : nothing<Rule>
-{};
+struct property_action : nothing<Rule> {
+};
 
 struct type_name
-  : sor<
-      TAO_PEGTL_STRING("void"),
-      TAO_PEGTL_STRING("int"),
-      TAO_PEGTL_STRING("float")
-    >
-{};
+    : sor<
+          TAO_PEGTL_STRING("void"),
+          TAO_PEGTL_STRING("int"),
+          TAO_PEGTL_STRING("float")> {
+};
 
 struct interface_name
-  : identifier
-{};
+    : identifier {
+};
 
 struct pointers
-  : star<
-      string<'*'>
-    >
-{};
+    : star<
+          string<'*'>> {
+};
 
 struct param_spec
-  : seq<
-      type_name,
-      plus<blank>,
-      pointers,
-      interface_name
-    >
-{};
+    : seq<
+          type_name,
+          plus<blank>,
+          pointers,
+          interface_name> {
+};
 
 struct params
-  : list<
-      param_spec,
-      seq<
-        star<blank>,
-        string<','>,
-        star<blank>
-      >
-    >
-{};
+    : list<
+          param_spec,
+          seq<
+              star<blank>,
+              string<','>,
+              star<blank>>> {
+};
 
 struct signature_grammar
-  : seq<
-      type_name,
-      plus<blank>,
-      interface_name,
-      string<'('>,
-      action<
-        param_action,
-        opt<params>
-      >,
-      string<')'>
-    >
-{};
+    : seq<
+          type_name,
+          plus<blank>,
+          interface_name,
+          string<'('>,
+          action<
+              param_action,
+              opt<params>>,
+          string<')'>> {
+};
 
 struct any_in_line
-  : seq<
-      not_at<eol>,
-      any
-    >
-{};
+    : seq<
+          not_at<eol>,
+          any> {
+};
 
 struct comment_grammar
-  : seq<
-      bol,
-      string<';'>,
-      star<any_in_line>
-    >
-{};
+    : seq<
+          bol,
+          string<';'>,
+          star<any_in_line>> {
+};
 
 struct ignore_line
-  : sor<
-      comment_grammar,
-      bol
-    >
-{};
+    : sor<
+          comment_grammar,
+          bol> {
+};
 
 struct property_name
-  : identifier
-{};
+    : identifier {
+};
 
 struct value_string
-  : seq<
-      TAO_PEGTL_STRING(":"),
-      identifier
-    >
-{};
+    : seq<
+          TAO_PEGTL_STRING(":"),
+          identifier> {
+};
 
 struct value_param
-  : identifier
-{};
+    : identifier {
+};
 
 struct value_int
-  : seq<
-      opt<sor<one<'+'>, one<'-'>>>,
-      plus<digit>
-    >
-{};
+    : seq<
+          opt<sor<one<'+'>, one<'-'>>>,
+          plus<digit>> {
+};
 
 struct value_float
-  : seq<
-      opt<sor<one<'+'>, one<'-'>>>,
-      plus<digit>,
-      one<'.'>,
-      plus<digit>
-    >
-{};
+    : seq<
+          opt<sor<one<'+'>, one<'-'>>>,
+          plus<digit>,
+          one<'.'>,
+          plus<digit>> {
+};
 
 struct property_value
-  : sor<
-      value_string,
-      value_param,
-      value_float,
-      value_int
-    >
-{};
+    : sor<
+          value_string,
+          value_param,
+          value_float,
+          value_int> {
+};
 
 struct property_list
-  : list<
-      property_value,
-      seq<
-        star<blank>,
-        string<','>,
-        star<blank>
-      >
-    >
-{};
+    : list<
+          property_value,
+          seq<
+              star<blank>,
+              string<','>,
+              star<blank>>> {
+};
 
 struct property_grammar
-  : seq<
-      property_name,
-      opt<
-        star<blank>,
-        property_list
-      >
-    >
-{};
+    : seq<
+          property_name,
+          opt<
+              star<blank>,
+              property_list>> {
+};
 
 struct file_grammar
-  : seq<
-      star<
-        ignore_line,
-        eol
-      >,
-      action<
-        signature_action,
-        state<
-          signature,
-          signature_grammar
-        >
-      >, eol,
-      action<
-        property_action,
-        star<
-          state<
-            property,
-            property_grammar
-          >,
-          eolf
-        >
-      >
-    >
-{};
+    : seq<
+          star<
+              ignore_line,
+              eol>,
+          action<
+              signature_action,
+              state<
+                  signature,
+                  signature_grammar>>,
+          eol,
+          action<
+              property_action,
+              star<
+                  state<
+                      property,
+                      property_grammar>,
+                  eolf>>> {
+};
 
 template <>
 struct property_action<property_name> {
   template <typename Input>
-  static void apply(Input const& in, property& prop) {
+  static void apply(Input const& in, property& prop)
+  {
     prop.name = in.string();
   }
 };
@@ -199,7 +180,8 @@ struct property_action<property_name> {
 template <>
 struct property_action<value_string> {
   template <typename Input>
-  static void apply(Input const& in, property& prop) {
+  static void apply(Input const& in, property& prop)
+  {
     prop.values.push_back(value::with_string(in.string()));
   }
 };
@@ -207,7 +189,8 @@ struct property_action<value_string> {
 template <>
 struct property_action<value_param> {
   template <typename Input>
-  static void apply(Input const& in, property& prop) {
+  static void apply(Input const& in, property& prop)
+  {
     prop.values.push_back(value::with_param(in.string()));
   }
 };
@@ -215,7 +198,8 @@ struct property_action<value_param> {
 template <>
 struct property_action<value_int> {
   template <typename Input>
-  static void apply(Input const& in, property& prop) {
+  static void apply(Input const& in, property& prop)
+  {
     prop.values.push_back(value::with_int(std::stoi(in.string())));
   }
 };
@@ -223,7 +207,8 @@ struct property_action<value_int> {
 template <>
 struct property_action<value_float> {
   template <typename Input>
-  static void apply(Input const& in, property& prop) {
+  static void apply(Input const& in, property& prop)
+  {
     prop.values.push_back(value::with_float(std::stof(in.string())));
   }
 };
@@ -231,7 +216,8 @@ struct property_action<value_float> {
 template <>
 struct signature_action<interface_name> {
   template <typename Input>
-  static void apply(Input const& in, signature& sig) {
+  static void apply(Input const& in, signature& sig)
+  {
     sig.name = in.string();
   }
 };
@@ -239,7 +225,8 @@ struct signature_action<interface_name> {
 template <>
 struct signature_action<type_name> {
   template <typename Input>
-  static void apply(Input const& in, signature& sig) {
+  static void apply(Input const& in, signature& sig)
+  {
     sig.return_type = data_type_from_string(in.string());
   }
 };
@@ -247,7 +234,8 @@ struct signature_action<type_name> {
 template <>
 struct param_action<interface_name> {
   template <typename Input>
-  static void apply(Input const& in, signature& sig) {
+  static void apply(Input const& in, signature& sig)
+  {
     sig.parameters.back().name = in.string();
   }
 };
@@ -255,7 +243,8 @@ struct param_action<interface_name> {
 template <>
 struct param_action<pointers> {
   template <typename Input>
-  static void apply(Input const& in, signature& sig) {
+  static void apply(Input const& in, signature& sig)
+  {
     sig.parameters.back().pointer_depth = in.string().length();
   }
 };
@@ -263,10 +252,11 @@ struct param_action<pointers> {
 template <>
 struct param_action<type_name> {
   template <typename Input>
-  static void apply(Input const& in, signature& sig) {
+  static void apply(Input const& in, signature& sig)
+  {
     sig.parameters.emplace_back();
     auto type = data_type_from_string(in.string());
-    if(type) {
+    if (type) {
       sig.parameters.back().type = type.value();
     }
   }
@@ -275,11 +265,9 @@ struct param_action<type_name> {
 signature signature::parse(std::string_view str)
 {
   signature sig;
-  pegtl::parse<must<signature_grammar, eof>, 
-               signature_action>
-  (
-    string_input(str, ""), sig
-  );
+  pegtl::parse<must<signature_grammar, eof>,
+      signature_action>(
+      string_input(str, ""), sig);
   return sig;
 }
 
@@ -287,23 +275,18 @@ property property::parse(std::string_view str)
 {
   property prop;
   pegtl::parse<must<property_grammar, eolf>,
-               property_action>
-  (
-    string_input(str, ""), prop
-  );
+      property_action>(
+      string_input(str, ""), prop);
   return prop;
 }
 
 property_set property_set::parse(std::string_view str)
 {
   property_set pset;
-  pegtl::parse<must<file_grammar, eof>
-              >
-  (
-    string_input(str, ""), pset
-  );
+  pegtl::parse<must<file_grammar, eof>>(
+      string_input(str, ""), pset);
 
-  if(!pset.is_valid()) {
+  if (!pset.is_valid()) {
     throw std::runtime_error("Invalid pset");
   }
 
@@ -313,12 +296,10 @@ property_set property_set::parse(std::string_view str)
 property_set property_set::load(std::string_view path)
 {
   property_set pset;
-  pegtl::parse<must<file_grammar, eof>>
-  (
-    file_input(path), pset
-  );
+  pegtl::parse<must<file_grammar, eof>>(
+      file_input(path), pset);
 
-  if(!pset.is_valid()) {
+  if (!pset.is_valid()) {
     throw std::runtime_error("Invalid pset");
   }
 
@@ -356,5 +337,4 @@ value value::with_string(std::string str)
   v.string_val = str;
   return v;
 }
-
 }

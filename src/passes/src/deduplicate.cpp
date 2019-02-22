@@ -1,10 +1,10 @@
 #include <passes/passes.h>
 
-#include <llvm/Pass.h>
 #include <llvm/IR/Function.h>
 #include <llvm/IR/Instruction.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Value.h>
+#include <llvm/Pass.h>
 
 #include <memory>
 #include <set>
@@ -15,33 +15,33 @@ namespace {
 
 struct Deduplicate : public FunctionPass {
   static char ID;
-  Deduplicate() : 
-    FunctionPass(ID)
+  Deduplicate()
+      : FunctionPass(ID)
   {
   }
 
   bool runOnFunction(Function& F) override;
 };
 
-std::set<int> duplicated_operands(Instruction *instr)
+std::set<int> duplicated_operands(Instruction* instr)
 {
-  auto seen = std::set<Value *>{};
+  auto seen = std::set<Value*>{};
   auto idxs = std::set<int>{};
 
-  for(auto i = 0u; i < instr->getNumOperands(); ++i) {
+  for (auto i = 0u; i < instr->getNumOperands(); ++i) {
     auto operand = instr->getOperand(i);
 
-    if(seen.find(operand) != seen.end()) {
+    if (seen.find(operand) != seen.end()) {
       idxs.insert(i);
     }
-    
+
     seen.insert(operand);
   }
 
   return idxs;
 }
 
-Value *create_noop_from(Instruction *instr, size_t idx)
+Value* create_noop_from(Instruction* instr, size_t idx)
 {
   auto val = instr->getOperand(idx);
 
@@ -53,9 +53,9 @@ Value *create_noop_from(Instruction *instr, size_t idx)
 
 bool Deduplicate::runOnFunction(Function& F)
 {
-  for(auto& bb : F) {
-    for(auto& inst : bb) {
-      for(auto idx : duplicated_operands(&inst)) {
+  for (auto& bb : F) {
+    for (auto& inst : bb) {
+      for (auto idx : duplicated_operands(&inst)) {
         auto noop = create_noop_from(&inst, idx);
         inst.setOperand(idx, noop);
       }
@@ -67,8 +67,7 @@ bool Deduplicate::runOnFunction(Function& F)
 
 char Deduplicate::ID = 0;
 static RegisterPass<Deduplicate> X("dedup", "Remove duplicated instruction operands",
-                                    false, false);
-
+    false, false);
 }
 
 std::unique_ptr<llvm::FunctionPass> createDeduplicatePass()

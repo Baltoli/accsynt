@@ -5,31 +5,34 @@
 using namespace Catch::Matchers;
 using namespace props;
 
-TEST_CASE("can print data types") {
+TEST_CASE("can print data types")
+{
   auto it = data_type::integer;
   REQUIRE_THAT(
-    fmt::format("{}", it),
-    Equals("int"));
+      fmt::format("{}", it),
+      Equals("int"));
 
   auto flt = data_type::floating;
   REQUIRE_THAT(
-    fmt::format("{}", flt),
-    Equals("float"));
+      fmt::format("{}", flt),
+      Equals("float"));
 }
 
-TEST_CASE("can print params") {
-  auto p1 = param{"x", data_type::integer, 2};
+TEST_CASE("can print params")
+{
+  auto p1 = param{ "x", data_type::integer, 2 };
   REQUIRE_THAT(
-    fmt::format("{}", p1),
-    Equals("int **x"));
+      fmt::format("{}", p1),
+      Equals("int **x"));
 
-  auto p2 = param{"wefhui", data_type::floating, 0};
+  auto p2 = param{ "wefhui", data_type::floating, 0 };
   REQUIRE_THAT(
-    fmt::format("{}", p2),
-    Equals("float wefhui"));
+      fmt::format("{}", p2),
+      Equals("float wefhui"));
 }
 
-TEST_CASE("can print signatures") {
+TEST_CASE("can print signatures")
+{
   auto str1 = "int x(float y, int *z)";
   auto sig1 = signature::parse(str1);
   REQUIRE_THAT(fmt::format("{}", sig1), Equals(str1));
@@ -43,7 +46,8 @@ TEST_CASE("can print signatures") {
   REQUIRE_THAT(fmt::format("{}", sig3), Equals(str3));
 }
 
-TEST_CASE("can print values") {
+TEST_CASE("can print values")
+{
   auto v1 = value::with_int(3);
   REQUIRE_THAT(fmt::format("{}", v1), Equals(fmt::format("{}", 3)));
 

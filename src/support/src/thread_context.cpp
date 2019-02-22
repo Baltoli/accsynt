@@ -12,11 +12,11 @@ thread_context& thread_context::instance()
 
 LLVMContext& thread_context::get(std::thread::id id)
 {
-  std::lock_guard l{instance().map_mutex_};
+  std::lock_guard l{ instance().map_mutex_ };
 
   auto& m = instance().mapping_;
 
-  if(m.find(id) == std::end(m)) {
+  if (m.find(id) == std::end(m)) {
     m[id] = std::make_unique<LLVMContext>();
   }
 
@@ -32,5 +32,4 @@ LLVMContext& thread_context::get(const std::thread& t)
 {
   return get(t.get_id());
 }
-
 }

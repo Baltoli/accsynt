@@ -2,7 +2,6 @@
 
 #include "compile_metadata.h"
 
-#include <llvm/IR/Value.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Value.h>
 
@@ -27,35 +26,35 @@ namespace synth {
  * reference so they know where to put the GEPs.
  */
 class accessor {
-public:
+  public:
   accessor() = default;
   virtual ~accessor() = default;
 
-  std::set<llvm::Value *> create_geps(
+  std::set<llvm::Value*> create_geps(
       compile_metadata const& meta,
-      llvm::Value *index,
-      llvm::Value *base, 
+      llvm::Value* index,
+      llvm::Value* base,
       llvm::IRBuilder<>& builder,
       std::string const& prefix = "") const;
 
-private:
-  virtual std::set<llvm::Value *> map_index(
+  private:
+  virtual std::set<llvm::Value*> map_index(
       compile_metadata const& meta,
-      llvm::Value * index,
+      llvm::Value* index,
       llvm::IRBuilder<>& builder) const;
 };
 
 class offset_accessor : public accessor {
-  virtual std::set<llvm::Value *> map_index(
+  virtual std::set<llvm::Value*> map_index(
       compile_metadata const& meta,
-      llvm::Value *index,
+      llvm::Value* index,
       llvm::IRBuilder<>& builder) const override;
 };
 
 class paired_accessor : public accessor {
-  virtual std::set<llvm::Value *> map_index(
+  virtual std::set<llvm::Value*> map_index(
       compile_metadata const& meta,
-      llvm::Value *index,
+      llvm::Value* index,
       llvm::IRBuilder<>& builder) const override;
 };
 
@@ -71,7 +70,7 @@ class paired_accessor : public accessor {
 class accessor_map {
   using backing_map_t = std::map<std::string, std::unique_ptr<accessor>>;
 
-public:
+  public:
   accessor_map();
   accessor_map(backing_map_t&&);
 
@@ -81,9 +80,8 @@ public:
    */
   accessor const& operator()(std::string const&) const;
 
-private:
+  private:
   backing_map_t backing_map_;
   accessor default_accessor_;
 };
-
 }

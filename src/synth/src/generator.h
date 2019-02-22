@@ -18,19 +18,19 @@ namespace synth {
  * generation process (i.e. respecting fixed values, zeroing outputs etc).
  */
 class generator {
-public:
+  public:
   generator(props::property_set ps);
 
   virtual void generate(support::call_builder& builder);
 
-protected:
+  protected:
   virtual void generate_value(support::call_builder& builder,
-                              props::param param);
+      props::param param);
 
-  int random_int(int min = std::numeric_limits<int>::min(), 
-                 int max = std::numeric_limits<int>::max());
+  int random_int(int min = std::numeric_limits<int>::min(),
+      int max = std::numeric_limits<int>::max());
   float random_float(float min = std::numeric_limits<float>::min(),
-                     float max = std::numeric_limits<float>::max());
+      float max = std::numeric_limits<float>::max());
 
   std::vector<float> random_float_data(
       int length,
@@ -44,20 +44,20 @@ protected:
 
   props::property_set properties_;
 
-private:
+  private:
   std::random_device rd_;
 
-protected:
+  protected:
   std::mt19937 random_;
 };
 
 class blas_generator : public generator {
-public:
+  public:
   blas_generator(props::property_set ps);
 
   void generate(support::call_builder& builder) override;
 
-private:
+  private:
   blas_properties blas_props_;
 
   size_t max_size_ = 16;
@@ -66,5 +66,4 @@ private:
   void create_next_sizes();
   int random_size();
 };
-
 }

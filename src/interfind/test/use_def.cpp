@@ -9,7 +9,7 @@ using namespace support;
 using namespace interfind;
 using namespace llvm;
 
-#define VALUE(name) \
+#define VALUE(name)                   \
   auto name = get_by_name(fn, #name); \
   REQUIRE(name);
 
@@ -20,11 +20,18 @@ TEST_CASE("can compute use-def analyses", "[use_def]")
 
   auto analysis = use_def_analysis(fn);
 
-  VALUE(arg0); VALUE(arg1); VALUE(arg2);
-  VALUE(v0); VALUE(v1); VALUE(v2);
-  VALUE(v3); VALUE(v4); VALUE(v5);
+  VALUE(arg0);
+  VALUE(arg1);
+  VALUE(arg2);
+  VALUE(v0);
+  VALUE(v1);
+  VALUE(v2);
+  VALUE(v3);
+  VALUE(v4);
+  VALUE(v5);
 
-  SECTION("basic dependency queries") {
+  SECTION("basic dependency queries")
+  {
     REQUIRE(!analysis.depends(arg0, v5));
     REQUIRE(!analysis.depends(arg1, v3));
     REQUIRE(!analysis.depends(arg2, v1));
@@ -56,12 +63,13 @@ TEST_CASE("can compute use-def analyses", "[use_def]")
     REQUIRE(!analysis.depends(v2, v2));
   }
 
-  SECTION("root set queries") {
+  SECTION("root set queries")
+  {
 #define IS_ROOT(val, ...) \
-  REQUIRE(analysis.is_root_set(val, std::set<llvm::Value *>{__VA_ARGS__}));
+  REQUIRE(analysis.is_root_set(val, std::set<llvm::Value*>{ __VA_ARGS__ }));
 
 #define IS_NOT_ROOT(val, ...) \
-  REQUIRE(!analysis.is_root_set(val, std::set<llvm::Value *>{__VA_ARGS__}));
+  REQUIRE(!analysis.is_root_set(val, std::set<llvm::Value*>{ __VA_ARGS__ }));
 
     IS_ROOT(v0, arg0, arg1);
     IS_NOT_ROOT(v0, arg0);

@@ -17,32 +17,32 @@ using namespace synth;
 using namespace llvm;
 
 static cl::opt<std::string>
-PropertiesPath(
-    cl::Positional, cl::Required,
-    cl::desc("<properties file>"));
+    PropertiesPath(
+        cl::Positional, cl::Required,
+        cl::desc("<properties file>"));
 
 static cl::opt<std::string>
-LibraryPath(
-    cl::Positional, cl::Required,
-    cl::desc("<shared library>"));
+    LibraryPath(
+        cl::Positional, cl::Required,
+        cl::desc("<shared library>"));
 
 static cl::opt<bool>
-UseBLAS(
-    "blas", cl::desc("Use old BLAS synthesiser implementation"),
-    cl::init(false));
+    UseBLAS(
+        "blas", cl::desc("Use old BLAS synthesiser implementation"),
+        cl::init(false));
 
 // In the future, specifications...
 
-void report(Function *fn)
+void report(Function* fn)
 {
-  if(fn) {
+  if (fn) {
     outs() << *fn << '\n';
   } else {
     errs() << "No function found\n";
   }
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
   InitializeNativeTarget();
   LLVMInitializeNativeAsmPrinter();
@@ -58,7 +58,7 @@ int main(int argc, char **argv)
   auto mod = Module("test_mod", thread_context::get());
   auto ref = call_wrapper(property_set.type_signature, mod, fn_name, lib);
 
-  if(UseBLAS) {
+  if (UseBLAS) {
     auto synth = blas_synth(property_set, ref);
     report(synth.generate());
   } else {

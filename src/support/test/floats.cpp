@@ -6,15 +6,16 @@
 
 using namespace support;
 
-TEST_CASE("tinkering") {
+TEST_CASE("tinkering")
+{
   static_assert(std::is_same_v<detail::int_type_finder<float>::type, void>,
-                "Empty list maps to void");
+      "Empty list maps to void");
 
   static_assert(std::is_same_v<detail::int_type_finder<float, float>::type, float>,
-                "Non-empty list doesn't map to void");
+      "Non-empty list doesn't map to void");
 
   static_assert(std::is_same_v<detail::int_type_finder<float, double, char, float>::type, float>,
-                "Non-empty list doesn't map to void");
+      "Non-empty list doesn't map to void");
 
   auto w = detail::equality_wrapper(2.0f);
   REQUIRE(!w.is_negative());

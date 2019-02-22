@@ -5,7 +5,8 @@
 
 using namespace support;
 
-TEST_CASE("can use choices") {
-  choose(12, 3).for_each([&] (auto idxs) {
+TEST_CASE("can use choices")
+{
+  choose(12, 3).for_each([&](auto idxs) {
   });
 }

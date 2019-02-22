@@ -20,10 +20,9 @@ struct int_type_finder<FT> {
 template <typename FT, typename IT, typename... ITs>
 struct int_type_finder<FT, IT, ITs...> {
   using type = std::conditional_t<
-    sizeof(FT) == sizeof(IT),
-    IT,
-    typename int_type_finder<FT, ITs...>::type
-  >;
+      sizeof(FT) == sizeof(IT),
+      IT,
+      typename int_type_finder<FT, ITs...>::type>;
 };
 
 template <typename T>
@@ -37,7 +36,7 @@ using int_of_equal_size_t = typename int_of_equal_size<T>::type;
 // TODO: do a memcpy version of this rather than relying on unions
 template <typename Floating>
 struct equality_wrapper {
-private:
+  private:
   using int_t = int_of_equal_size_t<Floating>;
 
   union punned {
@@ -47,7 +46,7 @@ private:
 
   punned value_;
 
-public:
+  public:
   equality_wrapper(Floating val)
   {
     value_.as_float = val;
@@ -63,7 +62,6 @@ public:
     return value_.as_int;
   }
 };
-
 }
 
 template <typename Float>
@@ -72,8 +70,8 @@ bool ulp_equal(Float A, Float B, int max_ulp_diff)
   auto a_wrap = detail::equality_wrapper(A);
   auto b_wrap = detail::equality_wrapper(B);
 
-  if(a_wrap.is_negative() != b_wrap.is_negative()) {
-    if(A == B) {
+  if (a_wrap.is_negative() != b_wrap.is_negative()) {
+    if (A == B) {
       return true;
     }
     return false;
@@ -90,14 +88,14 @@ bool approx_equal(T&& a, T&& b)
 {
   using ElemT = typename std::decay_t<T>::value_type;
 
-  if constexpr(std::is_floating_point_v<ElemT>) {
-    if(a.size() != b.size()) {
+  if constexpr (std::is_floating_point_v<ElemT>) {
+    if (a.size() != b.size()) {
       return false;
     }
 
-    for(auto i = 0u; i < a.size(); ++i) {
+    for (auto i = 0u; i < a.size(); ++i) {
       auto approx = ulp_equal(a.at(i), b.at(i), 10) || std::abs(a.at(i) - b.at(i)) <= 0.001;
-      if(!approx) {
+      if (!approx) {
         return false;
       }
     }
@@ -107,5 +105,4 @@ bool approx_equal(T&& a, T&& b)
 
   return a == b;
 }
-
 }

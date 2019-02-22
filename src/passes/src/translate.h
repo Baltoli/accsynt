@@ -10,7 +10,6 @@
 namespace convert {
 
 std::optional<std::string> to_idl(llvm::Function const& F);
-
 }
 
 namespace convert::detail {
@@ -23,7 +22,6 @@ std::string nth_arg_constraint(llvm::Instruction const& I, size_t n);
 
 std::optional<std::string> constraint(llvm::Instruction const& I);
 std::optional<std::string> constraint(llvm::Function const& F);
-
 
 // Combine constraints into one by wrapping them in braces and forming their
 // conjunction
@@ -45,5 +43,4 @@ std::string constraint_and(Container c)
 
   return constraint_and(begin(c), end(c));
 }
-
 }

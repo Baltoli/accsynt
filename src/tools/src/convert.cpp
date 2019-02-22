@@ -15,18 +15,18 @@
 using namespace llvm;
 
 static cl::opt<std::string>
-FunctionName(cl::Positional, cl::desc("<function to convert to IDL>"),
-    cl::value_desc("function name"));
+    FunctionName(cl::Positional, cl::desc("<function to convert to IDL>"),
+        cl::value_desc("function name"));
 
 static cl::opt<std::string>
-InputFilename(cl::Positional, cl::desc("<input bitcode file>"),
-    cl::init("-"), cl::value_desc("filename"));
+    InputFilename(cl::Positional, cl::desc("<input bitcode file>"),
+        cl::init("-"), cl::value_desc("filename"));
 
 static cl::opt<std::string>
-OutputFilename("o",
-    cl::desc("Filename to save the generated constraints to"),
-    cl::value_desc("filename"),
-    cl::init("-"));
+    OutputFilename("o",
+        cl::desc("Filename to save the generated constraints to"),
+        cl::value_desc("filename"),
+        cl::init("-"));
 
 void run_prepare_passes(Function& fn)
 {
@@ -49,23 +49,23 @@ void run_conversion_passes(Function& fn)
   convert->runOnFunction(fn);
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
   cl::ParseCommandLineOptions(argc, argv);
   LLVMContext Context;
   SMDiagnostic Err;
 
   auto&& mod = parseIRFile(InputFilename, Err, Context, true, "");
-  if(!mod) {
+  if (!mod) {
     Err.print(argv[0], errs());
     return 1;
   }
 
   auto function = mod->getFunction(FunctionName);
-  if(!function) {
+  if (!function) {
     auto err_string = fmt::format("No such function: {}", FunctionName);
-    auto fn_err = SMDiagnostic(sys::path::filename(InputFilename), 
-                               SourceMgr::DK_Error, err_string);
+    auto fn_err = SMDiagnostic(sys::path::filename(InputFilename),
+        SourceMgr::DK_Error, err_string);
     fn_err.print(argv[0], errs());
     return 2;
   }

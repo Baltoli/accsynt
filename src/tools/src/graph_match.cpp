@@ -10,37 +10,37 @@
 using namespace llvm;
 
 static cl::opt<std::string>
-FunctionName(cl::Positional, cl::desc("<function>"),
-    cl::value_desc("function name"));
+    FunctionName(cl::Positional, cl::desc("<function>"),
+        cl::value_desc("function name"));
 
 static cl::opt<std::string>
-InputA(cl::Positional, cl::desc("<bitcode>"),
-    cl::Required, cl::value_desc("filename A"));
+    InputA(cl::Positional, cl::desc("<bitcode>"),
+        cl::Required, cl::value_desc("filename A"));
 
 static cl::opt<std::string>
-InputB(cl::Positional, cl::desc("<bitcode>"),
-    cl::Required, cl::value_desc("filename B"));
+    InputB(cl::Positional, cl::desc("<bitcode>"),
+        cl::Required, cl::value_desc("filename B"));
 
 static cl::opt<std::string>
-OutputFilename("o",
-    cl::desc("Filename to save the generated constraints to"),
-    cl::value_desc("filename"),
-    cl::init("-"));
+    OutputFilename("o",
+        cl::desc("Filename to save the generated constraints to"),
+        cl::value_desc("filename"),
+        cl::init("-"));
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
   cl::ParseCommandLineOptions(argc, argv);
   LLVMContext Context;
   SMDiagnostic Err;
 
   auto&& modA = parseIRFile(InputA, Err, Context, true, "");
-  if(!modA) {
+  if (!modA) {
     Err.print(argv[0], errs());
     return 1;
   }
 
   auto&& modB = parseIRFile(InputB, Err, Context, true, "");
-  if(!modB) {
+  if (!modB) {
     Err.print(argv[0], errs());
     return 1;
   }

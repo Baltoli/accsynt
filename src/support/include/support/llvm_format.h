@@ -15,9 +15,7 @@ namespace support::detail {
  */
 template <typename T>
 using is_value = std::enable_if_t<
-  std::is_convertible_v<T, llvm::Value *>
->;
-
+    std::is_convertible_v<T, llvm::Value*>>;
 }
 
 /**

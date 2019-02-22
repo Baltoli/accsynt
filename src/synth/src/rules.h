@@ -19,7 +19,8 @@ namespace synth {
  * Placeholder type that indicates we don't care about the value bound at this
  * position. It will be ignored when unifying names.
  */
-struct ignore_value {};
+struct ignore_value {
+};
 
 class rule;
 
@@ -29,7 +30,7 @@ class rule;
  * returning a fragment pointer.
  */
 class fragment_registry {
-public:
+  public:
   static std::unique_ptr<fragment> get(
       std::string const& name,
       std::vector<props::value> args);
@@ -43,7 +44,7 @@ public:
  * the definition of all().
  */
 class rule_registry {
-public:
+  public:
   static std::vector<rule> all();
 
   rule_registry() = delete;
@@ -60,7 +61,7 @@ public:
  * the same value?
  */
 class match_result {
-public:
+  public:
   match_result(std::map<std::string, props::value>);
 
   std::optional<match_result> unify_with(match_result const& other);
@@ -76,7 +77,7 @@ public:
 
   std::optional<props::value> operator()(std::string) const;
 
-protected:
+  protected:
   std::map<std::string, props::value> results_;
 };
 
@@ -87,11 +88,10 @@ protected:
  */
 class match_expression {
   using binding_t = std::variant<
-    std::string,
-    ignore_value
-  >;
+      std::string,
+      ignore_value>;
 
-public:
+  public:
   match_expression(std::string name, std::vector<binding_t> bs);
 
   template <typename... Args>
@@ -102,38 +102,37 @@ public:
   template <typename OStream>
   friend OStream& operator<<(OStream& os, match_expression const& m);
 
-protected:
+  protected:
   std::string property_name_;
   std::vector<binding_t> bindings_;
 };
 
 class distinct {
-public:
+  public:
   template <typename... Strings>
   distinct(Strings... vars);
 
   bool validate(match_result const& unified, props::property_set ps) const;
 
-private:
+  private:
   std::set<std::string> vars_{};
 };
 
 class negation {
-public:
+  public:
   template <typename... Args>
   negation(std::string name, Args... args);
 
   bool validate(match_result const& unified, props::property_set ps) const;
 
-private:
+  private:
   std::string name_;
   std::vector<std::string> args_{};
 };
 
 using validator = std::variant<
-  distinct,
-  negation
->;
+    distinct,
+    negation>;
 
 /**
  * A rule has a fragment name and argument list. When unification succeeds, the
@@ -141,15 +140,15 @@ using validator = std::variant<
  * and a handle to an instantiated fragment is returned.
  */
 class rule {
-public:
+  public:
   rule(std::string fragment,
-       std::vector<std::string> args,
-       std::vector<match_expression> es,
-       std::vector<validator> vs);
+      std::vector<std::string> args,
+      std::vector<match_expression> es,
+      std::vector<validator> vs);
 
   std::vector<std::unique_ptr<fragment>> match(props::property_set ps);
 
-private:
+  private:
   bool validate(match_result const& mr, props::property_set ps) const;
 
   std::string fragment_;
@@ -158,18 +157,17 @@ private:
   std::vector<validator> validators_;
 };
 
-
 // Template implementations
 
 template <typename Iterator>
 std::optional<match_result> match_result::unify_all(Iterator begin, Iterator end)
 {
-  if(begin == end) {
+  if (begin == end) {
     return std::nullopt;
   }
 
-  auto accum = std::optional<match_result>{*begin};
-  for(auto it = begin; it != end && accum; ++it) {
+  auto accum = std::optional<match_result>{ *begin };
+  for (auto it = begin; it != end && accum; ++it) {
     accum = accum->unify_with(*it);
   }
 
@@ -189,7 +187,7 @@ OStream& operator<<(OStream& os, match_result const& mr)
 {
   os << "{";
   auto comma = "";
-  for(auto [name, val] : mr.results_) {
+  for (auto [name, val] : mr.results_) {
     os << comma << name << ": " << val;
     comma = ", ";
   }
@@ -199,8 +197,8 @@ OStream& operator<<(OStream& os, match_result const& mr)
 }
 
 template <typename... Args>
-match_expression::match_expression(std::string name, Args... args) :
-  match_expression(name, {args...})
+match_expression::match_expression(std::string name, Args... args)
+    : match_expression(name, { args... })
 {
 }
 
@@ -208,12 +206,12 @@ template <typename OStream>
 OStream& operator<<(OStream& os, match_expression const& m)
 {
   auto bind_str = support::visitor{
-    [] (std::string s) { return s; },
-    [] (ignore_value) { return std::string("_"); }
+    [](std::string s) { return s; },
+    [](ignore_value) { return std::string("_"); }
   };
 
   os << "match(" << m.property_name_;
-  for(auto b : m.bindings_) {
+  for (auto b : m.bindings_) {
     os << ", " << std::visit(bind_str, b);
   }
   os << ")";
@@ -227,10 +225,9 @@ distinct::distinct(Strings... vars)
 }
 
 template <typename... Args>
-negation::negation(std::string name, Args... args) :
-  name_(name)
+negation::negation(std::string name, Args... args)
+    : name_(name)
 {
   (args_.push_back(args), ...);
 }
-
 }

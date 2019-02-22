@@ -1,11 +1,10 @@
 #pragma once
 
 namespace llvm {
-  class Value;
+class Value;
 }
 
 namespace interfind {
 
-bool is_global(llvm::Value *val);
-
+bool is_global(llvm::Value* val);
 }

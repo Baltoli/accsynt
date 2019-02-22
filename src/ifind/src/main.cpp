@@ -8,9 +8,9 @@
 #include <llvm/IRReader/IRReader.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/MemoryBuffer.h>
-#include <llvm/Support/raw_ostream.h>
 #include <llvm/Support/SourceMgr.h>
 #include <llvm/Support/TargetSelect.h>
+#include <llvm/Support/raw_ostream.h>
 #include <llvm/Transforms/Utils/Cloning.h>
 
 #include <nlohmann/json.hpp>
@@ -77,8 +77,7 @@ cl::opt<std::string> Output(
 cl::alias OutputShort(
     "o", cl::desc("Alias for -output"), cl::aliasopt(Output));
 
-int main(int argc, char **argv) try
-{
+int main(int argc, char** argv) try {
   InitializeNativeTarget();
   LLVMInitializeX86AsmPrinter();
   LLVMInitializeX86AsmParser();
@@ -89,35 +88,33 @@ int main(int argc, char **argv) try
   auto err = SMDiagnostic{};
 
   auto mod = parseIRFile(InputFilename, err, ctx, true, "");
-  if(!mod) {
+  if (!mod) {
     err.print(argv[0], errs());
     return 1;
   }
 
   auto config_path = fs::path(ConfigPath.getValue());
-  if(!fs::exists(config_path)) {
+  if (!fs::exists(config_path)) {
     errs() << fmt::format(
-      "Config file does not exist: {}\n", config_path.string()
-    );
+        "Config file does not exist: {}\n", config_path.string());
 
     return 2;
   }
 
   auto buffer = MemoryBuffer::getFile(config_path.string());
-  if(auto err_code = buffer.getError()) {
+  if (auto err_code = buffer.getError()) {
     errs() << fmt::format(
-      "Error opening memory buffer from file: {}\nError: {}\n", 
-      config_path.string(),
-      err_code.message()
-    );
+        "Error opening memory buffer from file: {}\nError: {}\n",
+        config_path.string(),
+        err_code.message());
   }
 
   auto config = json::parse(
-    buffer.get()->getBufferStart(), 
-    buffer.get()->getBufferEnd());
+      buffer.get()->getBufferStart(),
+      buffer.get()->getBufferEnd());
 
   auto result = [&] {
-    if(AnalysisOnly) {
+    if (AnalysisOnly) {
       auto clone = CloneModule(*mod);
       return finder::run(*clone, config);
     } else {
@@ -125,17 +122,16 @@ int main(int argc, char **argv) try
     }
   }();
 
-  if(!Silent) {
-    if(AnalysisOutput == "-") {
+  if (!Silent) {
+    if (AnalysisOutput == "-") {
       errs() << fmt::format("{}\n", result);
     } else {
       auto ec = std::error_code{};
       auto fout = raw_fd_ostream(AnalysisOutput, ec);
-      if(ec) {
+      if (ec) {
         errs() << fmt::format(
-          "Error writing to analysis file: {}\n",
-          ec.message()
-        );
+            "Error writing to analysis file: {}\n",
+            ec.message());
         return 4;
       }
 
@@ -143,22 +139,21 @@ int main(int argc, char **argv) try
     }
   }
 
-  if(Output == "-") {
+  if (Output == "-") {
     outs() << *mod << '\n';
   } else {
     auto ec = std::error_code{};
     auto fout = raw_fd_ostream(Output, ec);
-    if(ec) {
+    if (ec) {
       errs() << fmt::format(
-        "Error writing to output file: {}\n",
-        ec.message()
-      );
+          "Error writing to output file: {}\n",
+          ec.message());
       return 5;
     }
 
     WriteBitcodeToFile(*mod, fout);
   }
-} catch(json::parse_error const& pe) {
+} catch (json::parse_error const& pe) {
   errs() << fmt::format("Error parsing JSON file: {}\n", pe.what());
   std::exit(3);
 }
