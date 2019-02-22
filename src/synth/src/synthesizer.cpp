@@ -110,7 +110,13 @@ Function* synthesizer::create_stub()
   return properties_.type_signature.create_function(mod_);
 }
 
-std::string null_synth::name() const { return "Null"; }
+std::string null_synth::name() const
+{
+  return "Null";
+}
 
-Function* null_synth::generate() { return nullptr; }
+Function* null_synth::generate()
+{
+  return nullptr;
+}
 }

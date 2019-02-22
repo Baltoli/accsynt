@@ -32,7 +32,10 @@ std::set<Value*> all_uses(Value* v)
   return ret;
 }
 
-std::set<Value*> all_deps(Value* v) { return all_deps(v, {}); }
+std::set<Value*> all_deps(Value* v)
+{
+  return all_deps(v, {});
+}
 
 std::set<Value*> all_deps(Value* v, std::vector<Value*> const& roots)
 {

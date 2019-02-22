@@ -1,7 +1,13 @@
 ﻿---
 BasedOnStyle: WebKit
-ColumnLimit: 80
+AllowShortBlocksOnASingleLine: 'false'
+AllowShortCaseLabelsOnASingleLine: 'false'
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: 'false'
+AllowShortLoopsOnASingleLine: 'false'
+ColumnLimit: '80'
 IndentWidth: '2'
+Language: Cpp
 NamespaceIndentation: None
 
 ...

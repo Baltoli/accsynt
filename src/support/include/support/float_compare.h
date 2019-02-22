@@ -42,11 +42,20 @@ template <typename Floating> struct equality_wrapper {
   punned value_;
 
   public:
-  equality_wrapper(Floating val) { value_.as_float = val; }
+  equality_wrapper(Floating val)
+  {
+    value_.as_float = val;
+  }
 
-  bool is_negative() const { return value_.as_int < 0; }
+  bool is_negative() const
+  {
+    return value_.as_int < 0;
+  }
 
-  int_t as_int() const { return value_.as_int; }
+  int_t as_int() const
+  {
+    return value_.as_int;
+  }
 };
 }
 

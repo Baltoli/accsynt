@@ -23,7 +23,10 @@ LLVMContext& thread_context::get(std::thread::id id)
   return *m[id];
 }
 
-LLVMContext& thread_context::get() { return get(std::this_thread::get_id()); }
+LLVMContext& thread_context::get()
+{
+  return get(std::this_thread::get_id());
+}
 
 LLVMContext& thread_context::get(const std::thread& t)
 {

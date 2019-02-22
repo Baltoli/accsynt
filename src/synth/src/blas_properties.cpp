@@ -47,7 +47,10 @@ blas_properties::blas_properties(props::property_set ps)
   }
 }
 
-size_t blas_properties::loop_count() const { return count_; }
+size_t blas_properties::loop_count() const
+{
+  return count_;
+}
 
 std::map<size_t, size_t> const& blas_properties::loop_sizes() const
 {
@@ -84,7 +87,10 @@ std::set<size_t> blas_properties::pointers_with_size(size_t size_idx) const
   return ret;
 }
 
-std::set<size_t> blas_properties::unsized_pointers() const { return unsized_; }
+std::set<size_t> blas_properties::unsized_pointers() const
+{
+  return unsized_;
+}
 
 size_t blas_properties::pack_size(size_t idx) const
 {

@@ -104,7 +104,9 @@ class argument_generator {
   // Type erasure
   struct concept
   {
-    virtual ~concept() {}
+    virtual ~concept()
+    {
+    }
     virtual concept* clone() = 0;
     virtual int gen_int(int min, int max) = 0;
     virtual float gen_float(float min, float max) = 0;
@@ -116,9 +118,15 @@ class argument_generator {
     {
     }
 
-    model<T>* clone() override { return new model<T>(object_); }
+    model<T>* clone() override
+    {
+      return new model<T>(object_);
+    }
 
-    int gen_int(int min, int max) override { return object_.gen_int(min, max); }
+    int gen_int(int min, int max) override
+    {
+      return object_.gen_int(min, max);
+    }
 
     float gen_float(float min, float max) override
     {

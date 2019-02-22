@@ -49,13 +49,25 @@ class cartesian_product {
   {
   }
 
-  size_t product_size() const { return product_size_; }
+  size_t product_size() const
+  {
+    return product_size_;
+  }
 
-  size_t size() const { return n_products_; }
+  size_t size() const
+  {
+    return n_products_;
+  }
 
-  iterator begin() { return iterator(0, n_products_, *this); }
+  iterator begin()
+  {
+    return iterator(0, n_products_, *this);
+  }
 
-  iterator end() { return iterator(n_products_, n_products_, *this); }
+  iterator end()
+  {
+    return iterator(n_products_, n_products_, *this);
+  }
 
   protected:
   std::vector<ElementType> get(size_t idx)
@@ -225,7 +237,10 @@ class cartesian_product_iterator {
     return it.index_ - it2.index_;
   }
 
-  value_type operator[](difference_type n) { return *(*this + n); }
+  value_type operator[](difference_type n)
+  {
+    return *(*this + n);
+  }
 
   bool operator==(iter_t const& other)
   {
@@ -233,7 +248,10 @@ class cartesian_product_iterator {
         == std::tie(other.index_, other.size_, other.data_);
   }
 
-  bool operator!=(iter_t const& other) { return !(*this == other); }
+  bool operator!=(iter_t const& other)
+  {
+    return !(*this == other);
+  }
 
   bool operator<(iter_t const& other)
   {
@@ -247,9 +265,15 @@ class cartesian_product_iterator {
         > std::tie(other.index_, other.size_, other.data_);
   }
 
-  bool operator<=(iter_t const& other) { return !(*this > other); }
+  bool operator<=(iter_t const& other)
+  {
+    return !(*this > other);
+  }
 
-  bool operator>=(iter_t const& other) { return !(*this < other); }
+  bool operator>=(iter_t const& other)
+  {
+    return !(*this < other);
+  }
 
   friend void swap(iter_t& a, iter_t& b)
   {

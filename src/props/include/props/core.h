@@ -48,7 +48,9 @@ struct signature {
 
   template <typename Input> void success(Input const& in, property_set& parent);
 
-  template <typename Input> signature(Input const& in, property_set& parent) {}
+  template <typename Input> signature(Input const& in, property_set& parent)
+  {
+  }
 
   bool operator==(signature const& other) const;
   bool operator!=(signature const& other) const;
@@ -102,7 +104,9 @@ struct property {
 
   template <typename Input> void success(Input const& in, property_set& parent);
 
-  template <typename Input> property(Input const& in, property_set& parent) {}
+  template <typename Input> property(Input const& in, property_set& parent)
+  {
+  }
 };
 
 class property_set {

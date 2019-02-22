@@ -13,7 +13,10 @@ call_builder::call_builder(props::signature sig)
 {
 }
 
-signature const& call_builder::signature() const { return signature_; }
+signature const& call_builder::signature() const
+{
+  return signature_;
+}
 
 call_builder::call_builder(call_builder const& other)
     : signature_(other.signature_)
@@ -58,7 +61,10 @@ call_builder::call_builder(call_builder const& other)
   }
 }
 
-void call_builder::reset() { *this = call_builder(signature_); }
+void call_builder::reset()
+{
+  *this = call_builder(signature_);
+}
 
 call_builder& call_builder::operator=(call_builder other)
 {

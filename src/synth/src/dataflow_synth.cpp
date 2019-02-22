@@ -33,9 +33,15 @@ dataflow_synth::dataflow_synth(compile_context const& ctx)
   }
 }
 
-void dataflow_synth::seed(Value* instr) { seeds_.push_back(instr); }
+void dataflow_synth::seed(Value* instr)
+{
+  seeds_.push_back(instr);
+}
 
-void dataflow_synth::output(Instruction* val) { outputs_.push_back(val); }
+void dataflow_synth::output(Instruction* val)
+{
+  outputs_.push_back(val);
+}
 
 void dataflow_synth::create_dataflow()
 {

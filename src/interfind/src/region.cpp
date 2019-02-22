@@ -31,9 +31,15 @@ region::region(
 {
 }
 
-Instruction* region::output() const { return output_; }
+Instruction* region::output() const
+{
+  return output_;
+}
 
-std::vector<Value*> const& region::inputs() const { return inputs_; }
+std::vector<Value*> const& region::inputs() const
+{
+  return inputs_;
+}
 
 Function* region::extract() const
 {

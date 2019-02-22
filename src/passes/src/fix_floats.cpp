@@ -19,7 +19,10 @@ struct FixFloats : public FunctionPass {
   bool runOnFunction(Function& f) override;
 };
 
-bool FixFloats::runOnFunction(Function& f) { return false; }
+bool FixFloats::runOnFunction(Function& f)
+{
+  return false;
+}
 
 char FixFloats::ID = 0;
 static RegisterPass<FixFloats> X(

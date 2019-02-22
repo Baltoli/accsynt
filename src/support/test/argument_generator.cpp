@@ -7,8 +7,14 @@
 using namespace support;
 
 struct gen {
-  int gen_int(int min, int max) { return 2; }
-  float gen_float(float min, float max) { return 3; }
+  int gen_int(int min, int max)
+  {
+    return 2;
+  }
+  float gen_float(float min, float max)
+  {
+    return 3;
+  }
 };
 
 struct gen2 {
@@ -18,20 +24,34 @@ struct gen2 {
   {
   }
 
-  int gen_int(int min, int max) { return base * base; }
-  float gen_float(float min, float max) { return float(base) / 10.0; }
+  int gen_int(int min, int max)
+  {
+    return base * base;
+  }
+  float gen_float(float min, float max)
+  {
+    return float(base) / 10.0;
+  }
 };
 
 struct not_gen {
 };
 
 struct not_gen2 {
-  void gen_int(int, int) {}
+  void gen_int(int, int)
+  {
+  }
 };
 
 struct not_gen3 {
-  int gen_int(int, int) { return 0; }
-  float gen_float(int) { return 0.0f; }
+  int gen_int(int, int)
+  {
+    return 0;
+  }
+  float gen_float(int)
+  {
+    return 0.0f;
+  }
 };
 
 TEST_CASE("argument concepts work")
