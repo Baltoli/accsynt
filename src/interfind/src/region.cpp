@@ -107,16 +107,19 @@ void region::clone_instruction(
 void region::clone_output(ValueToValueMapTy& v_map, IRBuilder<>& build) const
 {
   set_insert_block(output(), v_map, build);
-
   auto out_clone = build.Insert(output()->clone());
-  for (auto j = 0u; j < out_clone->getNumOperands(); ++j) {
-    auto op = out_clone->getOperand(j);
-    if (v_map.find(op) != v_map.end()) {
-      out_clone->setOperand(j, v_map[op]);
-    }
-  }
 
-  build.CreateRet(out_clone);
+  if (auto pn = dyn_cast<PHINode>(out_clone)) {
+  } else {
+    for (auto j = 0u; j < out_clone->getNumOperands(); ++j) {
+      auto op = out_clone->getOperand(j);
+      if (v_map.find(op) != v_map.end()) {
+        out_clone->setOperand(j, v_map[op]);
+      }
+    }
+
+    build.CreateRet(out_clone);
+  }
 }
 
 void region::set_insert_block(
