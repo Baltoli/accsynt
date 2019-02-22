@@ -76,8 +76,7 @@ std::optional<std::string> base_constraint(Instruction const& I)
 
   if (auto op = idl_opcode(I)) {
     return "({{{result}}} is {op} instruction)"_format(
-        "result"_a = get_name(I),
-        "op"_a = op.value());
+        "result"_a = get_name(I), "op"_a = op.value());
   }
 
   return std::nullopt;
@@ -116,11 +115,9 @@ std::string nth_arg_constraint(Instruction const& I, size_t n)
   auto& operand = *I.getOperand(n);
   auto atoms = const_constraints(operand);
 
-  atoms.push_back(
-      "({{{arg}}} is {nth} argument of {{{instr}}})"_format(
-          "arg"_a = get_name(operand),
-          "nth"_a = nth_of(n),
-          "instr"_a = get_name(I)));
+  atoms.push_back("({{{arg}}} is {nth} argument of {{{instr}}})"_format(
+      "arg"_a = get_name(operand), "nth"_a = nth_of(n),
+      "instr"_a = get_name(I)));
 
   return constraint_and(atoms);
 }

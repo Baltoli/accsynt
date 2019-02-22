@@ -18,8 +18,7 @@ class dynamic_library {
 
   ~dynamic_library();
 
-  template <typename Func>
-  Func* symbol(const std::string& sym) const;
+  template <typename Func> Func* symbol(const std::string& sym) const;
 
   void* raw_symbol(const std::string& sym) const;
 

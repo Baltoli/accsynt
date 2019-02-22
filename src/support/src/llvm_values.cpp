@@ -32,10 +32,7 @@ std::set<Value*> all_uses(Value* v)
   return ret;
 }
 
-std::set<Value*> all_deps(Value* v)
-{
-  return all_deps(v, {});
-}
+std::set<Value*> all_deps(Value* v) { return all_deps(v, {}); }
 
 std::set<Value*> all_deps(Value* v, std::vector<Value*> const& roots)
 {
@@ -66,7 +63,8 @@ std::set<Value*> all_deps(Value* v, std::vector<Value*> const& roots)
 
 namespace {
 
-void visit(Value* v, std::set<Value*> const& vals, std::map<Value*, int>& marks, std::vector<Value*>& ret)
+void visit(Value* v, std::set<Value*> const& vals, std::map<Value*, int>& marks,
+    std::vector<Value*>& ret)
 {
   // Permanently marked
   if (marks.at(v) == 1) {

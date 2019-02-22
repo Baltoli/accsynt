@@ -35,8 +35,7 @@ std::string constraint_and(Iterator begin, Iterator end)
 }
 
 // Comvenience overload
-template <typename Container>
-std::string constraint_and(Container c)
+template <typename Container> std::string constraint_and(Container c)
 {
   using std::begin;
   using std::end;

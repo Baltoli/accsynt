@@ -20,8 +20,7 @@ namespace synth {
  */
 class compile_context {
   public:
-  compile_context(llvm::Module& mod,
-      props::signature sig,
+  compile_context(llvm::Module& mod, props::signature sig,
       accessor_map&& accessor_map = {});
 
   /**
@@ -44,12 +43,12 @@ class compile_context {
 
   accessor const& accessor_for(std::string const& name) const;
 
-  std::set<llvm::Value*> create_geps_for(
-      std::string const& name, llvm::Value* base, llvm::Value* ptr,
-      llvm::IRBuilder<>& builder, std::string const& prefix = "") const;
+  std::set<llvm::Value*> create_geps_for(std::string const& name,
+      llvm::Value* base, llvm::Value* ptr, llvm::IRBuilder<>& builder,
+      std::string const& prefix = "") const;
 
-  // TODO: work out encapsulation for context - need to make information available
-  // to derived fragment classes?
+  // TODO: work out encapsulation for context - need to make information
+  // available to derived fragment classes?
   /* protected: */
   props::signature sig_;
 

@@ -15,7 +15,8 @@ namespace support {
 
 Function* copy_function(Function* f, Module* m)
 {
-  auto func = Function::Create(f->getFunctionType(), f->getLinkage(), f->getName(), m);
+  auto func = Function::Create(
+      f->getFunctionType(), f->getLinkage(), f->getName(), m);
 
   auto v_map = ValueToValueMapTy{};
   auto returns = SmallVector<ReturnInst*, 8>{};

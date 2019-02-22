@@ -32,8 +32,8 @@ void compute(Graph graph, Graph second_graph)
         size_t arg = rand() % graph.nodes[a].edges.size();
         for (auto e : matches_new[j].get_closure(a))
           if (graph.nodes[e].edges.size() > arg)
-            matches_new[j].merge(graph.nodes[a].edges[arg],
-                graph.nodes[e].edges[arg]);
+            matches_new[j].merge(
+                graph.nodes[a].edges[arg], graph.nodes[e].edges[arg]);
       } break;
       case 2: {
         size_t a = rand() % graph.nodes.size();
@@ -82,15 +82,15 @@ void compute(Graph graph, Graph second_graph)
         }
       }
 
-      sampled_sum += scores[sample_pos] - ((sample_pos == 0) ? 0 : scores[sample_pos - 1]);
+      sampled_sum += scores[sample_pos]
+          - ((sample_pos == 0) ? 0 : scores[sample_pos - 1]);
       matches[j] = matches_new[sample_pos];
     }
 
     double avg_score = score_sum / (double)matches_new.size();
     double avg_sampled = sampled_sum / (double)matches.size();
 
-    std::cout << "Iteration " << i
-              << ": average score = " << (int)avg_score
+    std::cout << "Iteration " << i << ": average score = " << (int)avg_score
               << ", average sampled = " << (int)avg_sampled
               << ", min score = " << (int)score_min
               << ", max score = " << (int)score_max << "\n";

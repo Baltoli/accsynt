@@ -33,10 +33,7 @@ blas_synth::blas_synth(property_set ps, call_wrapper& ref)
   make_examples(gen_, 1'000);
 }
 
-std::string blas_synth::name() const
-{
-  return "BLAS";
-}
+std::string blas_synth::name() const { return "BLAS"; }
 
 Function* blas_synth::candidate()
 {
@@ -44,7 +41,9 @@ Function* blas_synth::candidate()
 
   auto fn = create_stub();
 
-  auto [seeds, outputs, blocks, exit] = should_loop() ? build_control_flow(fn, *current_loop_) : build_control_flow(fn);
+  auto [seeds, outputs, blocks, exit] = should_loop()
+      ? build_control_flow(fn, *current_loop_)
+      : build_control_flow(fn);
 
   auto data_synth = dataflow_synth(fn, [&](auto* b) {
     auto ret = std::find(blocks.begin(), blocks.end(), b) != blocks.end();
@@ -110,8 +109,7 @@ Function* blas_synth::candidate()
   return fn;
 }
 
-blas_control_data
-blas_synth::build_control_flow(Function* fn, loop shape) const
+blas_control_data blas_synth::build_control_flow(Function* fn, loop shape) const
 {
   // TODO: runtime option to log or not
   std::cerr << shape << '\n';
@@ -143,8 +141,7 @@ blas_synth::build_control_flow(Function* fn, loop shape) const
   return { seeds, outputs, blocks, exit };
 }
 
-blas_control_data
-blas_synth::build_control_flow(Function* fn) const
+blas_control_data blas_synth::build_control_flow(Function* fn) const
 {
   auto& ctx = fn->getContext();
 
@@ -162,10 +159,8 @@ blas_synth::build_control_flow(Function* fn) const
 // and build them appropriately.
 // TODO: logic to lay out sequences of loops when there's no parent.
 BasicBlock* blas_synth::build_loop(loop shape, BasicBlock* end_dst,
-    std::vector<Instruction*>& seeds,
-    std::vector<Instruction*>& outputs,
-    std::vector<BasicBlock*>& data_blocks,
-    std::vector<Value*> iters) const
+    std::vector<Instruction*>& seeds, std::vector<Instruction*>& outputs,
+    std::vector<BasicBlock*>& data_blocks, std::vector<Value*> iters) const
 {
   auto loop_id = *shape.ID();
   auto indexes = blas_props_.size_indexes();
@@ -283,10 +278,7 @@ BasicBlock* blas_synth::build_loop(loop shape, BasicBlock* end_dst,
   return header;
 }
 
-bool blas_synth::should_loop() const
-{
-  return !loops_.empty();
-}
+bool blas_synth::should_loop() const { return !loops_.empty(); }
 
 void blas_synth::next_loop()
 {

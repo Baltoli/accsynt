@@ -24,21 +24,19 @@ class generator {
   virtual void generate(support::call_builder& builder);
 
   protected:
-  virtual void generate_value(support::call_builder& builder,
-      props::param param);
+  virtual void generate_value(
+      support::call_builder& builder, props::param param);
 
   int random_int(int min = std::numeric_limits<int>::min(),
       int max = std::numeric_limits<int>::max());
   float random_float(float min = std::numeric_limits<float>::min(),
       float max = std::numeric_limits<float>::max());
 
-  std::vector<float> random_float_data(
-      int length,
+  std::vector<float> random_float_data(int length,
       float min = std::numeric_limits<float>::min(),
       float max = std::numeric_limits<float>::max());
 
-  std::vector<int> random_int_data(
-      int length,
+  std::vector<int> random_int_data(int length,
       int min = std::numeric_limits<int>::min(),
       int max = std::numeric_limits<int>::max());
 

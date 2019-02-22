@@ -25,8 +25,8 @@ namespace interfind {
 class use_def_analysis {
   public:
   /**
-   * Maps instructions onto the set of values on which they depend (i.e. every value
-   * that appears in the SSA DAG with the key value as a leaf).
+   * Maps instructions onto the set of values on which they depend (i.e. every
+   * value that appears in the SSA DAG with the key value as a leaf).
    *
    * The reason that the key type is Instruction rather than value is that only
    * instructions depend on other values - the functions wrapping accesses to

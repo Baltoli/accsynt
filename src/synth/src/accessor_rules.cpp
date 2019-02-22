@@ -6,10 +6,8 @@ namespace synth {
 
 auto rule_table()
 {
-  return std::tuple{
-    accessor_rule<offset_accessor>("offset"),
-    accessor_rule<paired_accessor>("paired")
-  };
+  return std::tuple{ accessor_rule<offset_accessor>("offset"),
+    accessor_rule<paired_accessor>("paired") };
 }
 
 accessor_map accessors_from_rules(props::property_set ps)

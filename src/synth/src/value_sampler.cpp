@@ -11,8 +11,7 @@ using namespace llvm;
 namespace synth {
 
 void value_sampler::add_incoming(
-    PHINode* phi,
-    std::map<llvm::BasicBlock*, std::vector<Value*>> const& live)
+    PHINode* phi, std::map<llvm::BasicBlock*, std::vector<Value*>> const& live)
 {
   auto ty = phi->getType();
   auto block = phi->getParent();

@@ -37,9 +37,7 @@ std::ostream& operator<<(std::ostream& os, const signature& sig)
 
   os << " " << sig.name << "(";
 
-  for (auto it = sig.parameters.begin();
-       it != sig.parameters.end();
-       ++it) {
+  for (auto it = sig.parameters.begin(); it != sig.parameters.end(); ++it) {
     os << *it;
     if (std::next(it) != sig.parameters.end()) {
       os << ", ";

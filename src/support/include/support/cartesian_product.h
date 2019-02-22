@@ -10,8 +10,7 @@
 
 namespace support {
 
-template <typename T, typename It>
-class cartesian_product_iterator;
+template <typename T, typename It> class cartesian_product_iterator;
 
 template <typename ElementType, typename NestedIterator>
 class cartesian_product {
@@ -32,36 +31,31 @@ class cartesian_product {
       element_sizes_[i++] = std::distance(begin(*it), end(*it));
     }
 
-    n_products_ = std::accumulate(element_sizes_.begin(), element_sizes_.end(), 1, std::multiplies{});
+    n_products_ = std::accumulate(
+        element_sizes_.begin(), element_sizes_.end(), 1, std::multiplies{});
   }
 
   template <typename Container>
   cartesian_product(Container&& c)
       : cartesian_product(
-            [&] { using std::begin; return begin(c); }(),
-            [&] { using std::end; return end(c); }())
+            [&] {
+              using std::begin;
+              return begin(c);
+            }(),
+            [&] {
+              using std::end;
+              return end(c);
+            }())
   {
   }
 
-  size_t product_size() const
-  {
-    return product_size_;
-  }
+  size_t product_size() const { return product_size_; }
 
-  size_t size() const
-  {
-    return n_products_;
-  }
+  size_t size() const { return n_products_; }
 
-  iterator begin()
-  {
-    return iterator(0, n_products_, *this);
-  }
+  iterator begin() { return iterator(0, n_products_, *this); }
 
-  iterator end()
-  {
-    return iterator(n_products_, n_products_, *this);
-  }
+  iterator end() { return iterator(n_products_, n_products_, *this); }
 
   protected:
   std::vector<ElementType> get(size_t idx)
@@ -110,10 +104,19 @@ class cartesian_product {
  * an iterator typedef within it.
  */
 template <typename NestedIterator>
-cartesian_product(NestedIterator, NestedIterator)->cartesian_product<typename std::iterator_traits<typename std::iterator_traits<NestedIterator>::value_type::iterator>::value_type, NestedIterator>;
+cartesian_product(NestedIterator, NestedIterator)
+    ->cartesian_product<
+        typename std::iterator_traits<typename std::iterator_traits<
+            NestedIterator>::value_type::iterator>::value_type,
+        NestedIterator>;
 
 template <typename Container>
-cartesian_product(Container &&)->cartesian_product<typename std::iterator_traits<typename std::iterator_traits<typename std::decay_t<Container>::iterator>::value_type::iterator>::value_type, typename std::decay_t<Container>::iterator>;
+cartesian_product(Container &&)
+    ->cartesian_product<
+        typename std::iterator_traits<typename std::iterator_traits<
+            typename std::decay_t<Container>::iterator>::value_type::iterator>::
+            value_type,
+        typename std::decay_t<Container>::iterator>;
 
 template <typename ElementType, typename NestedIterator>
 class cartesian_product_iterator {
@@ -222,40 +225,31 @@ class cartesian_product_iterator {
     return it.index_ - it2.index_;
   }
 
-  value_type operator[](difference_type n)
-  {
-    return *(*this + n);
-  }
+  value_type operator[](difference_type n) { return *(*this + n); }
 
   bool operator==(iter_t const& other)
   {
-    return std::tie(index_, size_, data_) == std::tie(other.index_, other.size_, other.data_);
+    return std::tie(index_, size_, data_)
+        == std::tie(other.index_, other.size_, other.data_);
   }
 
-  bool operator!=(iter_t const& other)
-  {
-    return !(*this == other);
-  }
+  bool operator!=(iter_t const& other) { return !(*this == other); }
 
   bool operator<(iter_t const& other)
   {
-    return std::tie(index_, size_, data_) < std::tie(other.index_, other.size_, other.data_);
+    return std::tie(index_, size_, data_)
+        < std::tie(other.index_, other.size_, other.data_);
   }
 
   bool operator>(iter_t const& other)
   {
-    return std::tie(index_, size_, data_) > std::tie(other.index_, other.size_, other.data_);
+    return std::tie(index_, size_, data_)
+        > std::tie(other.index_, other.size_, other.data_);
   }
 
-  bool operator<=(iter_t const& other)
-  {
-    return !(*this > other);
-  }
+  bool operator<=(iter_t const& other) { return !(*this > other); }
 
-  bool operator>=(iter_t const& other)
-  {
-    return !(*this < other);
-  }
+  bool operator>=(iter_t const& other) { return !(*this < other); }
 
   friend void swap(iter_t& a, iter_t& b)
   {

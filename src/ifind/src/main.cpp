@@ -48,8 +48,7 @@ cl::opt<std::string> ConfigPath(
  */
 cl::opt<bool> Silent(
     "silent", cl::desc("Don't print analysis output anywhere"));
-cl::alias SilentShort(
-    "s", cl::desc("Alias for -silent"), cl::aliasopt(Silent));
+cl::alias SilentShort("s", cl::desc("Alias for -silent"), cl::aliasopt(Silent));
 
 /**
  * Just perform the analysis and output the results without actually changing
@@ -74,8 +73,7 @@ cl::alias AnalysisOutputShort(
  */
 cl::opt<std::string> Output(
     "output", cl::desc("Output bitcode filename"), cl::init("-"));
-cl::alias OutputShort(
-    "o", cl::desc("Alias for -output"), cl::aliasopt(Output));
+cl::alias OutputShort("o", cl::desc("Alias for -output"), cl::aliasopt(Output));
 
 int main(int argc, char** argv) try {
   InitializeNativeTarget();
@@ -105,13 +103,11 @@ int main(int argc, char** argv) try {
   if (auto err_code = buffer.getError()) {
     errs() << fmt::format(
         "Error opening memory buffer from file: {}\nError: {}\n",
-        config_path.string(),
-        err_code.message());
+        config_path.string(), err_code.message());
   }
 
   auto config = json::parse(
-      buffer.get()->getBufferStart(),
-      buffer.get()->getBufferEnd());
+      buffer.get()->getBufferStart(), buffer.get()->getBufferEnd());
 
   auto result = [&] {
     if (AnalysisOnly) {
@@ -130,8 +126,7 @@ int main(int argc, char** argv) try {
       auto fout = raw_fd_ostream(AnalysisOutput, ec);
       if (ec) {
         errs() << fmt::format(
-            "Error writing to analysis file: {}\n",
-            ec.message());
+            "Error writing to analysis file: {}\n", ec.message());
         return 4;
       }
 
@@ -145,9 +140,7 @@ int main(int argc, char** argv) try {
     auto ec = std::error_code{};
     auto fout = raw_fd_ostream(Output, ec);
     if (ec) {
-      errs() << fmt::format(
-          "Error writing to output file: {}\n",
-          ec.message());
+      errs() << fmt::format("Error writing to output file: {}\n", ec.message());
       return 5;
     }
 

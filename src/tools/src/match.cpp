@@ -145,7 +145,8 @@ double Match::evaluate(const Graph& g, bool print) const
       std::vector<Instruction> opcodes = g.get_opcodes(members);
 
       std::sort(opcodes.begin(), opcodes.end());
-      size_t dist = std::distance(opcodes.begin(), std::unique(opcodes.begin(), opcodes.end()));
+      size_t dist = std::distance(
+          opcodes.begin(), std::unique(opcodes.begin(), opcodes.end()));
 
       opcode_mismatches += dist - 1;
 
@@ -182,10 +183,14 @@ double Match::evaluate(const Graph& g, bool print) const
               << param_mismatches << "\t" << overlapped_params << "\n";
   }
 
-  return 1000000000.0 / pow(p1 * distinct_groups + p2 * opcode_mismatches + p3 * param_mismatches + p4 * overlapped_params, 3);
+  return 1000000000.0
+      / pow(p1 * distinct_groups + p2 * opcode_mismatches
+                + p3 * param_mismatches + p4 * overlapped_params,
+            3);
 }
 
-void Match::print_constraints_line(std::ostream& ostr, std::string name, Instruction op) const
+void Match::print_constraints_line(
+    std::ostream& ostr, std::string name, Instruction op) const
 {
   ostr << "{" << name << "} is ";
   switch (op) {
@@ -276,11 +281,13 @@ void Match::print_constraints(const Graph& g, std::ostream& ostr) const
         continue;
 
       std::vector<Instruction> opcodes = g.get_opcodes(members);
-      size_t uniques = std::distance(opcodes.begin(), std::unique(opcodes.begin(), opcodes.end()));
+      size_t uniques = std::distance(
+          opcodes.begin(), std::unique(opcodes.begin(), opcodes.end()));
 
       bool skip = false;
       for (auto op : opcodes)
-        if (op == Instruction::param || op == Instruction::br || op == Instruction::cnst || op == Instruction::ret)
+        if (op == Instruction::param || op == Instruction::br
+            || op == Instruction::cnst || op == Instruction::ret)
           skip = true;
       if (skip)
         continue;
@@ -294,7 +301,12 @@ void Match::print_constraints(const Graph& g, std::ostream& ostr) const
 
       std::vector<std::vector<size_t>> args = g.get_arguments(members);
 
-      if (uniques == 1 && (opcodes[0] == Instruction::fadd || opcodes[0] == Instruction::fmul || opcodes[0] == Instruction::add || opcodes[0] == Instruction::mul || opcodes[0] == Instruction::phi || opcodes[0] == Instruction::icmp)) {
+      if (uniques == 1
+          && (opcodes[0] == Instruction::fadd || opcodes[0] == Instruction::fmul
+                 || opcodes[0] == Instruction::add
+                 || opcodes[0] == Instruction::mul
+                 || opcodes[0] == Instruction::phi
+                 || opcodes[0] == Instruction::icmp)) {
         ostr << "  ( (";
         bool first = true;
         for (size_t j = 0; j < args.size(); j++) {

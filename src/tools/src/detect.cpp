@@ -13,9 +13,9 @@
 
 using namespace llvm;
 
-static cl::opt<std::string>
-    InputFilename(cl::Positional, cl::desc("<input bitcode file>"),
-        cl::init("-"), cl::value_desc("filename"));
+static cl::opt<std::string> InputFilename(cl::Positional,
+    cl::desc("<input bitcode file>"), cl::init("-"),
+    cl::value_desc("filename"));
 
 struct pass_finder : public PassRegistrationListener {
   pass_finder(std::string pn, PassRegistry& reg)

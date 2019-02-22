@@ -66,8 +66,8 @@ bool Deduplicate::runOnFunction(Function& F)
 }
 
 char Deduplicate::ID = 0;
-static RegisterPass<Deduplicate> X("dedup", "Remove duplicated instruction operands",
-    false, false);
+static RegisterPass<Deduplicate> X(
+    "dedup", "Remove duplicated instruction operands", false, false);
 }
 
 std::unique_ptr<llvm::FunctionPass> createDeduplicatePass()

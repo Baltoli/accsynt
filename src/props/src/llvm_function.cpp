@@ -45,11 +45,10 @@ FunctionType* signature::function_type() const
   auto param_types = std::vector<Type*>{};
 
   std::transform(parameters.begin(), parameters.end(),
-      std::back_inserter(param_types),
-      [](auto p) { return p.llvm_type(); });
+      std::back_inserter(param_types), [](auto p) { return p.llvm_type(); });
 
-  return FunctionType::get(base_llvm_return_type(return_type),
-      param_types, false);
+  return FunctionType::get(
+      base_llvm_return_type(return_type), param_types, false);
 }
 
 Function* signature::create_function(Module& mod) const
@@ -62,8 +61,7 @@ Function* signature::create_function(Module& mod) const
   auto fn = dyn_cast<Function>(fn_const);
 
   auto i = 0;
-  for (auto it = fn->arg_begin();
-       it != fn->arg_end(); ++it, ++i) {
+  for (auto it = fn->arg_begin(); it != fn->arg_end(); ++it, ++i) {
     it->setName(parameters.at(i).name);
   }
 

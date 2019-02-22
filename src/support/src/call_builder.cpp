@@ -13,10 +13,7 @@ call_builder::call_builder(props::signature sig)
 {
 }
 
-signature const& call_builder::signature() const
-{
-  return signature_;
-}
+signature const& call_builder::signature() const { return signature_; }
 
 call_builder::call_builder(call_builder const& other)
     : signature_(other.signature_)
@@ -61,10 +58,7 @@ call_builder::call_builder(call_builder const& other)
   }
 }
 
-void call_builder::reset()
-{
-  *this = call_builder(signature_);
-}
+void call_builder::reset() { *this = call_builder(signature_); }
 
 call_builder& call_builder::operator=(call_builder other)
 {
@@ -84,7 +78,8 @@ void swap(call_builder& left, call_builder& right)
 
 uint8_t* call_builder::args()
 {
-  assert(current_arg_ == signature_.parameters.size() && "Argument pack not fully built yet!");
+  assert(current_arg_ == signature_.parameters.size()
+      && "Argument pack not fully built yet!");
   return args_.data();
 }
 
@@ -129,10 +124,14 @@ bool call_builder::operator==(call_builder const& other) const
       offset += 8;
 
       if (param.type == data_type::integer) {
-        all_eq = all_eq && (int_data_.at(int_data_offset) == other.int_data_.at(int_data_offset));
+        all_eq = all_eq
+            && (int_data_.at(int_data_offset)
+                   == other.int_data_.at(int_data_offset));
         int_data_offset++;
       } else if (param.type == data_type::floating) {
-        all_eq = all_eq && approx_equal(float_data_.at(float_data_offset), other.float_data_.at(float_data_offset));
+        all_eq = all_eq
+            && approx_equal(float_data_.at(float_data_offset),
+                   other.float_data_.at(float_data_offset));
         float_data_offset++;
       }
     }

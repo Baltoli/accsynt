@@ -48,16 +48,15 @@ bool ConvertToIDL::runOnFunction(Function& F)
 
     fmt::print(stderr,
         "{color}Error:{reset} converting function '{name}' to IDL\n",
-        "color"_a = bold_red, "reset"_a = reset,
-        "name"_a = F.getName().str());
+        "color"_a = bold_red, "reset"_a = reset, "name"_a = F.getName().str());
   }
 
   return false;
 }
 
 char ConvertToIDL::ID = 0;
-static RegisterPass<ConvertToIDL> X("to-idl", "Convert a function to IDL constraints",
-    false, false);
+static RegisterPass<ConvertToIDL> X(
+    "to-idl", "Convert a function to IDL constraints", false, false);
 }
 
 std::unique_ptr<FunctionPass> createConvertToIDLPass()

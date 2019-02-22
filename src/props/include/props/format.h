@@ -4,10 +4,8 @@
 
 #include <fmt/format.h>
 
-template <>
-struct fmt::formatter<props::data_type> {
-  template <typename ParseContext>
-  constexpr auto parse(ParseContext& ctx)
+template <> struct fmt::formatter<props::data_type> {
+  template <typename ParseContext> constexpr auto parse(ParseContext& ctx)
   {
     return ctx.begin();
   }
@@ -25,10 +23,8 @@ struct fmt::formatter<props::data_type> {
   }
 };
 
-template <>
-struct fmt::formatter<props::param> {
-  template <typename ParseContext>
-  constexpr auto parse(ParseContext& ctx)
+template <> struct fmt::formatter<props::param> {
+  template <typename ParseContext> constexpr auto parse(ParseContext& ctx)
   {
     return ctx.begin();
   }
@@ -36,19 +32,15 @@ struct fmt::formatter<props::param> {
   template <typename FormatContext>
   auto format(const props::param& p, FormatContext& ctx)
   {
-    constexpr auto pointers = [](auto n) {
-      return std::string(n, '*');
-    };
+    constexpr auto pointers = [](auto n) { return std::string(n, '*'); };
 
-    return format_to(ctx.out(),
-        "{} {}{}", p.type, pointers(p.pointer_depth), p.name);
+    return format_to(
+        ctx.out(), "{} {}{}", p.type, pointers(p.pointer_depth), p.name);
   }
 };
 
-template <>
-struct fmt::formatter<props::signature> {
-  template <typename ParseContext>
-  constexpr auto parse(ParseContext& ctx)
+template <> struct fmt::formatter<props::signature> {
+  template <typename ParseContext> constexpr auto parse(ParseContext& ctx)
   {
     return ctx.begin();
   }
@@ -64,15 +56,13 @@ struct fmt::formatter<props::signature> {
       }
     }();
 
-    return format_to(ctx.out(), "{} {}({})",
-        ret, sig.name, join(sig.parameters.begin(), sig.parameters.end(), ", "));
+    return format_to(ctx.out(), "{} {}({})", ret, sig.name,
+        join(sig.parameters.begin(), sig.parameters.end(), ", "));
   }
 };
 
-template <>
-struct fmt::formatter<props::value> {
-  template <typename ParseContext>
-  constexpr auto parse(ParseContext& ctx)
+template <> struct fmt::formatter<props::value> {
+  template <typename ParseContext> constexpr auto parse(ParseContext& ctx)
   {
     return ctx.begin();
   }

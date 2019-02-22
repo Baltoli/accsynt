@@ -22,8 +22,8 @@ namespace interfind {
  * Region methods
  */
 
-region::region(Instruction* out, std::vector<Value*> in,
-    Function& orig, FunctionType* ty)
+region::region(
+    Instruction* out, std::vector<Value*> in, Function& orig, FunctionType* ty)
     : output_(out)
     , inputs_(in)
     , original_(orig)
@@ -31,20 +31,15 @@ region::region(Instruction* out, std::vector<Value*> in,
 {
 }
 
-Instruction* region::output() const
-{
-  return output_;
-}
+Instruction* region::output() const { return output_; }
 
-std::vector<Value*> const& region::inputs() const
-{
-  return inputs_;
-}
+std::vector<Value*> const& region::inputs() const { return inputs_; }
 
 Function* region::extract() const
 {
   auto mod = original_.getParent();
-  auto func = Function::Create(function_type_, GlobalValue::ExternalLinkage, "extracted_region", mod);
+  auto func = Function::Create(
+      function_type_, GlobalValue::ExternalLinkage, "extracted_region", mod);
 
   // map bbs and values to their translated equivalents?
   auto v_map = ValueToValueMapTy{};
@@ -118,8 +113,8 @@ void region::clone_output(ValueToValueMapTy& v_map, IRBuilder<>& build) const
  * Region finder methods
  */
 
-region_finder::region_finder(Function& fn, Type* out_t,
-    std::vector<Type*> in_ts)
+region_finder::region_finder(
+    Function& fn, Type* out_t, std::vector<Type*> in_ts)
     : function_(fn)
     , return_type_(out_t)
     , argument_types_(in_ts)
@@ -145,7 +140,8 @@ bool region_finder::available(Value* ret, Value* arg) const
     auto arg_i = dyn_cast<Instruction>(arg);
 
     if (!ret_i || !arg_i) {
-      throw std::runtime_error("Non-global, non-instructions passed to dominance");
+      throw std::runtime_error(
+          "Non-global, non-instructions passed to dominance");
     }
 
     return ud_analysis_.depends(ret, arg);
@@ -154,9 +150,8 @@ bool region_finder::available(Value* ret, Value* arg) const
 
 std::set<llvm::Value*> region_finder::available_set(Value* ret) const
 {
-  return values_by_pred(function_, [=](auto& arg) {
-    return available(ret, &arg);
-  });
+  return values_by_pred(
+      function_, [=](auto& arg) { return available(ret, &arg); });
 }
 
 region_finder::partition region_finder::type_partition(
@@ -173,14 +168,14 @@ region_finder::partition region_finder::type_partition(
   return partitions;
 }
 
-bool region_finder::partition_is_valid(region_finder::partition const& part) const
+bool region_finder::partition_is_valid(
+    region_finder::partition const& part) const
 {
   auto begin = argument_types_.begin();
   auto end = argument_types_.end();
 
-  return std::none_of(begin, end, [&](auto arg_t) {
-    return part.find(arg_t) == part.end();
-  });
+  return std::none_of(
+      begin, end, [&](auto arg_t) { return part.find(arg_t) == part.end(); });
 }
 
 std::vector<region> region_finder::all_candidates() const

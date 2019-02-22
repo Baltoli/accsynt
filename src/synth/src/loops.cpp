@@ -136,10 +136,7 @@ bool loop::operator==(loop const& other) const
   return true;
 }
 
-bool loop::operator!=(loop const& other) const
-{
-  return !(*this == other);
-}
+bool loop::operator!=(loop const& other) const { return !(*this == other); }
 
 size_t loop::hash() const
 {
@@ -164,17 +161,14 @@ bool loop::is_instantiated() const
     return false;
   }
 
-  return std::all_of(begin(), end(), [](auto& loop) {
-    return loop->is_instantiated();
-  });
+  return std::all_of(
+      begin(), end(), [](auto& loop) { return loop->is_instantiated(); });
 }
 
 std::ostream& operator<<(std::ostream& os, slot const& slot)
 {
-  auto printer = support::visitor{
-    [&os](hole) { os << "()"; },
-    [&os](loop_id l) { os << "L" << l.id; }
-  };
+  auto printer = support::visitor{ [&os](hole) { os << "()"; },
+    [&os](loop_id l) { os << "L" << l.id; } };
 
   std::visit(printer, slot);
   return os;
@@ -207,10 +201,7 @@ std::ostream& operator<<(std::ostream& os, loop const& loop)
 namespace std {
 using namespace synth;
 
-size_t hash<hole>::operator()(hole const& h) const
-{
-  return 0;
-}
+size_t hash<hole>::operator()(hole const& h) const { return 0; }
 
 size_t hash<loop_id>::operator()(loop_id const& h) const
 {
@@ -219,8 +210,5 @@ size_t hash<loop_id>::operator()(loop_id const& h) const
   return ret;
 }
 
-size_t hash<loop>::operator()(loop const& l) const
-{
-  return l.hash();
-}
+size_t hash<loop>::operator()(loop const& l) const { return l.hash(); }
 }

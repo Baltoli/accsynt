@@ -31,22 +31,19 @@ struct is_generator : std::false_type {
  */
 template <typename T>
 struct is_generator<T,
-    std::void_t<
-        decltype(std::declval<T>().gen_int(0, 0)),
-        decltype(std::declval<T>().gen_float(0.0f, 0.0f))>> : std::conjunction<std::is_same<decltype(std::declval<T>().gen_int(0, 0)),
-                                                                                   int>,
-                                                                  std::is_same<
-                                                                      decltype(std::declval<T>().gen_float(0.0f, 0.0f)),
-                                                                      float>,
-                                                                  std::is_copy_constructible<T>,
-                                                                  std::is_move_constructible<T>> {
+    std::void_t<decltype(std::declval<T>().gen_int(0, 0)),
+        decltype(std::declval<T>().gen_float(0.0f, 0.0f))>>
+    : std::conjunction<
+          std::is_same<decltype(std::declval<T>().gen_int(0, 0)), int>,
+          std::is_same<decltype(std::declval<T>().gen_float(0.0f, 0.0f)),
+              float>,
+          std::is_copy_constructible<T>, std::is_move_constructible<T>> {
 };
 
 /**
  * Helper value for convenience.
  */
-template <typename T>
-constexpr bool is_generator_v = is_generator<T>::value;
+template <typename T> constexpr bool is_generator_v = is_generator<T>::value;
 }
 
 /**
@@ -113,22 +110,15 @@ class argument_generator {
     virtual float gen_float(float min, float max) = 0;
   };
 
-  template <typename T>
-  struct model : concept {
+  template <typename T> struct model : concept {
     model(T obj)
         : object_(obj)
     {
     }
 
-    model<T>* clone() override
-    {
-      return new model<T>(object_);
-    }
+    model<T>* clone() override { return new model<T>(object_); }
 
-    int gen_int(int min, int max) override
-    {
-      return object_.gen_int(min, max);
-    }
+    int gen_int(int min, int max) override { return object_.gen_int(min, max); }
 
     float gen_float(float min, float max) override
     {

@@ -31,8 +31,8 @@ class dataflow_synth {
   block_live_map const& block_live() const;
 
   private:
-  void create_block_dataflow(llvm::BasicBlock* block,
-      std::vector<llvm::Value*> live);
+  void create_block_dataflow(
+      llvm::BasicBlock* block, std::vector<llvm::Value*> live);
 
   llvm::Function* function_;
   llvm::DominatorTree dom_tree_;

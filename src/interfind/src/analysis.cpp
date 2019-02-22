@@ -13,13 +13,7 @@ props::signature const& analysis_result::signature() const
   return signature_;
 }
 
-void analysis_result::add_candidate_region(region r)
-{
-  regions_.push_back(r);
-}
+void analysis_result::add_candidate_region(region r) { regions_.push_back(r); }
 
-std::vector<region> const& analysis_result::regions() const
-{
-  return regions_;
-}
+std::vector<region> const& analysis_result::regions() const { return regions_; }
 }

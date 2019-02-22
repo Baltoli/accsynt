@@ -39,8 +39,7 @@ analysis_result finder::run(Module& mod, json config)
   auto result = analysis_result(find.signature_);
 
   auto reference = call_wrapper(
-      find.signature_, mod, find.signature_.name,
-      find.dynamic_library_);
+      find.signature_, mod, find.signature_.name, find.dynamic_library_);
   auto ref_decl = find.signature_.create_function(mod);
 
   auto sig_t = find.signature_.function_type();

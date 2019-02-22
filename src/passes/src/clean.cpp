@@ -52,9 +52,8 @@ bool Clean::runOnModule(Module& M)
 
 BasicBlock* Clean::errorBlock(Function& F) const
 {
-  auto err_block_it = std::find_if(F.begin(), F.end(), [](auto& BB) {
-    return BB.getName() == "error";
-  });
+  auto err_block_it = std::find_if(
+      F.begin(), F.end(), [](auto& BB) { return BB.getName() == "error"; });
 
   if (err_block_it != F.end()) {
     return &(*err_block_it);
@@ -111,7 +110,8 @@ void Clean::cloneRetyped(Function& F) const
   auto actual_args = std::vector<Type*>{};
   std::copy(std::next(old_fn_ty->param_begin()), old_fn_ty->param_end(),
       std::back_inserter(actual_args));
-  auto fn_ty = FunctionType::get(old_fn_ty->getReturnType(), actual_args, false);
+  auto fn_ty
+      = FunctionType::get(old_fn_ty->getReturnType(), actual_args, false);
 
   auto func = Function::Create(fn_ty, F.getLinkage(), name, F.getParent());
 
@@ -132,8 +132,7 @@ void Clean::cloneRetyped(Function& F) const
 }
 
 char Clean::ID = 0;
-static RegisterPass<Clean> X("clean", "Accsynt cleaning pass",
-    false, false);
+static RegisterPass<Clean> X("clean", "Accsynt cleaning pass", false, false);
 }
 
 std::unique_ptr<ModulePass> createCleanPass()

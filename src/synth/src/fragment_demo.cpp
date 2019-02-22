@@ -21,7 +21,8 @@ int main()
   auto sig = signature::parse("int func(int n, float *x)");
   auto mod = Module{ "fragtest", thread_context::get() };
 
-  auto f1 = regular_loop_fragment{ { value::with_param("x"), value::with_param("n") } };
+  auto f1 = regular_loop_fragment{ { value::with_param("x"),
+      value::with_param("n") } };
 
   auto choices = std::vector<fragment::frag_ptr>{};
   choices.push_back(f1.clone());

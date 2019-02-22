@@ -10,15 +10,11 @@
 using namespace support;
 using namespace llvm;
 
-static cl::opt<int>
-    MaxFragments(
-        "max-fragments", cl::desc("Maximum fragments to combine"),
-        cl::init(-1));
+static cl::opt<int> MaxFragments(
+    "max-fragments", cl::desc("Maximum fragments to combine"), cl::init(-1));
 
-static cl::opt<bool>
-    DumpControl(
-        "dump-control", cl::desc("Dump control flow before synthesis"),
-        cl::init(false));
+static cl::opt<bool> DumpControl("dump-control",
+    cl::desc("Dump control flow before synthesis"), cl::init(false));
 
 namespace synth {
 
@@ -52,10 +48,7 @@ rule_synth::rule_synth(props::property_set ps, call_wrapper& ref)
   }
 }
 
-std::string rule_synth::name() const
-{
-  return "rule_synth";
-}
+std::string rule_synth::name() const { return "rule_synth"; }
 
 Function* rule_synth::candidate()
 {
@@ -67,11 +60,8 @@ Function* rule_synth::candidate()
     current_fragment_ = fragments_.begin();
   }
 
-  auto ctx = compile_context{
-    mod_,
-    properties_.type_signature,
-    accessors_from_rules(properties_)
-  };
+  auto ctx = compile_context{ mod_, properties_.type_signature,
+    accessors_from_rules(properties_) };
   auto& frag = *current_fragment_;
 
   frag->compile(ctx);

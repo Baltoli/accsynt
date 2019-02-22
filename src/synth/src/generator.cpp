@@ -25,8 +25,7 @@ void generator::generate(call_builder& builder)
   }
 }
 
-void generator::generate_value(call_builder& builder,
-    props::param param)
+void generator::generate_value(call_builder& builder, props::param param)
 {
   assert(param.pointer_depth < 2 && "Nested pointers not supported");
 
@@ -57,16 +56,15 @@ float generator::random_float(float min, float max)
   return dis(random_);
 }
 
-std::vector<float>
-generator::random_float_data(int length, float min, float max)
+std::vector<float> generator::random_float_data(
+    int length, float min, float max)
 {
   auto ret = std::vector<float>(length, 0.0f);
   std::generate(ret.begin(), ret.end(), [&] { return random_float(min, max); });
   return ret;
 }
 
-std::vector<int>
-generator::random_int_data(int length, int min, int max)
+std::vector<int> generator::random_int_data(int length, int min, int max)
 {
   auto ret = std::vector<int>(length, 0);
   std::generate(ret.begin(), ret.end(), [&] { return random_int(min, max); });
@@ -113,7 +111,8 @@ void blas_generator::generate(call_builder& builder)
       if (params.at(i).pointer_depth == 0) {
         builder.add(found->second);
       } else {
-        builder.add(random_float_data(found->second * blas_props_.pack_size(i), -10, 10));
+        builder.add(random_float_data(
+            found->second * blas_props_.pack_size(i), -10, 10));
       }
     } else {
       generate_value(builder, params.at(i));

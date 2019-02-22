@@ -15,8 +15,7 @@ using namespace props;
 namespace synth {
 
 fragment::frag_set fragment::enumerate(std::vector<frag_ptr>&& fragments,
-    std::optional<size_t> max_size,
-    size_t data_blocks)
+    std::optional<size_t> max_size, size_t data_blocks)
 {
   if (max_size && max_size.value() == 0) {
     return {};
@@ -68,11 +67,12 @@ fragment::frag_set fragment::enumerate(std::vector<frag_ptr>&& fragments,
   return std::move(results);
 }
 
-fragment::frag_set fragment::enumerate_all(std::vector<frag_ptr>&& fragments,
-    std::optional<size_t> max_size)
+fragment::frag_set fragment::enumerate_all(
+    std::vector<frag_ptr>&& fragments, std::optional<size_t> max_size)
 {
   auto ret = fragment::frag_set{};
-  auto real_max = std::min(max_size.value_or(fragments.size()), fragments.size());
+  auto real_max
+      = std::min(max_size.value_or(fragments.size()), fragments.size());
 
   ::support::choose(fragments.size(), real_max).for_each([&](auto idxs) {
     auto perm = std::vector<fragment::frag_ptr>{};
@@ -89,7 +89,8 @@ fragment::frag_set fragment::enumerate_all(std::vector<frag_ptr>&& fragments,
   return std::move(ret);
 }
 
-fragment::frag_set fragment::enumerate_permutation(std::vector<frag_ptr> const& perm)
+fragment::frag_set fragment::enumerate_permutation(
+    std::vector<frag_ptr> const& perm)
 {
   if (perm.empty()) {
     return {};

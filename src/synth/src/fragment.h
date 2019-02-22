@@ -20,9 +20,9 @@ class fragment;
 }
 
 namespace std {
-template <>
-struct hash<std::unique_ptr<synth::fragment>> {
-  size_t operator()(std::unique_ptr<synth::fragment> const& frag) const noexcept;
+template <> struct hash<std::unique_ptr<synth::fragment>> {
+  size_t operator()(std::unique_ptr<synth::fragment> const& frag) const
+      noexcept;
 };
 }
 
@@ -36,10 +36,8 @@ struct fragment_equal {
 class fragment {
   public:
   using frag_ptr = std::unique_ptr<fragment>;
-  using frag_set = std::unordered_set<
-      frag_ptr,
-      std::hash<frag_ptr>,
-      fragment_equal>;
+  using frag_set
+      = std::unordered_set<frag_ptr, std::hash<frag_ptr>, fragment_equal>;
 
   static frag_set enumerate(std::vector<frag_ptr>&& fragments,
       std::optional<size_t> max_size = std::nullopt,
@@ -84,7 +82,9 @@ class fragment {
    * Recursive primitive that makes up compilation - insert this fragment
    * between two basic blocks. Will expect the entry block not to be terminated?
    */
-  virtual void splice(compile_context& ctx, llvm::BasicBlock* entry, llvm::BasicBlock* exit) = 0;
+  virtual void splice(
+      compile_context& ctx, llvm::BasicBlock* entry, llvm::BasicBlock* exit)
+      = 0;
 
   /**
    * Adds a new child fragment to this one - will recurse into existing children
@@ -100,11 +100,9 @@ class fragment {
    */
   virtual bool add_child(frag_ptr&& f, size_t idx) = 0;
 
-  template <typename T>
-  bool add_child(T frag, size_t idx);
+  template <typename T> bool add_child(T frag, size_t idx);
 
-  template <typename T>
-  bool equal_as(T const& other) const;
+  template <typename T> bool equal_as(T const& other) const;
 
   /**
    * Counts the number of holes left in this fragment that can be instantiated
@@ -117,33 +115,28 @@ class fragment {
 
   protected:
   template <typename Func>
-  static void choose(size_t n,
-      std::vector<frag_ptr> const& fragments,
-      Func&& f);
+  static void choose(
+      size_t n, std::vector<frag_ptr> const& fragments, Func&& f);
 
   template <typename Func>
-  static void choose(size_t n,
-      std::vector<frag_ptr> const& fragments,
+  static void choose(size_t n, std::vector<frag_ptr> const& fragments,
       std::vector<frag_ptr>& accum, Func&& f);
 
-  static frag_set enumerate_all(std::vector<frag_ptr>&& fragments,
-      std::optional<size_t> max_size);
+  static frag_set enumerate_all(
+      std::vector<frag_ptr>&& fragments, std::optional<size_t> max_size);
 
-  static frag_set enumerate_permutation(
-      std::vector<frag_ptr> const& perm);
+  static frag_set enumerate_permutation(std::vector<frag_ptr> const& perm);
 
   template <typename Iterator>
-  static void enumerate_recursive(frag_set& results,
-      frag_ptr&& accum,
-      Iterator begin, Iterator end);
+  static void enumerate_recursive(
+      frag_set& results, frag_ptr&& accum, Iterator begin, Iterator end);
 
   /**
    * Helper method to clone and copy with the right type - simplifies the
    * virtual clone method by having this handle the construction of a
    * unique_ptr.
    */
-  template <typename T>
-  frag_ptr clone_as(T const& obj) const;
+  template <typename T> frag_ptr clone_as(T const& obj) const;
 
   template <typename... Children>
   std::array<std::reference_wrapper<frag_ptr>, sizeof...(Children)>
@@ -161,20 +154,17 @@ class fragment {
   std::vector<props::value> args_;
 };
 
-template <typename T>
-bool fragment::add_child(T frag, size_t idx)
+template <typename T> bool fragment::add_child(T frag, size_t idx)
 {
   return add_child(frag.clone(), idx);
 }
 
-template <typename T>
-fragment::frag_ptr fragment::clone_as(T const& obj) const
+template <typename T> fragment::frag_ptr fragment::clone_as(T const& obj) const
 {
   return fragment::frag_ptr(new T{ obj });
 }
 
-template <typename T>
-bool fragment::equal_as(T const& other) const
+template <typename T> bool fragment::equal_as(T const& other) const
 {
   if (auto ptr = dynamic_cast<T const*>(this)) {
     return *ptr == other;
@@ -191,9 +181,8 @@ fragment::children_ref(Children&... chs) const
 }
 
 template <typename Iterator>
-void fragment::enumerate_recursive(fragment::frag_set& results,
-    frag_ptr&& accum,
-    Iterator begin, Iterator end)
+void fragment::enumerate_recursive(
+    fragment::frag_set& results, frag_ptr&& accum, Iterator begin, Iterator end)
 {
   if (begin == end) {
     results.insert(std::move(accum));
@@ -210,9 +199,8 @@ void fragment::enumerate_recursive(fragment::frag_set& results,
 }
 
 template <typename Func>
-void fragment::choose(size_t n,
-    std::vector<fragment::frag_ptr> const& fragments,
-    Func&& f)
+void fragment::choose(
+    size_t n, std::vector<fragment::frag_ptr> const& fragments, Func&& f)
 {
 }
 }

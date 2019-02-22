@@ -70,7 +70,8 @@ std::vector<Instruction> Graph::get_opcodes(std::vector<size_t> idx) const
   return result;
 }
 
-std::vector<std::vector<size_t>> Graph::get_arguments(std::vector<size_t> idx) const
+std::vector<std::vector<size_t>> Graph::get_arguments(
+    std::vector<size_t> idx) const
 {
   std::vector<std::vector<size_t>> result;
   for (auto i : idx)

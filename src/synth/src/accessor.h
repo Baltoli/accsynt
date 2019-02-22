@@ -30,32 +30,23 @@ class accessor {
   accessor() = default;
   virtual ~accessor() = default;
 
-  std::set<llvm::Value*> create_geps(
-      compile_metadata const& meta,
-      llvm::Value* index,
-      llvm::Value* base,
-      llvm::IRBuilder<>& builder,
+  std::set<llvm::Value*> create_geps(compile_metadata const& meta,
+      llvm::Value* index, llvm::Value* base, llvm::IRBuilder<>& builder,
       std::string const& prefix = "") const;
 
   private:
-  virtual std::set<llvm::Value*> map_index(
-      compile_metadata const& meta,
-      llvm::Value* index,
-      llvm::IRBuilder<>& builder) const;
+  virtual std::set<llvm::Value*> map_index(compile_metadata const& meta,
+      llvm::Value* index, llvm::IRBuilder<>& builder) const;
 };
 
 class offset_accessor : public accessor {
-  virtual std::set<llvm::Value*> map_index(
-      compile_metadata const& meta,
-      llvm::Value* index,
-      llvm::IRBuilder<>& builder) const override;
+  virtual std::set<llvm::Value*> map_index(compile_metadata const& meta,
+      llvm::Value* index, llvm::IRBuilder<>& builder) const override;
 };
 
 class paired_accessor : public accessor {
-  virtual std::set<llvm::Value*> map_index(
-      compile_metadata const& meta,
-      llvm::Value* index,
-      llvm::IRBuilder<>& builder) const override;
+  virtual std::set<llvm::Value*> map_index(compile_metadata const& meta,
+      llvm::Value* index, llvm::IRBuilder<>& builder) const override;
 };
 
 /**

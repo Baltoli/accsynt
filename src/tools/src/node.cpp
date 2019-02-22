@@ -20,9 +20,7 @@
 
 void Node::print(std::ostream& os) const
 {
-  os << "{ "
-     << Graph::opcode_string(op) << " "
-     << name << " ";
+  os << "{ " << Graph::opcode_string(op) << " " << name << " ";
 
   auto comma = "";
   for (auto e : edges) {

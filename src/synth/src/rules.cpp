@@ -67,8 +67,8 @@ std::vector<match_result> match_expression::match(props::property_set ps)
   return ret;
 }
 
-bool distinct::validate(match_result const& unified,
-    props::property_set ps) const
+bool distinct::validate(
+    match_result const& unified, props::property_set ps) const
 {
   for (auto v1 : vars_) {
     for (auto v2 : vars_) {
@@ -81,7 +81,8 @@ bool distinct::validate(match_result const& unified,
   return true;
 }
 
-bool negation::validate(match_result const& unified, props::property_set ps) const
+bool negation::validate(
+    match_result const& unified, props::property_set ps) const
 {
   auto vals = std::vector<props::value>{};
 
@@ -102,10 +103,8 @@ bool negation::validate(match_result const& unified, props::property_set ps) con
   return true;
 }
 
-rule::rule(std::string frag,
-    std::vector<std::string> args,
-    std::vector<match_expression> es,
-    std::vector<validator> vs)
+rule::rule(std::string frag, std::vector<std::string> args,
+    std::vector<match_expression> es, std::vector<validator> vs)
     : fragment_(frag)
     , args_(args)
     , exprs_(es)
@@ -147,12 +146,9 @@ std::vector<std::unique_ptr<fragment>> rule::match(props::property_set ps)
 
 bool rule::validate(match_result const& mr, props::property_set ps) const
 {
-  auto call_valid = [&](auto v) {
-    return v.validate(mr, ps);
-  };
+  auto call_valid = [&](auto v) { return v.validate(mr, ps); };
 
-  return std::all_of(validators_.begin(), validators_.end(), [&](auto v) {
-    return std::visit(call_valid, v);
-  });
+  return std::all_of(validators_.begin(), validators_.end(),
+      [&](auto v) { return std::visit(call_valid, v); });
 }
 }

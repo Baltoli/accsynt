@@ -12,9 +12,8 @@ using namespace llvm;
 
 namespace support {
 
-call_wrapper::call_wrapper(signature sig,
-    llvm::Module const& mod,
-    std::string const& name)
+call_wrapper::call_wrapper(
+    signature sig, llvm::Module const& mod, std::string const& name)
     : signature_(sig)
 {
   auto mod_copy = copy_module_to(thread_context::get(), mod);
@@ -42,10 +41,8 @@ call_wrapper::call_wrapper(signature sig,
   }
 }
 
-call_wrapper::call_wrapper(signature sig,
-    llvm::Module const& mod,
-    std::string const& name,
-    dynamic_library const& dl)
+call_wrapper::call_wrapper(signature sig, llvm::Module const& mod,
+    std::string const& name, dynamic_library const& dl)
     : call_wrapper(sig, mod, name)
 {
   auto sym = dl.raw_symbol(name);
@@ -89,7 +86,8 @@ Function* call_wrapper::build_wrapper_function(Module& mod, Function* fn) const
   auto ptr_t = byte_t->getPointerTo();
   auto fn_ty = FunctionType::get(rt, { ptr_t }, false);
 
-  auto new_fn = Function::Create(fn_ty, GlobalValue::ExternalLinkage, name, &mod);
+  auto new_fn
+      = Function::Create(fn_ty, GlobalValue::ExternalLinkage, name, &mod);
   auto bb = BasicBlock::Create(ctx, "entry", new_fn);
   auto B = IRBuilder<>(bb);
 

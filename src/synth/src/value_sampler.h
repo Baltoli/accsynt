@@ -26,8 +26,7 @@ class value_sampler {
   template <typename Builder>
   void block(Builder&&, size_t, std::vector<llvm::Value*>&);
 
-  void add_incoming(
-      llvm::PHINode* phi,
+  void add_incoming(llvm::PHINode* phi,
       std::map<llvm::BasicBlock*, std::vector<llvm::Value*>> const& live);
 
   llvm::Value* constant(llvm::Type* ty) const;
@@ -41,12 +40,10 @@ class value_sampler {
 };
 
 template <typename Builder>
-void value_sampler::block(Builder&& B, size_t n,
-    std::vector<llvm::Value*>& live)
+void value_sampler::block(
+    Builder&& B, size_t n, std::vector<llvm::Value*>& live)
 {
-  auto non_const = [](auto* v) {
-    return !llvm::isa<llvm::Constant>(v);
-  };
+  auto non_const = [](auto* v) { return !llvm::isa<llvm::Constant>(v); };
 
   for (auto i = 0u; i < n; ++i) {
     if (!live.empty()) {
@@ -60,7 +57,8 @@ void value_sampler::block(Builder&& B, size_t n,
 }
 
 template <typename Builder>
-llvm::Value* make_intrinsic(Builder&& B, llvm::Intrinsic::ID id, llvm::Value* v1)
+llvm::Value* make_intrinsic(
+    Builder&& B, llvm::Intrinsic::ID id, llvm::Value* v1)
 {
   auto mod = B.GetInsertBlock()->getParent()->getParent();
   auto intrinsic = llvm::Intrinsic::getDeclaration(mod, id, v1->getType());

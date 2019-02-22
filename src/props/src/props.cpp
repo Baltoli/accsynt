@@ -61,8 +61,5 @@ bool value::operator==(value const& other) const
   return false;
 }
 
-bool value::operator!=(value const& other) const
-{
-  return !(*this == other);
-}
+bool value::operator!=(value const& other) const { return !(*this == other); }
 }

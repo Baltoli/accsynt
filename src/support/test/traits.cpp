@@ -42,14 +42,14 @@ TEST_CASE("has_member_find works")
 {
   SECTION("trait works correctly")
   {
-    static_assert(has_member_find_v<std::set<int>>,
-        "Set should have member find");
+    static_assert(
+        has_member_find_v<std::set<int>>, "Set should have member find");
 
     static_assert(!has_member_find_v<std::vector<std::string>>,
         "Vector should not have member find");
 
-    static_assert(has_member_find_v<has_find>,
-        "Types that look OK should also");
+    static_assert(
+        has_member_find_v<has_find>, "Types that look OK should also");
   }
 
   SECTION("generic find works")

@@ -9,8 +9,8 @@ using namespace support;
 using namespace interfind;
 using namespace llvm;
 
-#define VALUE(name)                   \
-  auto name = get_by_name(fn, #name); \
+#define VALUE(name)                                                            \
+  auto name = get_by_name(fn, #name);                                          \
   REQUIRE(name);
 
 TEST_CASE("can compute use-def analyses", "[use_def]")
@@ -65,10 +65,10 @@ TEST_CASE("can compute use-def analyses", "[use_def]")
 
   SECTION("root set queries")
   {
-#define IS_ROOT(val, ...) \
+#define IS_ROOT(val, ...)                                                      \
   REQUIRE(analysis.is_root_set(val, std::set<llvm::Value*>{ __VA_ARGS__ }));
 
-#define IS_NOT_ROOT(val, ...) \
+#define IS_NOT_ROOT(val, ...)                                                  \
   REQUIRE(!analysis.is_root_set(val, std::set<llvm::Value*>{ __VA_ARGS__ }));
 
     IS_ROOT(v0, arg0, arg1);

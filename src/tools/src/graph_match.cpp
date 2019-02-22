@@ -9,23 +9,18 @@
 
 using namespace llvm;
 
-static cl::opt<std::string>
-    FunctionName(cl::Positional, cl::desc("<function>"),
-        cl::value_desc("function name"));
+static cl::opt<std::string> FunctionName(
+    cl::Positional, cl::desc("<function>"), cl::value_desc("function name"));
 
-static cl::opt<std::string>
-    InputA(cl::Positional, cl::desc("<bitcode>"),
-        cl::Required, cl::value_desc("filename A"));
+static cl::opt<std::string> InputA(cl::Positional, cl::desc("<bitcode>"),
+    cl::Required, cl::value_desc("filename A"));
 
-static cl::opt<std::string>
-    InputB(cl::Positional, cl::desc("<bitcode>"),
-        cl::Required, cl::value_desc("filename B"));
+static cl::opt<std::string> InputB(cl::Positional, cl::desc("<bitcode>"),
+    cl::Required, cl::value_desc("filename B"));
 
-static cl::opt<std::string>
-    OutputFilename("o",
-        cl::desc("Filename to save the generated constraints to"),
-        cl::value_desc("filename"),
-        cl::init("-"));
+static cl::opt<std::string> OutputFilename("o",
+    cl::desc("Filename to save the generated constraints to"),
+    cl::value_desc("filename"), cl::init("-"));
 
 int main(int argc, char** argv)
 {
@@ -107,7 +102,8 @@ loop-check:                                       ; preds = %header, %body
 /*  {Instruction::fsub,  "%8",         {18, 14}}, //12 */
 /*  {Instruction::fmul,  "%9",         {18, 19}}, //13 */
 /*  {Instruction::phi,   "%10",        {21, 11}}, //14 */
-/*  {Instruction::phi,   "%iter",      {16, 22}}, //15   this is swapped around */
+/*  {Instruction::phi,   "%iter",      {16, 22}}, //15   this is swapped around
+ */
 /*  {Instruction::add,   "%next_iter", {15, 23}}, //16 */
 /*  {Instruction::icmp,  "%11",        { 0}},     //17 */
 /*  {Instruction::fsub,  "%12",        {14, 14}}, //18 */
@@ -122,27 +118,21 @@ loop-check:                                       ; preds = %header, %body
 source_filename = "dot.ll"
 
 ; Function Attrs: norecurse nounwind readonly
-define float @dot(i32 %n, float* nocapture readonly %a, float* nocapture readonly %b) local_unnamed_addr #0 {
-entry:
-  %0 = icmp sgt i32 %n, 0
-  br i1 %0, label %body.preheader, label %loop_exit
+define float @dot(i32 %n, float* nocapture readonly %a, float* nocapture
+readonly %b) local_unnamed_addr #0 { entry: %0 = icmp sgt i32 %n, 0 br i1 %0,
+label %body.preheader, label %loop_exit
 
 body.preheader:                                   ; preds = %entry
   br label %body
 
-body:                                             ; preds = %body.preheader, %body
-  %iter1 = phi i32 [ %next_iter, %body ], [ 0, %body.preheader ]
-  %1 = phi float [ %8, %body ], [ 0.000000e+00, %body.preheader ]
-  %next_iter = add nuw nsw i32 %iter1, 1
-  %2 = zext i32 %iter1 to i64
-  %3 = getelementptr float, float* %a, i64 %2
-  %4 = load float, float* %3, align 4
-  %5 = getelementptr float, float* %b, i64 %2
-  %6 = load float, float* %5, align 4
-  %7 = fmul float %4, %6
-  %8 = fadd float %1, %7
-  %9 = icmp slt i32 %next_iter, %n  
-  br i1 %9, label %body, label %loop_exit
+body:                                             ; preds = %body.preheader,
+%body %iter1 = phi i32 [ %next_iter, %body ], [ 0, %body.preheader ] %1 = phi
+float [ %8, %body ], [ 0.000000e+00, %body.preheader ] %next_iter = add nuw nsw
+i32 %iter1, 1 %2 = zext i32 %iter1 to i64 %3 = getelementptr float, float* %a,
+i64 %2 %4 = load float, float* %3, align 4 %5 = getelementptr float, float* %b,
+i64 %2 %6 = load float, float* %5, align 4 %7 = fmul float %4, %6 %8 = fadd
+float %1, %7 %9 = icmp slt i32 %next_iter, %n br i1 %9, label %body, label
+%loop_exit
 
 loop_exit:                                        ; preds = %body, %entry
   %.lcssa = phi float [ 0.000000e+00, %entry ], [ %8, %body ]
@@ -160,12 +150,15 @@ attributes #0 = { norecurse nounwind readonly }
 /*  {Instruction::icmp,  "%0",         { 0, 19}}, // 3 - 27 */
 /*  {Instruction::br,    "",           { 3}},     // 4 - 28 */
 /*  {Instruction::phi,   "%iter1",     { 7, 19}}, // 5 - 29 */
-/*  {Instruction::phi,   "%1",         {20, 14}}, // 6 - 30    this is swapped around */
+/*  {Instruction::phi,   "%1",         {20, 14}}, // 6 - 30    this is swapped
+ * around */
 /*  {Instruction::add,   "%next_iter", { 5, 21}}, // 7 - 31 */
 /*  {Instruction::zext,  "%2",         { 5}},     // 8 - 32 */
-/*  {Instruction::gep,   "%3",         { 1, 5}},  // 9 - 33    this is manipulated */
+/*  {Instruction::gep,   "%3",         { 1, 5}},  // 9 - 33    this is
+ * manipulated */
 /*  {Instruction::load,  "%4",         { 9}},     //10 - 34 */
-/*  {Instruction::gep,   "%5",         { 2, 5}},  //11 - 35    this is manipulated */
+/*  {Instruction::gep,   "%5",         { 2, 5}},  //11 - 35    this is
+ * manipulated */
 /*  {Instruction::load,  "%6",         {11}},     //12 - 36 */
 /*  {Instruction::fmul,  "%7",         {10, 12}}, //13 - 37 */
 /*  {Instruction::fadd,  "%8",         { 6, 13}}, //14 - 38 */

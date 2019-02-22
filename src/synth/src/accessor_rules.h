@@ -16,12 +16,9 @@ namespace synth {
  * These simpler rules exist to match properties to accessors - they take a
  * single property name and return an accessor.
  */
-template <typename Acc>
-class accessor_rule {
-  using optional_entry = std::optional<
-      std::pair<
-          std::string,
-          std::unique_ptr<accessor>>>;
+template <typename Acc> class accessor_rule {
+  using optional_entry
+      = std::optional<std::pair<std::string, std::unique_ptr<accessor>>>;
 
   public:
   accessor_rule(std::string property);
@@ -39,8 +36,8 @@ accessor_rule<Acc>::accessor_rule(std::string property)
 }
 
 template <typename Acc>
-typename accessor_rule<Acc>::optional_entry
-accessor_rule<Acc>::operator()(props::property p) const
+typename accessor_rule<Acc>::optional_entry accessor_rule<Acc>::operator()(
+    props::property p) const
 {
   // TODO: validate that this is actually a parameter reference
 

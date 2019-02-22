@@ -30,7 +30,8 @@ class synthesizer {
   props::property_set properties_;
   support::call_wrapper& reference_;
 
-  std::vector<std::pair<support::call_builder, support::output_example>> examples_;
+  std::vector<std::pair<support::call_builder, support::output_example>>
+      examples_;
   size_t attempts_ = 128;
 
   llvm::Module mod_;

@@ -15,10 +15,7 @@ namespace synth {
 // TODO: make an abstract validation function that can handle the common cases?
 
 regular_loop_fragment::regular_loop_fragment(std::vector<value> args,
-    frag_ptr&& before,
-    frag_ptr&& body,
-    frag_ptr&& after,
-    bool output)
+    frag_ptr&& before, frag_ptr&& body, frag_ptr&& after, bool output)
     : fragment(args)
     , before_(std::move(before))
     , body_(std::move(body))
@@ -30,12 +27,12 @@ regular_loop_fragment::regular_loop_fragment(std::vector<value> args,
     throw std::invalid_argument("Regular loop requires at least 2 arguments");
   }
 
-  auto all_params = std::all_of(args_.begin(), args_.end(), [](auto arg) {
-    return arg.value_type == value::type::parameter;
-  });
+  auto all_params = std::all_of(args_.begin(), args_.end(),
+      [](auto arg) { return arg.value_type == value::type::parameter; });
 
   if (!all_params) {
-    throw std::invalid_argument("Regular loop arguments must all be parameter references");
+    throw std::invalid_argument(
+        "Regular loop arguments must all be parameter references");
   }
 }
 
@@ -50,24 +47,22 @@ regular_loop_fragment::regular_loop_fragment(std::vector<value> args, bool out)
 }
 
 regular_loop_fragment::regular_loop_fragment(regular_loop_fragment const& other)
-    : regular_loop_fragment(
-          other.args_,
+    : regular_loop_fragment(other.args_,
           other.before_ ? other.before_->clone() : nullptr,
           other.body_ ? other.body_->clone() : nullptr,
-          other.after_ ? other.after_->clone() : nullptr,
-          other.perform_output_)
+          other.after_ ? other.after_->clone() : nullptr, other.perform_output_)
 {
 }
 
 regular_loop_fragment::regular_loop_fragment(regular_loop_fragment&& other)
-    : regular_loop_fragment(
-          std::move(other.args_), std::move(other.before_),
+    : regular_loop_fragment(std::move(other.args_), std::move(other.before_),
           std::move(other.body_), std::move(other.after_),
           std::move(other.perform_output_))
 {
 }
 
-regular_loop_fragment& regular_loop_fragment::operator=(regular_loop_fragment&& other)
+regular_loop_fragment& regular_loop_fragment::operator=(
+    regular_loop_fragment&& other)
 {
   args_ = std::move(other.args_);
   before_ = std::move(other.before_);
@@ -76,26 +71,23 @@ regular_loop_fragment& regular_loop_fragment::operator=(regular_loop_fragment&& 
   return *this;
 }
 
-regular_loop_fragment& regular_loop_fragment::operator=(regular_loop_fragment other)
+regular_loop_fragment& regular_loop_fragment::operator=(
+    regular_loop_fragment other)
 {
   using std::swap;
   swap(*this, other);
   return *this;
 }
 
-fragment::frag_ptr regular_loop_fragment::clone()
-{
-  return clone_as(*this);
-}
+fragment::frag_ptr regular_loop_fragment::clone() { return clone_as(*this); }
 
 std::string regular_loop_fragment::to_str(size_t ind)
 {
   using namespace fmt::literals;
 
   auto ptr_names = std::vector<std::string>{};
-  std::transform(args_.begin() + 1, args_.end(), std::back_inserter(ptr_names), [](auto val) {
-    return val.param_val;
-  });
+  std::transform(args_.begin() + 1, args_.end(), std::back_inserter(ptr_names),
+      [](auto val) { return val.param_val; });
 
   auto shape = R"({before}
 {ind1}{name}({sz}, {ptrs}) {{
@@ -110,18 +102,21 @@ std::string regular_loop_fragment::to_str(size_t ind)
       "before"_a = string_or_empty(before_, ind),
       "body"_a = string_or_empty(body_, ind + 1),
       "after"_a = string_or_empty(after_, ind),
-      "ptrs"_a = fmt::join(ptr_names.begin(), ptr_names.end(), ", "), //args_.at(0).param_val,
+      "ptrs"_a = fmt::join(
+          ptr_names.begin(), ptr_names.end(), ", "), // args_.at(0).param_val,
       "sz"_a = args_.at(0).param_val);
 }
 
-void regular_loop_fragment::splice(compile_context& ctx, llvm::BasicBlock* entry, llvm::BasicBlock* exit)
+void regular_loop_fragment::splice(
+    compile_context& ctx, llvm::BasicBlock* entry, llvm::BasicBlock* exit)
 {
   // TODO: throw if any children null - empty fragments fill this role
 
   auto& llvm_ctx = entry->getContext();
 
   auto inter_first = BasicBlock::Create(llvm_ctx, "reg-loop.inter0", ctx.func_);
-  auto inter_second = BasicBlock::Create(llvm_ctx, "reg-loop.inter1", ctx.func_);
+  auto inter_second
+      = BasicBlock::Create(llvm_ctx, "reg-loop.inter1", ctx.func_);
 
   auto last_exit = entry;
 
@@ -136,7 +131,8 @@ void regular_loop_fragment::splice(compile_context& ctx, llvm::BasicBlock* entry
 
   auto header = BasicBlock::Create(llvm_ctx, "reg-loop.header", ctx.func_);
   auto pre_body = BasicBlock::Create(llvm_ctx, "reg-loop.pre-body", ctx.func_);
-  auto post_body = BasicBlock::Create(llvm_ctx, "reg-loop.post-body", ctx.func_);
+  auto post_body
+      = BasicBlock::Create(llvm_ctx, "reg-loop.post-body", ctx.func_);
 
   auto B = IRBuilder<>(inter_first);
   B.CreateBr(header);
@@ -159,7 +155,8 @@ void regular_loop_fragment::splice(compile_context& ctx, llvm::BasicBlock* entry
   }
 
   B.SetInsertPoint(post_body);
-  auto next = B.CreateAdd(iter, ConstantInt::get(iter->getType(), 1), "reg-loop.next-iter");
+  auto next = B.CreateAdd(
+      iter, ConstantInt::get(iter->getType(), 1), "reg-loop.next-iter");
   iter->addIncoming(next, post_body);
 
   if (perform_output_) {
@@ -205,10 +202,12 @@ bool regular_loop_fragment::add_child(frag_ptr&& f, size_t idx)
 
 size_t regular_loop_fragment::count_holes() const
 {
-  return count_or_empty(before_) + count_or_empty(body_) + count_or_empty(after_);
+  return count_or_empty(before_) + count_or_empty(body_)
+      + count_or_empty(after_);
 }
 
-std::pair<Argument*, std::string> regular_loop_fragment::get_pointer(compile_context& ctx, size_t idx)
+std::pair<Argument*, std::string> regular_loop_fragment::get_pointer(
+    compile_context& ctx, size_t idx)
 {
   auto name = args_.at(idx + 1).param_val;
   return { ctx.argument(name), name };
@@ -240,7 +239,9 @@ bool regular_loop_fragment::operator==(regular_loop_fragment const& other) const
     }
   };
 
-  return args_ == other.args_ && equal_non_null(before_, other.before_) && equal_non_null(body_, other.body_) && equal_non_null(after_, other.after_);
+  return args_ == other.args_ && equal_non_null(before_, other.before_)
+      && equal_non_null(body_, other.body_)
+      && equal_non_null(after_, other.after_);
 }
 
 bool regular_loop_fragment::operator!=(regular_loop_fragment const& other) const

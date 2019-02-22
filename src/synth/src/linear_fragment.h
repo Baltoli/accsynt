@@ -6,22 +6,22 @@
 
 namespace synth {
 
-template <bool use_data>
-class linear_fragment_base;
+template <bool use_data> class linear_fragment_base;
 
 template <bool use_data>
 void swap(linear_fragment_base<use_data>&, linear_fragment_base<use_data>&);
 
-template <bool use_data>
-class linear_fragment_base : public fragment {
+template <bool use_data> class linear_fragment_base : public fragment {
   public:
   linear_fragment_base(std::vector<props::value> args);
 
   linear_fragment_base(linear_fragment_base<use_data> const&) = default;
-  linear_fragment_base<use_data>& operator=(linear_fragment_base<use_data>&) = default;
+  linear_fragment_base<use_data>& operator=(linear_fragment_base<use_data>&)
+      = default;
 
   linear_fragment_base(linear_fragment_base<use_data>&&) = default;
-  linear_fragment_base<use_data>& operator=(linear_fragment_base<use_data>&&) = default;
+  linear_fragment_base<use_data>& operator=(linear_fragment_base<use_data>&&)
+      = default;
 
   bool operator==(linear_fragment_base<use_data> const& other) const;
   bool operator!=(linear_fragment_base<use_data> const& other) const;
@@ -30,14 +30,16 @@ class linear_fragment_base : public fragment {
 
   virtual fragment::frag_ptr clone();
 
-  virtual void splice(compile_context& ctx, llvm::BasicBlock* entry, llvm::BasicBlock* exit);
+  virtual void splice(
+      compile_context& ctx, llvm::BasicBlock* entry, llvm::BasicBlock* exit);
   virtual bool add_child(frag_ptr&& f, size_t idx);
 
   virtual std::string to_str(size_t indent = 0) override;
 
   virtual size_t count_holes() const override;
 
-  friend void swap<use_data>(linear_fragment_base<use_data>& a, linear_fragment_base<use_data>& b);
+  friend void swap<use_data>(
+      linear_fragment_base<use_data>& a, linear_fragment_base<use_data>& b);
 };
 
 template <bool use_data>
@@ -51,13 +53,15 @@ linear_fragment_base<use_data>::linear_fragment_base(
 }
 
 template <bool use_data>
-bool linear_fragment_base<use_data>::operator==(linear_fragment_base<use_data> const& other) const
+bool linear_fragment_base<use_data>::operator==(
+    linear_fragment_base<use_data> const& other) const
 {
   return true;
 }
 
 template <bool use_data>
-bool linear_fragment_base<use_data>::operator!=(linear_fragment_base<use_data> const& other) const
+bool linear_fragment_base<use_data>::operator!=(
+    linear_fragment_base<use_data> const& other) const
 {
   return !(*this == other);
 }
@@ -89,7 +93,8 @@ std::string linear_fragment_base<use_data>::to_str(size_t indent)
  * It needs to keep track of its own block of instructions.
  */
 template <bool use_data>
-void linear_fragment_base<use_data>::splice(compile_context& ctx, llvm::BasicBlock* entry, llvm::BasicBlock* exit)
+void linear_fragment_base<use_data>::splice(
+    compile_context& ctx, llvm::BasicBlock* entry, llvm::BasicBlock* exit)
 {
   auto block_name = [] {
     if constexpr (use_data) {
@@ -99,7 +104,8 @@ void linear_fragment_base<use_data>::splice(compile_context& ctx, llvm::BasicBlo
     }
   }();
 
-  auto block = llvm::BasicBlock::Create(entry->getContext(), block_name, ctx.func_);
+  auto block
+      = llvm::BasicBlock::Create(entry->getContext(), block_name, ctx.func_);
 
   llvm::BranchInst::Create(block, entry);
   llvm::BranchInst::Create(exit, block);

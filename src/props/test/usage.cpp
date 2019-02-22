@@ -85,9 +85,8 @@ size -8
     auto pset = property_set::parse(str);
 
     int i = 0;
-    pset.for_each_named("size", [&i](auto const& prop) {
-      i += prop.values.at(0).int_val;
-    });
+    pset.for_each_named(
+        "size", [&i](auto const& prop) { i += prop.values.at(0).int_val; });
 
     REQUIRE(i == (34 + 22 + -8));
   }

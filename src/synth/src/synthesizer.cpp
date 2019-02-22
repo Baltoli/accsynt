@@ -13,12 +13,9 @@ using namespace support;
 
 using namespace llvm;
 
-static cl::opt<std::string>
-    DebugInput(
-        "debug", cl::Optional,
-        cl::desc("Use debug input instead of generating"),
-        cl::value_desc("filename"),
-        cl::init(""));
+static cl::opt<std::string> DebugInput("debug", cl::Optional,
+    cl::desc("Use debug input instead of generating"),
+    cl::value_desc("filename"), cl::init(""));
 
 namespace synth {
 
@@ -43,8 +40,8 @@ void synthesizer::make_examples(generator& gen, size_t n)
 
 bool synthesizer::satisfies_examples(Function* cand) const
 {
-  auto wrap = call_wrapper{ properties_.type_signature,
-    *cand->getParent(), cand->getName() };
+  auto wrap = call_wrapper{ properties_.type_signature, *cand->getParent(),
+    cand->getName() };
 
   for (auto [in, out] : examples_) {
     auto ret = wrap.call(in);
@@ -113,13 +110,7 @@ Function* synthesizer::create_stub()
   return properties_.type_signature.create_function(mod_);
 }
 
-std::string null_synth::name() const
-{
-  return "Null";
-}
+std::string null_synth::name() const { return "Null"; }
 
-Function* null_synth::generate()
-{
-  return nullptr;
-}
+Function* null_synth::generate() { return nullptr; }
 }

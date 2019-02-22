@@ -10,9 +10,8 @@ class regular_loop_fragment : public fragment {
   public:
   using fragment::add_child;
 
-  regular_loop_fragment(std::vector<props::value> args,
-      frag_ptr&& before, frag_ptr&& body, frag_ptr&& after,
-      bool output);
+  regular_loop_fragment(std::vector<props::value> args, frag_ptr&& before,
+      frag_ptr&& body, frag_ptr&& after, bool output);
 
   regular_loop_fragment(std::vector<props::value> args);
   regular_loop_fragment(std::vector<props::value> args, bool out);
@@ -31,7 +30,8 @@ class regular_loop_fragment : public fragment {
   virtual fragment::frag_ptr clone();
 
   virtual std::string to_str(size_t indent = 0) override;
-  virtual void splice(compile_context& ctx, llvm::BasicBlock* entry, llvm::BasicBlock* exit);
+  virtual void splice(
+      compile_context& ctx, llvm::BasicBlock* entry, llvm::BasicBlock* exit);
   virtual bool add_child(frag_ptr&& f, size_t idx);
 
   virtual size_t count_holes() const override;
@@ -39,7 +39,8 @@ class regular_loop_fragment : public fragment {
   friend void swap(regular_loop_fragment& a, regular_loop_fragment& b);
 
   private:
-  std::pair<llvm::Argument*, std::string> get_pointer(compile_context&, size_t idx);
+  std::pair<llvm::Argument*, std::string> get_pointer(
+      compile_context&, size_t idx);
   llvm::Argument* get_size(compile_context&);
 
   fragment::frag_ptr before_;

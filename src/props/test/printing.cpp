@@ -8,27 +8,19 @@ using namespace props;
 TEST_CASE("can print data types")
 {
   auto it = data_type::integer;
-  REQUIRE_THAT(
-      fmt::format("{}", it),
-      Equals("int"));
+  REQUIRE_THAT(fmt::format("{}", it), Equals("int"));
 
   auto flt = data_type::floating;
-  REQUIRE_THAT(
-      fmt::format("{}", flt),
-      Equals("float"));
+  REQUIRE_THAT(fmt::format("{}", flt), Equals("float"));
 }
 
 TEST_CASE("can print params")
 {
   auto p1 = param{ "x", data_type::integer, 2 };
-  REQUIRE_THAT(
-      fmt::format("{}", p1),
-      Equals("int **x"));
+  REQUIRE_THAT(fmt::format("{}", p1), Equals("int **x"));
 
   auto p2 = param{ "wefhui", data_type::floating, 0 };
-  REQUIRE_THAT(
-      fmt::format("{}", p2),
-      Equals("float wefhui"));
+  REQUIRE_THAT(fmt::format("{}", p2), Equals("float wefhui"));
 }
 
 TEST_CASE("can print signatures")

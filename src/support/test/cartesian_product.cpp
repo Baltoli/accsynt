@@ -92,14 +92,13 @@ TEST_CASE("iterators are input iterators")
   REQUIRE((it != i2));
 
   using iter_t = decltype(it);
-  static_assert(
-      std::is_convertible_v<decltype(*it), std::iterator_traits<iter_t>::value_type>,
+  static_assert(std::is_convertible_v<decltype(*it),
+                    std::iterator_traits<iter_t>::value_type>,
       "Dereference must convert to value_type");
 
   REQUIRE(it->data() == (*it).data());
 
-  static_assert(
-      std::is_same_v<decltype(++it), iter_t&>,
+  static_assert(std::is_same_v<decltype(++it), iter_t&>,
       "Increment must return reference to iterator");
 
   auto it_c = it;
@@ -127,12 +126,10 @@ TEST_CASE("iterators are bidirectional iterators")
   ++it;
 
   using iter_t = decltype(it);
-  static_assert(
-      std::is_same_v<decltype(--it), iter_t&>,
+  static_assert(std::is_same_v<decltype(--it), iter_t&>,
       "Predecrement must be value_type");
 
-  static_assert(
-      std::is_convertible_v<decltype(it--), iter_t const&>,
+  static_assert(std::is_convertible_v<decltype(it--), iter_t const&>,
       "Postdecrement must convert to const reference");
   auto copy = it;
   REQUIRE((copy == it));
@@ -175,8 +172,8 @@ TEST_CASE("iterators are random access iterators")
   REQUIRE((it_c - it) == 3);
 
   REQUIRE(it[2] == *(it + 2));
-  static_assert(
-      std::is_convertible_v<decltype(it[2]), std::iterator_traits<decltype(it)>::reference>,
+  static_assert(std::is_convertible_v<decltype(it[2]),
+                    std::iterator_traits<decltype(it)>::reference>,
       "Element access must be convertible to reference");
 
   REQUIRE((it < it_c));

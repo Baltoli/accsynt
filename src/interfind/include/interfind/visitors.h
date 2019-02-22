@@ -23,8 +23,7 @@ class predicate_visitor : public llvm::InstVisitor<predicate_visitor<Pred>> {
 
   void visitInstruction(llvm::Instruction& inst);
 
-  template <typename Range>
-  void visitValues(Range&&);
+  template <typename Range> void visitValues(Range&&);
 
   private:
   Pred pred_;

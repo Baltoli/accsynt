@@ -5,10 +5,8 @@
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
 
-template <>
-struct fmt::formatter<interfind::region> {
-  template <typename ParseContext>
-  constexpr auto parse(ParseContext& ctx)
+template <> struct fmt::formatter<interfind::region> {
+  template <typename ParseContext> constexpr auto parse(ParseContext& ctx)
   {
     return ctx.begin();
   }
@@ -20,10 +18,8 @@ struct fmt::formatter<interfind::region> {
   }
 };
 
-template <>
-struct fmt::formatter<interfind::analysis_result> {
-  template <typename ParseContext>
-  constexpr auto parse(ParseContext& ctx)
+template <> struct fmt::formatter<interfind::analysis_result> {
+  template <typename ParseContext> constexpr auto parse(ParseContext& ctx)
   {
     return ctx.begin();
   }

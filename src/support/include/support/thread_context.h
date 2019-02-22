@@ -26,9 +26,7 @@ class thread_context {
 
   static thread_context& instance();
 
-  std::unordered_map<
-      std::thread::id,
-      std::unique_ptr<llvm::LLVMContext>>
+  std::unordered_map<std::thread::id, std::unique_ptr<llvm::LLVMContext>>
       mapping_;
 
   std::mutex map_mutex_;

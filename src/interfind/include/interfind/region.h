@@ -31,8 +31,8 @@ class region {
   /**
    * Direct constructor from the values comprising this region.
    */
-  region(llvm::Instruction*, std::vector<llvm::Value*>,
-      llvm::Function&, llvm::FunctionType*);
+  region(llvm::Instruction*, std::vector<llvm::Value*>, llvm::Function&,
+      llvm::FunctionType*);
 
   /**
    * Extract this region from its containing function and create a new function
@@ -52,8 +52,7 @@ class region {
    * Populate a value map by mapping region inputs to the extracted function's
    * arguments.
    */
-  void make_initial_value_map(
-      llvm::ValueToValueMapTy&, llvm::Function*) const;
+  void make_initial_value_map(llvm::ValueToValueMapTy&, llvm::Function*) const;
 
   /**
    * Clone a single instruction across to the extracted region, remapping its

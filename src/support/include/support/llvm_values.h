@@ -20,8 +20,7 @@ std::set<llvm::Value*> with_type(llvm::Type* type, Container&& c)
   return ret;
 }
 
-template <typename Container>
-std::set<llvm::Type*> all_types(Container&& c)
+template <typename Container> std::set<llvm::Type*> all_types(Container&& c)
 {
   auto ret = std::set<llvm::Type*>{};
   for (auto instr : c) {

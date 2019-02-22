@@ -16,10 +16,7 @@ namespace props {
 
 struct property_set;
 
-enum class data_type {
-  integer,
-  floating
-};
+enum class data_type { integer, floating };
 
 llvm::Type* base_llvm_type(data_type dt);
 llvm::Type* base_llvm_return_type(std::optional<data_type> dt);
@@ -49,23 +46,16 @@ struct signature {
 
   static signature parse(std::string_view str);
 
-  template <typename Input>
-  void success(Input const& in, property_set& parent);
+  template <typename Input> void success(Input const& in, property_set& parent);
 
-  template <typename Input>
-  signature(Input const& in, property_set& parent) {}
+  template <typename Input> signature(Input const& in, property_set& parent) {}
 
   bool operator==(signature const& other) const;
   bool operator!=(signature const& other) const;
 };
 
 struct value {
-  enum class type {
-    integer,
-    floating,
-    parameter,
-    string
-  };
+  enum class type { integer, floating, parameter, string };
 
   type value_type;
   int int_val;
@@ -110,11 +100,9 @@ struct property {
 
   static property parse(std::string_view str);
 
-  template <typename Input>
-  void success(Input const& in, property_set& parent);
+  template <typename Input> void success(Input const& in, property_set& parent);
 
-  template <typename Input>
-  property(Input const& in, property_set& parent) {}
+  template <typename Input> property(Input const& in, property_set& parent) {}
 };
 
 class property_set {

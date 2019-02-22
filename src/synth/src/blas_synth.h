@@ -32,8 +32,7 @@ class blas_synth : public synthesizer {
   blas_control_data build_control_flow(llvm::Function* fn, loop shape) const;
   blas_control_data build_control_flow(llvm::Function* fn) const;
 
-  llvm::BasicBlock* build_loop(
-      loop shape, llvm::BasicBlock* end_dst,
+  llvm::BasicBlock* build_loop(loop shape, llvm::BasicBlock* end_dst,
       std::vector<llvm::Instruction*>& seeds,
       std::vector<llvm::Instruction*>& outputs,
       std::vector<llvm::BasicBlock*>& data_blocks,

@@ -8,15 +8,15 @@ namespace support {
 
 std::random_device& get_random_device();
 
-template <typename Iterator>
-auto uniform_sample(Iterator begin, Iterator end)
+template <typename Iterator> auto uniform_sample(Iterator begin, Iterator end)
 {
   if (begin == end) {
     return end;
   }
 
   auto rd = std::random_device{};
-  auto dist = std::uniform_int_distribution<long>{ 0, std::distance(begin, end) - 1 };
+  auto dist
+      = std::uniform_int_distribution<long>{ 0, std::distance(begin, end) - 1 };
   auto idx = dist(rd);
 
   auto it = begin;
@@ -25,8 +25,7 @@ auto uniform_sample(Iterator begin, Iterator end)
   return it;
 }
 
-template <typename Container>
-auto uniform_sample(Container const& c)
+template <typename Container> auto uniform_sample(Container const& c)
 {
   using std::begin;
   using std::end;

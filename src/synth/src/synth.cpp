@@ -16,20 +16,14 @@ using namespace support;
 using namespace synth;
 using namespace llvm;
 
-static cl::opt<std::string>
-    PropertiesPath(
-        cl::Positional, cl::Required,
-        cl::desc("<properties file>"));
+static cl::opt<std::string> PropertiesPath(
+    cl::Positional, cl::Required, cl::desc("<properties file>"));
 
-static cl::opt<std::string>
-    LibraryPath(
-        cl::Positional, cl::Required,
-        cl::desc("<shared library>"));
+static cl::opt<std::string> LibraryPath(
+    cl::Positional, cl::Required, cl::desc("<shared library>"));
 
-static cl::opt<bool>
-    UseBLAS(
-        "blas", cl::desc("Use old BLAS synthesiser implementation"),
-        cl::init(false));
+static cl::opt<bool> UseBLAS("blas",
+    cl::desc("Use old BLAS synthesiser implementation"), cl::init(false));
 
 // In the future, specifications...
 

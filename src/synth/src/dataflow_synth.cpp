@@ -20,7 +20,8 @@ dataflow_synth::dataflow_synth(Function* f)
 dataflow_synth::dataflow_synth(compile_context const& ctx)
     : dataflow_synth(ctx.func_, [&](auto* b) {
       auto const& meta = ctx.metadata_;
-      return std::find(meta.data_blocks.begin(), meta.data_blocks.end(), b) != meta.data_blocks.end();
+      return std::find(meta.data_blocks.begin(), meta.data_blocks.end(), b)
+          != meta.data_blocks.end();
     })
 {
   for (auto s : ctx.metadata_.seeds) {
@@ -32,15 +33,9 @@ dataflow_synth::dataflow_synth(compile_context const& ctx)
   }
 }
 
-void dataflow_synth::seed(Value* instr)
-{
-  seeds_.push_back(instr);
-}
+void dataflow_synth::seed(Value* instr) { seeds_.push_back(instr); }
 
-void dataflow_synth::output(Instruction* val)
-{
-  outputs_.push_back(val);
-}
+void dataflow_synth::output(Instruction* val) { outputs_.push_back(val); }
 
 void dataflow_synth::create_dataflow()
 {
@@ -48,7 +43,8 @@ void dataflow_synth::create_dataflow()
   auto const& roots = dom_tree_.getRoots();
 
   auto root_live = std::vector<llvm::Value*>{};
-  root_live.push_back(sampler_.constant(Type::getFloatTy(function_->getContext())));
+  root_live.push_back(
+      sampler_.constant(Type::getFloatTy(function_->getContext())));
 
   for (auto seed : seeds_) {
     if (auto arg = dyn_cast<Argument>(seed)) {
@@ -107,8 +103,8 @@ void dataflow_synth::create_outputs()
   }
 }
 
-void dataflow_synth::create_block_dataflow(llvm::BasicBlock* block,
-    std::vector<llvm::Value*> live)
+void dataflow_synth::create_block_dataflow(
+    llvm::BasicBlock* block, std::vector<llvm::Value*> live)
 {
   // At each block, we make the set of seeds in that block live
   for (auto seed : seeds_) {

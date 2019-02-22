@@ -6,8 +6,8 @@
 using namespace support;
 using namespace llvm;
 
-#define VALUE(name)                   \
-  auto name = get_by_name(fn, #name); \
+#define VALUE(name)                                                            \
+  auto name = get_by_name(fn, #name);                                          \
   REQUIRE(name);
 
 TEST_CASE("can collect uses of values")
