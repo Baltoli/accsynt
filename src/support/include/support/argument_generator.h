@@ -40,6 +40,7 @@ struct is_generator<T,
       decltype(VAL(T).gen_args(VAL(call_builder&)))
     >>
   : std::conjunction<
+      std::is_same<decltype(VAL(T).gen_args(VAL(call_builder&))), void>,
       std::is_copy_constructible<T>, 
       std::is_move_constructible<T>
     > {};

@@ -86,4 +86,44 @@ float uniform_generator::gen_single<float>()
 {
   return std::uniform_real_distribution<float>()(engine_);
 }
+
+// CSR Generator Implementation
+csr_generator::csr_generator()
+{
+}
+
+void csr_generator::gen_args(call_builder&)
+{
+  throw std::runtime_error("Not implemented");
+}
+
+int csr_generator::gen_rows()
+{
+  throw std::runtime_error("Not implemented");
+}
+
+std::vector<int> csr_generator::gen_rowstr(int rows)
+{
+  throw std::runtime_error("Not implemented");
+}
+
+std::vector<int> csr_generator::gen_colidx(int nnz)
+{
+  throw std::runtime_error("Not implemented");
+}
+
+std::vector<float> csr_generator::gen_data(int nnz)
+{
+  throw std::runtime_error("Not implemented");
+}
+
+std::vector<float> csr_generator::gen_input(std::vector<int> const& colidx)
+{
+  throw std::runtime_error("Not implemented");
+}
+
+std::vector<float> csr_generator::gen_output(int rows)
+{
+  throw std::runtime_error("Not implemented");
+}
 }
