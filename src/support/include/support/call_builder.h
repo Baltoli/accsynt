@@ -228,7 +228,9 @@ T call_builder::get(size_t idx) const
   size_t int_offset = 0;
   size_t float_offset = 0;
 
-  for (auto const& param : signature_.parameters) {
+  for (auto i = 0u; i < idx; ++i) {
+    auto const& param = signature_.parameters.at(i);
+
     if (param.pointer_depth == 0) {
       offset += 4;
     } else {
@@ -246,11 +248,14 @@ T call_builder::get(size_t idx) const
     }
   }
 
-  if constexpr (std::is_same_v<T, int>) {
-    return detail::from_bytes<int>(args_.data() + offset);
+  if constexpr (std::is_same_v<T, int> || std::is_same_v<T, float>) {
+    return detail::from_bytes<T>(args_.data() + offset);
+  } else if constexpr (std::is_same_v<T, std::vector<int>>) {
+    return int_data_.at(int_offset);
+  } else if constexpr (std::is_same_v<T, std::vector<float>>) {
+    return float_data_.at(offset);
+  } else {
+    static_fail("Unknown type when extracting!");
   }
-  // todo...
-
-  throw std::runtime_error("Unimplemented");
 }
 }

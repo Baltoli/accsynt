@@ -95,6 +95,9 @@ TEST_CASE("Can construct call builders from signatures")
 
 TEST_CASE("Can extract arguments from a call_builder")
 {
+  auto rd = std::random_device{};
+  auto engine = std::default_random_engine(rd());
+
   SECTION("Fails if not enough arguments are present")
   {
     auto c1 = call_builder(signature::parse("void f()"));
@@ -108,5 +111,93 @@ TEST_CASE("Can extract arguments from a call_builder")
     c3.add(0);
     c3.add(0);
     REQUIRE_THROWS_AS(c3.get<int>(2), call_builder_error);
+  }
+
+  SECTION("Can get ints back correctly")
+  {
+    for (int i = 0; i < 100; ++i) {
+      auto dis = std::uniform_int_distribution<int>();
+
+      auto c1 = call_builder(signature::parse("void f(int x)"));
+      auto v = dis(engine);
+      c1.add(v);
+      REQUIRE(c1.get<int>(0) == v);
+    }
+
+    for (int i = 0; i < 100; ++i) {
+      auto dis = std::uniform_int_distribution<int>();
+
+      auto c = call_builder(signature::parse("void g(int x, float v, int y)"));
+      auto v = dis(engine);
+      auto v1 = dis(engine);
+
+      c.add(v);
+      c.add(0.4f);
+      c.add(v1);
+
+      REQUIRE(c.get<int>(0) == v);
+      REQUIRE(c.get<int>(2) == v1);
+    }
+  }
+
+  SECTION("Can get floats back correctly")
+  {
+    for (int i = 0; i < 100; ++i) {
+      auto dis = std::uniform_real_distribution<float>();
+
+      auto c1 = call_builder(signature::parse("void f(float x)"));
+      auto v = dis(engine);
+      c1.add(v);
+      REQUIRE(c1.get<float>(0) == Approx(v));
+    }
+
+    for (int i = 0; i < 100; ++i) {
+      auto dis = std::uniform_real_distribution<float>();
+
+      auto c
+          = call_builder(signature::parse("void g(float x, int v, float y)"));
+      auto v = dis(engine);
+      auto v1 = dis(engine);
+
+      c.add(v);
+      c.add(4);
+      c.add(v1);
+
+      REQUIRE(c.get<float>(0) == v);
+      REQUIRE(c.get<float>(2) == v1);
+    }
+  }
+
+  SECTION("Can get vectors back correctly")
+  {
+    for (int i = 0; i < 100; ++i) {
+      auto dis = std::uniform_int_distribution<int>();
+      auto c1 = call_builder(signature::parse("void h(int *x)"));
+
+      auto vec = std::vector<int>(64);
+      std::generate(vec.begin(), vec.end(), [&] { return dis(engine); });
+      c1.add(vec);
+
+      auto ext_vec = c1.get<std::vector<int>>(0);
+      REQUIRE(ext_vec == vec);
+      REQUIRE(ext_vec.data() != vec.data());
+    }
+
+    for (int i = 0; i < 100; ++i) {
+      auto dis = std::uniform_real_distribution<float>();
+      auto c1 = call_builder(signature::parse("void h(float *x)"));
+
+      auto vec = std::vector<float>(64);
+      std::generate(vec.begin(), vec.end(), [&] { return dis(engine); });
+      c1.add(vec);
+
+      auto ext_vec = c1.get<std::vector<float>>(0);
+      REQUIRE(ext_vec == vec);
+      REQUIRE(ext_vec.data() != vec.data());
+    }
+  }
+
+  SECTION("Can get whole signatures back correctly")
+  {
   }
 }
