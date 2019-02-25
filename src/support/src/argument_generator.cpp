@@ -31,15 +31,20 @@ void argument_generator::gen_args(call_builder& build)
 
 // Uniform generator implementation
 
-uniform_generator::uniform_generator(std::random_device::result_type seed)
-    : engine_(seed)
-    , size_(max_size)
+uniform_generator::uniform_generator(size_t sz)
+    : engine_(get_random_device()())
+    , size_(sz)
 {
 }
 
 uniform_generator::uniform_generator()
-    : uniform_generator(get_random_device()())
+    : uniform_generator(max_size)
 {
+}
+
+void uniform_generator::seed(std::random_device::result_type seed)
+{
+  engine_.seed(seed);
 }
 
 void uniform_generator::gen_args(call_builder& build)

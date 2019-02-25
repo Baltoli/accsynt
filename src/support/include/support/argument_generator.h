@@ -136,8 +136,9 @@ public:
   static constexpr size_t max_size = 1024;
 
   uniform_generator();
-  uniform_generator(std::random_device::result_type);
+  uniform_generator(size_t);
 
+  void seed(std::random_device::result_type);
   void gen_args(call_builder&);
 
 private:
@@ -149,6 +150,11 @@ private:
 
   std::default_random_engine engine_;
   size_t size_;
+};
+
+class csr_generator {
+public:
+private:
 };
 
 template <>
