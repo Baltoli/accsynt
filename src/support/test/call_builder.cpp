@@ -49,3 +49,21 @@ TEST_CASE("Can construct call builders from signatures")
   auto s1 = signature::parse("void f()");
   auto c1 = call_builder(s1);
 }
+
+TEST_CASE("Can extract arguments from a call_builder")
+{
+  SECTION("Fails if not enough arguments are present")
+  {
+    auto c1 = call_builder(signature::parse("void f()"));
+    REQUIRE_THROWS_AS(c1.get<int>(0), call_builder_error);
+
+    auto c2 = call_builder(signature::parse("void f(int x)"));
+    c2.add(0);
+    REQUIRE_THROWS_AS(c2.get<int>(1), call_builder_error);
+
+    auto c3 = call_builder(signature::parse("void f(int x, int y, int z)"));
+    c3.add(0);
+    c3.add(0);
+    REQUIRE_THROWS_AS(c3.get<int>(2), call_builder_error);
+  }
+}

@@ -23,6 +23,14 @@ uint8_t nth_byte(T val, size_t n)
   memcpy(data, &val, sizeof(T));
   return data[n];
 }
+
+template <typename T>
+T from_bytes(uint8_t const* data)
+{
+  auto ret = T{};
+  memcpy(&ret, data, sizeof(T));
+  return ret;
+}
 }
 
 /**
@@ -89,6 +97,14 @@ public:
    */
   template <typename T>
   void add(std::vector<T> arg);
+
+  /**
+   * Method for testing - allows the value stored in a call_builder's argument
+   * pack to be extracted to a particular type. Note that if your types are
+   * wrong this will obviously return some garbage, unsafe pointers etc.
+   */
+  template <typename T>
+  T get(size_t idx) const;
 
   /**
    * Access the signature being used to validate arguments.
@@ -199,5 +215,42 @@ void call_builder::add(std::vector<T> arg)
   }
 
   current_arg_++;
+}
+
+template <typename T>
+T call_builder::get(size_t idx) const
+{
+  if (!(idx < current_arg_)) {
+    throw call_builder_error("Can't extract - not enough arguments packed");
+  }
+
+  size_t offset = 0;
+  size_t int_offset = 0;
+  size_t float_offset = 0;
+
+  for (auto const& param : signature_.parameters) {
+    if (param.pointer_depth == 0) {
+      offset += 4;
+    } else {
+      if (param.pointer_depth != 1) {
+        throw std::runtime_error("Can't extract nested pointers");
+      }
+
+      if (param.type == props::data_type::integer) {
+        ++int_offset;
+      } else if (param.type == props::data_type::floating) {
+        ++float_offset;
+      }
+
+      offset += 8;
+    }
+  }
+
+  if constexpr (std::is_same_v<T, int>) {
+    return detail::from_bytes<int>(args_.data() + offset);
+  }
+  // todo...
+
+  throw std::runtime_error("Unimplemented");
 }
 }
