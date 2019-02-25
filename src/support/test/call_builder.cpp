@@ -2,6 +2,8 @@
 
 #include <catch2/catch.hpp>
 
+#include <random>
+
 using namespace props;
 using namespace support;
 
@@ -43,6 +45,47 @@ TEST_CASE("Can extract the nth byte of values")
     REQUIRE(detail::nth_byte(val, 7) == 222);
   }
 }
+
+#define u8ptr(v) reinterpret_cast<uint8_t const*>(&v)
+TEST_CASE("Can get values back from bytes")
+{
+  auto rd = std::random_device{};
+  auto engine = std::default_random_engine(rd());
+
+  SECTION("for ints")
+  {
+    auto dis = std::uniform_int_distribution<int>();
+    for (auto i = 0; i < 100; ++i) {
+      auto val = dis(engine);
+      REQUIRE(detail::from_bytes<int>(u8ptr(val)) == val);
+    }
+  }
+
+  SECTION("for floats")
+  {
+    auto dis = std::uniform_real_distribution<float>();
+    for (auto i = 0; i < 100; ++i) {
+      auto val = dis(engine);
+      REQUIRE(detail::from_bytes<float>(u8ptr(val)) == val);
+    }
+  }
+
+  SECTION("for pointers")
+  {
+    REQUIRE(sizeof(long) == sizeof(int*));
+
+    auto dis = std::uniform_int_distribution<long>();
+    for (auto i = 0; i < 100; ++i) {
+      auto val = dis(engine);
+      int* ptr;
+
+      memcpy(&ptr, &val, sizeof(val));
+
+      REQUIRE(detail::from_bytes<int*>(u8ptr(ptr)) == ptr);
+    }
+  }
+}
+#undef u8ptr
 
 TEST_CASE("Can construct call builders from signatures")
 {
