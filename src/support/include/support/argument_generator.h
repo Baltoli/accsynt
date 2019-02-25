@@ -131,6 +131,11 @@ protected:
   std::unique_ptr<concept> strategy_;
 };
 
+/**
+ * Generate arguments uniformly - use this if there's absolutely no restriction
+ * on how data is structured other than a physical size limit for arrays, which
+ * can be passed at construction.
+ */
 class uniform_generator {
 public:
   static constexpr size_t max_size = 1024;
@@ -142,6 +147,9 @@ public:
   void gen_args(call_builder&);
 
 private:
+  // Specialised only for int and float - doing it as a template makes the code
+  // a bit nicer for the array case, which can just forward through to this
+  // template rather than doing is_same checks.
   template <typename T>
   T gen_single();
 
@@ -152,11 +160,24 @@ private:
   size_t size_;
 };
 
+/**
+ * Generator specifically used for CSR SPMV arguments - will only work if the
+ * arguments are exactly right (i.e. are named correctly and have the right
+ * types). Otherwise it'll throw an exception.
+ */
 class csr_generator {
 public:
+  csr_generator();
+
+  void gen_args(call_builder&);
+
 private:
+  bool is_csr_spmv(props::signature const&);
 };
 
+/*
+ * Template definitions
+ */
 template <>
 int uniform_generator::gen_single<int>();
 
