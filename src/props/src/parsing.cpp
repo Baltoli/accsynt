@@ -259,4 +259,12 @@ value value::with_string(std::string str)
   v.string_val = str;
   return v;
 }
+
+namespace literals {
+
+signature operator""_sig(const char* str, size_t len)
+{
+  return signature::parse(std::string_view(str, len));
+}
+}
 }

@@ -5,6 +5,7 @@
 #include <random>
 
 using namespace props;
+using namespace props::literals;
 using namespace support;
 
 TEST_CASE("Can extract the nth byte of values")
@@ -89,7 +90,7 @@ TEST_CASE("Can get values back from bytes")
 
 TEST_CASE("Can construct call builders from signatures")
 {
-  auto s1 = signature::parse("void f()");
+  auto s1 = "void f()"_sig;
   auto c1 = call_builder(s1);
 }
 
@@ -100,14 +101,14 @@ TEST_CASE("Can extract arguments from a call_builder")
 
   SECTION("Fails if not enough arguments are present")
   {
-    auto c1 = call_builder(signature::parse("void f()"));
+    auto c1 = call_builder("void f()"_sig);
     REQUIRE_THROWS_AS(c1.get<int>(0), call_builder_error);
 
-    auto c2 = call_builder(signature::parse("void f(int x)"));
+    auto c2 = call_builder("void f(int x)"_sig);
     c2.add(0);
     REQUIRE_THROWS_AS(c2.get<int>(1), call_builder_error);
 
-    auto c3 = call_builder(signature::parse("void f(int x, int y, int z)"));
+    auto c3 = call_builder("void f(int x, int y, int z)"_sig);
     c3.add(0);
     c3.add(0);
     REQUIRE_THROWS_AS(c3.get<int>(2), call_builder_error);
@@ -118,7 +119,7 @@ TEST_CASE("Can extract arguments from a call_builder")
     for (int i = 0; i < 100; ++i) {
       auto dis = std::uniform_int_distribution<int>();
 
-      auto c1 = call_builder(signature::parse("void f(int x)"));
+      auto c1 = call_builder("void f(int x)"_sig);
       auto v = dis(engine);
       c1.add(v);
       REQUIRE(c1.get<int>(0) == v);
@@ -127,7 +128,7 @@ TEST_CASE("Can extract arguments from a call_builder")
     for (int i = 0; i < 100; ++i) {
       auto dis = std::uniform_int_distribution<int>();
 
-      auto c = call_builder(signature::parse("void g(int x, float v, int y)"));
+      auto c = call_builder("void g(int x, float v, int y)"_sig);
       auto v = dis(engine);
       auto v1 = dis(engine);
 
@@ -145,7 +146,7 @@ TEST_CASE("Can extract arguments from a call_builder")
     for (int i = 0; i < 100; ++i) {
       auto dis = std::uniform_real_distribution<float>();
 
-      auto c1 = call_builder(signature::parse("void f(float x)"));
+      auto c1 = call_builder("void f(float x)"_sig);
       auto v = dis(engine);
       c1.add(v);
       REQUIRE(c1.get<float>(0) == Approx(v));
@@ -154,8 +155,7 @@ TEST_CASE("Can extract arguments from a call_builder")
     for (int i = 0; i < 100; ++i) {
       auto dis = std::uniform_real_distribution<float>();
 
-      auto c
-          = call_builder(signature::parse("void g(float x, int v, float y)"));
+      auto c = call_builder("void g(float x, int v, float y)"_sig);
       auto v = dis(engine);
       auto v1 = dis(engine);
 
@@ -172,7 +172,7 @@ TEST_CASE("Can extract arguments from a call_builder")
   {
     for (int i = 0; i < 100; ++i) {
       auto dis = std::uniform_int_distribution<int>();
-      auto c1 = call_builder(signature::parse("void h(int *x)"));
+      auto c1 = call_builder("void h(int *x)"_sig);
 
       auto vec = std::vector<int>(64);
       std::generate(vec.begin(), vec.end(), [&] { return dis(engine); });
@@ -185,7 +185,7 @@ TEST_CASE("Can extract arguments from a call_builder")
 
     for (int i = 0; i < 100; ++i) {
       auto dis = std::uniform_real_distribution<float>();
-      auto c1 = call_builder(signature::parse("void h(float *x)"));
+      auto c1 = call_builder("void h(float *x)"_sig);
 
       auto vec = std::vector<float>(64);
       std::generate(vec.begin(), vec.end(), [&] { return dis(engine); });
