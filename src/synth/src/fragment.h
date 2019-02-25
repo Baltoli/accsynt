@@ -34,7 +34,7 @@ struct fragment_equal {
 };
 
 class fragment {
-  public:
+public:
   using frag_ptr = std::unique_ptr<fragment>;
   using frag_set
       = std::unordered_set<frag_ptr, std::hash<frag_ptr>, fragment_equal>;
@@ -113,7 +113,7 @@ class fragment {
 
   virtual bool equal_to(frag_ptr const& other) const = 0;
 
-  protected:
+protected:
   template <typename Func>
   static void choose(
       size_t n, std::vector<frag_ptr> const& fragments, Func&& f);

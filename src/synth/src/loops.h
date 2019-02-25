@@ -122,7 +122,7 @@ class loop {
   // If a loop has no slot, it represents a sequence of its children.
   std::optional<slot> slot_ = hole{};
 
-  public:
+public:
   /**
    * \brief The default state for a loop object is a hole with no child loops.
    *

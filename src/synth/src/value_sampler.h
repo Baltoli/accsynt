@@ -20,7 +20,7 @@ namespace synth {
  * build their dataflow. Keeping instructions restricted for now.
  */
 class value_sampler {
-  public:
+public:
   value_sampler() = default;
 
   template <typename Builder>
@@ -31,11 +31,11 @@ class value_sampler {
 
   llvm::Value* constant(llvm::Type* ty) const;
 
-  protected:
+protected:
   template <typename Builder>
   llvm::Value* arithmetic(Builder&& B, llvm::Value* v1, llvm::Value* v2) const;
 
-  private:
+private:
   // Internal state kept during the generation process
 };
 

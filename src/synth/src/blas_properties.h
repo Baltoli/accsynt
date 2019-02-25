@@ -8,7 +8,7 @@
 namespace synth {
 
 class blas_properties {
-  public:
+public:
   blas_properties(props::property_set ps);
 
   size_t loop_count() const;
@@ -27,7 +27,7 @@ class blas_properties {
 
   size_t pack_size(size_t idx) const;
 
-  private:
+private:
   size_t count_ = 0;
 
   // Stores a mapping from ptr_index -> size_index, where the indexes are into

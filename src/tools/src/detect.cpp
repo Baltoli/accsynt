@@ -33,7 +33,7 @@ struct pass_finder : public PassRegistrationListener {
 
   PassInfo const* pass_info = nullptr;
 
-  private:
+private:
   std::string pass_name;
 };
 

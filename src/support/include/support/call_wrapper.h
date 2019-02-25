@@ -39,7 +39,7 @@ namespace support {
  * the implementation with them.
  */
 class call_wrapper {
-  public:
+public:
   /**
    * Construct a wrapper for an existing function contained in a module. The
    * function is looked up by name in the module.
@@ -65,7 +65,7 @@ class call_wrapper {
    */
   uint64_t call(call_builder& builder);
 
-  private:
+private:
   /**
    * Runtime sizeof() for LLVM types - gets the size of a type when it is
    * converted to raw bytes.

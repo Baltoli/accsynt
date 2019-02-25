@@ -12,7 +12,7 @@ template <bool use_data>
 void swap(linear_fragment_base<use_data>&, linear_fragment_base<use_data>&);
 
 template <bool use_data> class linear_fragment_base : public fragment {
-  public:
+public:
   linear_fragment_base(std::vector<props::value> args);
 
   linear_fragment_base(linear_fragment_base<use_data> const&) = default;

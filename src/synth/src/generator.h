@@ -18,12 +18,12 @@ namespace synth {
  * generation process (i.e. respecting fixed values, zeroing outputs etc).
  */
 class generator {
-  public:
+public:
   generator(props::property_set ps);
 
   virtual void generate(support::call_builder& builder);
 
-  protected:
+protected:
   virtual void generate_value(
       support::call_builder& builder, props::param param);
 
@@ -42,20 +42,20 @@ class generator {
 
   props::property_set properties_;
 
-  private:
+private:
   std::random_device rd_;
 
-  protected:
+protected:
   std::mt19937 random_;
 };
 
 class blas_generator : public generator {
-  public:
+public:
   blas_generator(props::property_set ps);
 
   void generate(support::call_builder& builder) override;
 
-  private:
+private:
   blas_properties blas_props_;
 
   size_t max_size_ = 16;

@@ -26,7 +26,7 @@ namespace synth {
  * reference so they know where to put the GEPs.
  */
 class accessor {
-  public:
+public:
   accessor() = default;
   virtual ~accessor() = default;
 
@@ -34,7 +34,7 @@ class accessor {
       llvm::Value* index, llvm::Value* base, llvm::IRBuilder<>& builder,
       std::string const& prefix = "") const;
 
-  private:
+private:
   virtual std::set<llvm::Value*> map_index(compile_metadata const& meta,
       llvm::Value* index, llvm::IRBuilder<>& builder) const;
 };
@@ -61,7 +61,7 @@ class paired_accessor : public accessor {
 class accessor_map {
   using backing_map_t = std::map<std::string, std::unique_ptr<accessor>>;
 
-  public:
+public:
   accessor_map();
   accessor_map(backing_map_t&&);
 
@@ -71,7 +71,7 @@ class accessor_map {
    */
   accessor const& operator()(std::string const&) const;
 
-  private:
+private:
   backing_map_t backing_map_;
   accessor default_accessor_;
 };

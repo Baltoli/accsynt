@@ -10,12 +10,12 @@
 namespace support {
 
 class choose {
-  public:
+public:
   choose(size_t n, size_t k);
 
   template <typename Func> void for_each(Func&& f) const;
 
-  private:
+private:
   template <typename Func>
   void recursive_step(
       std::vector<size_t> idxs, std::vector<size_t> accum, Func&& f) const;

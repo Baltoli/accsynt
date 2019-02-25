@@ -13,7 +13,7 @@
 namespace synth {
 
 class dataflow_synth {
-  public:
+public:
   using block_live_map = std::map<llvm::BasicBlock*, std::vector<llvm::Value*>>;
 
   template <typename BlockPred>
@@ -30,7 +30,7 @@ class dataflow_synth {
 
   block_live_map const& block_live() const;
 
-  private:
+private:
   void create_block_dataflow(
       llvm::BasicBlock* block, std::vector<llvm::Value*> live);
 

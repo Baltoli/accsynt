@@ -19,7 +19,7 @@ namespace synth {
  * interfacing with an LLVM function, keeping track of a signature etc.
  */
 class compile_context {
-  public:
+public:
   compile_context(llvm::Module& mod, props::signature sig,
       accessor_map&& accessor_map = {});
 
@@ -61,7 +61,7 @@ class compile_context {
 
   compile_metadata metadata_;
 
-  private:
+private:
   accessor_map accessor_map_;
 };
 }

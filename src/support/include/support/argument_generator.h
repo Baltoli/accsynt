@@ -62,7 +62,7 @@ template <typename T> constexpr bool is_generator_v = is_generator<T>::value;
  * using a type trait against a definition of valid generators.
  */
 class argument_generator {
-  public:
+public:
   template <typename T>
   argument_generator(T&& strat)
       : strategy_(std::make_unique<model<T>>(FWD(strat)))
@@ -100,7 +100,7 @@ class argument_generator {
    */
   void gen_args(call_builder&);
 
-  private:
+private:
   // Type erasure
   struct concept
   {
@@ -133,23 +133,23 @@ class argument_generator {
       return object_.gen_float(min, max);
     }
 
-private:
+  private:
     T object_;
   };
 
-  protected:
+protected:
   std::unique_ptr<concept> strategy_;
 };
 
 class uniform_generator {
-  public:
+public:
   uniform_generator();
   uniform_generator(std::random_device::result_type);
 
   int gen_int(int min, int max);
   float gen_float(float min, float max);
 
-  private:
+private:
   std::default_random_engine engine_;
 };
 }

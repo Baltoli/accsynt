@@ -13,13 +13,13 @@
 namespace synth {
 
 class synthesizer {
-  public:
+public:
   synthesizer(props::property_set ps, support::call_wrapper& wrap);
 
   virtual std::string name() const = 0;
   virtual llvm::Function* generate();
 
-  protected:
+protected:
   void make_examples(generator& gen, size_t n);
   bool satisfies_examples(llvm::Function* cand) const;
 
@@ -36,12 +36,12 @@ class synthesizer {
 
   llvm::Module mod_;
 
-  private:
+private:
   llvm::Function* debug_generate();
 };
 
 class null_synth : public synthesizer {
-  public:
+public:
   using synthesizer::synthesizer;
 
   std::string name() const override;

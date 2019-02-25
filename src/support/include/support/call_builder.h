@@ -29,7 +29,7 @@ template <typename T> uint8_t nth_byte(T val, size_t n)
  * construction.
  */
 class call_builder_error : public std::runtime_error {
-  public:
+public:
   using std::runtime_error::runtime_error;
 };
 
@@ -47,7 +47,7 @@ class call_builder_error : public std::runtime_error {
  * a central vector, and store argument pointers as offsets into that vector.
  */
 class call_builder {
-  public:
+public:
   /**
    * Construct with a type signature - the signature is used to check that each
    * argument is correct when it is added to the pack.
@@ -110,7 +110,7 @@ class call_builder {
    */
   friend void swap(call_builder& left, call_builder& right);
 
-  private:
+private:
   props::signature signature_;
   std::vector<uint8_t> args_;
 

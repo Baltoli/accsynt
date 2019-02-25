@@ -20,12 +20,12 @@ template <typename Acc> class accessor_rule {
   using optional_entry
       = std::optional<std::pair<std::string, std::unique_ptr<accessor>>>;
 
-  public:
+public:
   accessor_rule(std::string property);
 
   optional_entry operator()(props::property p) const;
 
-  private:
+private:
   std::string property_;
 };
 

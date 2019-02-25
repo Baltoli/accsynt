@@ -7,7 +7,7 @@
 namespace support {
 
 class dynamic_library {
-  public:
+public:
   explicit dynamic_library(const std::string& path);
 
   dynamic_library(dynamic_library const&) = delete;
@@ -22,7 +22,7 @@ class dynamic_library {
 
   void* raw_symbol(const std::string& sym) const;
 
-  private:
+private:
   void* lib_;
 };
 

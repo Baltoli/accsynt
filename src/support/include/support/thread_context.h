@@ -10,7 +10,7 @@
 namespace support {
 
 class thread_context {
-  public:
+public:
   thread_context(const thread_context&) = delete;
   void operator=(const thread_context&) = delete;
 
@@ -18,7 +18,7 @@ class thread_context {
   static llvm::LLVMContext& get(std::thread::id id);
   static llvm::LLVMContext& get(const std::thread& t);
 
-  private:
+private:
   thread_context()
       : mapping_{}
   {

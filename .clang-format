@@ -1,5 +1,6 @@
 ﻿---
 BasedOnStyle: WebKit
+AccessModifierOffset: '-2'
 AllowShortBlocksOnASingleLine: 'false'
 AllowShortCaseLabelsOnASingleLine: 'false'
 AllowShortFunctionsOnASingleLine: None

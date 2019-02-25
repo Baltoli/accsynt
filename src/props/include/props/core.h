@@ -110,7 +110,7 @@ struct property {
 };
 
 class property_set {
-  public:
+public:
   signature type_signature;
   std::vector<property> properties;
 
@@ -120,7 +120,7 @@ class property_set {
   static property_set parse(std::string_view str);
   static property_set load(std::string_view str);
 
-  private:
+private:
   bool is_valid() const;
 };
 

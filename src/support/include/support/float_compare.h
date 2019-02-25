@@ -31,7 +31,7 @@ using int_of_equal_size_t = typename int_of_equal_size<T>::type;
 
 // TODO: do a memcpy version of this rather than relying on unions
 template <typename Floating> struct equality_wrapper {
-  private:
+private:
   using int_t = int_of_equal_size_t<Floating>;
 
   union punned {
@@ -41,7 +41,7 @@ template <typename Floating> struct equality_wrapper {
 
   punned value_;
 
-  public:
+public:
   equality_wrapper(Floating val)
   {
     value_.as_float = val;

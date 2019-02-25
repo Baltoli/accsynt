@@ -29,7 +29,7 @@ enum class Instruction {
 };
 
 class Node {
-  public:
+public:
   Node(Instruction o, std::string n, std::vector<int> e = {})
       : op(o)
       , name(n)
@@ -45,7 +45,7 @@ class Node {
 };
 
 class Graph {
-  public:
+public:
   Graph(std::vector<Node> n)
       : nodes(n)
   {
@@ -64,7 +64,7 @@ class Graph {
 };
 
 class Match {
-  public:
+public:
   Match(size_t);
 
   void merge(size_t a, size_t b);
@@ -82,7 +82,7 @@ class Match {
   std::vector<size_t> first_member;
   std::vector<size_t> next_member;
 
-  private:
+private:
   void print_constraints_line(std::ostream&, std::string, Instruction) const;
 };
 

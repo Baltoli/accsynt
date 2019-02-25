@@ -27,7 +27,7 @@ namespace interfind {
  * Represents a separable region of code that can be extracted into a function.
  */
 class region {
-  public:
+public:
   /**
    * Direct constructor from the values comprising this region.
    */
@@ -47,7 +47,7 @@ class region {
   llvm::Instruction* output() const;
   std::vector<llvm::Value*> const& inputs() const;
 
-  private:
+private:
   /**
    * Populate a value map by mapping region inputs to the extracted function's
    * arguments.
@@ -89,7 +89,7 @@ void to_json(nlohmann::json&, region const&);
  * type.
  */
 class region_finder {
-  public:
+public:
   /**
    * Construct a region with the given return and argument types, as well as a
    * function to search in.
@@ -105,7 +105,7 @@ class region_finder {
    */
   std::vector<region> all_candidates() const;
 
-  private:
+private:
   using partition = std::map<llvm::Type*, std::set<llvm::Value*>>;
 
   /**
