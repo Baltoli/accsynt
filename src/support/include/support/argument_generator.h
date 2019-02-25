@@ -14,6 +14,11 @@ namespace support {
 
 namespace detail {
 
+#define VAL(t) std::declval<t>()
+
+// The formatter doesn't like SFINAE
+// clang-format off
+
 /**
  * SFINAE base case - types are not generators unless they meet the requirements
  * of the template specialisation below.
@@ -30,18 +35,22 @@ struct is_generator : std::false_type {
  * This could be a bit neater by using is_detected, but it's OK for now.
  */
 template <typename T>
-struct is_generator<T, std::void_t<>>
-    : std::conjunction<
-          /* std::is_same<decltype(std::declval<T>().gen_int(0, 0)), int>, */
-          /* std::is_same<decltype(std::declval<T>().gen_float(0.0f, 0.0f)), */
-          /*     float>, */
-          std::is_copy_constructible<T>, std::is_move_constructible<T>> {
-};
+struct is_generator<T, 
+    std::void_t<
+      decltype(VAL(T).gen_args(VAL(call_builder&)))
+    >>
+  : std::conjunction<
+      std::is_copy_constructible<T>, 
+      std::is_move_constructible<T>
+    > {};
 
 /**
  * Helper value for convenience.
  */
-template <typename T> constexpr bool is_generator_v = is_generator<T>::value;
+template <typename T> 
+constexpr bool is_generator_v = is_generator<T>::value;
+
+// clang-format on
 }
 
 /**
@@ -94,6 +103,7 @@ private:
     {
     }
     virtual concept* clone() = 0;
+    virtual void gen_args(call_builder&) = 0;
   };
 
   template <typename T> struct model : concept {
@@ -105,6 +115,11 @@ private:
     model<T>* clone() override
     {
       return new model<T>(object_);
+    }
+
+    void gen_args(call_builder& build)
+    {
+      object_.gen_args(build);
     }
 
   private:
@@ -119,6 +134,8 @@ class uniform_generator {
 public:
   uniform_generator();
   uniform_generator(std::random_device::result_type);
+
+  void gen_args(call_builder&);
 
 private:
   std::default_random_engine engine_;
