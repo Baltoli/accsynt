@@ -19,15 +19,18 @@ class loop;
 }
 
 namespace std {
-template <> struct hash<synth::hole> {
+template <>
+struct hash<synth::hole> {
   size_t operator()(synth::hole const& h) const;
 };
 
-template <> struct hash<synth::loop_id> {
+template <>
+struct hash<synth::loop_id> {
   size_t operator()(synth::loop_id const& h) const;
 };
 
-template <> struct hash<synth::loop> {
+template <>
+struct hash<synth::loop> {
   size_t operator()(synth::loop const& h) const;
 };
 }
@@ -191,7 +194,8 @@ public:
   ///@{
   loop& add_child(loop const& l);
 
-  template <typename Container> void instantiate(Container c);
+  template <typename Container>
+  void instantiate(Container c);
   ///@}
 
   /**
@@ -271,7 +275,8 @@ std::unordered_set<loop> loop::loops(size_t n, Iterator begin, Iterator end)
   return ret;
 }
 
-template <typename Container> void loop::instantiate(Container c)
+template <typename Container>
+void loop::instantiate(Container c)
 {
   using std::begin;
   using std::end;

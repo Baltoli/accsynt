@@ -23,7 +23,8 @@ public:
 
   void visitInstruction(llvm::Instruction& inst);
 
-  template <typename Range> void visitValues(Range&&);
+  template <typename Range>
+  void visitValues(Range&&);
 
 private:
   Pred pred_;

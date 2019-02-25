@@ -20,7 +20,8 @@ class fragment;
 }
 
 namespace std {
-template <> struct hash<std::unique_ptr<synth::fragment>> {
+template <>
+struct hash<std::unique_ptr<synth::fragment>> {
   size_t operator()(std::unique_ptr<synth::fragment> const& frag) const
       noexcept;
 };
@@ -100,9 +101,11 @@ public:
    */
   virtual bool add_child(frag_ptr&& f, size_t idx) = 0;
 
-  template <typename T> bool add_child(T frag, size_t idx);
+  template <typename T>
+  bool add_child(T frag, size_t idx);
 
-  template <typename T> bool equal_as(T const& other) const;
+  template <typename T>
+  bool equal_as(T const& other) const;
 
   /**
    * Counts the number of holes left in this fragment that can be instantiated
@@ -136,7 +139,8 @@ protected:
    * virtual clone method by having this handle the construction of a
    * unique_ptr.
    */
-  template <typename T> frag_ptr clone_as(T const& obj) const;
+  template <typename T>
+  frag_ptr clone_as(T const& obj) const;
 
   template <typename... Children>
   std::array<std::reference_wrapper<frag_ptr>, sizeof...(Children)>
@@ -154,17 +158,20 @@ protected:
   std::vector<props::value> args_;
 };
 
-template <typename T> bool fragment::add_child(T frag, size_t idx)
+template <typename T>
+bool fragment::add_child(T frag, size_t idx)
 {
   return add_child(frag.clone(), idx);
 }
 
-template <typename T> fragment::frag_ptr fragment::clone_as(T const& obj) const
+template <typename T>
+fragment::frag_ptr fragment::clone_as(T const& obj) const
 {
   return fragment::frag_ptr(new T{ obj });
 }
 
-template <typename T> bool fragment::equal_as(T const& other) const
+template <typename T>
+bool fragment::equal_as(T const& other) const
 {
   if (auto ptr = dynamic_cast<T const*>(this)) {
     return *ptr == other;

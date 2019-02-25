@@ -91,7 +91,8 @@ class match_expression {
 public:
   match_expression(std::string name, std::vector<binding_t> bs);
 
-  template <typename... Args> match_expression(std::string name, Args... args);
+  template <typename... Args>
+  match_expression(std::string name, Args... args);
 
   std::vector<match_result> match(props::property_set ps);
 
@@ -105,7 +106,8 @@ protected:
 
 class distinct {
 public:
-  template <typename... Strings> distinct(Strings... vars);
+  template <typename... Strings>
+  distinct(Strings... vars);
 
   bool validate(match_result const& unified, props::property_set ps) const;
 
@@ -115,7 +117,8 @@ private:
 
 class negation {
 public:
-  template <typename... Args> negation(std::string name, Args... args);
+  template <typename... Args>
+  negation(std::string name, Args... args);
 
   bool validate(match_result const& unified, props::property_set ps) const;
 
@@ -207,7 +210,8 @@ OStream& operator<<(OStream& os, match_expression const& m)
   return os;
 }
 
-template <typename... Strings> distinct::distinct(Strings... vars)
+template <typename... Strings>
+distinct::distinct(Strings... vars)
 {
   (vars_.insert(vars), ...);
 }

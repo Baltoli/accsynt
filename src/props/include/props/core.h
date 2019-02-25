@@ -46,9 +46,11 @@ struct signature {
 
   static signature parse(std::string_view str);
 
-  template <typename Input> void success(Input const& in, property_set& parent);
+  template <typename Input>
+  void success(Input const& in, property_set& parent);
 
-  template <typename Input> signature(Input const& in, property_set& parent)
+  template <typename Input>
+  signature(Input const& in, property_set& parent)
   {
   }
 
@@ -102,9 +104,11 @@ struct property {
 
   static property parse(std::string_view str);
 
-  template <typename Input> void success(Input const& in, property_set& parent);
+  template <typename Input>
+  void success(Input const& in, property_set& parent);
 
-  template <typename Input> property(Input const& in, property_set& parent)
+  template <typename Input>
+  property(Input const& in, property_set& parent)
   {
   }
 };

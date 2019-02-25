@@ -10,7 +10,8 @@
 
 namespace support {
 
-template <typename T, typename It> class cartesian_product_iterator;
+template <typename T, typename It>
+class cartesian_product_iterator;
 
 template <typename ElementType, typename NestedIterator>
 class cartesian_product {

@@ -106,7 +106,8 @@ private:
     virtual void gen_args(call_builder&) = 0;
   };
 
-  template <typename T> struct model : concept {
+  template <typename T>
+  struct model : concept {
     model(T obj)
         : object_(obj)
     {
@@ -132,12 +133,35 @@ protected:
 
 class uniform_generator {
 public:
+  static constexpr size_t max_size = 1024;
+
   uniform_generator();
   uniform_generator(std::random_device::result_type);
 
   void gen_args(call_builder&);
 
 private:
+  template <typename T>
+  T gen_single();
+
+  template <typename T>
+  std::vector<T> gen_array();
+
   std::default_random_engine engine_;
+  size_t size_;
 };
+
+template <>
+int uniform_generator::gen_single<int>();
+
+template <>
+float uniform_generator::gen_single<float>();
+
+template <typename T>
+std::vector<T> uniform_generator::gen_array()
+{
+  auto ret = std::vector<T>(size_);
+  std::generate(ret.begin(), ret.end(), [this] { return gen_single<T>(); });
+  return ret;
+}
 }

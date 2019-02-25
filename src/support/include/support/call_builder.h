@@ -16,7 +16,8 @@ namespace detail {
  * Extract the nth byte of a value, using memcpy (the only portable way to do
  * type punning of the kind required here).
  */
-template <typename T> uint8_t nth_byte(T val, size_t n)
+template <typename T>
+uint8_t nth_byte(T val, size_t n)
 {
   uint8_t data[sizeof(T)] = { 0 };
   memcpy(data, &val, sizeof(T));
@@ -75,7 +76,8 @@ public:
    *
    * T must be int or float.
    */
-  template <typename T> void add(T arg);
+  template <typename T>
+  void add(T arg);
 
   /**
    * Add a vector to the argument pack. Copies the vector into the builder's
@@ -85,7 +87,8 @@ public:
    *
    * T must be int or float.
    */
-  template <typename T> void add(std::vector<T> arg);
+  template <typename T>
+  void add(std::vector<T> arg);
 
   /**
    * Access the signature being used to validate arguments.
@@ -124,7 +127,8 @@ struct output_example {
   call_builder output_args;
 };
 
-template <typename T> void call_builder::add(T arg)
+template <typename T>
+void call_builder::add(T arg)
 {
   using Base = std::decay_t<T>;
   static_assert(
@@ -158,7 +162,8 @@ template <typename T> void call_builder::add(T arg)
   current_arg_++;
 }
 
-template <typename T> void call_builder::add(std::vector<T> arg)
+template <typename T>
+void call_builder::add(std::vector<T> arg)
 {
   static_assert(std::is_same_v<T, int> || std::is_same_v<T, float>,
       "Pointed-to data must be of base type");
