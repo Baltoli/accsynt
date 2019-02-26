@@ -16,7 +16,6 @@ private:
 
     virtual pmr_concept* clone() = 0;
     virtual T* get() = 0;
-    virtual T* operator->() = 0;
     virtual T& operator*() = 0;
     virtual T* release() = 0;
   };
@@ -38,8 +37,6 @@ private:
     pmr_model<D>* clone() override { return new pmr_model<D>(new D(*ptr_)); }
 
     D* get() override { return ptr_; }
-
-    D* operator->() override { return ptr_; }
 
     D& operator*() override { return *ptr_; }
 
