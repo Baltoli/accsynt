@@ -42,6 +42,7 @@ add_executable(support_unit
   test/argument_generator.cpp
   test/llvm_values.cpp
   test/string.cpp
+  test/value_ptr.cpp
   test/main.cpp)
 
 target_link_libraries(support_unit
