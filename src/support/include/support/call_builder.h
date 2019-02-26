@@ -98,6 +98,9 @@ public:
   template <typename T>
   void add(std::vector<T> arg);
 
+  /**
+   * Variadic helper for multiple arguments. The explicit specialisations
+   */
   template <typename... Ts>
   void add(Ts...);
 
@@ -108,6 +111,13 @@ public:
    */
   template <typename T>
   T get(size_t idx) const;
+
+  /**
+   * Testing method that looks up the index of the supplied argument and
+   * dispatches to the index-based lookup.
+   */
+  template <typename T>
+  T get(std::string const& name) const;
 
   /**
    * Access the signature being used to validate arguments.
@@ -265,6 +275,20 @@ T call_builder::get(size_t idx) const
     return float_data_.at(float_offset);
   } else {
     static_fail("Unknown type when extracting!");
+  }
+}
+
+template <typename T>
+T call_builder::get(std::string const& name) const
+{
+  auto b = signature_.parameters.begin();
+  auto e = signature_.parameters.end();
+
+  auto found = std::find_if(b, e, [&](auto p) { return p.name == name; });
+  if (found != e) {
+    return get<T>(std::distance(b, found));
+  } else {
+    throw call_builder_error("Parameter name not found when extracting");
   }
 }
 }

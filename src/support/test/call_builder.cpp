@@ -206,4 +206,20 @@ TEST_CASE("Can extract arguments from a call_builder")
     REQUIRE(c1.get<std::vector<float>>(2) == c);
     REQUIRE(c1.get<float>(3) == d);
   }
+
+  SECTION("Can get parameters back by name")
+  {
+    auto c1 = call_builder(
+        "int fun(int *aio_efd, int woo, float *c__a, float doo)"_sig);
+    auto aio_efd = std::vector{ 1, 2, 3 };
+    auto woo = 784123;
+    auto c__a = std::vector{ 0.4f, 0.2f, 453.2f };
+    auto doo = 5768.11f;
+    c1.add(aio_efd, woo, c__a, doo);
+
+    REQUIRE(c1.get<std::vector<int>>("aio_efd") == aio_efd);
+    REQUIRE(c1.get<int>("woo") == woo);
+    REQUIRE(c1.get<std::vector<float>>("c__a") == c__a);
+    REQUIRE(c1.get<float>("doo") == doo);
+  }
 }
