@@ -83,3 +83,51 @@ TEST_CASE("value_ptr can be copied")
     REQUIRE(*v.get() == *v2.get());
   }
 }
+
+TEST_CASE("value_ptr can be moved")
+{
+  SECTION("no copies are made")
+  {
+    auto count = 0;
+
+    {
+      auto v = value_ptr<rc>(new rc(count));
+      REQUIRE(count == 1);
+
+      auto v2 = std::move(v);
+      REQUIRE(count == 1);
+    }
+
+    REQUIRE(count == 0);
+  }
+
+  SECTION("data is moved correctly")
+  {
+    auto v = value_ptr<int>(new int(65));
+    REQUIRE(*v == 65);
+
+    auto v2(std::move(v));
+    REQUIRE(*v2 == 65);
+  }
+}
+
+struct S {
+  virtual ~S() {}
+  virtual int value() { return 33; }
+};
+
+struct T : S {
+  int value() override { return 89; }
+};
+
+TEST_CASE("value ptr behaves polymorphically")
+{
+  auto v = value_ptr<S>(new T());
+  REQUIRE(v->value() == 89);
+
+  auto v2 = v;
+  REQUIRE(v2->value() == 89);
+
+  v = value_ptr<S>(new S());
+  REQUIRE(v->value() == 33);
+}

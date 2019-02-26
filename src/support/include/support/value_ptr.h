@@ -47,7 +47,7 @@ public:
   {
   }
 
-  value_ptr(std::nullptr_t)
+  explicit value_ptr(std::nullptr_t)
       : impl_(nullptr)
   {
   }
@@ -69,9 +69,24 @@ public:
     return *this;
   }
 
+  value_ptr(value_ptr<T>&& other)
+      : impl_(std::move(other.impl_))
+  {
+    other.impl_ = nullptr;
+  }
+
+  value_ptr<T>& operator=(std::nullptr_t)
+  {
+    delete impl_;
+    impl_ = nullptr;
+    return *this;
+  }
+
   ~value_ptr() { delete impl_; }
 
   T* get() { return impl_->get(); }
+  T* operator->() { return impl_->get(); }
+  T& operator*() { return **impl_; }
 
   operator bool() { return static_cast<bool>(impl_); }
 
