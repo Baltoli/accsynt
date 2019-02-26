@@ -109,8 +109,7 @@ TEST_CASE("Can extract arguments from a call_builder")
     REQUIRE_THROWS_AS(c2.get<int>(1), call_builder_error);
 
     auto c3 = call_builder("void f(int x, int y, int z)"_sig);
-    c3.add(0);
-    c3.add(0);
+    c3.add(0, 0);
     REQUIRE_THROWS_AS(c3.get<int>(2), call_builder_error);
   }
 
@@ -132,9 +131,7 @@ TEST_CASE("Can extract arguments from a call_builder")
       auto v = dis(engine);
       auto v1 = dis(engine);
 
-      c.add(v);
-      c.add(0.4f);
-      c.add(v1);
+      c.add(v, 0.4f, v1);
 
       REQUIRE(c.get<int>(0) == v);
       REQUIRE(c.get<int>(2) == v1);
@@ -159,9 +156,7 @@ TEST_CASE("Can extract arguments from a call_builder")
       auto v = dis(engine);
       auto v1 = dis(engine);
 
-      c.add(v);
-      c.add(4);
-      c.add(v1);
+      c.add(v, 4, v1);
 
       REQUIRE(c.get<float>(0) == v);
       REQUIRE(c.get<float>(2) == v1);
@@ -199,5 +194,16 @@ TEST_CASE("Can extract arguments from a call_builder")
 
   SECTION("Can get whole signatures back correctly")
   {
+    auto c1 = call_builder("int fun(int a, int *b, float *c, float d)"_sig);
+    auto a = 784123;
+    auto b = std::vector{ 1, 2, 3 };
+    auto c = std::vector{ 0.4f, 0.2f, 453.2f };
+    auto d = 5768.11f;
+    c1.add(a, b, c, d);
+
+    REQUIRE(c1.get<int>(0) == a);
+    REQUIRE(c1.get<std::vector<int>>(1) == b);
+    REQUIRE(c1.get<std::vector<float>>(2) == c);
+    REQUIRE(c1.get<float>(3) == d);
   }
 }

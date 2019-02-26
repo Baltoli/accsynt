@@ -98,6 +98,9 @@ public:
   template <typename T>
   void add(std::vector<T> arg);
 
+  template <typename... Ts>
+  void add(Ts...);
+
   /**
    * Method for testing - allows the value stored in a call_builder's argument
    * pack to be extracted to a particular type. Note that if your types are
@@ -217,6 +220,12 @@ void call_builder::add(std::vector<T> arg)
   current_arg_++;
 }
 
+template <typename... Ts>
+void call_builder::add(Ts... args)
+{
+  (add(args), ...);
+}
+
 template <typename T>
 T call_builder::get(size_t idx) const
 {
@@ -253,7 +262,7 @@ T call_builder::get(size_t idx) const
   } else if constexpr (std::is_same_v<T, std::vector<int>>) {
     return int_data_.at(int_offset);
   } else if constexpr (std::is_same_v<T, std::vector<float>>) {
-    return float_data_.at(offset);
+    return float_data_.at(float_offset);
   } else {
     static_fail("Unknown type when extracting!");
   }
