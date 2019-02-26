@@ -23,6 +23,14 @@ uint8_t nth_byte(T val, size_t n)
   memcpy(data, &val, sizeof(T));
   return data[n];
 }
+
+template <typename T>
+T from_bytes(uint8_t const* data)
+{
+  auto ret = T{};
+  memcpy(&ret, data, sizeof(T));
+  return ret;
+}
 }
 
 /**
@@ -89,6 +97,27 @@ public:
    */
   template <typename T>
   void add(std::vector<T> arg);
+
+  /**
+   * Variadic helper for multiple arguments. The explicit specialisations
+   */
+  template <typename... Ts>
+  void add(Ts...);
+
+  /**
+   * Method for testing - allows the value stored in a call_builder's argument
+   * pack to be extracted to a particular type. Note that if your types are
+   * wrong this will obviously return some garbage, unsafe pointers etc.
+   */
+  template <typename T>
+  T get(size_t idx) const;
+
+  /**
+   * Testing method that looks up the index of the supplied argument and
+   * dispatches to the index-based lookup.
+   */
+  template <typename T>
+  T get(std::string const& name) const;
 
   /**
    * Access the signature being used to validate arguments.
@@ -199,5 +228,67 @@ void call_builder::add(std::vector<T> arg)
   }
 
   current_arg_++;
+}
+
+template <typename... Ts>
+void call_builder::add(Ts... args)
+{
+  (add(args), ...);
+}
+
+template <typename T>
+T call_builder::get(size_t idx) const
+{
+  if (!(idx < current_arg_)) {
+    throw call_builder_error("Can't extract - not enough arguments packed");
+  }
+
+  size_t offset = 0;
+  size_t int_offset = 0;
+  size_t float_offset = 0;
+
+  for (auto i = 0u; i < idx; ++i) {
+    auto const& param = signature_.parameters.at(i);
+
+    if (param.pointer_depth == 0) {
+      offset += 4;
+    } else {
+      if (param.pointer_depth != 1) {
+        throw std::runtime_error("Can't extract nested pointers");
+      }
+
+      if (param.type == props::data_type::integer) {
+        ++int_offset;
+      } else if (param.type == props::data_type::floating) {
+        ++float_offset;
+      }
+
+      offset += 8;
+    }
+  }
+
+  if constexpr (std::is_same_v<T, int> || std::is_same_v<T, float>) {
+    return detail::from_bytes<T>(args_.data() + offset);
+  } else if constexpr (std::is_same_v<T, std::vector<int>>) {
+    return int_data_.at(int_offset);
+  } else if constexpr (std::is_same_v<T, std::vector<float>>) {
+    return float_data_.at(float_offset);
+  } else {
+    static_fail("Unknown type when extracting!");
+  }
+}
+
+template <typename T>
+T call_builder::get(std::string const& name) const
+{
+  auto b = signature_.parameters.begin();
+  auto e = signature_.parameters.end();
+
+  auto found = std::find_if(b, e, [&](auto p) { return p.name == name; });
+  if (found != e) {
+    return get<T>(std::distance(b, found));
+  } else {
+    throw call_builder_error("Parameter name not found when extracting");
+  }
 }
 }
