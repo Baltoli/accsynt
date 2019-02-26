@@ -18,6 +18,7 @@ private:
     virtual T* get() = 0;
     virtual T* operator->() = 0;
     virtual T& operator*() = 0;
+    virtual T* release() = 0;
   };
 
   template <typename D>
@@ -27,7 +28,12 @@ private:
     {
     }
 
-    ~pmr_model() { delete ptr_; }
+    ~pmr_model()
+    {
+      if (ptr_) {
+        delete ptr_;
+      }
+    }
 
     pmr_model<D>* clone() override { return new pmr_model<D>(new D(*ptr_)); }
 
@@ -36,6 +42,13 @@ private:
     D* operator->() override { return ptr_; }
 
     D& operator*() override { return *ptr_; }
+
+    D* release() override
+    {
+      auto ptr = ptr_;
+      ptr_ = nullptr;
+      return ptr;
+    }
 
     D* ptr_;
   };
@@ -81,7 +94,12 @@ public:
     return *this;
   }
 
-  ~value_ptr() { delete impl_; }
+  ~value_ptr()
+  {
+    if (impl_) {
+      delete impl_;
+    }
+  }
 
   T* get() const { return impl_->get(); }
   T* operator->() const { return impl_->get(); }
@@ -91,7 +109,8 @@ public:
 
   T* release()
   {
-    auto ptr = impl_->get();
+    auto ptr = impl_->release();
+    delete impl_;
     impl_ = nullptr;
     return ptr;
   }
