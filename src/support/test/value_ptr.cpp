@@ -2,6 +2,12 @@
 
 #include <support/value_ptr.h>
 
+#include <map>
+#include <set>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
 using namespace support;
 
 // clang-format off
@@ -163,4 +169,10 @@ TEST_CASE("managed pointer can be reset")
 
   v.reset(new rc(count));
   REQUIRE(count == 1);
+}
+
+TEST_CASE("pointers can be hashed")
+{
+  auto ptr = value_ptr<int>(new int(54));
+  REQUIRE(std::hash<decltype(ptr)>()(ptr) == std::hash<int*>()(ptr.get()));
 }
