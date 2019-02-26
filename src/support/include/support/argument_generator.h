@@ -175,12 +175,15 @@ public:
 private:
   int gen_rows();
   std::vector<int> gen_rowstr(int rows);
-  std::vector<int> gen_colidx(int nnz);
-  std::vector<float> gen_data(int nnz);
+  std::vector<int> gen_colidx(std::vector<int> const& rowstr);
+  std::vector<float> gen_data(std::vector<int> const& rowstr);
   std::vector<float> gen_input(std::vector<int> const& colidx);
   std::vector<float> gen_output(int rows);
 
   bool is_csr_spmv(props::signature const&);
+
+  int max_size_;
+  std::default_random_engine engine_;
 };
 
 /*
