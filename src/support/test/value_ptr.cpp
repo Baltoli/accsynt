@@ -131,3 +131,20 @@ TEST_CASE("value ptr behaves polymorphically")
   v = value_ptr<S>(new S());
   REQUIRE(v->value() == 33);
 }
+
+TEST_CASE("managed pointer can be released")
+{
+  auto count = 0;
+  rc* ptr;
+
+  {
+    auto v = value_ptr<rc>(new rc(count));
+    REQUIRE(count == 1);
+
+    ptr = v.release();
+  }
+
+  REQUIRE(count == 1);
+  delete ptr;
+  REQUIRE(count == 0);
+}

@@ -90,6 +90,13 @@ public:
 
   operator bool() { return static_cast<bool>(impl_); }
 
+  T* release()
+  {
+    auto ptr = impl_->get();
+    impl_ = nullptr;
+    return ptr;
+  }
+
   friend void swap<T>(value_ptr<T>&, value_ptr<T>&);
 
 protected:
