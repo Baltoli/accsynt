@@ -256,7 +256,45 @@ TEST_CASE("value pointers can go into standard containers")
     REQUIRE(count == 0);
   }
 
-  SECTION("maps") {}
+  SECTION("maps")
+  {
+    auto m1 = std::map<value_ptr<int>, int>{};
+    m1.emplace(new int(4), 5);
+    m1.emplace(new int(42), 43);
+    m1.emplace(new int(-1), 0);
 
-  SECTION("unordered maps") {}
+    for (auto const& [k, v] : m1) {
+      REQUIRE(*k == v - 1);
+    }
+
+    auto count = 0;
+    {
+      auto m2 = std::map<value_ptr<rc>, int>{};
+      m2.emplace(new rc(count), 0);
+      m2.emplace(new rc(count), 1);
+      REQUIRE(count == 2);
+    }
+    REQUIRE(count == 0);
+  }
+
+  SECTION("unordered maps")
+  {
+    auto m1 = std::unordered_map<value_ptr<int>, int>{};
+    m1.emplace(new int(4), 5);
+    m1.emplace(new int(42), 43);
+    m1.emplace(new int(-1), 0);
+
+    for (auto const& [k, v] : m1) {
+      REQUIRE(*k == v - 1);
+    }
+
+    auto count = 0;
+    {
+      auto m2 = std::map<value_ptr<rc>, int>{};
+      m2.emplace(new rc(count), 0);
+      m2.emplace(new rc(count), 1);
+      REQUIRE(count == 2);
+    }
+    REQUIRE(count == 0);
+  }
 }
