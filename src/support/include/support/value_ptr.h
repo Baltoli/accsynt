@@ -71,8 +71,7 @@ public:
 
   value_ptr<T>& operator=(std::nullptr_t)
   {
-    delete impl_;
-    impl_ = nullptr;
+    reset();
     return *this;
   }
 
@@ -89,6 +88,19 @@ public:
     auto ptr = impl_->get();
     impl_ = nullptr;
     return ptr;
+  }
+
+  void reset(T* ptr = nullptr)
+  {
+    if (impl_) {
+      delete impl_;
+    }
+
+    if (ptr) {
+      impl_ = new pmr_model(ptr);
+    } else {
+      impl_ = nullptr;
+    }
   }
 
   void swap(value_ptr<T>& other)

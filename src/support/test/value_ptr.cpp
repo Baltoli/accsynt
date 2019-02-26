@@ -148,3 +148,19 @@ TEST_CASE("managed pointer can be released")
   delete ptr;
   REQUIRE(count == 0);
 }
+
+TEST_CASE("managed pointer can be reset")
+{
+  auto count = 0;
+  auto v = value_ptr<rc>(new rc(count));
+
+  REQUIRE(count == 1);
+  v.reset();
+  REQUIRE(count == 0);
+
+  v.reset(new rc(count));
+  REQUIRE(count == 1);
+
+  v.reset(new rc(count));
+  REQUIRE(count == 1);
+}
