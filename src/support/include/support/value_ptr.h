@@ -47,6 +47,16 @@ public:
   {
   }
 
+  value_ptr(std::nullptr_t)
+      : impl_(nullptr)
+  {
+  }
+
+  value_ptr()
+      : value_ptr(nullptr)
+  {
+  }
+
   value_ptr(value_ptr<T> const& other)
       : impl_(other.impl_->clone())
   {
@@ -62,6 +72,8 @@ public:
   ~value_ptr() { delete impl_; }
 
   T* get() { return impl_->get(); }
+
+  operator bool() { return static_cast<bool>(impl_); }
 
   friend void swap<T>(value_ptr<T>&, value_ptr<T>&);
 

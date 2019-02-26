@@ -29,7 +29,23 @@ TEST_CASE("value_ptr manages scoped lifetimes")
   REQUIRE(count == 0);
 }
 
-TEST_CASE("value_ptr can hold nullptr") {}
+TEST_CASE("value_ptr can hold nullptr")
+{
+  auto v = value_ptr<int>();
+  REQUIRE(!v);
+
+  auto v2 = value_ptr<int>(nullptr);
+  REQUIRE(!v2);
+
+  int c = 0;
+  auto v3 = value_ptr<rc>(new rc(c));
+  REQUIRE(c == 1);
+  REQUIRE(!!v3);
+
+  v3 = nullptr;
+  REQUIRE(c == 0);
+  REQUIRE(!v3);
+}
 
 TEST_CASE("value_ptr holds a pointer")
 {
