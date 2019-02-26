@@ -14,6 +14,11 @@ namespace support {
 
 namespace detail {
 
+#define VAL(t) std::declval<t>()
+
+// The formatter doesn't like SFINAE
+// clang-format off
+
 /**
  * SFINAE base case - types are not generators unless they meet the requirements
  * of the template specialisation below.
@@ -30,20 +35,23 @@ struct is_generator : std::false_type {
  * This could be a bit neater by using is_detected, but it's OK for now.
  */
 template <typename T>
-struct is_generator<T,
-    std::void_t<decltype(std::declval<T>().gen_int(0, 0)),
-        decltype(std::declval<T>().gen_float(0.0f, 0.0f))>>
-    : std::conjunction<
-          std::is_same<decltype(std::declval<T>().gen_int(0, 0)), int>,
-          std::is_same<decltype(std::declval<T>().gen_float(0.0f, 0.0f)),
-              float>,
-          std::is_copy_constructible<T>, std::is_move_constructible<T>> {
-};
+struct is_generator<T, 
+    std::void_t<
+      decltype(VAL(T).gen_args(VAL(call_builder&)))
+    >>
+  : std::conjunction<
+      std::is_same<decltype(VAL(T).gen_args(VAL(call_builder&))), void>,
+      std::is_copy_constructible<T>, 
+      std::is_move_constructible<T>
+    > {};
 
 /**
  * Helper value for convenience.
  */
-template <typename T> constexpr bool is_generator_v = is_generator<T>::value;
+template <typename T> 
+constexpr bool is_generator_v = is_generator<T>::value;
+
+// clang-format on
 }
 
 /**
@@ -62,7 +70,7 @@ template <typename T> constexpr bool is_generator_v = is_generator<T>::value;
  * using a type trait against a definition of valid generators.
  */
 class argument_generator {
-  public:
+public:
   template <typename T>
   argument_generator(T&& strat)
       : strategy_(std::make_unique<model<T>>(FWD(strat)))
@@ -82,25 +90,13 @@ class argument_generator {
   friend void swap(argument_generator& a, argument_generator& b);
 
   // Interface
-  int gen_int(int min = std::numeric_limits<int>::min(),
-      int max = std::numeric_limits<int>::max())
-  {
-    return strategy_->gen_int(min, max);
-  }
-
-  float gen_float(float min = std::numeric_limits<float>::min(),
-      float max = std::numeric_limits<float>::max())
-  {
-    return strategy_->gen_float(min, max);
-  }
-
   /**
    * Generate arguments using the wrapped strategy, filling them into the call
    * builder.
    */
   void gen_args(call_builder&);
 
-  private:
+private:
   // Type erasure
   struct concept
   {
@@ -108,11 +104,11 @@ class argument_generator {
     {
     }
     virtual concept* clone() = 0;
-    virtual int gen_int(int min, int max) = 0;
-    virtual float gen_float(float min, float max) = 0;
+    virtual void gen_args(call_builder&) = 0;
   };
 
-  template <typename T> struct model : concept {
+  template <typename T>
+  struct model : concept {
     model(T obj)
         : object_(obj)
     {
@@ -123,33 +119,87 @@ class argument_generator {
       return new model<T>(object_);
     }
 
-    int gen_int(int min, int max) override
+    void gen_args(call_builder& build)
     {
-      return object_.gen_int(min, max);
+      object_.gen_args(build);
     }
 
-    float gen_float(float min, float max) override
-    {
-      return object_.gen_float(min, max);
-    }
-
-private:
+  private:
     T object_;
   };
 
-  protected:
+protected:
   std::unique_ptr<concept> strategy_;
 };
 
+/**
+ * Generate arguments uniformly - use this if there's absolutely no restriction
+ * on how data is structured other than a physical size limit for arrays, which
+ * can be passed at construction.
+ */
 class uniform_generator {
-  public:
+public:
+  static constexpr size_t max_size = 1024;
+
   uniform_generator();
-  uniform_generator(std::random_device::result_type);
+  uniform_generator(size_t);
 
-  int gen_int(int min, int max);
-  float gen_float(float min, float max);
+  void seed(std::random_device::result_type);
+  void gen_args(call_builder&);
 
-  private:
+private:
+  // Specialised only for int and float - doing it as a template makes the code
+  // a bit nicer for the array case, which can just forward through to this
+  // template rather than doing is_same checks.
+  template <typename T>
+  T gen_single();
+
+  template <typename T>
+  std::vector<T> gen_array();
+
+  std::default_random_engine engine_;
+  size_t size_;
+};
+
+/**
+ * Generator specifically used for CSR SPMV arguments - will only work if the
+ * arguments are exactly right (i.e. are named correctly and have the right
+ * types). Otherwise it'll throw an exception.
+ */
+class csr_generator {
+public:
+  csr_generator();
+
+  void gen_args(call_builder&);
+
+private:
+  int gen_rows();
+  std::vector<int> gen_rowstr(int rows);
+  std::vector<int> gen_colidx(std::vector<int> const& rowstr);
+  std::vector<float> gen_data(std::vector<int> const& rowstr);
+  std::vector<float> gen_input(std::vector<int> const& colidx);
+  std::vector<float> gen_output(int rows);
+
+  bool is_csr_spmv(props::signature const&);
+
+  int max_size_;
   std::default_random_engine engine_;
 };
+
+/*
+ * Template definitions
+ */
+template <>
+int uniform_generator::gen_single<int>();
+
+template <>
+float uniform_generator::gen_single<float>();
+
+template <typename T>
+std::vector<T> uniform_generator::gen_array()
+{
+  auto ret = std::vector<T>(size_);
+  std::generate(ret.begin(), ret.end(), [this] { return gen_single<T>(); });
+  return ret;
+}
 }

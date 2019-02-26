@@ -46,9 +46,11 @@ struct signature {
 
   static signature parse(std::string_view str);
 
-  template <typename Input> void success(Input const& in, property_set& parent);
+  template <typename Input>
+  void success(Input const& in, property_set& parent);
 
-  template <typename Input> signature(Input const& in, property_set& parent)
+  template <typename Input>
+  signature(Input const& in, property_set& parent)
   {
   }
 
@@ -102,15 +104,17 @@ struct property {
 
   static property parse(std::string_view str);
 
-  template <typename Input> void success(Input const& in, property_set& parent);
+  template <typename Input>
+  void success(Input const& in, property_set& parent);
 
-  template <typename Input> property(Input const& in, property_set& parent)
+  template <typename Input>
+  property(Input const& in, property_set& parent)
   {
   }
 };
 
 class property_set {
-  public:
+public:
   signature type_signature;
   std::vector<property> properties;
 
@@ -120,7 +124,7 @@ class property_set {
   static property_set parse(std::string_view str);
   static property_set load(std::string_view str);
 
-  private:
+private:
   bool is_valid() const;
 };
 
@@ -144,6 +148,11 @@ void property_set::for_each_named(std::string const& name, Func&& fn) const
       fn(prop);
     }
   }
+}
+
+namespace literals {
+
+signature operator""_sig(const char* str, size_t len);
 }
 }
 

@@ -11,8 +11,10 @@ struct indent {
 
 namespace fmt {
 
-template <> struct formatter<support::indent> {
-  template <typename ParseContext> constexpr auto parse(ParseContext& ctx)
+template <>
+struct formatter<support::indent> {
+  template <typename ParseContext>
+  constexpr auto parse(ParseContext& ctx)
   {
     return ctx.begin();
   }

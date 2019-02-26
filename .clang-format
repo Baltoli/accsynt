@@ -1,5 +1,6 @@
 ﻿---
 BasedOnStyle: WebKit
+AccessModifierOffset: '-2'
 AllowShortBlocksOnASingleLine: 'false'
 AllowShortCaseLabelsOnASingleLine: 'false'
 AllowShortFunctionsOnASingleLine: None
@@ -9,5 +10,5 @@ ColumnLimit: '80'
 IndentWidth: '2'
 Language: Cpp
 NamespaceIndentation: None
-
+AlwaysBreakTemplateDeclarations: 'true'
 ...

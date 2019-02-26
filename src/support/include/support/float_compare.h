@@ -9,9 +9,11 @@ namespace support {
 
 namespace detail {
 
-template <typename...> struct int_type_finder;
+template <typename...>
+struct int_type_finder;
 
-template <typename FT> struct int_type_finder<FT> {
+template <typename FT>
+struct int_type_finder<FT> {
   using type = void;
 };
 
@@ -21,7 +23,8 @@ struct int_type_finder<FT, IT, ITs...> {
       typename int_type_finder<FT, ITs...>::type>;
 };
 
-template <typename T> struct int_of_equal_size {
+template <typename T>
+struct int_of_equal_size {
   using type =
       typename int_type_finder<T, int8_t, int16_t, int32_t, int64_t>::type;
 };
@@ -30,8 +33,9 @@ template <typename T>
 using int_of_equal_size_t = typename int_of_equal_size<T>::type;
 
 // TODO: do a memcpy version of this rather than relying on unions
-template <typename Floating> struct equality_wrapper {
-  private:
+template <typename Floating>
+struct equality_wrapper {
+private:
   using int_t = int_of_equal_size_t<Floating>;
 
   union punned {
@@ -41,7 +45,7 @@ template <typename Floating> struct equality_wrapper {
 
   punned value_;
 
-  public:
+public:
   equality_wrapper(Floating val)
   {
     value_.as_float = val;
@@ -59,7 +63,8 @@ template <typename Floating> struct equality_wrapper {
 };
 }
 
-template <typename Float> bool ulp_equal(Float A, Float B, int max_ulp_diff)
+template <typename Float>
+bool ulp_equal(Float A, Float B, int max_ulp_diff)
 {
   auto a_wrap = detail::equality_wrapper(A);
   auto b_wrap = detail::equality_wrapper(B);
@@ -77,7 +82,8 @@ template <typename Float> bool ulp_equal(Float A, Float B, int max_ulp_diff)
 
 int ulp_diff(float A, float B);
 
-template <typename T> bool approx_equal(T&& a, T&& b)
+template <typename T>
+bool approx_equal(T&& a, T&& b)
 {
   using ElemT = typename std::decay_t<T>::value_type;
 

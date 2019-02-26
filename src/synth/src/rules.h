@@ -30,7 +30,7 @@ class rule;
  * returning a fragment pointer.
  */
 class fragment_registry {
-  public:
+public:
   static std::unique_ptr<fragment> get(
       std::string const& name, std::vector<props::value> args);
 
@@ -43,7 +43,7 @@ class fragment_registry {
  * the definition of all().
  */
 class rule_registry {
-  public:
+public:
   static std::vector<rule> all();
 
   rule_registry() = delete;
@@ -60,7 +60,7 @@ class rule_registry {
  * to the same value?
  */
 class match_result {
-  public:
+public:
   match_result(std::map<std::string, props::value>);
 
   std::optional<match_result> unify_with(match_result const& other);
@@ -76,7 +76,7 @@ class match_result {
 
   std::optional<props::value> operator()(std::string) const;
 
-  protected:
+protected:
   std::map<std::string, props::value> results_;
 };
 
@@ -88,38 +88,41 @@ class match_result {
 class match_expression {
   using binding_t = std::variant<std::string, ignore_value>;
 
-  public:
+public:
   match_expression(std::string name, std::vector<binding_t> bs);
 
-  template <typename... Args> match_expression(std::string name, Args... args);
+  template <typename... Args>
+  match_expression(std::string name, Args... args);
 
   std::vector<match_result> match(props::property_set ps);
 
   template <typename OStream>
   friend OStream& operator<<(OStream& os, match_expression const& m);
 
-  protected:
+protected:
   std::string property_name_;
   std::vector<binding_t> bindings_;
 };
 
 class distinct {
-  public:
-  template <typename... Strings> distinct(Strings... vars);
+public:
+  template <typename... Strings>
+  distinct(Strings... vars);
 
   bool validate(match_result const& unified, props::property_set ps) const;
 
-  private:
+private:
   std::set<std::string> vars_{};
 };
 
 class negation {
-  public:
-  template <typename... Args> negation(std::string name, Args... args);
+public:
+  template <typename... Args>
+  negation(std::string name, Args... args);
 
   bool validate(match_result const& unified, props::property_set ps) const;
 
-  private:
+private:
   std::string name_;
   std::vector<std::string> args_{};
 };
@@ -132,13 +135,13 @@ using validator = std::variant<distinct, negation>;
  * and a handle to an instantiated fragment is returned.
  */
 class rule {
-  public:
+public:
   rule(std::string fragment, std::vector<std::string> args,
       std::vector<match_expression> es, std::vector<validator> vs);
 
   std::vector<std::unique_ptr<fragment>> match(props::property_set ps);
 
-  private:
+private:
   bool validate(match_result const& mr, props::property_set ps) const;
 
   std::string fragment_;
@@ -207,7 +210,8 @@ OStream& operator<<(OStream& os, match_expression const& m)
   return os;
 }
 
-template <typename... Strings> distinct::distinct(Strings... vars)
+template <typename... Strings>
+distinct::distinct(Strings... vars)
 {
   (vars_.insert(vars), ...);
 }

@@ -19,7 +19,7 @@ namespace interfind {
  * - A list of potential regions found by the analysis.
  */
 class analysis_result {
-  public:
+public:
   analysis_result(props::signature);
 
   props::signature const& signature() const;
@@ -27,7 +27,7 @@ class analysis_result {
   void add_candidate_region(region);
   std::vector<region> const& regions() const;
 
-  private:
+private:
   props::signature signature_;
   std::vector<region> regions_;
 };

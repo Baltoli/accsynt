@@ -25,10 +25,10 @@ namespace interfind {
  * it modifies the module given to it and returns some analysis information.
  */
 class finder {
-  public:
+public:
   static analysis_result run(llvm::Module&, nlohmann::json);
 
-  private:
+private:
   finder(llvm::Module&, nlohmann::json);
 
   llvm::Module& module_;

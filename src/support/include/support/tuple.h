@@ -14,7 +14,8 @@ auto make_index_dispatcher(std::index_sequence<Idx...>)
   return [](auto&& f) { (f(std::integral_constant<std::size_t, Idx>{}), ...); };
 }
 
-template <std::size_t N> auto make_index_dispatcher()
+template <std::size_t N>
+auto make_index_dispatcher()
 {
   return make_index_dispatcher(std::make_index_sequence<N>{});
 }
@@ -28,7 +29,8 @@ namespace support {
  * The callable \p f is called for each element of \p t, which can be any type
  * that supports \p std::get and \p std::tuple_size.
  */
-template <typename Tuple, typename Func> void for_each(Tuple&& t, Func&& f)
+template <typename Tuple, typename Func>
+void for_each(Tuple&& t, Func&& f)
 {
   constexpr auto n = std::tuple_size_v<std::decay_t<Tuple>>;
   auto dispatcher = ::make_index_dispatcher<n>();

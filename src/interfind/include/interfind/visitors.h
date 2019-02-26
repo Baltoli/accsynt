@@ -17,15 +17,16 @@ namespace detail {
 
 template <typename Pred>
 class predicate_visitor : public llvm::InstVisitor<predicate_visitor<Pred>> {
-  public:
+public:
   predicate_visitor(Pred);
   std::set<llvm::Value*> values() const;
 
   void visitInstruction(llvm::Instruction& inst);
 
-  template <typename Range> void visitValues(Range&&);
+  template <typename Range>
+  void visitValues(Range&&);
 
-  private:
+private:
   Pred pred_;
   std::set<llvm::Value*> vals_;
 };

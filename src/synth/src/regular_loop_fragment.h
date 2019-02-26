@@ -7,7 +7,7 @@
 namespace synth {
 
 class regular_loop_fragment : public fragment {
-  public:
+public:
   using fragment::add_child;
 
   regular_loop_fragment(std::vector<props::value> args, frag_ptr&& before,
@@ -38,7 +38,7 @@ class regular_loop_fragment : public fragment {
 
   friend void swap(regular_loop_fragment& a, regular_loop_fragment& b);
 
-  private:
+private:
   std::pair<llvm::Argument*, std::string> get_pointer(
       compile_context&, size_t idx);
   llvm::Argument* get_size(compile_context&);

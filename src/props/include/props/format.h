@@ -4,8 +4,10 @@
 
 #include <fmt/format.h>
 
-template <> struct fmt::formatter<props::data_type> {
-  template <typename ParseContext> constexpr auto parse(ParseContext& ctx)
+template <>
+struct fmt::formatter<props::data_type> {
+  template <typename ParseContext>
+  constexpr auto parse(ParseContext& ctx)
   {
     return ctx.begin();
   }
@@ -23,8 +25,10 @@ template <> struct fmt::formatter<props::data_type> {
   }
 };
 
-template <> struct fmt::formatter<props::param> {
-  template <typename ParseContext> constexpr auto parse(ParseContext& ctx)
+template <>
+struct fmt::formatter<props::param> {
+  template <typename ParseContext>
+  constexpr auto parse(ParseContext& ctx)
   {
     return ctx.begin();
   }
@@ -39,8 +43,10 @@ template <> struct fmt::formatter<props::param> {
   }
 };
 
-template <> struct fmt::formatter<props::signature> {
-  template <typename ParseContext> constexpr auto parse(ParseContext& ctx)
+template <>
+struct fmt::formatter<props::signature> {
+  template <typename ParseContext>
+  constexpr auto parse(ParseContext& ctx)
   {
     return ctx.begin();
   }
@@ -61,8 +67,10 @@ template <> struct fmt::formatter<props::signature> {
   }
 };
 
-template <> struct fmt::formatter<props::value> {
-  template <typename ParseContext> constexpr auto parse(ParseContext& ctx)
+template <>
+struct fmt::formatter<props::value> {
+  template <typename ParseContext>
+  constexpr auto parse(ParseContext& ctx)
   {
     return ctx.begin();
   }

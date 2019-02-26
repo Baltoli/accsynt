@@ -30,7 +30,7 @@ struct ConvertToIDL : public FunctionPass {
 
   bool runOnFunction(Function& F) override;
 
-  private:
+private:
   std::string output_path;
 };
 

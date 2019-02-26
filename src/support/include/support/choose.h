@@ -10,12 +10,13 @@
 namespace support {
 
 class choose {
-  public:
+public:
   choose(size_t n, size_t k);
 
-  template <typename Func> void for_each(Func&& f) const;
+  template <typename Func>
+  void for_each(Func&& f) const;
 
-  private:
+private:
   template <typename Func>
   void recursive_step(
       std::vector<size_t> idxs, std::vector<size_t> accum, Func&& f) const;
@@ -45,7 +46,8 @@ void choose::recursive_step(
   }
 }
 
-template <typename Func> void choose::for_each(Func&& f) const
+template <typename Func>
+void choose::for_each(Func&& f) const
 {
   auto indices = std::vector<size_t>(elements_);
   std::iota(indices.begin(), indices.end(), 0);

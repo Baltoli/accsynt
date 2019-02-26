@@ -10,11 +10,12 @@
 
 namespace support {
 
-template <typename T, typename It> class cartesian_product_iterator;
+template <typename T, typename It>
+class cartesian_product_iterator;
 
 template <typename ElementType, typename NestedIterator>
 class cartesian_product {
-  public:
+public:
   using iterator = cartesian_product_iterator<ElementType, NestedIterator>;
   friend iterator;
 
@@ -69,7 +70,7 @@ class cartesian_product {
     return iterator(n_products_, n_products_, *this);
   }
 
-  protected:
+protected:
   std::vector<ElementType> get(size_t idx)
   {
     using std::begin;
@@ -98,7 +99,7 @@ class cartesian_product {
     return ret;
   }
 
-  private:
+private:
   NestedIterator begin_;
 
   size_t product_size_;
@@ -132,11 +133,11 @@ cartesian_product(Container &&)
 
 template <typename ElementType, typename NestedIterator>
 class cartesian_product_iterator {
-  private:
+private:
   using iter_t = cartesian_product_iterator<ElementType, NestedIterator>;
   using product_t = cartesian_product<ElementType, NestedIterator>;
 
-  public:
+public:
   using value_type = std::vector<ElementType>;
   using difference_type = size_t;
   using pointer = std::vector<ElementType>*;
@@ -284,7 +285,7 @@ class cartesian_product_iterator {
     swap(a.state_, b.state_);
   }
 
-  private:
+private:
   size_t index_;
   size_t size_;
   product_t* data_;

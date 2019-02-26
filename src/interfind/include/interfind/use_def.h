@@ -23,7 +23,7 @@ namespace interfind {
  * instruction appear in another's use-def chain?
  */
 class use_def_analysis {
-  public:
+public:
   /**
    * Maps instructions onto the set of values on which they depend (i.e. every
    * value that appears in the SSA DAG with the key value as a leaf).
@@ -53,7 +53,7 @@ class use_def_analysis {
   template <typename Container>
   bool is_root_set(llvm::Value* use, Container&& roots) const;
 
-  private:
+private:
   /**
    * Internal map of dependencies.
    */

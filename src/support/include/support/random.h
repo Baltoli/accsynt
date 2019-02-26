@@ -8,7 +8,8 @@ namespace support {
 
 std::random_device& get_random_device();
 
-template <typename Iterator> auto uniform_sample(Iterator begin, Iterator end)
+template <typename Iterator>
+auto uniform_sample(Iterator begin, Iterator end)
 {
   if (begin == end) {
     return end;
@@ -25,7 +26,8 @@ template <typename Iterator> auto uniform_sample(Iterator begin, Iterator end)
   return it;
 }
 
-template <typename Container> auto uniform_sample(Container const& c)
+template <typename Container>
+auto uniform_sample(Container const& c)
 {
   using std::begin;
   using std::end;

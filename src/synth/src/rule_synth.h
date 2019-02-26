@@ -11,15 +11,15 @@
 namespace synth {
 
 class rule_synth : public synthesizer {
-  public:
+public:
   rule_synth(props::property_set ps, support::call_wrapper& wrap);
 
   virtual std::string name() const;
 
-  protected:
+protected:
   virtual llvm::Function* candidate();
 
-  private:
+private:
   generator gen_;
 
   fragment::frag_set fragments_;

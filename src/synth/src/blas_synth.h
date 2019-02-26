@@ -17,15 +17,15 @@ struct blas_control_data {
 };
 
 class blas_synth : public synthesizer {
-  public:
+public:
   blas_synth(props::property_set ps, support::call_wrapper& wrap);
 
   std::string name() const override;
 
-  protected:
+protected:
   llvm::Function* candidate() override;
 
-  private:
+private:
   bool should_loop() const;
   void next_loop();
 

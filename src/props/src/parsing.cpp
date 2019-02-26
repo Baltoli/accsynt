@@ -19,13 +19,16 @@ std::optional<data_type> data_type_from_string(std::string const& str)
   }
 }
 
-template <typename Rule> struct signature_action : nothing<Rule> {
+template <typename Rule>
+struct signature_action : nothing<Rule> {
 };
 
-template <typename Rule> struct param_action : nothing<Rule> {
+template <typename Rule>
+struct param_action : nothing<Rule> {
 };
 
-template <typename Rule> struct property_action : nothing<Rule> {
+template <typename Rule>
+struct property_action : nothing<Rule> {
 };
 
 struct type_name : sor<TAO_PEGTL_STRING("void"), TAO_PEGTL_STRING("int"),
@@ -91,71 +94,91 @@ struct file_grammar
               star<state<property, property_grammar>, eolf>>> {
 };
 
-template <> struct property_action<property_name> {
-  template <typename Input> static void apply(Input const& in, property& prop)
+template <>
+struct property_action<property_name> {
+  template <typename Input>
+  static void apply(Input const& in, property& prop)
   {
     prop.name = in.string();
   }
 };
 
-template <> struct property_action<value_string> {
-  template <typename Input> static void apply(Input const& in, property& prop)
+template <>
+struct property_action<value_string> {
+  template <typename Input>
+  static void apply(Input const& in, property& prop)
   {
     prop.values.push_back(value::with_string(in.string()));
   }
 };
 
-template <> struct property_action<value_param> {
-  template <typename Input> static void apply(Input const& in, property& prop)
+template <>
+struct property_action<value_param> {
+  template <typename Input>
+  static void apply(Input const& in, property& prop)
   {
     prop.values.push_back(value::with_param(in.string()));
   }
 };
 
-template <> struct property_action<value_int> {
-  template <typename Input> static void apply(Input const& in, property& prop)
+template <>
+struct property_action<value_int> {
+  template <typename Input>
+  static void apply(Input const& in, property& prop)
   {
     prop.values.push_back(value::with_int(std::stoi(in.string())));
   }
 };
 
-template <> struct property_action<value_float> {
-  template <typename Input> static void apply(Input const& in, property& prop)
+template <>
+struct property_action<value_float> {
+  template <typename Input>
+  static void apply(Input const& in, property& prop)
   {
     prop.values.push_back(value::with_float(std::stof(in.string())));
   }
 };
 
-template <> struct signature_action<interface_name> {
-  template <typename Input> static void apply(Input const& in, signature& sig)
+template <>
+struct signature_action<interface_name> {
+  template <typename Input>
+  static void apply(Input const& in, signature& sig)
   {
     sig.name = in.string();
   }
 };
 
-template <> struct signature_action<type_name> {
-  template <typename Input> static void apply(Input const& in, signature& sig)
+template <>
+struct signature_action<type_name> {
+  template <typename Input>
+  static void apply(Input const& in, signature& sig)
   {
     sig.return_type = data_type_from_string(in.string());
   }
 };
 
-template <> struct param_action<interface_name> {
-  template <typename Input> static void apply(Input const& in, signature& sig)
+template <>
+struct param_action<interface_name> {
+  template <typename Input>
+  static void apply(Input const& in, signature& sig)
   {
     sig.parameters.back().name = in.string();
   }
 };
 
-template <> struct param_action<pointers> {
-  template <typename Input> static void apply(Input const& in, signature& sig)
+template <>
+struct param_action<pointers> {
+  template <typename Input>
+  static void apply(Input const& in, signature& sig)
   {
     sig.parameters.back().pointer_depth = in.string().length();
   }
 };
 
-template <> struct param_action<type_name> {
-  template <typename Input> static void apply(Input const& in, signature& sig)
+template <>
+struct param_action<type_name> {
+  template <typename Input>
+  static void apply(Input const& in, signature& sig)
   {
     sig.parameters.emplace_back();
     auto type = data_type_from_string(in.string());
@@ -235,5 +258,13 @@ value value::with_string(std::string str)
   v.value_type = type::string;
   v.string_val = str;
   return v;
+}
+
+namespace literals {
+
+signature operator""_sig(const char* str, size_t len)
+{
+  return signature::parse(std::string_view(str, len));
+}
 }
 }

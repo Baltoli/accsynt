@@ -1,6 +1,10 @@
 #include <support/argument_generator.h>
 #include <support/random.h>
 
+#include <optional>
+
+using namespace props;
+
 namespace support {
 
 // Wrapper methods
@@ -24,43 +28,172 @@ void swap(argument_generator& a, argument_generator& b)
 
 void argument_generator::gen_args(call_builder& build)
 {
-  build.reset();
-  auto const& sig = build.signature();
+  strategy_->gen_args(build);
+}
 
-  for (auto const& param : sig.parameters) {
-    if (param.pointer_depth > 0) {
-      throw std::runtime_error(
-          "Can't generate pointers with new interface yet");
+// Uniform generator implementation
+
+uniform_generator::uniform_generator(size_t sz)
+    : engine_(get_random_device()())
+    , size_(sz)
+{
+}
+
+uniform_generator::uniform_generator()
+    : uniform_generator(max_size)
+{
+}
+
+void uniform_generator::seed(std::random_device::result_type seed)
+{
+  engine_.seed(seed);
+}
+
+void uniform_generator::gen_args(call_builder& build)
+{
+  auto const& sig = build.signature();
+  for (auto p : sig.parameters) {
+    if (p.pointer_depth > 1) {
+      throw std::runtime_error("No nested pointers");
     }
 
-    if (param.type == props::data_type::integer) {
-      build.add(gen_int());
-    } else if (param.type == props::data_type::floating) {
-      build.add(gen_float());
+    if (p.pointer_depth == 0) {
+      if (p.type == data_type::integer) {
+        build.add(gen_single<int>());
+      } else if (p.type == data_type::floating) {
+        build.add(gen_single<float>());
+      } else {
+        throw std::runtime_error("Unknown data_type");
+      }
     } else {
-      throw std::runtime_error("Unknown data type");
+      if (p.type == data_type::integer) {
+        build.add(gen_array<int>());
+      } else if (p.type == data_type::floating) {
+        build.add(gen_array<float>());
+      } else {
+        throw std::runtime_error("Unknown data_type");
+      }
     }
   }
 }
 
-// Uniform generator implementation
-uniform_generator::uniform_generator()
-    : engine_(get_random_device()())
+template <>
+int uniform_generator::gen_single<int>()
+{
+  return std::uniform_int_distribution<int>()(engine_);
+}
+
+template <>
+float uniform_generator::gen_single<float>()
+{
+  return std::uniform_real_distribution<float>()(engine_);
+}
+
+// CSR Generator Implementation
+csr_generator::csr_generator()
+    : max_size_(128)
+    , engine_(get_random_device()())
 {
 }
 
-uniform_generator::uniform_generator(std::random_device::result_type seed)
-    : engine_(seed)
+void csr_generator::gen_args(call_builder& build)
 {
+  auto rows = gen_rows();
+  auto rowstr = gen_rowstr(rows);
+  auto colidx = gen_colidx(rowstr);
+  auto data = gen_data(rowstr);
+  auto iv = gen_input(colidx);
+  auto ov = gen_output(rows);
+
+  auto const& sig = build.signature();
+  for (auto const& p : sig.parameters) {
+    if (p.name == "rows") {
+      build.add(rows);
+    } else if (p.name == "rowstr") {
+      build.add(rowstr);
+    } else if (p.name == "colidx") {
+      build.add(colidx);
+    } else if (p.name == "a") {
+      build.add(data);
+    } else if (p.name == "iv") {
+      build.add(iv);
+    } else if (p.name == "ov") {
+      build.add(ov);
+    } else {
+      throw std::runtime_error("Unknown parameter name");
+    }
+  }
 }
 
-int uniform_generator::gen_int(int min, int max)
+int csr_generator::gen_rows()
 {
-  return std::uniform_int_distribution<int>(min, max)(engine_);
+  return std::uniform_int_distribution<int>(1, max_size_)(engine_);
 }
 
-float uniform_generator::gen_float(float min, float max)
+std::vector<int> csr_generator::gen_rowstr(int rows)
 {
-  return std::uniform_real_distribution<float>(min, max)(engine_);
+  auto rowstr = std::vector<int>(rows + 1);
+  auto b = rowstr.begin();
+  auto e = rowstr.end();
+
+  std::generate(b, e, [&] {
+    return std::uniform_int_distribution<int>(0, max_size_)(engine_);
+  });
+
+  std::sort(b, e);
+  rowstr.at(0) = 0;
+
+  return rowstr;
+}
+
+std::vector<int> csr_generator::gen_colidx(std::vector<int> const& rowstr)
+{
+  auto nnz = rowstr.back();
+
+  auto rows = rowstr.size() - 1;
+  auto indexes = std::vector<int>(max_size_);
+  std::iota(indexes.begin(), indexes.end(), 0);
+
+  auto colidx = std::vector<int>(nnz);
+  auto offset = colidx.begin();
+
+  for (auto i = 0u; i < rows; ++i) {
+    auto n_row = rowstr[i + 1] - rowstr[i];
+    std::shuffle(indexes.begin(), indexes.end(), engine_);
+    std::sort(indexes.begin(), indexes.begin() + n_row + 1);
+
+    offset = std::copy_n(indexes.begin(), n_row, offset);
+  }
+
+  return colidx;
+}
+
+std::vector<float> csr_generator::gen_data(std::vector<int> const& rowstr)
+{
+  auto nnz = rowstr.back();
+  auto data = std::vector<float>(nnz);
+
+  std::generate(data.begin(), data.end(), [&] {
+    return std::uniform_real_distribution<float>(-1.0, 1.0)(engine_);
+  });
+
+  return data;
+}
+
+std::vector<float> csr_generator::gen_input(std::vector<int> const& colidx)
+{
+  auto cols = (*std::max_element(colidx.begin(), colidx.end())) + 1;
+  auto iv = std::vector<float>(cols);
+
+  std::generate(iv.begin(), iv.end(), [&] {
+    return std::uniform_real_distribution<float>(-1.0, 1.0)(engine_);
+  });
+
+  return iv;
+}
+
+std::vector<float> csr_generator::gen_output(int rows)
+{
+  return std::vector<float>(rows);
 }
 }
