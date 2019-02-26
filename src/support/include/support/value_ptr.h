@@ -3,12 +3,6 @@
 namespace support {
 
 template <typename T>
-class value_ptr;
-
-template <typename T>
-void swap(value_ptr<T>& a, value_ptr<T>& b);
-
-template <typename T>
 class value_ptr {
 private:
   struct pmr_concept {
@@ -97,16 +91,19 @@ public:
     return ptr;
   }
 
-  friend void swap<T>(value_ptr<T>&, value_ptr<T>&);
+  void swap(value_ptr<T>& other)
+  {
+    using std::swap;
+    swap(impl_, other.impl_);
+  }
 
-protected:
+private:
   pmr_concept* impl_;
 };
 
 template <typename T>
 void swap(value_ptr<T>& a, value_ptr<T>& b)
 {
-  using std::swap;
-  swap(a.impl_, b.impl_);
+  a.swap(b);
 }
 }
