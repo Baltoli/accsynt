@@ -228,9 +228,35 @@ TEST_CASE("value pointers can go into standard containers")
     REQUIRE(count == 0);
   }
 
-  SECTION("maps") {}
+  SECTION("unordered sets")
+  {
 
-  SECTION("unordered sets") {}
+    auto v1 = std::unordered_set<value_ptr<int>>{};
+    v1.emplace(new int(34));
+    v1.emplace(new int(78));
+    v1.emplace(new int(-89));
+
+    REQUIRE(v1.size() == 3);
+
+    auto contains
+        = [](int i) { return [i](auto const& vp) { return *vp == i; }; };
+
+    REQUIRE(std::find_if(v1.begin(), v1.end(), contains(34)) != v1.end());
+    REQUIRE(std::find_if(v1.begin(), v1.end(), contains(78)) != v1.end());
+    REQUIRE(std::find_if(v1.begin(), v1.end(), contains(-89)) != v1.end());
+
+    auto count = 0;
+    {
+      auto v2 = std::unordered_set<value_ptr<rc>>{};
+      v2.emplace(new rc(count));
+      v2.emplace(new rc(count));
+      v2.emplace(new rc(count));
+      REQUIRE(count == 3);
+    }
+    REQUIRE(count == 0);
+  }
+
+  SECTION("maps") {}
 
   SECTION("unordered maps") {}
 }
