@@ -136,7 +136,7 @@ bool operator<(value_ptr<T1> const& a, value_ptr<T2> const& b)
 {
   using CT = std::common_type_t<typename value_ptr<T1>::pointer,
       typename value_ptr<T2>::pointer>;
-  return std::less<CT>(a.get(), b.get());
+  return std::less<CT>()(a.get(), b.get());
 }
 
 template <typename T1, typename T2>
@@ -184,13 +184,13 @@ bool operator!=(std::nullptr_t, value_ptr<T> const& a)
 template <typename T>
 bool operator<(value_ptr<T> const& a, std::nullptr_t)
 {
-  return std::less<typename value_ptr<T>::pointer>(a.get(), nullptr);
+  return std::less<typename value_ptr<T>::pointer>()(a.get(), nullptr);
 }
 
 template <typename T>
 bool operator<(std::nullptr_t, value_ptr<T> const& a)
 {
-  return std::less<typename value_ptr<T>::pointer>(nullptr, a.get());
+  return std::less<typename value_ptr<T>::pointer>()(nullptr, a.get());
 }
 
 template <typename T>
