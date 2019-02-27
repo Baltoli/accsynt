@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <memory>
 #include <type_traits>
 
 namespace support {
@@ -64,8 +65,10 @@ public:
       typename = std::enable_if_t<
           std::is_convertible_v<typename value_ptr<U>::pointer, pointer>>>
   value_ptr(value_ptr<U> other)
-      : impl_(new pmr_model(other.impl_->clone()->release()))
   {
+    auto clone = other.impl_->clone();
+    impl_ = new pmr_model(clone->release());
+    delete clone;
   }
 
   value_ptr(std::nullptr_t)
@@ -260,6 +263,12 @@ template <typename T>
 void swap(value_ptr<T>& a, value_ptr<T>& b)
 {
   a.swap(b);
+}
+
+template <typename T, typename... Args>
+auto make_value(Args&&... args)
+{
+  return value_ptr<T>(new T(std::forward<Args>(args)...));
 }
 }
 

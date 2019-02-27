@@ -303,4 +303,8 @@ TEST_CASE("value_ptr can be constructed from compatible pointers")
 {
   auto vp = value_ptr<T>(new T());
   auto vp2 = value_ptr<S>(vp);
+
+  REQUIRE(vp2->value() == 89);
 }
+
+TEST_CASE("make_value can be used") {}
