@@ -130,7 +130,7 @@ protected:
 
   template <typename Iterator>
   static void enumerate_recursive(
-      frag_set& results, frag_ptr&& accum, Iterator begin, Iterator end);
+      frag_set& results, frag_ptr& accum, Iterator begin, Iterator end);
 
   /**
    * Helper method to clone and copy with the right type - simplifies the
@@ -181,18 +181,18 @@ fragment::children_ref(Children&... chs) const
 
 template <typename Iterator>
 void fragment::enumerate_recursive(
-    fragment::frag_set& results, frag_ptr&& accum, Iterator begin, Iterator end)
+    fragment::frag_set& results, frag_ptr& accum, Iterator begin, Iterator end)
 {
   if (begin == end) {
-    results.insert(std::move(accum));
+    results.insert(accum);
   } else {
     auto holes = accum->count_holes();
     for (auto i = 0u; i < holes; ++i) {
       auto cloned = accum->clone();
       auto next_clone = (*begin)->clone();
 
-      cloned->add_child(std::move(next_clone), i);
-      enumerate_recursive(results, std::move(cloned), std::next(begin), end);
+      cloned->add_child(next_clone, i);
+      enumerate_recursive(results, cloned, std::next(begin), end);
     }
   }
 }

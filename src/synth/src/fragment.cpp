@@ -90,7 +90,7 @@ fragment::frag_set fragment::enumerate_all(
     }
   });
 
-  return std::move(ret);
+  return ret;
 }
 
 fragment::frag_set fragment::enumerate_permutation(
@@ -104,10 +104,10 @@ fragment::frag_set fragment::enumerate_permutation(
 
   auto begin = std::next(perm.begin());
   auto end = perm.end();
-  auto accum = perm.at(0)->clone();
+  auto accum = perm.at(0);
 
-  enumerate_recursive(ret, std::move(accum), begin, end);
-  return std::move(ret);
+  enumerate_recursive(ret, accum, begin, end);
+  return ret;
 }
 
 fragment::fragment(std::vector<value> args)
