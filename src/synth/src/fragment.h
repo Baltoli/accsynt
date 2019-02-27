@@ -100,10 +100,7 @@ public:
    * The child pointer passed into this one is moved from even if insertion
    * fails.
    */
-  virtual bool add_child(frag_ptr&& f, size_t idx) = 0;
-
-  template <typename T>
-  bool add_child(T frag, size_t idx);
+  virtual bool add_child(frag_ptr f, size_t idx) = 0;
 
   template <typename T>
   bool equal_as(T const& other) const;
@@ -158,12 +155,6 @@ protected:
 
   std::vector<props::value> args_;
 };
-
-template <typename T>
-bool fragment::add_child(T frag, size_t idx)
-{
-  return add_child(frag_ptr(frag), idx);
-}
 
 template <typename T>
 fragment::frag_ptr fragment::clone_as(T const& obj) const

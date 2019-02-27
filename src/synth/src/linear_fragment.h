@@ -34,7 +34,7 @@ public:
 
   virtual void splice(
       compile_context& ctx, llvm::BasicBlock* entry, llvm::BasicBlock* exit);
-  virtual bool add_child(frag_ptr&& f, size_t idx);
+  virtual bool add_child(frag_ptr f, size_t idx);
 
   virtual std::string to_str(size_t indent = 0) override;
 
@@ -118,7 +118,7 @@ void linear_fragment_base<use_data>::splice(
 }
 
 template <bool use_data>
-bool linear_fragment_base<use_data>::add_child(frag_ptr&& f, size_t idx)
+bool linear_fragment_base<use_data>::add_child(frag_ptr f, size_t idx)
 {
   return false;
 }
