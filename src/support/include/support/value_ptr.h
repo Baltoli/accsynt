@@ -146,6 +146,8 @@ public:
     swap(impl_, other.impl_);
   }
 
+  std::unique_ptr<T> to_unique() { return std::unique_ptr<T>(release()); }
+
 protected:
   pmr_concept* impl_;
 };
