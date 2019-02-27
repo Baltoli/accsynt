@@ -25,7 +25,7 @@ int main()
   auto f1 = make_val<regular_loop_fragment>(
       std::vector{ value::with_param("n"), value::with_param("x") });
 
-  auto choices = std::vector<value_ptr<fragment>>{ f1 };
+  auto choices = std::vector<fragment::frag_ptr>{ f1 };
 
   auto all = fragment::enumerate(std::move(choices), 1);
 
