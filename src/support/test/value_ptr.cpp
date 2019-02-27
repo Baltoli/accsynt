@@ -298,3 +298,9 @@ TEST_CASE("value pointers can go into standard containers")
     REQUIRE(count == 0);
   }
 }
+
+TEST_CASE("value_ptr can be constructed from compatible pointers")
+{
+  auto vp = value_ptr<T>(new T());
+  auto vp2 = value_ptr<S>(vp);
+}

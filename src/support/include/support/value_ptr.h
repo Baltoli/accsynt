@@ -10,6 +10,9 @@ class value_ptr {
 public:
   using pointer = T*;
 
+  template <typename U>
+  friend class value_ptr;
+
 private:
   struct pmr_concept {
     virtual ~pmr_concept() {}
@@ -57,7 +60,15 @@ public:
   {
   }
 
-  explicit value_ptr(std::nullptr_t)
+  template <typename U,
+      typename = std::enable_if_t<
+          std::is_convertible_v<typename value_ptr<U>::pointer, pointer>>>
+  value_ptr(value_ptr<U> other)
+      : impl_(new pmr_model(other.impl_->clone()->release()))
+  {
+  }
+
+  value_ptr(std::nullptr_t)
       : impl_(nullptr)
   {
   }
@@ -131,7 +142,7 @@ public:
     swap(impl_, other.impl_);
   }
 
-private:
+protected:
   pmr_concept* impl_;
 };
 
