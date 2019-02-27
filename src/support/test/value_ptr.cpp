@@ -307,4 +307,27 @@ TEST_CASE("value_ptr can be constructed from compatible pointers")
   REQUIRE(vp2->value() == 89);
 }
 
-TEST_CASE("make_value can be used") {}
+TEST_CASE("make_value can be used")
+{
+  SECTION("values are propagated")
+  {
+    auto vp = make_value<int>(4);
+    REQUIRE(*vp == 4);
+  }
+
+  SECTION("lifetimes work properly")
+  {
+    int count = 0;
+    {
+      auto vp = make_value<rc>(count);
+      REQUIRE(count == 1);
+
+      auto vp2 = make_value<rc>(count);
+      REQUIRE(count == 2);
+
+      make_value<rc>(count);
+      REQUIRE(count == 2);
+    }
+    REQUIRE(count == 0);
+  }
+}
