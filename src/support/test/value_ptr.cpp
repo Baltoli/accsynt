@@ -331,3 +331,30 @@ TEST_CASE("make_value can be used")
     REQUIRE(count == 0);
   }
 }
+
+TEST_CASE("can convert to unique_pointer")
+{
+  SECTION("values are propagated")
+  {
+    auto vp = make_value<int>(5);
+    auto up = vp.to_unique();
+
+    REQUIRE(*up == 5);
+    REQUIRE(!vp);
+  }
+
+  SECTION("lifetimes work properly")
+  {
+    auto count = 0;
+    {
+      auto vp = make_value<rc>(count);
+      REQUIRE(count == 1);
+
+      auto up = vp.to_unique();
+      REQUIRE(!vp);
+      REQUIRE(up);
+      REQUIRE(count == 1);
+    }
+    REQUIRE(count == 0);
+  }
+}
