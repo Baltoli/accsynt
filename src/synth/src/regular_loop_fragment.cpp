@@ -79,10 +79,7 @@ regular_loop_fragment& regular_loop_fragment::operator=(
   return *this;
 }
 
-fragment::frag_ptr regular_loop_fragment::clone()
-{
-  return clone_as(*this);
-}
+fragment::frag_ptr regular_loop_fragment::clone() { return clone_as(*this); }
 
 std::string regular_loop_fragment::to_str(size_t ind)
 {
