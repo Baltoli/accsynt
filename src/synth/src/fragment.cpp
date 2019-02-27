@@ -2,6 +2,7 @@
 #include "linear_fragment.h"
 
 #include <support/choose.h>
+#include <support/value_ptr.h>
 
 #include <llvm/IR/Constant.h>
 #include <llvm/IR/Function.h>
@@ -9,12 +10,14 @@
 #include <algorithm>
 #include <numeric>
 
+using namespace support;
 using namespace llvm;
 using namespace props;
 
 namespace synth {
 
-fragment::frag_set fragment::enumerate(std::vector<frag_ptr>&& fragments,
+fragment::frag_set fragment::enumerate(
+    std::vector<value_ptr<fragment>>&& fragments,
     std::optional<size_t> max_size, size_t data_blocks)
 {
   if (max_size && max_size.value() == 0) {
@@ -68,7 +71,8 @@ fragment::frag_set fragment::enumerate(std::vector<frag_ptr>&& fragments,
 }
 
 fragment::frag_set fragment::enumerate_all(
-    std::vector<frag_ptr>&& fragments, std::optional<size_t> max_size)
+    std::vector<value_ptr<fragment>>&& fragments,
+    std::optional<size_t> max_size)
 {
   auto ret = fragment::frag_set{};
   auto real_max
