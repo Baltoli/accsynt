@@ -136,7 +136,7 @@ std::vector<std::unique_ptr<fragment>> rule::match(props::property_set ps)
         }
 
         auto frag = fragment_registry::get(fragment_, call_args);
-        ret.push_back(std::move(frag));
+        ret.push_back(frag.to_unique());
       }
     }
   }

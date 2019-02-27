@@ -5,6 +5,7 @@
 
 #include <props/props.h>
 
+#include <support/value_ptr.h>
 #include <support/visitor.h>
 
 #include <map>
@@ -31,7 +32,7 @@ class rule;
  */
 class fragment_registry {
 public:
-  static std::unique_ptr<fragment> get(
+  static support::value_ptr<fragment> get(
       std::string const& name, std::vector<props::value> args);
 
   fragment_registry() = delete;
