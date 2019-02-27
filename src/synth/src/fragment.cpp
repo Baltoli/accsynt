@@ -81,12 +81,12 @@ fragment::frag_set fragment::enumerate_all(
   ::support::choose(fragments.size(), real_max).for_each([&](auto idxs) {
     auto perm = std::vector<fragment::frag_ptr>{};
     for (auto idx : idxs) {
-      perm.push_back(fragments.at(idx)->clone());
+      perm.push_back(fragments.at(idx));
     }
 
     auto all_for_perm = enumerate_permutation(perm);
     for (auto&& frag : all_for_perm) {
-      ret.insert(frag->clone());
+      ret.insert(frag);
     }
   });
 

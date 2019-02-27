@@ -188,8 +188,8 @@ void fragment::enumerate_recursive(
   } else {
     auto holes = accum->count_holes();
     for (auto i = 0u; i < holes; ++i) {
-      auto cloned = accum->clone();
-      auto next_clone = (*begin)->clone();
+      auto cloned = accum;
+      auto next_clone = *begin;
 
       cloned->add_child(next_clone, i);
       enumerate_recursive(results, cloned, std::next(begin), end);
