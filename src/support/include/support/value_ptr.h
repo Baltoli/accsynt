@@ -269,7 +269,7 @@ void swap(value_ptr<T>& a, value_ptr<T>& b)
 }
 
 template <typename T, typename... Args>
-auto make_value(Args&&... args)
+auto make_val(Args&&... args)
 {
   return value_ptr<T>(new T(std::forward<Args>(args)...));
 }

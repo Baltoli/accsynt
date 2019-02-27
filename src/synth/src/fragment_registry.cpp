@@ -11,11 +11,11 @@ value_ptr<fragment> fragment_registry::get(
     std::string const& name, std::vector<value> args)
 {
   if (name == "regularLoop") {
-    return make_value<regular_loop_fragment>(args);
+    return make_val<regular_loop_fragment>(args);
   }
 
   if (name == "outputLoop") {
-    return make_value<regular_loop_fragment>(args, true);
+    return make_val<regular_loop_fragment>(args, true);
   }
 
   return nullptr;
