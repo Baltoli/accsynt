@@ -24,9 +24,6 @@ fragment::frag_set fragment::enumerate(
     return {};
   }
 
-  auto lin_f = linear_fragment{ {} };
-  auto empty_f = empty_fragment{ {} };
-
   auto control = [&] {
     if (!max_size) {
       return enumerate_all(fragments, max_size);
