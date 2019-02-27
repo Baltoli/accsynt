@@ -4,69 +4,30 @@ using namespace props;
 
 namespace synth {
 
-data_loop_fragment::data_loop_fragment(std::vector<value> args,
-                                       frag_ptr&& before, 
-                                       frag_ptr&& body,
-                                       frag_ptr&& after) :
-  fragment(args),
-  before_(std::move(before)),
-  body_(std::move(body)),
-  after_(std::move(after)),
-  num_pointers_(args_.size())
+data_loop_fragment::data_loop_fragment(
+    std::vector<value> args, frag_ptr before, frag_ptr body, frag_ptr after)
+    : fragment(args)
+    , before_(before)
+    , body_(body)
+    , after_(after)
+    , num_pointers_(args_.size())
 {
-  if(args_.empty()) {
+  if (args_.empty()) {
     throw std::invalid_argument("Data loop requires at least one argument");
   }
 
-  auto all_params = std::all_of(args_.begin(), args_.end(), [] (auto arg) {
-    return arg.value_type == value::type::parameter;
-  });
+  auto all_params = std::all_of(args_.begin(), args_.end(),
+      [](auto arg) { return arg.value_type == value::type::parameter; });
 
-  if(!all_params) { 
-    throw std::invalid_argument("Data loop arguments must all be parameter references");
+  if (!all_params) {
+    throw std::invalid_argument(
+        "Data loop arguments must all be parameter references");
   }
 }
 
-data_loop_fragment::data_loop_fragment(std::vector<value> args) :
-  data_loop_fragment(args, nullptr, nullptr, nullptr)
+data_loop_fragment::data_loop_fragment(std::vector<value> args)
+    : data_loop_fragment(args, nullptr, nullptr, nullptr)
 {
-}
-
-data_loop_fragment::data_loop_fragment(data_loop_fragment const& other) :
-  data_loop_fragment(
-      other.args_, 
-      other.before_ ? other.before_->clone() : nullptr, 
-      other.body_ ? other.body_->clone() : nullptr, 
-      other.after_ ? other.after_->clone() : nullptr)
-{
-}
-
-data_loop_fragment::data_loop_fragment(data_loop_fragment&& other) :
-  data_loop_fragment(
-      std::move(other.args_), std::move(other.before_),
-      std::move(other.body_), std::move(other.after_))
-{
-}
-
-data_loop_fragment& data_loop_fragment::operator=(data_loop_fragment&& other)
-{
-  args_ = std::move(other.args_);
-  before_ = std::move(other.before_);
-  body_ = std::move(other.body_);
-  after_ = std::move(other.after_);
-  return *this;
-}
-
-data_loop_fragment& data_loop_fragment::operator=(data_loop_fragment other)
-{
-  using std::swap;
-  swap(*this, other);
-  return *this;
-}
-
-fragment::frag_ptr data_loop_fragment::clone()
-{
-  return clone_as(*this);
 }
 
 std::string data_loop_fragment::to_str(size_t ind)
@@ -74,9 +35,8 @@ std::string data_loop_fragment::to_str(size_t ind)
   using namespace fmt::literals;
 
   auto ptr_names = std::vector<std::string>{};
-  std::transform(args_.begin(), args_.end(), std::back_inserter(ptr_names), [] (auto val) {
-    return val.param_val;
-  });
+  std::transform(args_.begin(), args_.end(), std::back_inserter(ptr_names),
+      [](auto val) { return val.param_val; });
 
   auto shape = R"({before}
 {ind1}dataLoop({ptrs}) {{
@@ -84,29 +44,30 @@ std::string data_loop_fragment::to_str(size_t ind)
 {ind1}}}
 {after})";
 
-  return fmt::format(shape,
-    "ind1"_a = ::support::indent{ind}, 
-    "ind2"_a = ::support::indent{ind+1},
-    "before"_a = string_or_empty(before_, ind),
-    "body"_a = string_or_empty(body_, ind+1),
-    "after"_a = string_or_empty(after_, ind),
-    "ptrs"_a = fmt::join(ptr_names.begin(), ptr_names.end(), ", ")
-  );
+  return fmt::format(shape, "ind1"_a = ::support::indent{ ind },
+      "ind2"_a = ::support::indent{ ind + 1 },
+      "before"_a = string_or_empty(before_, ind),
+      "body"_a = string_or_empty(body_, ind + 1),
+      "after"_a = string_or_empty(after_, ind),
+      "ptrs"_a = fmt::join(ptr_names.begin(), ptr_names.end(), ", "));
 }
 
-void data_loop_fragment::splice(compile_context& ctx, llvm::BasicBlock *entry, llvm::BasicBlock *exit)
+void data_loop_fragment::splice(
+    compile_context& ctx, llvm::BasicBlock* entry, llvm::BasicBlock* exit)
 {
   // TODO: throw if any children null - empty fragments fill this role
 
   /* auto& llvm_ctx = entry->getContext(); */
 
-  /* auto inter_first = BasicBlock::Create(llvm_ctx, "reg-loop.inter0", ctx.func_); */
-  /* auto inter_second = BasicBlock::Create(llvm_ctx, "reg-loop.inter1", ctx.func_); */
+  /* auto inter_first = BasicBlock::Create(llvm_ctx, "reg-loop.inter0",
+   * ctx.func_); */
+  /* auto inter_second = BasicBlock::Create(llvm_ctx, "reg-loop.inter1",
+   * ctx.func_); */
 
   /* auto last_exit = entry; */
 
   /* // Before */
-  
+
   /* before_->splice(ctx, last_exit, inter_first); */
   /* last_exit = inter_first; */
 
@@ -114,9 +75,12 @@ void data_loop_fragment::splice(compile_context& ctx, llvm::BasicBlock *entry, l
 
   /* auto size = get_size(ctx); */
 
-  /* auto header = BasicBlock::Create(llvm_ctx, "reg-loop.header", ctx.func_); */
-  /* auto pre_body = BasicBlock::Create(llvm_ctx, "reg-loop.pre-body", ctx.func_); */
-  /* auto post_body = BasicBlock::Create(llvm_ctx, "reg-loop.post-body", ctx.func_); */
+  /* auto header = BasicBlock::Create(llvm_ctx, "reg-loop.header", ctx.func_);
+   */
+  /* auto pre_body = BasicBlock::Create(llvm_ctx, "reg-loop.pre-body",
+   * ctx.func_); */
+  /* auto post_body = BasicBlock::Create(llvm_ctx, "reg-loop.post-body",
+   * ctx.func_); */
 
   /* auto B = IRBuilder<>(inter_first); */
   /* B.CreateBr(header); */
@@ -139,7 +103,8 @@ void data_loop_fragment::splice(compile_context& ctx, llvm::BasicBlock *entry, l
   /* } */
 
   /* B.SetInsertPoint(post_body); */
-  /* auto next = B.CreateAdd(iter, ConstantInt::get(iter->getType(), 1), "reg-loop.next-iter"); */
+  /* auto next = B.CreateAdd(iter, ConstantInt::get(iter->getType(), 1),
+   * "reg-loop.next-iter"); */
   /* iter->addIncoming(next, post_body); */
 
   /* if(perform_output_) { */
@@ -165,10 +130,10 @@ bool data_loop_fragment::add_child(frag_ptr&& f, size_t idx)
 {
   auto children = children_ref(before_, body_, after_);
 
-  for(frag_ptr& ch : children) {
+  for (frag_ptr& ch : children) {
     auto max = count_or_empty(ch);
-    if(idx < max) {
-      if(ch) {
+    if (idx < max) {
+      if (ch) {
         ch->add_child(std::move(f), idx);
       } else {
         ch = std::move(f);
@@ -185,9 +150,8 @@ bool data_loop_fragment::add_child(frag_ptr&& f, size_t idx)
 
 size_t data_loop_fragment::count_holes() const
 {
-  return count_or_empty(before_) +
-         count_or_empty(body_) +
-         count_or_empty(after_);
+  return count_or_empty(before_) + count_or_empty(body_)
+      + count_or_empty(after_);
 }
 
 void swap(data_loop_fragment& a, data_loop_fragment& b)
@@ -202,19 +166,18 @@ void swap(data_loop_fragment& a, data_loop_fragment& b)
 bool data_loop_fragment::operator==(data_loop_fragment const& other) const
 {
   auto equal_non_null = [](auto const& a, auto const& b) {
-    if(!a && !b) { 
-      return true; 
-    } else if(!a || !b) {
+    if (!a && !b) {
+      return true;
+    } else if (!a || !b) {
       return false;
     } else {
       return a->equal_to(b);
     }
   };
 
-  return args_ == other.args_ &&
-    equal_non_null(before_, other.before_) &&
-    equal_non_null(body_, other.body_) &&
-    equal_non_null(after_, other.after_);
+  return args_ == other.args_ && equal_non_null(before_, other.before_)
+      && equal_non_null(body_, other.body_)
+      && equal_non_null(after_, other.after_);
 }
 
 bool data_loop_fragment::operator!=(data_loop_fragment const& other) const
@@ -226,5 +189,4 @@ bool data_loop_fragment::equal_to(frag_ptr const& other) const
 {
   return other->equal_as(*this);
 }
-
 }

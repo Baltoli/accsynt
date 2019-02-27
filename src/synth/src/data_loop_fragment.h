@@ -8,26 +8,19 @@ class data_loop_fragment : public fragment {
 public:
   using fragment::add_child;
 
-  data_loop_fragment(std::vector<props::value> args,
-                     frag_ptr&& before, frag_ptr&& body, frag_ptr&& after);
+  data_loop_fragment(std::vector<props::value> args, frag_ptr before,
+      frag_ptr body, frag_ptr after);
 
   data_loop_fragment(std::vector<props::value> args);
-
-  data_loop_fragment(data_loop_fragment const& other);
-  data_loop_fragment& operator=(data_loop_fragment other);
-
-  data_loop_fragment(data_loop_fragment&& other);
-  data_loop_fragment& operator=(data_loop_fragment&& other);
 
   bool operator==(data_loop_fragment const& other) const;
   bool operator!=(data_loop_fragment const& other) const;
 
   virtual bool equal_to(frag_ptr const& other) const override;
 
-  virtual fragment::frag_ptr clone();
-
-  virtual std::string to_str(size_t indent=0) override;
-  virtual void splice(compile_context& ctx, llvm::BasicBlock *entry, llvm::BasicBlock *exit);
+  virtual std::string to_str(size_t indent = 0) override;
+  virtual void splice(
+      compile_context& ctx, llvm::BasicBlock* entry, llvm::BasicBlock* exit);
   virtual bool add_child(frag_ptr&& f, size_t idx);
 
   virtual size_t count_holes() const override;
@@ -35,7 +28,8 @@ public:
   friend void swap(data_loop_fragment& a, data_loop_fragment& b);
 
 private:
-  std::pair<llvm::Argument *, std::string> get_pointer(compile_context&, size_t idx);
+  std::pair<llvm::Argument*, std::string> get_pointer(
+      compile_context&, size_t idx);
 
   fragment::frag_ptr before_;
   fragment::frag_ptr body_;
@@ -43,5 +37,4 @@ private:
 
   size_t num_pointers_;
 };
-
 }
