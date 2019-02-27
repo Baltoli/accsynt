@@ -62,8 +62,9 @@ public:
   }
 
   template <typename U,
-      typename = std::enable_if_t<
-          std::is_convertible_v<typename value_ptr<U>::pointer, pointer>>>
+      typename = std::enable_if_t<std::conjunction_v<
+          std::is_convertible<typename value_ptr<U>::pointer, pointer>,
+          std::negation<std::is_same<T, U>>>>>
   value_ptr(value_ptr<U> other)
   {
     auto clone = other.impl_->clone();
