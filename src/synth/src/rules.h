@@ -140,7 +140,7 @@ public:
   rule(std::string fragment, std::vector<std::string> args,
       std::vector<match_expression> es, std::vector<validator> vs);
 
-  std::vector<std::unique_ptr<fragment>> match(props::property_set ps);
+  std::vector<support::value_ptr<fragment>> match(props::property_set ps);
 
 private:
   bool validate(match_result const& mr, props::property_set ps) const;

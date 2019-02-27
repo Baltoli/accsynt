@@ -29,7 +29,7 @@ rule_synth::rule_synth(props::property_set ps, call_wrapper& ref)
   for (auto rule : rule_registry::all()) {
     auto matches = rule.match(ps);
     for (auto&& choice : matches) {
-      choices.push_back(std::move(choice));
+      choices.push_back(choice.to_unique());
     }
   }
 
@@ -48,10 +48,7 @@ rule_synth::rule_synth(props::property_set ps, call_wrapper& ref)
   }
 }
 
-std::string rule_synth::name() const
-{
-  return "rule_synth";
-}
+std::string rule_synth::name() const { return "rule_synth"; }
 
 Function* rule_synth::candidate()
 {
