@@ -139,16 +139,16 @@ std::string fragment::string_or_empty(frag_ptr const& frag, size_t ind)
   }
 }
 
-bool fragment_equal::operator()(std::unique_ptr<fragment> const& a,
-    std::unique_ptr<fragment> const& b) const
+bool fragment_equal::operator()(
+    value_ptr<fragment> const& a, value_ptr<fragment> const& b) const
 {
   return a->to_str() == b->to_str();
   /* return a->equal_to(b); */
 }
 }
 
-size_t std::hash<std::unique_ptr<synth::fragment>>::operator()(
-    std::unique_ptr<synth::fragment> const& frag) const noexcept
+size_t std::hash<value_ptr<synth::fragment>>::operator()(
+    value_ptr<synth::fragment> const& frag) const noexcept
 {
   return std::hash<std::string>{}(frag->to_str());
 }

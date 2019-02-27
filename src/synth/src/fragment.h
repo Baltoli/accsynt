@@ -22,8 +22,8 @@ class fragment;
 
 namespace std {
 template <>
-struct hash<std::unique_ptr<synth::fragment>> {
-  size_t operator()(std::unique_ptr<synth::fragment> const& frag) const
+struct hash<support::value_ptr<synth::fragment>> {
+  size_t operator()(support::value_ptr<synth::fragment> const& frag) const
       noexcept;
 };
 }
@@ -31,13 +31,13 @@ struct hash<std::unique_ptr<synth::fragment>> {
 namespace synth {
 
 struct fragment_equal {
-  bool operator()(std::unique_ptr<fragment> const& a,
-      std::unique_ptr<fragment> const& b) const;
+  bool operator()(support::value_ptr<fragment> const& a,
+      support::value_ptr<fragment> const& b) const;
 };
 
 class fragment {
 public:
-  using frag_ptr = std::unique_ptr<fragment>;
+  using frag_ptr = support::value_ptr<fragment>;
   using frag_set
       = std::unordered_set<frag_ptr, std::hash<frag_ptr>, fragment_equal>;
 

@@ -117,7 +117,7 @@ public:
   T* operator->() const { return impl_->get(); }
   T& operator*() const { return **impl_; }
 
-  operator bool() { return static_cast<bool>(impl_); }
+  operator bool() const { return static_cast<bool>(impl_); }
 
   T* release()
   {
