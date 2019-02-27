@@ -10,29 +10,21 @@ class regular_loop_fragment : public fragment {
 public:
   using fragment::add_child;
 
-  regular_loop_fragment(std::vector<props::value> args, frag_ptr&& before,
-      frag_ptr&& body, frag_ptr&& after, bool output);
+  regular_loop_fragment(std::vector<props::value> args, frag_ptr before,
+      frag_ptr body, frag_ptr after, bool output);
 
   regular_loop_fragment(std::vector<props::value> args);
   regular_loop_fragment(std::vector<props::value> args, bool out);
-
-  regular_loop_fragment(regular_loop_fragment const& other);
-  regular_loop_fragment& operator=(regular_loop_fragment other);
-
-  regular_loop_fragment(regular_loop_fragment&& other);
-  regular_loop_fragment& operator=(regular_loop_fragment&& other);
 
   bool operator==(regular_loop_fragment const& other) const;
   bool operator!=(regular_loop_fragment const& other) const;
 
   virtual bool equal_to(frag_ptr const& other) const override;
 
-  virtual fragment::frag_ptr clone();
-
   virtual std::string to_str(size_t indent = 0) override;
-  virtual void splice(
-      compile_context& ctx, llvm::BasicBlock* entry, llvm::BasicBlock* exit);
-  virtual bool add_child(frag_ptr&& f, size_t idx);
+  virtual void splice(compile_context& ctx, llvm::BasicBlock* entry,
+      llvm::BasicBlock* exit) override;
+  virtual bool add_child(frag_ptr f, size_t idx) override;
 
   virtual size_t count_holes() const override;
 

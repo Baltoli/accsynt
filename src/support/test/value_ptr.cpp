@@ -307,11 +307,11 @@ TEST_CASE("value_ptr can be constructed from compatible pointers")
   REQUIRE(vp2->value() == 89);
 }
 
-TEST_CASE("make_value can be used")
+TEST_CASE("make_val can be used")
 {
-  SECTION("values are propagated")
+  SECTION("vals are propagated")
   {
-    auto vp = make_value<int>(4);
+    auto vp = make_val<int>(4);
     REQUIRE(*vp == 4);
   }
 
@@ -319,13 +319,13 @@ TEST_CASE("make_value can be used")
   {
     int count = 0;
     {
-      auto vp = make_value<rc>(count);
+      auto vp = make_val<rc>(count);
       REQUIRE(count == 1);
 
-      auto vp2 = make_value<rc>(count);
+      auto vp2 = make_val<rc>(count);
       REQUIRE(count == 2);
 
-      make_value<rc>(count);
+      make_val<rc>(count);
       REQUIRE(count == 2);
     }
     REQUIRE(count == 0);
@@ -336,7 +336,7 @@ TEST_CASE("can convert to unique_pointer")
 {
   SECTION("values are propagated")
   {
-    auto vp = make_value<int>(5);
+    auto vp = make_val<int>(5);
     auto up = vp.to_unique();
 
     REQUIRE(*up == 5);
@@ -347,7 +347,7 @@ TEST_CASE("can convert to unique_pointer")
   {
     auto count = 0;
     {
-      auto vp = make_value<rc>(count);
+      auto vp = make_val<rc>(count);
       REQUIRE(count == 1);
 
       auto up = vp.to_unique();

@@ -83,7 +83,7 @@ public:
   }
 
   value_ptr(value_ptr<T> const& other)
-      : impl_(other.impl_->clone())
+      : impl_(other.impl_ ? other.impl_->clone() : nullptr)
   {
   }
 
@@ -117,7 +117,7 @@ public:
   T* operator->() const { return impl_->get(); }
   T& operator*() const { return **impl_; }
 
-  operator bool() { return static_cast<bool>(impl_); }
+  operator bool() const { return static_cast<bool>(impl_); }
 
   T* release()
   {
@@ -269,7 +269,7 @@ void swap(value_ptr<T>& a, value_ptr<T>& b)
 }
 
 template <typename T, typename... Args>
-auto make_value(Args&&... args)
+auto make_val(Args&&... args)
 {
   return value_ptr<T>(new T(std::forward<Args>(args)...));
 }

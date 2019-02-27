@@ -6,6 +6,7 @@
 #include <props/props.h>
 
 #include <support/indent.h>
+#include <support/value_ptr.h>
 
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Module.h>
@@ -21,8 +22,8 @@ class fragment;
 
 namespace std {
 template <>
-struct hash<std::unique_ptr<synth::fragment>> {
-  size_t operator()(std::unique_ptr<synth::fragment> const& frag) const
+struct hash<support::value_ptr<synth::fragment>> {
+  size_t operator()(support::value_ptr<synth::fragment> const& frag) const
       noexcept;
 };
 }
@@ -30,17 +31,17 @@ struct hash<std::unique_ptr<synth::fragment>> {
 namespace synth {
 
 struct fragment_equal {
-  bool operator()(std::unique_ptr<fragment> const& a,
-      std::unique_ptr<fragment> const& b) const;
+  bool operator()(support::value_ptr<fragment> const& a,
+      support::value_ptr<fragment> const& b) const;
 };
 
 class fragment {
 public:
-  using frag_ptr = std::unique_ptr<fragment>;
+  using frag_ptr = support::value_ptr<fragment>;
   using frag_set
       = std::unordered_set<frag_ptr, std::hash<frag_ptr>, fragment_equal>;
 
-  static frag_set enumerate(std::vector<frag_ptr>&& fragments,
+  static frag_set enumerate(std::vector<frag_ptr> const& fragments,
       std::optional<size_t> max_size = std::nullopt,
       size_t data_blocks = std::numeric_limits<size_t>::max());
 
@@ -59,11 +60,6 @@ public:
    * Default virtual destructor to allow for polymorphic usage.
    */
   virtual ~fragment() = default;
-
-  /**
-   * Virtual clone to allow for polymorphic copying of fragment objects.
-   */
-  virtual frag_ptr clone() = 0;
 
   /**
    * Get a pretty-printed representation of this fragment.
@@ -99,10 +95,7 @@ public:
    * The child pointer passed into this one is moved from even if insertion
    * fails.
    */
-  virtual bool add_child(frag_ptr&& f, size_t idx) = 0;
-
-  template <typename T>
-  bool add_child(T frag, size_t idx);
+  virtual bool add_child(frag_ptr f, size_t idx) = 0;
 
   template <typename T>
   bool equal_as(T const& other) const;
@@ -126,21 +119,13 @@ protected:
       std::vector<frag_ptr>& accum, Func&& f);
 
   static frag_set enumerate_all(
-      std::vector<frag_ptr>&& fragments, std::optional<size_t> max_size);
+      std::vector<frag_ptr> const& fragments, std::optional<size_t> max_size);
 
   static frag_set enumerate_permutation(std::vector<frag_ptr> const& perm);
 
   template <typename Iterator>
   static void enumerate_recursive(
-      frag_set& results, frag_ptr&& accum, Iterator begin, Iterator end);
-
-  /**
-   * Helper method to clone and copy with the right type - simplifies the
-   * virtual clone method by having this handle the construction of a
-   * unique_ptr.
-   */
-  template <typename T>
-  frag_ptr clone_as(T const& obj) const;
+      frag_set& results, frag_ptr& accum, Iterator begin, Iterator end);
 
   template <typename... Children>
   std::array<std::reference_wrapper<frag_ptr>, sizeof...(Children)>
@@ -157,18 +142,6 @@ protected:
 
   std::vector<props::value> args_;
 };
-
-template <typename T>
-bool fragment::add_child(T frag, size_t idx)
-{
-  return add_child(frag.clone(), idx);
-}
-
-template <typename T>
-fragment::frag_ptr fragment::clone_as(T const& obj) const
-{
-  return fragment::frag_ptr(new T{ obj });
-}
 
 template <typename T>
 bool fragment::equal_as(T const& other) const
@@ -189,18 +162,18 @@ fragment::children_ref(Children&... chs) const
 
 template <typename Iterator>
 void fragment::enumerate_recursive(
-    fragment::frag_set& results, frag_ptr&& accum, Iterator begin, Iterator end)
+    fragment::frag_set& results, frag_ptr& accum, Iterator begin, Iterator end)
 {
   if (begin == end) {
-    results.insert(std::move(accum));
+    results.insert(accum);
   } else {
     auto holes = accum->count_holes();
     for (auto i = 0u; i < holes; ++i) {
-      auto cloned = accum->clone();
-      auto next_clone = (*begin)->clone();
+      auto cloned = accum;
+      auto next_clone = *begin;
 
-      cloned->add_child(std::move(next_clone), i);
-      enumerate_recursive(results, std::move(cloned), std::next(begin), end);
+      cloned->add_child(next_clone, i);
+      enumerate_recursive(results, cloned, std::next(begin), end);
     }
   }
 }

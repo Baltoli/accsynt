@@ -5,6 +5,8 @@
 
 #include <iostream>
 
+using namespace support;
+
 namespace synth {
 
 match_result::match_result(std::map<std::string, props::value> rs)
@@ -112,9 +114,9 @@ rule::rule(std::string frag, std::vector<std::string> args,
 {
 }
 
-std::vector<std::unique_ptr<fragment>> rule::match(props::property_set ps)
+std::vector<value_ptr<fragment>> rule::match(props::property_set ps)
 {
-  auto ret = std::vector<std::unique_ptr<fragment>>{};
+  auto ret = std::vector<value_ptr<fragment>>{};
 
   auto elements = std::vector<std::vector<match_result>>{};
   for (auto expr : exprs_) {
@@ -136,7 +138,7 @@ std::vector<std::unique_ptr<fragment>> rule::match(props::property_set ps)
         }
 
         auto frag = fragment_registry::get(fragment_, call_args);
-        ret.push_back(std::move(frag));
+        ret.push_back(frag);
       }
     }
   }

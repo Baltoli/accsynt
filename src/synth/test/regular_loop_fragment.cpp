@@ -4,6 +4,7 @@
 
 #include <fmt/format.h>
 
+using namespace support;
 using namespace props;
 using namespace synth;
 
@@ -70,22 +71,18 @@ TEST_CASE("Can copy and move fragments properly")
 TEST_CASE("Can add children to fragments")
 {
   auto args = std::vector{ value::with_param("x"), value::with_param("x") };
-  auto f1 = regular_loop_fragment{ args };
-  auto f2 = f1.clone();
-  auto f3 = f1.clone();
-  auto f4 = f1.clone();
-  auto f5 = f1.clone();
+  auto f1 = make_val<regular_loop_fragment>(args);
 
   SECTION("fails when the index is too big")
   {
-    REQUIRE_THROWS_AS(f1.add_child(std::move(f2), 3), std::invalid_argument);
+    REQUIRE_THROWS_AS(f1->add_child(f1, 3), std::invalid_argument);
   }
 
   SECTION("succeeds when the index is small enough")
   {
-    f1.add_child(std::move(f2), 0);
-    f1.add_child(std::move(f3), 4);
-    f1.add_child(std::move(f4), 6);
+    f1->add_child(f1, 0);
+    f1->add_child(f1, 4);
+    f1->add_child(f1, 6);
   }
 }
 
