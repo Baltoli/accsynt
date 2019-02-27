@@ -38,7 +38,7 @@ rule_synth::rule_synth(props::property_set ps, call_wrapper& ref)
     max_frags = MaxFragments;
   }
 
-  fragments_ = fragment::enumerate(std::move(choices), max_frags);
+  fragments_ = fragment::enumerate(choices, max_frags);
 
   if (DumpControl) {
     for (auto const& frag : fragments_) {

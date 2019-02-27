@@ -41,7 +41,7 @@ public:
   using frag_set
       = std::unordered_set<frag_ptr, std::hash<frag_ptr>, fragment_equal>;
 
-  static frag_set enumerate(std::vector<frag_ptr>&& fragments,
+  static frag_set enumerate(std::vector<frag_ptr> const& fragments,
       std::optional<size_t> max_size = std::nullopt,
       size_t data_blocks = std::numeric_limits<size_t>::max());
 
@@ -127,7 +127,7 @@ protected:
       std::vector<frag_ptr>& accum, Func&& f);
 
   static frag_set enumerate_all(
-      std::vector<frag_ptr>&& fragments, std::optional<size_t> max_size);
+      std::vector<frag_ptr> const& fragments, std::optional<size_t> max_size);
 
   static frag_set enumerate_permutation(std::vector<frag_ptr> const& perm);
 
@@ -162,7 +162,7 @@ protected:
 template <typename T>
 bool fragment::add_child(T frag, size_t idx)
 {
-  return add_child(frag.clone(), idx);
+  return add_child(frag_ptr(frag), idx);
 }
 
 template <typename T>

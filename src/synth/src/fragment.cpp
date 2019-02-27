@@ -17,8 +17,8 @@ using namespace props;
 namespace synth {
 
 fragment::frag_set fragment::enumerate(
-    std::vector<fragment::frag_ptr>&& fragments, std::optional<size_t> max_size,
-    size_t data_blocks)
+    std::vector<fragment::frag_ptr> const& fragments,
+    std::optional<size_t> max_size, size_t data_blocks)
 {
   if (max_size && max_size.value() == 0) {
     return {};
@@ -29,11 +29,11 @@ fragment::frag_set fragment::enumerate(
 
   auto control = [&] {
     if (!max_size) {
-      return enumerate_all(std::move(fragments), max_size);
+      return enumerate_all(fragments, max_size);
     } else {
       auto all = fragment::frag_set{};
       for (auto i = 0u; i < max_size.value(); ++i) {
-        auto deep = enumerate_all(std::move(fragments), i + 1);
+        auto deep = enumerate_all(fragments, i + 1);
         all.merge(std::move(deep));
       }
       return all;
@@ -42,36 +42,37 @@ fragment::frag_set fragment::enumerate(
 
   auto results = fragment::frag_set{};
 
-  for (auto&& cf : control) {
+  for (auto const& cf : control) {
     auto holes = cf->count_holes();
     auto vec = std::vector<fragment::frag_ptr>{};
 
     for (auto i = 0u; i < holes; ++i) {
       if (i < data_blocks) {
-        vec.push_back(lin_f.clone());
+        vec.emplace_back(new linear_fragment({}));
       } else {
-        vec.push_back(empty_f.clone());
+        vec.emplace_back(new empty_fragment({}));
       }
     }
 
     std::sort(vec.begin(), vec.end());
 
     do {
-      auto clone = cf->clone();
+      auto frag_copy = cf;
 
       for (auto i = 0u; i < holes; ++i) {
-        clone->add_child(vec.at(i)->clone(), 0);
+        frag_copy->add_child(vec.at(i), 0);
       }
 
-      results.insert(std::move(clone));
+      results.insert(frag_copy);
     } while (std::next_permutation(vec.begin(), vec.end()));
   }
 
-  return std::move(results);
+  return results;
 }
 
 fragment::frag_set fragment::enumerate_all(
-    std::vector<fragment::frag_ptr>&& fragments, std::optional<size_t> max_size)
+    std::vector<fragment::frag_ptr> const& fragments,
+    std::optional<size_t> max_size)
 {
   auto ret = fragment::frag_set{};
   auto real_max
