@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <memory>
 #include <type_traits>
 
 namespace support {
@@ -9,6 +10,9 @@ template <typename T>
 class value_ptr {
 public:
   using pointer = T*;
+
+  template <typename U>
+  friend class value_ptr;
 
 private:
   struct pmr_concept {
@@ -57,7 +61,17 @@ public:
   {
   }
 
-  explicit value_ptr(std::nullptr_t)
+  template <typename U,
+      typename = std::enable_if_t<
+          std::is_convertible_v<typename value_ptr<U>::pointer, pointer>>>
+  value_ptr(value_ptr<U> other)
+  {
+    auto clone = other.impl_->clone();
+    impl_ = new pmr_model(clone->release());
+    delete clone;
+  }
+
+  value_ptr(std::nullptr_t)
       : impl_(nullptr)
   {
   }
@@ -131,7 +145,7 @@ public:
     swap(impl_, other.impl_);
   }
 
-private:
+protected:
   pmr_concept* impl_;
 };
 
@@ -249,6 +263,12 @@ template <typename T>
 void swap(value_ptr<T>& a, value_ptr<T>& b)
 {
   a.swap(b);
+}
+
+template <typename T, typename... Args>
+auto make_value(Args&&... args)
+{
+  return value_ptr<T>(new T(std::forward<Args>(args)...));
 }
 }
 
