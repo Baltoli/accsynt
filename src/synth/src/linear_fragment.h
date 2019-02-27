@@ -30,8 +30,6 @@ public:
 
   virtual bool equal_to(frag_ptr const& other) const override;
 
-  virtual fragment::frag_ptr clone();
-
   virtual void splice(
       compile_context& ctx, llvm::BasicBlock* entry, llvm::BasicBlock* exit);
   virtual bool add_child(frag_ptr f, size_t idx);
@@ -72,12 +70,6 @@ template <bool use_data>
 bool linear_fragment_base<use_data>::equal_to(frag_ptr const& other) const
 {
   return other->equal_as(*this);
-}
-
-template <bool use_data>
-fragment::frag_ptr linear_fragment_base<use_data>::clone()
-{
-  return clone_as(*this);
 }
 
 template <bool use_data>

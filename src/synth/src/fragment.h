@@ -62,11 +62,6 @@ public:
   virtual ~fragment() = default;
 
   /**
-   * Virtual clone to allow for polymorphic copying of fragment objects.
-   */
-  virtual frag_ptr clone() = 0;
-
-  /**
    * Get a pretty-printed representation of this fragment.
    */
   virtual std::string to_str(size_t indent = 0) = 0;
@@ -132,14 +127,6 @@ protected:
   static void enumerate_recursive(
       frag_set& results, frag_ptr& accum, Iterator begin, Iterator end);
 
-  /**
-   * Helper method to clone and copy with the right type - simplifies the
-   * virtual clone method by having this handle the construction of a
-   * unique_ptr.
-   */
-  template <typename T>
-  frag_ptr clone_as(T const& obj) const;
-
   template <typename... Children>
   std::array<std::reference_wrapper<frag_ptr>, sizeof...(Children)>
   children_ref(Children&...) const;
@@ -155,12 +142,6 @@ protected:
 
   std::vector<props::value> args_;
 };
-
-template <typename T>
-fragment::frag_ptr fragment::clone_as(T const& obj) const
-{
-  return fragment::frag_ptr(new T{ obj });
-}
 
 template <typename T>
 bool fragment::equal_as(T const& other) const

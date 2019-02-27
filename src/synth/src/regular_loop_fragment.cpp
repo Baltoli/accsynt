@@ -15,11 +15,11 @@ namespace synth {
 // TODO: make an abstract validation function that can handle the common cases?
 
 regular_loop_fragment::regular_loop_fragment(std::vector<value> args,
-    frag_ptr&& before, frag_ptr&& body, frag_ptr&& after, bool output)
+    frag_ptr before, frag_ptr body, frag_ptr after, bool output)
     : fragment(args)
-    , before_(std::move(before))
-    , body_(std::move(body))
-    , after_(std::move(after))
+    , before_(before)
+    , body_(body)
+    , after_(after)
     , num_pointers_(args_.size() - 1)
     , perform_output_(output)
 {
@@ -45,41 +45,6 @@ regular_loop_fragment::regular_loop_fragment(std::vector<value> args, bool out)
     : regular_loop_fragment(args, nullptr, nullptr, nullptr, out)
 {
 }
-
-regular_loop_fragment::regular_loop_fragment(regular_loop_fragment const& other)
-    : regular_loop_fragment(other.args_,
-          other.before_ ? other.before_->clone() : nullptr,
-          other.body_ ? other.body_->clone() : nullptr,
-          other.after_ ? other.after_->clone() : nullptr, other.perform_output_)
-{
-}
-
-regular_loop_fragment::regular_loop_fragment(regular_loop_fragment&& other)
-    : regular_loop_fragment(std::move(other.args_), std::move(other.before_),
-          std::move(other.body_), std::move(other.after_),
-          std::move(other.perform_output_))
-{
-}
-
-regular_loop_fragment& regular_loop_fragment::operator=(
-    regular_loop_fragment&& other)
-{
-  args_ = std::move(other.args_);
-  before_ = std::move(other.before_);
-  body_ = std::move(other.body_);
-  after_ = std::move(other.after_);
-  return *this;
-}
-
-regular_loop_fragment& regular_loop_fragment::operator=(
-    regular_loop_fragment other)
-{
-  using std::swap;
-  swap(*this, other);
-  return *this;
-}
-
-fragment::frag_ptr regular_loop_fragment::clone() { return clone_as(*this); }
 
 std::string regular_loop_fragment::to_str(size_t ind)
 {

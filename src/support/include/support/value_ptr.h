@@ -83,7 +83,7 @@ public:
   }
 
   value_ptr(value_ptr<T> const& other)
-      : impl_(other.impl_->clone())
+      : impl_(other.impl_ ? other.impl_->clone() : nullptr)
   {
   }
 
