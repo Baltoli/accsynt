@@ -20,9 +20,9 @@ namespace synth {
 
 rule_synth::rule_synth(props::property_set ps, call_wrapper& ref)
     : synthesizer(ps, ref)
-    , gen_(ps)
+    , gen_(uniform_generator())
 {
-  make_examples(gen_adaptor(gen_), 1'000);
+  make_examples(gen_, 1'000);
 
   auto choices = std::vector<fragment::frag_ptr>{};
 
