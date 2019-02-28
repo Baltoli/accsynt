@@ -30,13 +30,10 @@ blas_synth::blas_synth(property_set ps, call_wrapper& ref)
     , loops_(loop::loops(blas_props_.merged_loop_count()))
     , current_loop_(loops_.begin())
 {
-  make_examples(gen_, 1'000);
+  make_examples(gen_adaptor(gen_), 1'000);
 }
 
-std::string blas_synth::name() const
-{
-  return "BLAS";
-}
+std::string blas_synth::name() const { return "BLAS"; }
 
 Function* blas_synth::candidate()
 {
@@ -281,10 +278,7 @@ BasicBlock* blas_synth::build_loop(loop shape, BasicBlock* end_dst,
   return header;
 }
 
-bool blas_synth::should_loop() const
-{
-  return !loops_.empty();
-}
+bool blas_synth::should_loop() const { return !loops_.empty(); }
 
 void blas_synth::next_loop()
 {

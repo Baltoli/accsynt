@@ -195,3 +195,5 @@ std::vector<T> uniform_generator::gen_array()
   return ret;
 }
 }
+
+#undef VAL

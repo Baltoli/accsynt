@@ -1,7 +1,6 @@
 #pragma once
 
-#include "generator.h"
-
+#include <support/argument_generator.h>
 #include <support/call_wrapper.h>
 
 #include <llvm/IR/Function.h>
@@ -20,7 +19,7 @@ public:
   virtual llvm::Function* generate();
 
 protected:
-  void make_examples(generator& gen, size_t n);
+  void make_examples(support::argument_generator gen, size_t n);
   bool satisfies_examples(llvm::Function* cand) const;
 
   virtual llvm::Function* candidate() = 0;
