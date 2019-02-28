@@ -1,5 +1,6 @@
 #include "rules.h"
 
+#include "data_loop_fragment.h"
 #include "regular_loop_fragment.h"
 
 using namespace props;
@@ -16,6 +17,10 @@ value_ptr<fragment> fragment_registry::get(
 
   if (name == "outputLoop") {
     return make_val<regular_loop_fragment>(args, true);
+  }
+
+  if (name == "dataLoop") {
+    return make_val<data_loop_fragment>(args);
   }
 
   return nullptr;

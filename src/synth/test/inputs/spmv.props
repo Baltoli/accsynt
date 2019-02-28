@@ -2,4 +2,6 @@ void spmv(float *ov, float *a, float *iv, int *rowstr, int *colidx, int rows)
 generator :csr
 size rowstr, rows
 size ov, rows
+data_ptr a
+data_ptr colidx
 output ov

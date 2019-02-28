@@ -50,7 +50,8 @@ std::vector<rule> rule_registry::all()
     },
     {
       "dataLoop", {"ptrA", "ptrB"},
-      { match("data_ptr", "ptrA", "ptrB") },
+      { match("data_ptr", "ptrA"),
+        match("data_ptr", "ptrB") },
       { distinct("ptrA", "ptrB") }
     }
   };

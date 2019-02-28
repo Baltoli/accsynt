@@ -50,7 +50,10 @@ void value_sampler::block(
       auto v1 = support::uniform_sample_if(live, non_const);
       auto v2 = support::uniform_sample_if(live, non_const);
       if (v1 != live.end() && v2 != live.end()) {
-        live.push_back(arithmetic(B, *v1, *v2));
+        auto val = arithmetic(B, *v1, *v2);
+        if (val) {
+          live.push_back(val);
+        }
       }
     }
   }
@@ -81,6 +84,10 @@ llvm::Value* value_sampler::arithmetic(
   // common base type etc and try to do some extensions / upcasting
 
   if (v1->getType() != v2->getType()) {
+    return nullptr;
+  }
+
+  if (v1->getType()->isIntegerTy()) {
     return nullptr;
   }
 
