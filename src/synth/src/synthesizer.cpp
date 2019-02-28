@@ -27,11 +27,11 @@ synthesizer::synthesizer(props::property_set ps, call_wrapper& wrap)
 {
 }
 
-void synthesizer::make_examples(generator& gen, size_t n)
+void synthesizer::make_examples(argument_generator gen, size_t n)
 {
   for (auto i = 0u; i < n; ++i) {
     auto cb = reference_.get_builder();
-    gen.generate(cb);
+    gen.gen_args(cb);
     auto before = cb;
     auto ret = reference_.call(cb);
     examples_.push_back({ before, { ret, cb } });
@@ -110,13 +110,7 @@ Function* synthesizer::create_stub()
   return properties_.type_signature.create_function(mod_);
 }
 
-std::string null_synth::name() const
-{
-  return "Null";
-}
+std::string null_synth::name() const { return "Null"; }
 
-Function* null_synth::generate()
-{
-  return nullptr;
-}
+Function* null_synth::generate() { return nullptr; }
 }

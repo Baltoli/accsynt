@@ -41,6 +41,11 @@ bool property_set::is_valid() const
   return true;
 }
 
+bool value::is_int() const { return value_type == type::integer; }
+bool value::is_float() const { return value_type == type::floating; }
+bool value::is_param() const { return value_type == type::parameter; }
+bool value::is_string() const { return value_type == type::string; }
+
 bool value::operator==(value const& other) const
 {
   if (value_type != other.value_type) {
@@ -61,8 +66,5 @@ bool value::operator==(value const& other) const
   return false;
 }
 
-bool value::operator!=(value const& other) const
-{
-  return !(*this == other);
-}
+bool value::operator!=(value const& other) const { return !(*this == other); }
 }

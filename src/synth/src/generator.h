@@ -3,6 +3,7 @@
 #include "blas_properties.h"
 
 #include <props/props.h>
+#include <support/argument_generator.h>
 #include <support/call_builder.h>
 
 #include <limits>
@@ -42,9 +43,6 @@ protected:
 
   props::property_set properties_;
 
-private:
-  std::random_device rd_;
-
 protected:
   std::mt19937 random_;
 };
@@ -64,4 +62,22 @@ private:
   void create_next_sizes();
   int random_size();
 };
+
+template <typename Old>
+struct gen_adaptor {
+  gen_adaptor(Old og)
+      : old_gen_(og)
+  {
+  }
+
+  void gen_args(support::call_builder& b) { old_gen_.generate(b); }
+
+private:
+  Old old_gen_;
+};
+
+static_assert(support::detail::is_generator_v<gen_adaptor<generator>>,
+    "Default generator should adapt to new interface");
+static_assert(support::detail::is_generator_v<gen_adaptor<blas_generator>>,
+    "BLAS generator should adapt to new interface");
 }
