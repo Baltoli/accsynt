@@ -80,7 +80,7 @@ void uniform_generator::gen_args(call_builder& build)
 template <>
 int uniform_generator::gen_single<int>()
 {
-  return std::uniform_int_distribution<int>()(engine_);
+  return std::uniform_int_distribution<int>(0, size_ - 1)(engine_);
 }
 
 template <>

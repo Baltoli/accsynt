@@ -15,6 +15,8 @@ add_library(coresynth
   src/compile_metadata.cpp
   src/fragment.cpp
   src/fragment_registry.cpp
+  src/data_loop_fragment.cpp
+  src/generator_rules.cpp
   src/regular_loop_fragment.cpp)
 
 add_executable(synth

@@ -256,7 +256,7 @@ value value::with_string(std::string str)
 {
   value v;
   v.value_type = type::string;
-  v.string_val = str;
+  v.string_val = str.substr(1);
   return v;
 }
 

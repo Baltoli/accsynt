@@ -1,5 +1,7 @@
 #include "generator.h"
 
+#include <support/random.h>
+
 #include <fmt/format.h>
 
 using namespace props;
@@ -13,8 +15,7 @@ namespace synth {
 
 generator::generator(property_set ps)
     : properties_(ps)
-    , rd_()
-    , random_(rd_())
+    , random_(get_random_device()())
 {
 }
 

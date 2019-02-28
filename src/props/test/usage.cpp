@@ -112,3 +112,30 @@ TEST_CASE("can find signature indices")
     REQUIRE_THROWS(sig.param_index("z"));
   }
 }
+
+TEST_CASE("can check value types")
+{
+  auto v1 = value::with_int(3);
+  REQUIRE(v1.is_int());
+  REQUIRE(!v1.is_float());
+  REQUIRE(!v1.is_param());
+  REQUIRE(!v1.is_string());
+
+  auto v2 = value::with_float(3.222);
+  REQUIRE(!v2.is_int());
+  REQUIRE(v2.is_float());
+  REQUIRE(!v2.is_param());
+  REQUIRE(!v2.is_string());
+
+  auto v3 = value::with_param("jjj");
+  REQUIRE(!v3.is_int());
+  REQUIRE(!v3.is_float());
+  REQUIRE(v3.is_param());
+  REQUIRE(!v3.is_string());
+
+  auto v4 = value::with_string("wefrjio");
+  REQUIRE(!v4.is_int());
+  REQUIRE(!v4.is_float());
+  REQUIRE(!v4.is_param());
+  REQUIRE(v4.is_string());
+}

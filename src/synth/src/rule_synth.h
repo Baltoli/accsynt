@@ -1,7 +1,6 @@
 #pragma once
 
 #include "fragment.h"
-#include "generator.h"
 #include "synthesizer.h"
 
 #include <support/call_wrapper.h>
@@ -20,8 +19,6 @@ protected:
   virtual llvm::Function* candidate();
 
 private:
-  generator gen_;
-
   fragment::frag_set fragments_;
   fragment::frag_set::iterator current_fragment_;
 };

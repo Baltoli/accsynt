@@ -1,6 +1,7 @@
 #pragma once
 
 #include "blas_properties.h"
+#include "generator.h"
 #include "loops.h"
 #include "synthesizer.h"
 
