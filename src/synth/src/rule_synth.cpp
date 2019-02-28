@@ -3,7 +3,10 @@
 #include "accessor_rules.h"
 #include "dataflow_synth.h"
 #include "fragment.h"
+#include "generator_rules.h"
 #include "rules.h"
+
+#include <support/argument_generator.h>
 
 #include <llvm/Support/CommandLine.h>
 
@@ -20,9 +23,8 @@ namespace synth {
 
 rule_synth::rule_synth(props::property_set ps, call_wrapper& ref)
     : synthesizer(ps, ref)
-    , gen_(uniform_generator())
 {
-  make_examples(gen_, 1'000);
+  make_examples(generator_for(ps), 1'000);
 
   auto choices = std::vector<fragment::frag_ptr>{};
 

@@ -3,7 +3,6 @@
 #include "fragment.h"
 #include "synthesizer.h"
 
-#include <support/argument_generator.h>
 #include <support/call_wrapper.h>
 
 #include <unordered_set>
@@ -20,8 +19,6 @@ protected:
   virtual llvm::Function* candidate();
 
 private:
-  support::argument_generator gen_;
-
   fragment::frag_set fragments_;
   fragment::frag_set::iterator current_fragment_;
 };

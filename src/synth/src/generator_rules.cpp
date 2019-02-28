@@ -9,6 +9,9 @@ argument_generator generator_for(property_set ps)
 {
   for (auto prop : ps.properties) {
     if (prop.name == "generator") {
+      if (prop.values.at(0).is_string()) {
+        return generator_named(prop.values.at(0).string_val);
+      }
     }
   }
 
