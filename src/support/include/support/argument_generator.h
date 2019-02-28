@@ -100,9 +100,7 @@ private:
   // Type erasure
   struct concept
   {
-    virtual ~concept()
-    {
-    }
+    virtual ~concept() {}
     virtual concept* clone() = 0;
     virtual void gen_args(call_builder&) = 0;
   };
@@ -114,15 +112,9 @@ private:
     {
     }
 
-    model<T>* clone() override
-    {
-      return new model<T>(object_);
-    }
+    model<T>* clone() override { return new model<T>(object_); }
 
-    void gen_args(call_builder& build)
-    {
-      object_.gen_args(build);
-    }
+    void gen_args(call_builder& build) { object_.gen_args(build); }
 
   private:
     T object_;
