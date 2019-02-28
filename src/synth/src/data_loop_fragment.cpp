@@ -126,7 +126,7 @@ void data_loop_fragment::splice(
   /* after_->splice(ctx, last_exit, exit); */
 }
 
-bool data_loop_fragment::add_child(frag_ptr&& f, size_t idx)
+bool data_loop_fragment::add_child(frag_ptr f, size_t idx)
 {
   auto children = children_ref(before_, body_, after_);
 
@@ -134,9 +134,9 @@ bool data_loop_fragment::add_child(frag_ptr&& f, size_t idx)
     auto max = count_or_empty(ch);
     if (idx < max) {
       if (ch) {
-        ch->add_child(std::move(f), idx);
+        ch->add_child(f, idx);
       } else {
-        ch = std::move(f);
+        ch = f;
       }
 
       return true;

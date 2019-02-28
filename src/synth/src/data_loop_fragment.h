@@ -19,9 +19,9 @@ public:
   virtual bool equal_to(frag_ptr const& other) const override;
 
   virtual std::string to_str(size_t indent = 0) override;
-  virtual void splice(
-      compile_context& ctx, llvm::BasicBlock* entry, llvm::BasicBlock* exit);
-  virtual bool add_child(frag_ptr&& f, size_t idx);
+  virtual void splice(compile_context& ctx, llvm::BasicBlock* entry,
+      llvm::BasicBlock* exit) override;
+  virtual bool add_child(frag_ptr f, size_t idx) override;
 
   virtual size_t count_holes() const override;
 
