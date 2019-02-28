@@ -75,6 +75,11 @@ struct value {
   static value with_param(std::string param);
   static value with_string(std::string str);
 
+  bool is_int() const;
+  bool is_float() const;
+  bool is_param() const;
+  bool is_string() const;
+
   template <typename OStream>
   friend OStream& operator<<(OStream& os, value const& v)
   {
