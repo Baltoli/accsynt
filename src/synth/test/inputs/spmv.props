@@ -1,5 +1,5 @@
 void spmv(float *ov, float *a, float *iv, int *rowstr, int *colidx, int rows)
-generator :spmv
+generator :csr
 size rowstr, rows
 size ov, rows
 output ov
