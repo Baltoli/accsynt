@@ -22,6 +22,8 @@ argument_generator generator_named(std::string const& name)
 {
   if (name == "uniform") {
     return uniform_generator();
+  } else if (name == "csr") {
+    return csr_generator();
   }
 
   throw std::runtime_error("No such named generator");
