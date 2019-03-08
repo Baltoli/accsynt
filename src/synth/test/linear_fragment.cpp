@@ -21,7 +21,7 @@ TEST_CASE("Can construct linear fragments")
   {
     auto a1 = std::vector{ value::with_int(0) };
     auto a2 = std::vector{ value::with_float(0.1) };
-    auto a3 = std::vector{ value::with_string("s") };
+    auto a3 = std::vector{ value::with_string(":s") };
     auto a4 = std::vector{ value::with_param("q") };
     auto a5 = std::vector(10, value::with_param("q"));
 

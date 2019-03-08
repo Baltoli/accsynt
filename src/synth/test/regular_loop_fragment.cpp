@@ -33,7 +33,7 @@ TEST_CASE("Fragment constructor validates arguments")
 
   SECTION("With the wrong argument types")
   {
-    auto args = std::vector{ value::with_string("x"), value::with_param("y") };
+    auto args = std::vector{ value::with_string(":x"), value::with_param("y") };
     REQUIRE_THROWS_AS(regular_loop_fragment{ args }, std::invalid_argument);
 
     auto args1 = std::vector{ value::with_param("x"), value::with_int(0) };
@@ -42,7 +42,7 @@ TEST_CASE("Fragment constructor validates arguments")
     auto args2 = std::vector{ value::with_param("x"), value::with_float(0.1) };
     REQUIRE_THROWS_AS(regular_loop_fragment{ args2 }, std::invalid_argument);
 
-    auto args3 = std::vector{ value::with_string("x"), value::with_float(0.1) };
+    auto args3 = std::vector{ value::with_string(":x"), value::with_float(0.1) };
     REQUIRE_THROWS_AS(regular_loop_fragment{ args3 }, std::invalid_argument);
 
     auto args4 = std::vector{ value::with_param("x"), value::with_float(0.1),
