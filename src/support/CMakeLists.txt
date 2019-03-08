@@ -47,7 +47,7 @@ add_executable(support_unit
 target_link_libraries(support_unit
   support
   CONAN_PKG::fmt
-  CONAN_PKG::catch2)
+  CONAN_PKG::Catch2)
 
 target_compile_options(support_unit
   PUBLIC -DRESOURCE_DIR="${CMAKE_BINARY_DIR}/inputs/")

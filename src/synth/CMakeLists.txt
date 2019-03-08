@@ -46,7 +46,7 @@ target_link_libraries(fragment-demo
 
 target_link_libraries(synth_unit
   coresynth
-  CONAN_PKG::catch2)
+  CONAN_PKG::Catch2)
 
 target_include_directories(synth_unit
   PRIVATE src)

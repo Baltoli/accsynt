@@ -49,6 +49,6 @@ TEST_CASE("can print values")
   auto v3 = value::with_param("wef");
   REQUIRE_THAT(fmt::format("{}", v3), Equals(fmt::format("{}", "wef")));
 
-  auto v4 = value::with_string("woo");
+  auto v4 = value::with_string(":woo");
   REQUIRE_THAT(fmt::format("{}", v4), Equals(fmt::format("\"{}\"", "woo")));
 }

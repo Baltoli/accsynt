@@ -133,7 +133,7 @@ TEST_CASE("can check value types")
   REQUIRE(v3.is_param());
   REQUIRE(!v3.is_string());
 
-  auto v4 = value::with_string("wefrjio");
+  auto v4 = value::with_string(":wefrjio");
   REQUIRE(!v4.is_int());
   REQUIRE(!v4.is_float());
   REQUIRE(!v4.is_param());

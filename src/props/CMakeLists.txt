@@ -37,7 +37,7 @@ target_link_libraries(props_unit
   props
   stdc++fs
   CONAN_PKG::fmt
-  CONAN_PKG::catch2)
+  CONAN_PKG::Catch2)
 
 target_compile_options(props_unit
   PUBLIC -DRESOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/test/inputs")

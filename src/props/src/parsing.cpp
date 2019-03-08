@@ -256,6 +256,11 @@ value value::with_string(std::string str)
 {
   value v;
   v.value_type = type::string;
+
+  if(str.at(0) != ':') {
+    throw std::runtime_error("Invalid string literal");
+  }
+
   v.string_val = str.substr(1);
   return v;
 }

@@ -44,7 +44,7 @@ target_compile_options(interfind_unit
 target_link_libraries(interfind_unit
   interfind
   support
-  CONAN_PKG::catch2)
+  CONAN_PKG::Catch2)
 
 target_compile_options(interfind_unit
   PUBLIC -DRESOURCE_DIR="${CMAKE_BINARY_DIR}/inputs/")
