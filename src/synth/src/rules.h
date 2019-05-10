@@ -4,9 +4,8 @@
 #include "fragment.h"
 
 #include <props/props.h>
-
-#include <support/value_ptr.h>
 #include <support/visitor.h>
+#include <value_ptr/value_ptr.h>
 
 #include <map>
 #include <optional>
@@ -32,7 +31,7 @@ class rule;
  */
 class fragment_registry {
 public:
-  static support::value_ptr<fragment> get(
+  static bsc::value_ptr<fragment> get(
       std::string const& name, std::vector<props::value> args);
 
   fragment_registry() = delete;
@@ -140,7 +139,7 @@ public:
   rule(std::string fragment, std::vector<std::string> args,
       std::vector<match_expression> es, std::vector<validator> vs);
 
-  std::vector<support::value_ptr<fragment>> match(props::property_set ps);
+  std::vector<bsc::value_ptr<fragment>> match(props::property_set ps);
 
 private:
   bool validate(match_result const& mr, props::property_set ps) const;

@@ -4,7 +4,6 @@
 
 #include <props/props.h>
 #include <support/thread_context.h>
-#include <support/value_ptr.h>
 
 #include <llvm/IR/Module.h>
 #include <llvm/Support/raw_ostream.h>
@@ -22,7 +21,7 @@ int main()
   auto sig = signature::parse("int func(int n, float *x)");
   auto mod = Module{ "fragtest", thread_context::get() };
 
-  auto f1 = make_val<regular_loop_fragment>(
+  auto f1 = bsc::make_val<regular_loop_fragment>(
       std::vector{ value::with_param("n"), value::with_param("x") });
 
   auto choices = std::vector<fragment::frag_ptr>{ f1 };

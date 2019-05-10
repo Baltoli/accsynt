@@ -6,7 +6,7 @@
 #include <props/props.h>
 
 #include <support/indent.h>
-#include <support/value_ptr.h>
+#include <value_ptr/value_ptr.h>
 
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Module.h>
@@ -22,22 +22,21 @@ class fragment;
 
 namespace std {
 template <>
-struct hash<support::value_ptr<synth::fragment>> {
-  size_t operator()(support::value_ptr<synth::fragment> const& frag) const
-      noexcept;
+struct hash<bsc::value_ptr<synth::fragment>> {
+  size_t operator()(bsc::value_ptr<synth::fragment> const& frag) const noexcept;
 };
 }
 
 namespace synth {
 
 struct fragment_equal {
-  bool operator()(support::value_ptr<fragment> const& a,
-      support::value_ptr<fragment> const& b) const;
+  bool operator()(bsc::value_ptr<fragment> const& a,
+      bsc::value_ptr<fragment> const& b) const;
 };
 
 class fragment {
 public:
-  using frag_ptr = support::value_ptr<fragment>;
+  using frag_ptr = bsc::value_ptr<fragment>;
   using frag_set
       = std::unordered_set<frag_ptr, std::hash<frag_ptr>, fragment_equal>;
 

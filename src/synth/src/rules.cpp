@@ -5,6 +5,8 @@
 
 #include <iostream>
 
+using bsc::value_ptr;
+
 using namespace support;
 
 namespace synth {

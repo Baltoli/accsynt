@@ -71,7 +71,7 @@ TEST_CASE("Can copy and move fragments properly")
 TEST_CASE("Can add children to fragments")
 {
   auto args = std::vector{ value::with_param("x"), value::with_param("x") };
-  auto f1 = make_val<regular_loop_fragment>(args);
+  auto f1 = bsc::make_val<regular_loop_fragment>(args);
 
   SECTION("fails when the index is too big")
   {

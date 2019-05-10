@@ -2,13 +2,15 @@
 #include "linear_fragment.h"
 
 #include <support/choose.h>
-#include <support/value_ptr.h>
+#include <value_ptr/value_ptr.h>
 
 #include <llvm/IR/Constant.h>
 #include <llvm/IR/Function.h>
 
 #include <algorithm>
 #include <numeric>
+
+using bsc::value_ptr;
 
 using namespace support;
 using namespace llvm;

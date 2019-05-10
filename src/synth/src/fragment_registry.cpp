@@ -3,6 +3,7 @@
 #include "data_loop_fragment.h"
 #include "regular_loop_fragment.h"
 
+using namespace bsc;
 using namespace props;
 using namespace support;
 

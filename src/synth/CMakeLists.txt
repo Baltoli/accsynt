@@ -34,6 +34,7 @@ target_link_libraries(coresynth
   ${llvm_libs}
   CONAN_PKG::fmt
   CONAN_PKG::spdlog
+  CONAN_PKG::value-ptr
   support
   props)
 
