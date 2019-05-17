@@ -1,3 +1,4 @@
+#include "algorithm.h"
 #include "match.h"
 
 #include <llvm/IR/LLVMContext.h>
