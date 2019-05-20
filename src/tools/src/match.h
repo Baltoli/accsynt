@@ -86,6 +86,4 @@ private:
   void print_constraints_line(std::ostream&, std::string, Instruction) const;
 };
 
-void compute(Graph graph, Graph second_graph);
-
 Graph from_function(llvm::Function const& fn);

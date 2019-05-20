@@ -1,9 +1,23 @@
+#include "algorithm.h"
 #include "match.h"
 
-void compute(Graph graph, Graph second_graph)
+void compute(std::vector<Graph> rest)
 {
-  graph.add(second_graph);
+  if (rest.empty()) {
+    return;
+  }
 
+  auto graph = rest.at(0);
+
+  for (auto& g : rest) {
+    graph.add(g);
+  }
+
+  compute_impl(graph);
+}
+
+void compute_impl(Graph graph)
+{
   std::vector<Match> matches;
   for (int i = 0; i < 50; i++) {
     matches.emplace_back(graph.nodes.size());

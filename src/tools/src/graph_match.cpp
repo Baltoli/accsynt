@@ -1,3 +1,4 @@
+#include "algorithm.h"
 #include "match.h"
 
 #include <llvm/IR/LLVMContext.h>
@@ -7,16 +8,15 @@
 #include <llvm/Support/SourceMgr.h>
 #include <llvm/Support/raw_ostream.h>
 
+#include <vector>
+
 using namespace llvm;
 
 static cl::opt<std::string> FunctionName(
     cl::Positional, cl::desc("<function>"), cl::value_desc("function name"));
 
-static cl::opt<std::string> InputA(cl::Positional, cl::desc("<bitcode>"),
-    cl::Required, cl::value_desc("filename A"));
-
-static cl::opt<std::string> InputB(cl::Positional, cl::desc("<bitcode>"),
-    cl::Required, cl::value_desc("filename B"));
+static cl::list<std::string> InputFiles(cl::Positional,
+    cl::desc("<bitcode files>"), cl::OneOrMore, cl::value_desc("filenames"));
 
 static cl::opt<std::string> OutputFilename("o",
     cl::desc("Filename to save the generated constraints to"),
@@ -28,24 +28,37 @@ int main(int argc, char** argv)
   LLVMContext Context;
   SMDiagnostic Err;
 
-  auto&& modA = parseIRFile(InputA, Err, Context, true, "");
-  if (!modA) {
-    Err.print(argv[0], errs());
-    return 1;
+  auto&& first_mod = parseIRFile(InputFiles[0], Err, Context, true, "");
+  auto first_fn = first_mod->getFunction(FunctionName);
+
+  auto graphs = std::vector<Graph>{};
+  graphs.push_back(from_function(*first_fn));
+
+  for (auto it = std::next(InputFiles.begin()); it != InputFiles.end(); ++it) {
+    auto&& next_mod = parseIRFile(*it, Err, Context, true, "");
+    auto next_fn = next_mod->getFunction(FunctionName);
+
+    graphs.push_back(from_function(*next_fn));
   }
 
-  auto&& modB = parseIRFile(InputB, Err, Context, true, "");
-  if (!modB) {
-    Err.print(argv[0], errs());
-    return 1;
-  }
+  /* auto&& modA = parseIRFile(InputA, Err, Context, true, ""); */
+  /* if (!modA) { */
+  /*   Err.print(argv[0], errs()); */
+  /*   return 1; */
+  /* } */
 
-  auto fnA = modA->getFunction(FunctionName);
-  auto fnB = modB->getFunction(FunctionName);
+  /* auto&& modB = parseIRFile(InputB, Err, Context, true, ""); */
+  /* if (!modB) { */
+  /*   Err.print(argv[0], errs()); */
+  /*   return 1; */
+  /* } */
 
-  auto graphA = from_function(*fnA);
-  auto graphB = from_function(*fnB);
-  compute(graphA, graphB);
+  /* auto fnA = modA->getFunction(FunctionName); */
+  /* auto fnB = modB->getFunction(FunctionName); */
+
+  /* auto graphA = from_function(*fnA); */
+  /* auto graphB = from_function(*fnB); */
+  compute(graphs);
 }
 
 /*
