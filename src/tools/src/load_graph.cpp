@@ -57,6 +57,8 @@ using namespace llvm;
       return ::Instruction::store;
     case llvm::Instruction::Select:
       return ::Instruction::select;
+    case llvm::Instruction::Trunc:
+      return ::Instruction::trunc;
     }
   }
 

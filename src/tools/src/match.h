@@ -25,7 +25,8 @@ enum class Instruction {
   fsub,
   ret,
   store,
-  select
+  select,
+  trunc
 };
 
 class Node {
