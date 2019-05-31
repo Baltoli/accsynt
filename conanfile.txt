@@ -1,5 +1,5 @@
 [requires]
-catch2/2.4.0@bincrafters/stable
+Catch2/2.8.0@catchorg/stable
 pegtl/2.7.0@taocpp/stable
 fmt/5.2.0@bincrafters/stable
 spdlog/1.1.0@bincrafters/stable
