@@ -12,6 +12,7 @@ add_library(support
   src/choose.cpp
   src/argument_generator.cpp
   src/string.cpp
+  src/similarity.cpp
   src/thread_context.cpp)
 
 target_link_libraries(support
