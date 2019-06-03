@@ -10,5 +10,5 @@ int main()
   using namespace props::literals;
   auto sig = "int func(int x, int y)"_sig;
 
-  auto wrap = support::call_wrapper(sig, func);
+  /* auto wrap = support::call_wrapper(sig, func); */
 }

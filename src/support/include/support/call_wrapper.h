@@ -60,7 +60,8 @@ public:
    * would be.
    */
   template <typename FPtr>
-  call_wrapper(props::signature sig, FPtr ptr);
+  call_wrapper(props::signature sig, llvm::Module const& mod,
+      std::string const& name, FPtr ptr);
 
   /**
    * Construct a call builder with the correct type signature for this wrapper.
@@ -106,8 +107,9 @@ private:
 };
 
 template <typename FPtr>
-call_wrapper::call_wrapper(props::signature sig, FPtr ptr)
-    : signature_(sig)
+call_wrapper::call_wrapper(props::signature sig, llvm::Module const& mod,
+    std::string const& name, FPtr ptr)
+    : call_wrapper(sig, mod, name)
 {
   engine_->addGlobalMapping(impl_, (void*)ptr);
 }
