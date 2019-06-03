@@ -4,6 +4,7 @@ add_executable(climber
 
 target_link_libraries(climber
   support
+  props
   ${llvm_libs}
   CONAN_PKG::fmt
 )

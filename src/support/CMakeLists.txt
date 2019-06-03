@@ -17,7 +17,7 @@ add_library(support
 target_link_libraries(support
   ${llvm_libs}
   props
-  dl)
+  )
 
 target_include_directories(support PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

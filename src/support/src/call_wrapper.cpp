@@ -128,4 +128,4 @@ Function* call_wrapper::build_wrapper_function(Module& mod, Function* fn) const
 
   return new_fn;
 }
-}
+} // namespace support

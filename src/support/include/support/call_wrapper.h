@@ -55,6 +55,14 @@ public:
       std::string const& name, dynamic_library const& dl);
 
   /**
+   * Construct a wrapper for an arbitrary function pointer. The function pointer
+   * is registered with the execution engine just as a dynamically loaded symbol
+   * would be.
+   */
+  template <typename FPtr>
+  call_wrapper(props::signature sig, FPtr ptr);
+
+  /**
    * Construct a call builder with the correct type signature for this wrapper.
    */
   call_builder get_builder() const;
@@ -97,6 +105,13 @@ private:
   std::unique_ptr<llvm::ExecutionEngine> engine_;
 };
 
+template <typename FPtr>
+call_wrapper::call_wrapper(props::signature sig, FPtr ptr)
+    : signature_(sig)
+{
+  engine_->addGlobalMapping(impl_, (void*)ptr);
+}
+
 template <typename Builder>
 llvm::Value* call_wrapper::make_vector(Builder& B, size_t size) const
 {
@@ -119,4 +134,4 @@ llvm::Value* call_wrapper::make_return(Builder& B, llvm::Value* ret) const
   auto* return_val = B.CreateZExt(to_extend, B.getInt64Ty());
   return B.CreateRet(return_val);
 }
-}
+} // namespace support
