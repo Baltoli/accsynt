@@ -46,6 +46,7 @@ add_subdirectory(props)
 add_subdirectory(tools)
 add_subdirectory(synth)
 add_subdirectory(support)
+add_subdirectory(climber)
 
 option(BUILD_DOC "Build documentation" OFF)
 find_package(Doxygen)
