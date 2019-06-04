@@ -17,14 +17,14 @@ TEST_CASE("return metric is monotonic")
     int start = GENERATE(take(100, random(0, 1000)));
     auto current = start;
 
-    auto score = return_similarity<int>(
+    auto score = scalar_similarity<int>(
         bit_cast<uint64_t>(start), bit_cast<uint64_t>(current));
     REQUIRE(score == 1.0_a);
 
     for (int i = 0; i < 1000; ++i) {
       current += 1;
 
-      auto new_score = return_similarity<int>(
+      auto new_score = scalar_similarity<int>(
           bit_cast<uint64_t>(start), bit_cast<uint64_t>(current));
 
       REQUIRE(new_score <= score);
@@ -37,14 +37,14 @@ TEST_CASE("return metric is monotonic")
     auto start = GENERATE(take(100, random(0.0, 1.0E3)));
     auto current = start;
 
-    auto score = return_similarity<float>(
+    auto score = scalar_similarity<float>(
         bit_cast<uint64_t>(start), bit_cast<uint64_t>(current));
     REQUIRE(score == 1.0_a);
 
     for (int i = 0; i < 1000; ++i) {
       current += 1.0;
 
-      auto new_score = return_similarity<float>(
+      auto new_score = scalar_similarity<float>(
           bit_cast<uint64_t>(start), bit_cast<uint64_t>(current));
 
       REQUIRE(new_score <= score);

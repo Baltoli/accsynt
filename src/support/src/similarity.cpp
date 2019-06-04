@@ -1,5 +1,4 @@
 #include <props/props.h>
-#include <support/bit_cast.h>
 #include <support/similarity.h>
 
 #include <cmath>
@@ -27,9 +26,9 @@ double similarity(uint64_t ret_a, call_builder const& a, uint64_t ret_b,
   auto const& sig = a.signature();
   if (auto rt_opt = sig.return_type) {
     if (*rt_opt == props::data_type::integer) {
-      return_comp = return_similarity<int>(ret_a, ret_b);
+      return_comp = scalar_similarity<int>(ret_a, ret_b);
     } else if (*rt_opt == props::data_type::floating) {
-      return_comp = return_similarity<float>(ret_a, ret_b);
+      return_comp = scalar_similarity<float>(ret_a, ret_b);
     } else {
       throw std::runtime_error("Invalid return type for metric");
     }

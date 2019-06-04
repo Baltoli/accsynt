@@ -24,7 +24,7 @@ double similarity(uint64_t ret_a, call_builder const& a, uint64_t ret_b,
  * and bitcasting that should work the same between both versions.
  */
 template <typename Num>
-double return_similarity(uint64_t ret_a, uint64_t ret_b)
+double scalar_similarity(uint64_t ret_a, uint64_t ret_b)
 {
   if (ret_a == ret_b) {
     return 1.0;
