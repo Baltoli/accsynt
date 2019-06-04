@@ -20,6 +20,17 @@ double similarity(uint64_t ret_a, call_builder const& a, uint64_t ret_b,
     call_builder const& b);
 
 /**
+ * Compute the similarity over a full set of parameters as follows:
+ *
+ *  - For each parameter in the builder, if it is a scalar value, treat it as a
+ *    return value (see below).
+ *  - If it is a vector, compute pairwise scalar similarity, then take the
+ *    cosine similarity over the whole vector to get a similarity score.
+ *  - Return the mean similarity over all the parameters.
+ */
+double params_similarity(call_builder const& a, call_builder const& b);
+
+/**
  * Compute the similarity between two return values using a templated algorithm
  * and bitcasting that should work the same between both versions.
  */
