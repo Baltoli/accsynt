@@ -34,6 +34,7 @@ install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 install(EXPORT SupportConfig DESTINATION share/Support/cmake)
 
 add_executable(support_unit
+  test/bit_cast.cpp
   test/call_builder.cpp
   test/cartesian_product.cpp
   test/floats.cpp
