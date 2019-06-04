@@ -1,5 +1,7 @@
 #include <support/similarity.h>
 
+#include <cmath>
+
 namespace support {
 
 double return_similarity(uint64_t ret_a, uint64_t ret_b) { return 0.0; }
