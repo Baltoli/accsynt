@@ -10,6 +10,15 @@
 
 using namespace support;
 
+#define TEST_CASES                                                             \
+  OP(int)                                                                      \
+  OP(char);                                                                    \
+  OP(int8_t);                                                                  \
+  OP(int32_t);                                                                 \
+  OP(uint64_t);                                                                \
+  OP(float);                                                                   \
+  OP(double);
+
 #define ID(T)                                                                  \
   SECTION("on " #T)                                                            \
   {                                                                            \
@@ -19,13 +28,9 @@ using namespace support;
 
 TEST_CASE("bit_cast is the identity function")
 {
-  ID(int);
-  ID(char);
-  ID(int8_t);
-  ID(int32_t);
-  ID(uint64_t);
-  ID(float);
-  ID(double);
+#define OP ID
+  TEST_CASES
+#undef OP
 }
 
 #define INVOL(TA)                                                              \
@@ -37,11 +42,22 @@ TEST_CASE("bit_cast is the identity function")
 
 TEST_CASE("bit_cast is an involution")
 {
-  INVOL(int);
-  INVOL(char);
-  INVOL(int8_t);
-  INVOL(int32_t);
-  INVOL(uint64_t);
-  INVOL(float);
-  INVOL(double);
+#define OP INVOL
+  TEST_CASES
+#undef OP
+}
+
+#define ROUND_TRIP(T)                                                          \
+  SECTION("round trip to uint64_t from " #T)                                   \
+  {                                                                            \
+    auto n = GENERATE(take(100, random(MINV(T), MAXV(T))));                    \
+    auto inter = bit_cast<uint64_t>(n);                                        \
+    REQUIRE(bit_cast<T>(inter) == n);                                          \
+  }
+
+TEST_CASE("can round trip to uint64_t")
+{
+#define OP ROUND_TRIP
+  TEST_CASES
+#undef OP
 }
