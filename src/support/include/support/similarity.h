@@ -1,5 +1,6 @@
 #pragma once
 
+#include <support/bit_cast.h>
 #include <support/call_builder.h>
 
 namespace support {
@@ -25,28 +26,25 @@ double similarity(uint64_t ret_a, call_builder const& a, uint64_t ret_b,
 template <typename Num>
 double return_similarity(uint64_t ret_a, uint64_t ret_b)
 {
+  if (ret_a == ret_b) {
+    return 1.0;
+  }
+
   constexpr auto sign_penalty = 0.05;
 
   auto a_val = bit_cast<Num>(ret_a);
   auto b_val = bit_cast<Num>(ret_b);
 
-  auto a_abs = std::abs(a_val);
-  auto b_abs = std::abs(b_val);
+  double a_abs = std::abs(a_val);
+  double b_abs = std::abs(b_val);
 
   auto max_v = std::max(a_abs, b_abs);
   auto min_v = std::min(a_abs, b_abs);
 
-  if (min_v == 0) {
-    max_v += 1;
-    min_v += 1;
-  }
+  auto diff = max_v - min_v;
+  auto mean = (a_abs + b_abs) / 2;
 
-  auto ratio = max_v / min_v;
-  if (std::signbit(a_val) != std::signbit(b_val)) {
-    ratio += sign_penalty;
-  }
-
-  return 1 - std::tanh(std::log(ratio));
+  return 1 - std::tanh(diff / mean);
 }
 
 } // namespace support
