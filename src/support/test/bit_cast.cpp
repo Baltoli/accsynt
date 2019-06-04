@@ -1,6 +1,7 @@
 #include <catch2/catch.hpp>
 
 #include <support/bit_cast.h>
+#include <support/type_finder.h>
 
 #include <limits>
 
@@ -16,9 +17,6 @@ using namespace support;
     REQUIRE(bit_cast<T>(n) == n);                                              \
   }
 
-#define ISOM(TA, TB)                                                           \
-  SECTION("from " #TA " to " #TB) {}
-
 TEST_CASE("bit_cast is the identity function")
 {
   ID(int);
@@ -30,4 +28,20 @@ TEST_CASE("bit_cast is the identity function")
   ID(double);
 }
 
-TEST_CASE("bit_cast is an isomorphism") {}
+#define INVOL(TA)                                                              \
+  SECTION("from " #TA)                                                         \
+  {                                                                            \
+    auto n = GENERATE(take(100, random(MINV(TA), MAXV(TA))));                  \
+    REQUIRE(bit_cast<TA>(bit_cast<int_of_equal_size_t<TA>>(n)) == n);          \
+  }
+
+TEST_CASE("bit_cast is an involution")
+{
+  INVOL(int);
+  INVOL(char);
+  INVOL(int8_t);
+  INVOL(int32_t);
+  INVOL(uint64_t);
+  INVOL(float);
+  INVOL(double);
+}
