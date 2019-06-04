@@ -35,7 +35,7 @@ double params_similarity(call_builder const& a, call_builder const& b);
  * and bitcasting that should work the same between both versions.
  */
 template <typename Num>
-double scalar_similarity(uint64_t ret_a, uint64_t ret_b)
+double scalar_similarity(Num ret_a, Num ret_b)
 {
   if (ret_a == ret_b) {
     return 1.0;
@@ -43,8 +43,8 @@ double scalar_similarity(uint64_t ret_a, uint64_t ret_b)
 
   constexpr auto sign_penalty = 0.75;
 
-  auto a_val = bit_cast<Num>(ret_a);
-  auto b_val = bit_cast<Num>(ret_b);
+  auto a_val = ret_a;
+  auto b_val = ret_b;
 
   double a_abs = std::abs(a_val);
   double b_abs = std::abs(b_val);
