@@ -30,7 +30,7 @@ double return_similarity(uint64_t ret_a, uint64_t ret_b)
     return 1.0;
   }
 
-  constexpr auto sign_penalty = 0.05;
+  constexpr auto sign_penalty = 0.75;
 
   auto a_val = bit_cast<Num>(ret_a);
   auto b_val = bit_cast<Num>(ret_b);
@@ -44,7 +44,12 @@ double return_similarity(uint64_t ret_a, uint64_t ret_b)
   auto diff = max_v - min_v;
   auto mean = (a_abs + b_abs) / 2;
 
-  return 1 - std::tanh(diff / mean);
+  auto score = 1 - std::tanh(diff / mean);
+  if (std::signbit(a_val) != std::signbit(b_val)) {
+    return sign_penalty * score;
+  } else {
+    return score;
+  }
 }
 
 } // namespace support
