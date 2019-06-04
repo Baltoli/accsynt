@@ -1,12 +1,24 @@
 #include <props/props.h>
+#include <support/bit_cast.h>
 #include <support/similarity.h>
 
 #include <cmath>
 
 namespace support {
 
-double int_return_similarity(uint64_t ret_a, uint64_t ret_b) { return 0.0; }
-double float_return_similarity(uint64_t ret_a, uint64_t ret_b) { return 0.0; }
+template <typename Num>
+double return_similarity(uint64_t ret_a, uint64_t ret_b)
+{
+  auto a_val = bit_cast<Num>(ret_a);
+  auto b_val = bit_cast<Num>(ret_b);
+
+  auto a_abs = std::abs(a_val);
+  auto b_abs = std::abs(b_val);
+
+  auto ratio = std::max(a_abs, b_abs) / std::min(a_abs, b_abs);
+
+  return std::tanh(std::log(ratio));
+}
 
 double params_similarity(call_builder const& a, call_builder const& b)
 {
@@ -29,9 +41,9 @@ double similarity(uint64_t ret_a, call_builder const& a, uint64_t ret_b,
   auto const& sig = a.signature();
   if (auto rt_opt = sig.return_type) {
     if (*rt_opt == props::data_type::integer) {
-      return_comp = int_return_similarity(ret_a, ret_b);
+      return_comp = return_similarity<int>(ret_a, ret_b);
     } else if (*rt_opt == props::data_type::floating) {
-      return_comp = float_return_similarity(ret_a, ret_b);
+      return_comp = return_similarity<float>(ret_a, ret_b);
     } else {
       throw std::runtime_error("Invalid return type for metric");
     }
