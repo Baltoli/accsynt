@@ -10,7 +10,7 @@ typename std::enable_if<std::is_trivially_copyable<From>::value
     To>::type
 bit_cast(const From& src) noexcept
 {
-  To dst;
+  auto dst = To(0);
 
   if constexpr (sizeof(To) > sizeof(From)) {
     constexpr auto d_offset = sizeof(To) - sizeof(From);

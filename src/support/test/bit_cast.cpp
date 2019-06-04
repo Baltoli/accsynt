@@ -1,6 +1,7 @@
 #include <catch2/catch.hpp>
 
 #include <support/bit_cast.h>
+#include <support/call_builder.h>
 #include <support/type_finder.h>
 
 #include <limits>
@@ -52,6 +53,11 @@ TEST_CASE("bit_cast is an involution")
   {                                                                            \
     auto n = GENERATE(take(100, random(MINV(T), MAXV(T))));                    \
     auto inter = bit_cast<uint64_t>(n);                                        \
+    if constexpr (sizeof(uint64_t) > sizeof(T)) {                              \
+      for (auto i = 0u; i < sizeof(uint64_t) - sizeof(T); ++i) {               \
+        REQUIRE(detail::nth_byte(inter, i) == 0);                              \
+      }                                                                        \
+    }                                                                          \
     REQUIRE(bit_cast<T>(inter) == n);                                          \
   }
 
