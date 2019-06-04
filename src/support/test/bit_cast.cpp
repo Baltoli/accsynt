@@ -12,10 +12,23 @@
 using namespace support;
 
 #define TEST_CASES                                                             \
-  OP(int)                                                                      \
   OP(char);                                                                    \
+  OP(unsigned char);                                                           \
+  OP(short);                                                                   \
+  OP(unsigned short);                                                          \
+  OP(int)                                                                      \
+  OP(unsigned int)                                                             \
+  OP(long int)                                                                 \
+  OP(unsigned long int)                                                        \
+  OP(long long int)                                                            \
+  OP(unsigned long long int)                                                   \
   OP(int8_t);                                                                  \
+  OP(uint8_t);                                                                 \
+  OP(int16_t);                                                                 \
+  OP(uint16_t);                                                                \
   OP(int32_t);                                                                 \
+  OP(uint32_t);                                                                \
+  OP(int64_t);                                                                 \
   OP(uint64_t);                                                                \
   OP(float);                                                                   \
   OP(double);
