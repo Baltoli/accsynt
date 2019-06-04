@@ -6,20 +6,6 @@
 
 namespace support {
 
-template <typename Num>
-double return_similarity(uint64_t ret_a, uint64_t ret_b)
-{
-  auto a_val = bit_cast<Num>(ret_a);
-  auto b_val = bit_cast<Num>(ret_b);
-
-  auto a_abs = std::abs(a_val);
-  auto b_abs = std::abs(b_val);
-
-  auto ratio = std::max(a_abs, b_abs) / std::min(a_abs, b_abs);
-
-  return std::tanh(std::log(ratio));
-}
-
 double params_similarity(call_builder const& a, call_builder const& b)
 {
   return 0.0;
