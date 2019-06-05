@@ -58,6 +58,40 @@ struct signature {
   bool operator!=(signature const& other) const;
 };
 
+// clang-format off
+template <
+  typename OnInt, 
+  typename OnFloat, 
+  typename OnIntPtr,
+  typename OnFloatPtr
+>
+struct sig_visitor {
+  static constexpr bool pass_depth = 
+    std::is_invocable_v<OnInt> && std::is_invocable_v<OnFloat> &&
+    std::is_invocable_v<OnIntPtr, int> && std::is_invocable_v<OnFloatPtr, int>;
+
+  static constexpr bool pass_param =
+    std::is_invocable_v<OnInt, param> && std::is_invocable_v<OnFloat, param> &&
+    std::is_invocable_v<OnIntPtr, param> && std::is_invocable_v<OnFloatPtr, param>;
+
+public:
+  // Either they are all invocable with:
+  // (), (), (int), (int)
+  // or with:
+  // (param), (param), (param), (param)
+  sig_visitor(OnInt oi, OnFloat of, OnIntPtr oip, OnFloatPtr ofp) : on_int_(oi),
+      on_float_(of), on_int_ptr_(oip), on_float_ptr_(ofp)
+  {
+  }
+
+private:
+  OnInt on_int_;
+  OnFloat on_float_;
+  OnIntPtr on_int_ptr_;
+  OnFloatPtr on_float_ptr_;
+};
+// clang-format on
+
 struct value {
   enum class type { integer, floating, parameter, string };
 
@@ -158,8 +192,10 @@ void property_set::for_each_named(std::string const& name, Func&& fn) const
 namespace literals {
 
 signature operator""_sig(const char* str, size_t len);
-}
-}
+
+} // namespace literals
+
+} // namespace props
 
 std::ostream& operator<<(std::ostream& os, const props::data_type& dt);
 std::ostream& operator<<(std::ostream& os, const props::param& p);
