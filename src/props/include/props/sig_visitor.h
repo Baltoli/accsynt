@@ -129,9 +129,9 @@ private:
 };
 
 struct ignore_param_t {
-  void operator()() {}
-  void operator()(int) {}
-  void operator()(param const&) {}
+  void operator()() const {}
+  void operator()(int) const {}
+  void operator()(param const&) const {}
 };
 
 extern ignore_param_t ignore_param;
