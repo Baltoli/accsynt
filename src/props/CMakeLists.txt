@@ -1,6 +1,7 @@
 project(libprops VERSION 0.1 LANGUAGES CXX)
 
 add_library(props
+  src/sig_visitor.cpp
   src/parsing.cpp
   src/printing.cpp
   src/llvm_function.cpp

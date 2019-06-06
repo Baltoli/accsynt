@@ -22,7 +22,7 @@ struct sig_visitor {
     std::is_invocable_v<OnInt, param_t> && std::is_invocable_v<OnFloat, param_t> &&
     std::is_invocable_v<OnIntPtr, param_t> && std::is_invocable_v<OnFloatPtr, param_t>;
 
-  static_assert(pass_depth != pass_param, "Must be unambiguous");
+  static_assert(pass_depth || pass_param, "Must be invokable");
 
   using one_return_t = typename std::conditional_t<pass_depth,
     std::invoke_result<OnInt>,
@@ -127,5 +127,13 @@ private:
   OnIntPtr on_int_ptr_;
   OnFloatPtr on_float_ptr_;
 };
+
+struct ignore_param_t {
+  void operator()() {}
+  void operator()(int) {}
+  void operator()(param const&) {}
+};
+
+extern ignore_param_t ignore_param;
 
 } // namespace props
