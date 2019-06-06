@@ -54,32 +54,25 @@ double params_similarity(call_builder const& a, call_builder const& b)
   // clang-format off
   auto visitor = props::sig_visitor{
     [&] {
+      score += scalar_similarity<int>(a.get<int>(n), b.get<int>(n));
+      n += 1;
     },
     [&] {
+      score += scalar_similarity<float>(a.get<float>(n), b.get<float>(n));
+      n += 1;
     },
     [&](int d) {
+      if(d > 1) { throw std::runtime_error("Pointers nested"); }
+
+      n += 1;
     },
     [&](int d) {
+      if(d > 1) { throw std::runtime_error("Pointers nested"); }
+
+      n += 1;
     }
   };
   // clang-format on
-
-  /* for (auto const& param : sig.parameters) { */
-  /*   if (param.pointer_depth > 1) { */
-  /*     throw std::runtime_error("Nested pointers"); */
-  /*   } */
-
-  /*   if (param.pointer_depth == 0) { */
-  /*     if (param.type == props::data_type::integer) { */
-  /*       auto a_val = a.get<int>(n); */
-  /*       auto b_val = b.get<int>(n); */
-
-  /*       /1* score += scalar_similarity<int>( *1/ */
-  /*       n += 1; */
-  /*     } */
-  /*   } else if (param.pointer_depth == 1) { */
-  /*   } */
-  /* } */
 
   visitor.visit(a.signature());
 
