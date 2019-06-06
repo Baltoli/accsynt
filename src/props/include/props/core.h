@@ -158,8 +158,10 @@ void property_set::for_each_named(std::string const& name, Func&& fn) const
 namespace literals {
 
 signature operator""_sig(const char* str, size_t len);
-}
-}
+
+} // namespace literals
+
+} // namespace props
 
 std::ostream& operator<<(std::ostream& os, const props::data_type& dt);
 std::ostream& operator<<(std::ostream& os, const props::param& p);
