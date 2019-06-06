@@ -58,57 +58,117 @@ struct signature {
   bool operator!=(signature const& other) const;
 };
 
-// clang-format off
-template <
-  typename OnInt, 
-  typename OnFloat, 
-  typename OnIntPtr,
-  typename OnFloatPtr
->
+template <typename OnInt, typename OnFloat, typename OnIntPtr,
+    typename OnFloatPtr>
 struct sig_visitor {
+  // clang-format off
+  using param_t = param const&;
+
   static constexpr bool pass_depth = 
     std::is_invocable_v<OnInt> && std::is_invocable_v<OnFloat> &&
     std::is_invocable_v<OnIntPtr, int> && std::is_invocable_v<OnFloatPtr, int>;
 
   static constexpr bool pass_param =
-    std::is_invocable_v<OnInt, param> && std::is_invocable_v<OnFloat, param> &&
-    std::is_invocable_v<OnIntPtr, param> && std::is_invocable_v<OnFloatPtr, param>;
+    std::is_invocable_v<OnInt, param_t> && std::is_invocable_v<OnFloat, param_t> &&
+    std::is_invocable_v<OnIntPtr, param_t> && std::is_invocable_v<OnFloatPtr, param_t>;
 
   static_assert(pass_depth != pass_param, "Must be unambiguous");
 
-  static constexpr bool return_void = pass_depth ?
-    std::is_same_v<std::invoke_result_t<OnInt>, void> :
-    std::is_same_v<std::invoke_result_t<OnInt, int>, void>;
+  using one_return_t = typename std::conditional_t<pass_depth,
+    std::invoke_result<OnInt>,
+    std::invoke_result<OnInt, param_t>
+  >::type;
 
-  using pass_depth_ret = std::common_type<
-    std::invoke_result_t<OnInt>, std::invoke_result_t<OnFloat>,
-    std::invoke_result_t<OnIntPtr, int>, std::invoke_result_t<OnFloatPtr, int>
-  >;
-
-  using pass_param_ret = std::common_type<
-    std::invoke_result_t<OnInt, param>, std::invoke_result_t<OnFloat, param>,
-    std::invoke_result_t<OnIntPtr, param>, std::invoke_result_t<OnFloatPtr, param>
-  >;
+  static constexpr bool return_void = std::is_same_v<one_return_t, void>;
 
   using return_type = std::conditional_t<return_void,
     void,
-    std::vector<
-      typename std::conditional_t<pass_depth, pass_depth_ret, pass_param_ret>::type
-    >
+    std::vector<one_return_t>
   >;
+  // clang-format on
 
 public:
   // Either they are all invocable with:
   // (), (), (int), (int)
   // or with:
   // (param), (param), (param), (param)
-  sig_visitor(OnInt oi, OnFloat of, OnIntPtr oip, OnFloatPtr ofp) : on_int_(oi),
-      on_float_(of), on_int_ptr_(oip), on_float_ptr_(ofp)
+  sig_visitor(OnInt oi, OnFloat of, OnIntPtr oip, OnFloatPtr ofp)
+      : on_int_(oi)
+      , on_float_(of)
+      , on_int_ptr_(oip)
+      , on_float_ptr_(ofp)
   {
   }
 
-  return_type visit(signature const&) const
+  return_type visit(signature const& sig) const
   {
+    if constexpr (return_void) {
+      for (auto const& p : sig.parameters) {
+        if (p.pointer_depth == 0) {
+          if (p.type == data_type::integer) {
+            if constexpr (pass_depth) {
+              on_int_();
+            } else {
+              on_int_(p);
+            }
+          } else if (p.type == data_type::floating) {
+            if constexpr (pass_depth) {
+              on_float_();
+            } else {
+              on_float_(p);
+            }
+          }
+        } else {
+          if (p.type == data_type::integer) {
+            if constexpr (pass_depth) {
+              on_int_ptr_(p.pointer_depth);
+            } else {
+              on_int_ptr_(p);
+            }
+          } else if (p.type == data_type::floating) {
+            if constexpr (pass_depth) {
+              on_float_ptr_(p.pointer_depth);
+            } else {
+              on_float_ptr_(p);
+            }
+          }
+        }
+      }
+    } else {
+      auto vec = return_type{};
+      for (auto const& p : sig.parameters) {
+        if (p.pointer_depth == 0) {
+          if (p.type == data_type::integer) {
+            if constexpr (pass_depth) {
+              vec.push_back(on_int_());
+            } else {
+              vec.push_back(on_int_(p));
+            }
+          } else if (p.type == data_type::floating) {
+            if constexpr (pass_depth) {
+              vec.push_back(on_float_());
+            } else {
+              vec.push_back(on_float_(p));
+            }
+          }
+        } else {
+          if (p.type == data_type::integer) {
+            if constexpr (pass_depth) {
+              vec.push_back(on_int_ptr_(p.pointer_depth));
+            } else {
+              vec.push_back(on_int_ptr_(p));
+            }
+          } else if (p.type == data_type::floating) {
+            if constexpr (pass_depth) {
+              vec.push_back(on_float_ptr_(p.pointer_depth));
+            } else {
+              vec.push_back(on_float_ptr_(p));
+            }
+          }
+        }
+      }
+      return vec;
+    }
   }
 
 private:
@@ -117,7 +177,6 @@ private:
   OnIntPtr on_int_ptr_;
   OnFloatPtr on_float_ptr_;
 };
-// clang-format on
 
 struct value {
   enum class type { integer, floating, parameter, string };
