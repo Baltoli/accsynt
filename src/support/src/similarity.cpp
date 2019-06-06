@@ -51,23 +51,37 @@ double params_similarity(call_builder const& a, call_builder const& b)
   double score = 0.0;
   int n = 0;
 
-  auto const& sig = a.signature();
-  for (auto const& param : sig.parameters) {
-    if (param.pointer_depth > 1) {
-      throw std::runtime_error("Nested pointers");
+  // clang-format off
+  auto visitor = props::sig_visitor{
+    [&] {
+    },
+    [&] {
+    },
+    [&](int d) {
+    },
+    [&](int d) {
     }
+  };
+  // clang-format on
 
-    if (param.pointer_depth == 0) {
-      if (param.type == props::data_type::integer) {
-        auto a_val = a.get<int>(n);
-        auto b_val = b.get<int>(n);
+  /* for (auto const& param : sig.parameters) { */
+  /*   if (param.pointer_depth > 1) { */
+  /*     throw std::runtime_error("Nested pointers"); */
+  /*   } */
 
-        /* score += scalar_similarity<int>( */
-        n += 1;
-      }
-    } else if (param.pointer_depth == 1) {
-    }
-  }
+  /*   if (param.pointer_depth == 0) { */
+  /*     if (param.type == props::data_type::integer) { */
+  /*       auto a_val = a.get<int>(n); */
+  /*       auto b_val = b.get<int>(n); */
+
+  /*       /1* score += scalar_similarity<int>( *1/ */
+  /*       n += 1; */
+  /*     } */
+  /*   } else if (param.pointer_depth == 1) { */
+  /*   } */
+  /* } */
+
+  visitor.visit(a.signature());
 
   if (n == 0) {
     return 1.0;
