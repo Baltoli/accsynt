@@ -74,6 +74,29 @@ struct sig_visitor {
     std::is_invocable_v<OnInt, param> && std::is_invocable_v<OnFloat, param> &&
     std::is_invocable_v<OnIntPtr, param> && std::is_invocable_v<OnFloatPtr, param>;
 
+  static_assert(pass_depth != pass_param, "Must be unambiguous");
+
+  static constexpr bool return_void = pass_depth ?
+    std::is_same_v<std::invoke_result_t<OnInt>, void> :
+    std::is_same_v<std::invoke_result_t<OnInt, int>, void>;
+
+  using pass_depth_ret = std::common_type<
+    std::invoke_result_t<OnInt>, std::invoke_result_t<OnFloat>,
+    std::invoke_result_t<OnIntPtr, int>, std::invoke_result_t<OnFloatPtr, int>
+  >;
+
+  using pass_param_ret = std::common_type<
+    std::invoke_result_t<OnInt, param>, std::invoke_result_t<OnFloat, param>,
+    std::invoke_result_t<OnIntPtr, param>, std::invoke_result_t<OnFloatPtr, param>
+  >;
+
+  using return_type = std::conditional_t<return_void,
+    void,
+    std::vector<
+      typename std::conditional_t<pass_depth, pass_depth_ret, pass_param_ret>::type
+    >
+  >;
+
 public:
   // Either they are all invocable with:
   // (), (), (int), (int)
@@ -81,6 +104,10 @@ public:
   // (param), (param), (param), (param)
   sig_visitor(OnInt oi, OnFloat of, OnIntPtr oip, OnFloatPtr ofp) : on_int_(oi),
       on_float_(of), on_int_ptr_(oip), on_float_ptr_(ofp)
+  {
+  }
+
+  return_type visit(signature const&) const
   {
   }
 
