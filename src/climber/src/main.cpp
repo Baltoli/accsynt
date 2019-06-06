@@ -12,14 +12,11 @@ using namespace props;
 using namespace support;
 using namespace llvm;
 
-int func(int x, int y) { return x * y; }
-int func_2(int n, int* vs)
+int map_mul(int n, float v, float* xs)
 {
-  int sum = 0;
   for (int i = 0; i < n; ++i) {
-    sum += vs[i];
+    xs[i] *= v;
   }
-  return sum;
 }
 
 int main()
