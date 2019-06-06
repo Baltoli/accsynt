@@ -38,6 +38,15 @@ double similarity(uint64_t ret_a, call_builder const& a, uint64_t ret_b,
   return return_weight * return_comp + params_weight * params_comp;
 }
 
+double mean(std::vector<double> const& v)
+{
+  auto sum = 0.0;
+  for (auto d : v) {
+    sum += d;
+  }
+  return sum / v.size();
+}
+
 double params_similarity(call_builder const& a, call_builder const& b)
 {
   // Should only be called from `similarity`, which enforces this condition
@@ -64,11 +73,31 @@ double params_similarity(call_builder const& a, call_builder const& b)
     [&](int d) {
       if(d > 1) { throw std::runtime_error("Pointers nested"); }
 
+      auto a_vec = a.get<std::vector<int>>(n);
+      auto b_vec = b.get<std::vector<int>>(n);
+      auto sim_vec = std::vector<double>{};
+
+      // TODO: what if different sizes?
+      for(auto i = 0u; i < a_vec.size(); ++i) {
+        sim_vec.push_back(scalar_similarity<int>(a_vec[i], b_vec[i]));
+      }
+
+      score += mean(sim_vec);
       n += 1;
     },
     [&](int d) {
       if(d > 1) { throw std::runtime_error("Pointers nested"); }
 
+      auto a_vec = a.get<std::vector<float>>(n);
+      auto b_vec = b.get<std::vector<float>>(n);
+      auto sim_vec = std::vector<double>{};
+
+      // TODO: what if different sizes?
+      for(auto i = 0u; i < a_vec.size(); ++i) {
+        sim_vec.push_back(scalar_similarity<float>(a_vec[i], b_vec[i]));
+      }
+
+      score += mean(sim_vec);
       n += 1;
     }
   };
