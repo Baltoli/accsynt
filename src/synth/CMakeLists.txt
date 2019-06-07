@@ -10,6 +10,7 @@ add_library(coresynth
   src/blas_synth.cpp
   src/hill_synth.cpp
   src/rule_synth.cpp
+  src/synth_options.cpp
   src/generator.cpp
   src/accessor.cpp
   src/compile_context.cpp
