@@ -3,6 +3,8 @@
 
 #include <cmath>
 
+using namespace props;
+
 namespace support {
 
 double similarity(uint64_t ret_a, call_builder const& a, uint64_t ret_b,
@@ -57,24 +59,17 @@ double params_similarity(call_builder const& a, call_builder const& b)
     return 1.0;
   }
 
-  double score = 0.0;
-  int n = 0;
+  auto scores = std::vector<double>{};
 
   // clang-format off
-  auto visitor = props::sig_visitor{
-    [&] {
-      score += scalar_similarity<int>(a.get<int>(n), b.get<int>(n));
-      n += 1;
-    },
-    [&] {
-      score += scalar_similarity<float>(a.get<float>(n), b.get<float>(n));
-      n += 1;
-    },
-    [&](int d) {
-      if(d > 1) { throw std::runtime_error("Pointers nested"); }
+  auto visitor = sig_visitor{
+    ignore_param,
+    ignore_param,
+    [&](param const& p) {
+      if(p.pointer_depth > 1) { throw std::runtime_error("Pointers nested"); }
 
-      auto a_vec = a.get<std::vector<int>>(n);
-      auto b_vec = b.get<std::vector<int>>(n);
+      auto a_vec = a.get<std::vector<int>>(p.name);
+      auto b_vec = b.get<std::vector<int>>(p.name);
       auto sim_vec = std::vector<double>{};
 
       // TODO: what if different sizes?
@@ -82,14 +77,13 @@ double params_similarity(call_builder const& a, call_builder const& b)
         sim_vec.push_back(scalar_similarity<int>(a_vec[i], b_vec[i]));
       }
 
-      score += mean(sim_vec);
-      n += 1;
+      scores.push_back(mean(sim_vec));
     },
-    [&](int d) {
-      if(d > 1) { throw std::runtime_error("Pointers nested"); }
+    [&](param const& p) {
+      if(p.pointer_depth > 1) { throw std::runtime_error("Pointers nested"); }
 
-      auto a_vec = a.get<std::vector<float>>(n);
-      auto b_vec = b.get<std::vector<float>>(n);
+      auto a_vec = a.get<std::vector<float>>(p.name);
+      auto b_vec = b.get<std::vector<float>>(p.name);
       auto sim_vec = std::vector<double>{};
 
       // TODO: what if different sizes?
@@ -97,18 +91,17 @@ double params_similarity(call_builder const& a, call_builder const& b)
         sim_vec.push_back(scalar_similarity<float>(a_vec[i], b_vec[i]));
       }
 
-      score += mean(sim_vec);
-      n += 1;
+      scores.push_back(mean(sim_vec));
     }
   };
   // clang-format on
 
   visitor.visit(a.signature());
 
-  if (n == 0) {
+  if (scores.empty()) {
     return 1.0;
   } else {
-    return score / n;
+    return mean(scores);
   }
 }
 
