@@ -24,7 +24,7 @@ void map_add(int n, float v, float* xs)
 {
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < n; ++j) {
-      xs[i] *= xs[j];
+      xs[i] += xs[j];
     }
   }
 }
