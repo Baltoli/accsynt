@@ -131,3 +131,5 @@ TEST_CASE("can visit type signatures")
   }
 }
 // clang-format on
+
+TEST_CASE("Can use the v2 visitor") {}

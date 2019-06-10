@@ -2,6 +2,8 @@
 
 #include <props/core.h>
 
+#include <tuple>
+
 namespace props {
 
 // clang-format off
@@ -135,5 +137,17 @@ struct ignore_param_t {
 };
 
 extern ignore_param_t ignore_param;
+
+namespace v2 {
+
+template <typename Func>
+struct on {
+};
+
+template <typename... Ons>
+struct sig_visitor {
+};
+
+} // namespace v2
 
 } // namespace props
