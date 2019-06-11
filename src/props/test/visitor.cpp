@@ -14,8 +14,8 @@ TEST_CASE("Can use the v2 visitor")
     auto s = "void f(float a, int *b, int c)"_sig;
 
     auto c = 0;
-    auto vis = v2::sig_visitor{
-      v2::on(data_type::integer, [&] (auto const&) { ++c; })
+    auto vis = sig_visitor{
+      on(data_type::integer, [&] (auto const&) { ++c; })
     };
 
     vis.visit(s);

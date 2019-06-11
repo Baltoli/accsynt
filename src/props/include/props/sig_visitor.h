@@ -8,8 +8,6 @@
 
 namespace props {
 
-namespace v2 {
-
 template <typename F>
 class on {
 public:
@@ -77,7 +75,5 @@ void sig_visitor<Fs...>::visit(signature const& sig)
     support::for_each(fns_, [&](auto& fn) { fn(param); });
   }
 }
-
-} // namespace v2
 
 } // namespace props
