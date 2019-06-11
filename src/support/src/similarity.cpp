@@ -62,12 +62,8 @@ double params_similarity(call_builder const& a, call_builder const& b)
   auto scores = std::vector<double>{};
 
   // clang-format off
-  auto visitor = sig_visitor{
-    ignore_param,
-    ignore_param,
-    [&](param const& p) {
-      if(p.pointer_depth > 1) { throw std::runtime_error("Pointers nested"); }
-
+  sig_visitor{
+    on(data_type::integer, 1, [&](auto const& p) {
       auto a_vec = a.get<std::vector<int>>(p.name);
       auto b_vec = b.get<std::vector<int>>(p.name);
       auto sim_vec = std::vector<double>{};
@@ -78,10 +74,8 @@ double params_similarity(call_builder const& a, call_builder const& b)
       }
 
       scores.push_back(mean(sim_vec));
-    },
-    [&](param const& p) {
-      if(p.pointer_depth > 1) { throw std::runtime_error("Pointers nested"); }
-
+    }),
+    on(data_type::floating, 1, [&](param const& p) {
       auto a_vec = a.get<std::vector<float>>(p.name);
       auto b_vec = b.get<std::vector<float>>(p.name);
       auto sim_vec = std::vector<double>{};
@@ -92,11 +86,9 @@ double params_similarity(call_builder const& a, call_builder const& b)
       }
 
       scores.push_back(mean(sim_vec));
-    }
-  };
+    })
+  }.visit(a.signature());
   // clang-format on
-
-  visitor.visit(a.signature());
 
   if (scores.empty()) {
     return 1.0;
