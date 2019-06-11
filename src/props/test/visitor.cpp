@@ -36,5 +36,33 @@ TEST_CASE("Can use the v2 visitor")
 
     REQUIRE(ss.str() == "ABCB");
   }
+
+  SECTION("visiting more than once")
+  {
+    auto s = "int g(int a, int b)"_sig;
+    
+    auto c = 0;
+    sig_visitor{
+      on(data_type::integer, [&] (auto const&) { ++c; })
+    }.visit(s);
+
+    REQUIRE(c == 2);
+  }
+
+  SECTION("complex visiting")
+  {
+    auto s = "float h(float ***g, float z, int b, int *t, float **n)"_sig;
+
+    auto ss = std::stringstream{};
+    sig_visitor {
+      on(data_type::floating, 2, [&] (auto const& p) { ss << "Fp2" << p.name; }),
+      on(data_type::floating, 3, [&] (auto const& p) { ss << "Fp3" << p.name; }),
+      on(data_type::floating, [&] (auto const& p) { ss << "Fs" << p.name; }),
+      on(data_type::integer, 1, [&] (auto const& p) { ss << "Ip1" << p.name; }),
+      on(data_type::integer, [&] (auto const& p) { ss << "Is" << p.name; })
+    }.visit(s);
+
+    REQUIRE(ss.str() == "Fp3gFszIsbIp1tFp2n");
+  }
 }
 // clang-format on
