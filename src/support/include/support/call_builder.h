@@ -31,7 +31,7 @@ T from_bytes(uint8_t const* data)
   memcpy(&ret, data, sizeof(T));
   return ret;
 }
-}
+} // namespace detail
 
 /**
  * Custom exception class for errors that occur during argument pack
@@ -160,10 +160,14 @@ template <typename T>
 void call_builder::add(T arg)
 {
   using Base = std::decay_t<T>;
-  static_assert(
-      (std::is_same_v<Base,
-           int> || std::is_same_v<Base, float>)&&!std::is_pointer_v<Base>,
-      "Must be int or float and not pointer!");
+
+  // clang-format off
+  static_assert((
+    std::is_same_v<Base, int> || 
+    std::is_same_v<Base, float> || 
+    std::is_same_v<Base, char>) &&
+    !std::is_pointer_v<Base>, "Must be scalar, not pointer!");
+  // clang-format on
 
   if (current_arg_ >= signature_.parameters.size()) {
     throw call_builder_error("Parameter list is already full");
@@ -171,13 +175,22 @@ void call_builder::add(T arg)
 
   auto param = signature_.parameters.at(current_arg_);
 
-  if (std::is_same_v<Base, int> && (param.type != props::data_type::integer)) {
-    throw call_builder_error("Adding non-integer when integer expected");
+  if constexpr (std::is_same_v<Base, char>) {
+    if (param.type != props::data_type::character) {
+      throw call_builder_error("Adding non-character when character expected");
+    }
   }
 
-  if (std::is_same_v<Base,
-          float> && (param.type != props::data_type::floating)) {
-    throw call_builder_error("Adding non-float when float expected");
+  if constexpr (std::is_same_v<Base, int>) {
+    if (param.type != props::data_type::integer) {
+      throw call_builder_error("Adding non-integer when integer expected");
+    }
+  }
+
+  if constexpr (std::is_same_v<Base, float>) {
+    if (param.type != props::data_type::floating) {
+      throw call_builder_error("Adding non-float when float expected");
+    }
   }
 
   if (param.pointer_depth != 0) {
@@ -194,19 +207,30 @@ void call_builder::add(T arg)
 template <typename T>
 void call_builder::add(std::vector<T> arg)
 {
-  static_assert(std::is_same_v<T, int> || std::is_same_v<T, float>,
+  static_assert(std::is_same_v<T,
+                    int> || std::is_same_v<T, float> || std::is_same_v<T, char>,
       "Pointed-to data must be of base type");
 
   assert(current_arg_ < signature_.parameters.size());
 
   auto param = signature_.parameters.at(current_arg_);
 
+  if constexpr (std::is_same_v<T, char>) {
+    if (param.type != props::data_type::character) {
+      throw call_builder_error("Adding non-character when character expected");
+    }
+  }
+
   if constexpr (std::is_same_v<T, int>) {
-    assert(param.type == props::data_type::integer);
+    if (param.type != props::data_type::integer) {
+      throw call_builder_error("Adding non-integer when integer expected");
+    }
   }
 
   if constexpr (std::is_same_v<T, float>) {
-    assert(param.type == props::data_type::floating);
+    if (param.type != props::data_type::floating) {
+      throw call_builder_error("Adding non-float when float expected");
+    }
   }
 
   assert(param.pointer_depth == 1);
@@ -291,4 +315,4 @@ T call_builder::get(std::string const& name) const
     throw call_builder_error("Parameter name not found when extracting");
   }
 }
-}
+} // namespace support
