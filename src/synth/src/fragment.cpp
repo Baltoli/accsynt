@@ -18,6 +18,12 @@ using namespace props;
 
 namespace synth {
 
+fragment::frag_ptr fragment::sample(
+    std::vector<fragment::frag_ptr> const& fragments, size_t num_frags)
+{
+  return nullptr;
+}
+
 fragment::frag_set fragment::enumerate(
     std::vector<fragment::frag_ptr> const& fragments,
     std::optional<size_t> max_size, size_t data_blocks)
@@ -144,7 +150,7 @@ bool fragment_equal::operator()(
   return a->to_str() == b->to_str();
   /* return a->equal_to(b); */
 }
-}
+} // namespace synth
 
 size_t std::hash<value_ptr<synth::fragment>>::operator()(
     value_ptr<synth::fragment> const& frag) const noexcept
