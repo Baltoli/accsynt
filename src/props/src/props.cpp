@@ -4,6 +4,19 @@
 
 namespace props {
 
+size_t data_type_size(data_type dt)
+{
+  switch (dt) {
+  case data_type::character:
+    return 1;
+  case data_type::integer:
+  case data_type::floating:
+    return 4;
+  }
+
+  throw std::runtime_error("Invalid type");
+}
+
 size_t signature::param_index(std::string const& name) const
 {
   size_t idx = 0;
@@ -67,4 +80,4 @@ bool value::operator==(value const& other) const
 }
 
 bool value::operator!=(value const& other) const { return !(*this == other); }
-}
+} // namespace props

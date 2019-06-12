@@ -57,6 +57,7 @@ TEST_CASE("Can extract the nth byte of values")
 #define MAXV(T) (std::numeric_limits<T>::max())
 #define MINV(T) (std::numeric_limits<T>::min())
 #define ALLVS(T) random(MINV(T), MAXV(T))
+#define ALLCHARS() range(MINV(char), MAXV(char))
 
 TEST_CASE("Can get values back from bytes")
 {
@@ -74,7 +75,7 @@ TEST_CASE("Can get values back from bytes")
 
   SECTION("for chars")
   {
-    char i = GENERATE(take(1000, random(0, 255)));
+    char i = GENERATE(ALLCHARS());
     REQUIRE(detail::from_bytes<char>(u8ptr(i)) == i);
   }
 
@@ -128,7 +129,7 @@ TEST_CASE("Can extract arguments from a call_builder")
     SECTION("A simple case")
     {
       auto c1 = call_builder("void f(int x)"_sig);
-      auto v1 = GENERATE(take(100, ALLVS(int)));
+      auto v1 = GENERATE(take(1000, ALLVS(int)));
       c1.add(v1);
       REQUIRE(c1.get<int>(0) == v1);
     }
@@ -136,66 +137,95 @@ TEST_CASE("Can extract arguments from a call_builder")
     SECTION("More args")
     {
       auto c2 = call_builder("void g(int x, float v, int y)"_sig);
-      auto v2_0 = GENERATE(take(100, ALLVS(int)));
-      auto v2_1 = GENERATE(take(100, ALLVS(int)));
-      c2.add(v2_0, 0.4f, v2_1);
-      REQUIRE(c2.get<int>(0) == v2_0);
-      REQUIRE(c2.get<int>(2) == v2_1);
+      auto v2 = GENERATE(take(1000, chunk(2, ALLVS(int))));
+      c2.add(v2[0], 0.4f, v2[1]);
+      REQUIRE(c2.get<int>(0) == v2[0]);
+      REQUIRE(c2.get<int>(2) == v2[1]);
+    }
+  }
+
+  SECTION("Can get chars back correctly")
+  {
+    SECTION("A simple case")
+    {
+      auto c1 = call_builder("void f(char c)"_sig);
+      char v = GENERATE(ALLCHARS());
+      c1.add(v);
+      REQUIRE(c1.get<char>(0) == v);
+    }
+
+    SECTION("More args")
+    {
+      auto c2 = call_builder("int g(char c1, int x, float y, char c2)"_sig);
+
+      auto to_c = [](auto i) { return char(i); };
+      auto vs
+          = GENERATE_COPY(take(100, chunk(2, map<char>(to_c, ALLVS(char)))));
+
+      c2.add(vs[0], 0, 0.0f, vs[1]);
+      REQUIRE(c2.get<char>(0) == vs[0]);
+      REQUIRE(c2.get<char>(3) == vs[1]);
     }
   }
 
   SECTION("Can get floats back correctly")
   {
-    for (int i = 0; i < 100; ++i) {
-      auto dis = std::uniform_real_distribution<float>();
-
+    SECTION("A simple case")
+    {
       auto c1 = call_builder("void f(float x)"_sig);
-      auto v = dis(engine);
+      auto v = GENERATE(take(1000, ALLVS(float)));
       c1.add(v);
-      REQUIRE(c1.get<float>(0) == Approx(v));
+      REQUIRE(c1.get<float>(0) == v);
     }
 
-    for (int i = 0; i < 100; ++i) {
-      auto dis = std::uniform_real_distribution<float>();
-
+    SECTION("More args")
+    {
       auto c = call_builder("void g(float x, int v, float y)"_sig);
-      auto v = dis(engine);
-      auto v1 = dis(engine);
+      auto v = GENERATE(take(1000, chunk(2, ALLVS(float))));
+      c.add(v[0], 4, v[1]);
 
-      c.add(v, 4, v1);
-
-      REQUIRE(c.get<float>(0) == v);
-      REQUIRE(c.get<float>(2) == v1);
+      REQUIRE(c.get<float>(0) == v[0]);
+      REQUIRE(c.get<float>(2) == v[1]);
     }
   }
 
   SECTION("Can get vectors back correctly")
   {
-    for (int i = 0; i < 100; ++i) {
-      auto dis = std::uniform_int_distribution<int>();
-      auto c1 = call_builder("void h(int *x)"_sig);
+    SECTION("For ints")
+    {
+      for (int i = 0; i < 100; ++i) {
+        auto dis = std::uniform_int_distribution<int>();
+        auto c1 = call_builder("void h(int *x)"_sig);
 
-      auto vec = std::vector<int>(64);
-      std::generate(vec.begin(), vec.end(), [&] { return dis(engine); });
-      c1.add(vec);
+        auto vec = std::vector<int>(64);
+        std::generate(vec.begin(), vec.end(), [&] { return dis(engine); });
+        c1.add(vec);
 
-      auto ext_vec = c1.get<std::vector<int>>(0);
-      REQUIRE(ext_vec == vec);
-      REQUIRE(ext_vec.data() != vec.data());
+        auto ext_vec = c1.get<std::vector<int>>(0);
+        REQUIRE(ext_vec == vec);
+        REQUIRE(ext_vec.data() != vec.data());
+      }
     }
 
-    for (int i = 0; i < 100; ++i) {
-      auto dis = std::uniform_real_distribution<float>();
-      auto c1 = call_builder("void h(float *x)"_sig);
+    SECTION("For chars") {}
 
-      auto vec = std::vector<float>(64);
-      std::generate(vec.begin(), vec.end(), [&] { return dis(engine); });
-      c1.add(vec);
+    SECTION("For floats")
+    {
+      for (int i = 0; i < 100; ++i) {
+        auto dis = std::uniform_real_distribution<float>();
+        auto c1 = call_builder("void h(float *x)"_sig);
 
-      auto ext_vec = c1.get<std::vector<float>>(0);
-      REQUIRE(ext_vec == vec);
-      REQUIRE(ext_vec.data() != vec.data());
+        auto vec = std::vector<float>(64);
+        std::generate(vec.begin(), vec.end(), [&] { return dis(engine); });
+        c1.add(vec);
+
+        auto ext_vec = c1.get<std::vector<float>>(0);
+        REQUIRE(ext_vec == vec);
+        REQUIRE(ext_vec.data() != vec.data());
+      }
     }
+
+    SECTION("For a combination") {}
   }
 
   SECTION("Can get whole signatures back correctly")

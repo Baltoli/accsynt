@@ -280,7 +280,7 @@ T call_builder::get(size_t idx) const
     auto const& param = signature_.parameters.at(i);
 
     if (param.pointer_depth == 0) {
-      offset += sizeof(T);
+      offset += data_type_size(param.type);
     } else {
       if (param.pointer_depth != 1) {
         throw std::runtime_error("Can't extract nested pointers");
