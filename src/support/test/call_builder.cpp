@@ -2,11 +2,11 @@
 
 #include <catch2/catch.hpp>
 
-#include <random>
-
 using namespace props;
 using namespace props::literals;
 using namespace support;
+
+char to_c(int i) { return char(i); }
 
 TEST_CASE("Can extract the nth byte of values")
 {
@@ -103,9 +103,6 @@ TEST_CASE("Can construct call builders from signatures")
 
 TEST_CASE("Can extract arguments from a call_builder")
 {
-  auto rd = std::random_device{};
-  auto engine = std::default_random_engine(rd());
-
   SECTION("Fails if not enough arguments are present")
   {
     auto c1 = call_builder("void f()"_sig);
@@ -158,7 +155,6 @@ TEST_CASE("Can extract arguments from a call_builder")
     {
       auto c2 = call_builder("int g(char c1, int x, float y, char c2)"_sig);
 
-      auto to_c = [](auto i) { return char(i); };
       auto vs
           = GENERATE_COPY(take(100, chunk(2, map<char>(to_c, ALLVS(char)))));
 
@@ -193,39 +189,46 @@ TEST_CASE("Can extract arguments from a call_builder")
   {
     SECTION("For ints")
     {
-      for (int i = 0; i < 100; ++i) {
-        auto dis = std::uniform_int_distribution<int>();
-        auto c1 = call_builder("void h(int *x)"_sig);
+      auto c1 = call_builder("void h(int *x)"_sig);
 
-        auto vec = std::vector<int>(64);
-        std::generate(vec.begin(), vec.end(), [&] { return dis(engine); });
-        c1.add(vec);
+      auto len = GENERATE(take(1, random(1, 1000)));
+      auto vec = GENERATE_COPY(take(100, chunk(len, ALLVS(int))));
 
-        auto ext_vec = c1.get<std::vector<int>>(0);
-        REQUIRE(ext_vec == vec);
-        REQUIRE(ext_vec.data() != vec.data());
-      }
+      c1.add(vec);
+
+      auto ext_vec = c1.get<std::vector<int>>(0);
+      REQUIRE(ext_vec == vec);
+      REQUIRE(ext_vec.data() != vec.data());
     }
 
-    SECTION("For chars") {}
+    SECTION("For chars")
+    {
+      auto c = call_builder("void z(char *cs)"_sig);
+
+      auto len = GENERATE(take(1, random(1, 1000)));
+      auto vec
+          = GENERATE_COPY(take(100, chunk(len, map<char>(to_c, ALLVS(char)))));
+
+      c.add(vec);
+
+      auto ext_vec = c.get<std::vector<char>>(0);
+      REQUIRE(ext_vec == vec);
+      REQUIRE(ext_vec.data() != vec.data());
+    }
 
     SECTION("For floats")
     {
-      for (int i = 0; i < 100; ++i) {
-        auto dis = std::uniform_real_distribution<float>();
-        auto c1 = call_builder("void h(float *x)"_sig);
+      auto c1 = call_builder("void h(float *x)"_sig);
 
-        auto vec = std::vector<float>(64);
-        std::generate(vec.begin(), vec.end(), [&] { return dis(engine); });
-        c1.add(vec);
+      auto len = GENERATE(take(1, random(1, 1000)));
+      auto vec = GENERATE_COPY(take(100, chunk(len, ALLVS(float))));
 
-        auto ext_vec = c1.get<std::vector<float>>(0);
-        REQUIRE(ext_vec == vec);
-        REQUIRE(ext_vec.data() != vec.data());
-      }
+      c1.add(vec);
+
+      auto ext_vec = c1.get<std::vector<float>>(0);
+      REQUIRE(ext_vec == vec);
+      REQUIRE(ext_vec.data() != vec.data());
     }
-
-    SECTION("For a combination") {}
   }
 
   SECTION("Can get whole signatures back correctly")
