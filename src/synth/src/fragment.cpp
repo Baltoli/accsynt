@@ -2,6 +2,7 @@
 #include "linear_fragment.h"
 
 #include <support/choose.h>
+#include <support/random.h>
 #include <value_ptr/value_ptr.h>
 
 #include <llvm/IR/Constant.h>
@@ -25,7 +26,34 @@ fragment::frag_ptr fragment::sample(
     return nullptr;
   }
 
-  auto solution = fragments.at(0);
+  // Start by getting the list of indices that can possibly be used to sample
+  // from.
+  auto indices = std::vector<size_t>(fragments.size());
+  std::iota(indices.begin(), indices.end(), 0);
+
+  // Then shuffle the indices to get the order in which we actually want to
+  // sample them in.
+  std::shuffle(indices.begin(), indices.end(), get_random_engine());
+
+  // The solution starts with the first index
+  auto solution = fragments[indices[0]];
+
+  // For the remaining fragments to be added to the running solution:
+  for (auto i = 1u; i < fragments.size() && i < num_frags; ++i) {
+    auto holes = solution->count_holes();
+    auto location = random_int(0ul, holes - 1);
+
+    solution->add_child(fragments[indices[i]], location);
+  }
+
+  // Fill up the remaining space with linear fragments. Can revisit this if the
+  // resulting programs are too complex (i.e. use fewer linear frags / data
+  // blocks)
+  auto holes_remaining = solution->count_holes();
+  for (auto i = 0u; i < holes_remaining; ++i) {
+    solution->add_child(fragment::frag_ptr{ new linear_fragment{ {} } }, 0);
+  }
+
   return solution;
 }
 
