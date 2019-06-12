@@ -16,7 +16,7 @@ namespace props {
 
 struct property_set;
 
-enum class data_type { integer, floating };
+enum class data_type { character, integer, floating };
 
 llvm::Type* base_llvm_type(data_type dt);
 llvm::Type* base_llvm_return_type(std::optional<data_type> dt);
