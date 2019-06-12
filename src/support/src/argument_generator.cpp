@@ -62,31 +62,6 @@ void uniform_generator::gen_args(call_builder& build)
     on(data_type::floating, 1, [&] (auto const&) { build.add(gen_array<float>()); })
   }.visit(build.signature());
   // clang-format on
-
-  /* auto const& sig = build.signature(); */
-  /* for (auto p : sig.parameters) { */
-  /*   if (p.pointer_depth > 1) { */
-  /*     throw std::runtime_error("No nested pointers"); */
-  /*   } */
-
-  /*   if (p.pointer_depth == 0) { */
-  /*     if (p.type == data_type::integer) { */
-  /*       build.add(gen_single<int>()); */
-  /*     } else if (p.type == data_type::floating) { */
-  /*       build.add(gen_single<float>()); */
-  /*     } else { */
-  /*       throw std::runtime_error("Unknown data_type"); */
-  /*     } */
-  /*   } else { */
-  /*     if (p.type == data_type::integer) { */
-  /*       build.add(gen_array<int>()); */
-  /*     } else if (p.type == data_type::floating) { */
-  /*       build.add(gen_array<float>()); */
-  /*     } else { */
-  /*       throw std::runtime_error("Unknown data_type"); */
-  /*     } */
-  /*   } */
-  /* } */
 }
 
 template <>
