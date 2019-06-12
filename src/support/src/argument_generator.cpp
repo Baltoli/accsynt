@@ -50,20 +50,6 @@ void uniform_generator::seed(std::random_device::result_type seed)
   engine_.seed(seed);
 }
 
-void uniform_generator::gen_args(call_builder& build)
-{
-  // clang-format off
-  sig_visitor {
-    on(data_type::integer, [&] (auto const&) { build.add(gen_single<int>()); }),
-    on(data_type::character, [&] (auto const&) { build.add(gen_single<char>()); }),
-    on(data_type::floating, [&] (auto const&) { build.add(gen_single<float>()); }),
-    on(data_type::integer, 1, [&] (auto const&) { build.add(gen_array<int>()); }),
-    on(data_type::character, 1, [&] (auto const&) { build.add(gen_array<char>()); }),
-    on(data_type::floating, 1, [&] (auto const&) { build.add(gen_array<float>()); })
-  }.visit(build.signature());
-  // clang-format on
-}
-
 template <>
 int uniform_generator::gen_single<int>()
 {
@@ -80,6 +66,20 @@ template <>
 float uniform_generator::gen_single<float>()
 {
   return std::uniform_real_distribution<float>()(engine_);
+}
+
+void uniform_generator::gen_args(call_builder& build)
+{
+  // clang-format off
+  sig_visitor {
+    on(data_type::integer, [&] (auto const&) { build.add(gen_single<int>()); }),
+    on(data_type::character, [&] (auto const&) { build.add(gen_single<char>()); }),
+    on(data_type::floating, [&] (auto const&) { build.add(gen_single<float>()); }),
+    on(data_type::integer, 1, [&] (auto const&) { build.add(gen_array<int>()); }),
+    on(data_type::character, 1, [&] (auto const&) { build.add(gen_array<char>()); }),
+    on(data_type::floating, 1, [&] (auto const&) { build.add(gen_array<float>()); })
+  }.visit(build.signature());
+  // clang-format on
 }
 
 // CSR Generator Implementation

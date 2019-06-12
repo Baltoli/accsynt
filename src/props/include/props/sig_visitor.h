@@ -5,11 +5,17 @@
 
 #include <optional>
 #include <tuple>
+#include <type_traits>
 
 namespace props {
 
 template <typename F>
 class on {
+  static_assert(std::is_invocable_v<F, param const&> || std::is_invocable_v<F>,
+      "Visitor function must be invocable with param or no args");
+
+  static constexpr bool pass_param = std::is_invocable_v<F, param const&>;
+
 public:
   on(data_type dt, F&& f);
   on(data_type dt, int depth, F&& f);
@@ -44,10 +50,18 @@ void on<F>::operator()(param const& p)
   if (dt_ == p.type) {
     if (depth_) {
       if (*depth_ == p.pointer_depth) {
-        f_(p);
+        if constexpr (pass_param) {
+          f_(p);
+        } else {
+          f_();
+        }
       }
     } else if (p.pointer_depth == 0) {
-      f_(p);
+      if constexpr (pass_param) {
+        f_(p);
+      } else {
+        f_();
+      }
     }
   }
 }
