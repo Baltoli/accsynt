@@ -21,7 +21,12 @@ namespace synth {
 fragment::frag_ptr fragment::sample(
     std::vector<fragment::frag_ptr> const& fragments, size_t num_frags)
 {
-  return nullptr;
+  if (fragments.empty() || num_frags == 0) {
+    return nullptr;
+  }
+
+  auto solution = fragments.at(0);
+  return solution;
 }
 
 fragment::frag_set fragment::enumerate(
