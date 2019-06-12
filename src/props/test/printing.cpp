@@ -12,6 +12,9 @@ TEST_CASE("can print data types")
 
   auto flt = data_type::floating;
   REQUIRE_THAT(fmt::format("{}", flt), Equals("float"));
+
+  auto ch = data_type::character;
+  REQUIRE_THAT(fmt::format("{}", ch), Equals("char"));
 }
 
 TEST_CASE("can print params")
@@ -21,6 +24,9 @@ TEST_CASE("can print params")
 
   auto p2 = param{ "wefhui", data_type::floating, 0 };
   REQUIRE_THAT(fmt::format("{}", p2), Equals("float wefhui"));
+
+  auto p3 = param{ "chiw", data_type::character, 1 };
+  REQUIRE_THAT(fmt::format("{}", p3), Equals("char *chiw"));
 }
 
 TEST_CASE("can print signatures")
@@ -36,6 +42,10 @@ TEST_CASE("can print signatures")
   auto str3 = "float woo(float *******x, int yooo)";
   auto sig3 = signature::parse(str3);
   REQUIRE_THAT(fmt::format("{}", sig3), Equals(str3));
+
+  auto str4 = "char er(char **c, int y, float ju)";
+  auto sig4 = signature::parse(str4);
+  REQUIRE_THAT(fmt::format("{}", sig4), Equals(str4));
 }
 
 TEST_CASE("can print values")

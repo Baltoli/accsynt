@@ -36,6 +36,14 @@ TEST_CASE("signatures can be parsed")
     REQUIRE(s3.parameters.at(0).name == "woo");
     REQUIRE(s3.parameters.at(0).type == data_type::integer);
     REQUIRE(s3.parameters.at(0).pointer_depth == 3);
+
+    auto s4 = signature::parse("char f(char *c)");
+    REQUIRE(s4.name == "f");
+    REQUIRE(s4.return_type);
+    REQUIRE(s4.return_type.value() == data_type::character);
+    REQUIRE(s4.parameters.at(0).name == "c");
+    REQUIRE(s4.parameters.at(0).type == data_type::character);
+    REQUIRE(s4.parameters.at(0).pointer_depth == 1);
   }
 
   SECTION("without valid signatures")
@@ -48,6 +56,7 @@ TEST_CASE("signatures can be parsed")
     REQUIRE_THROWS(signature::parse("int)"));
     REQUIRE_THROWS(signature::parse("int woo()  fef"));
     REQUIRE_THROWS(signature::parse("int(int, float)"));
+    REQUIRE_THROWS(signature::parse("character f()"));
   }
 }
 
@@ -73,7 +82,7 @@ TEST_CASE("files can be parsed")
 ;werjio
 
 
-int main(int s, float *d)
+int main(int s, float *d, char **argv)
 name 2.111, 0.000, 4, :string, s, d
 fjio
 wefjop
@@ -90,6 +99,10 @@ wefjop
   REQUIRE(ps.type_signature.parameters.at(1).name == "d");
   REQUIRE(ps.type_signature.parameters.at(1).pointer_depth == 1);
 
+  REQUIRE(ps.type_signature.parameters.at(2).type == data_type::character);
+  REQUIRE(ps.type_signature.parameters.at(2).name == "argv");
+  REQUIRE(ps.type_signature.parameters.at(2).pointer_depth == 2);
+
   REQUIRE(ps.properties.size() == 3);
 }
 
@@ -103,7 +116,14 @@ TEST_CASE("files can be loaded")
   REQUIRE(ps_a.type_signature.return_type == data_type::integer);
 
   REQUIRE(ps_a.type_signature.name == "main");
-  REQUIRE(ps_a.type_signature.parameters.empty());
+
+  REQUIRE(ps_a.type_signature.parameters.at(0).type == data_type::integer);
+  REQUIRE(ps_a.type_signature.parameters.at(0).name == "argc");
+  REQUIRE(ps_a.type_signature.parameters.at(0).pointer_depth == 0);
+
+  REQUIRE(ps_a.type_signature.parameters.at(1).type == data_type::character);
+  REQUIRE(ps_a.type_signature.parameters.at(1).name == "argv");
+  REQUIRE(ps_a.type_signature.parameters.at(1).pointer_depth == 2);
 
   REQUIRE(ps_a.properties.at(0).name == "property");
   REQUIRE(ps_a.properties.at(0).values.size() == 2);
