@@ -10,7 +10,9 @@ using namespace pegtl;
 
 std::optional<data_type> data_type_from_string(std::string const& str)
 {
-  if (str == "int") {
+  if (str == "char") {
+    return data_type::character;
+  } else if (str == "int") {
     return data_type::integer;
   } else if (str == "float") {
     return data_type::floating;
@@ -32,7 +34,7 @@ struct property_action : nothing<Rule> {
 };
 
 struct type_name : sor<TAO_PEGTL_STRING("void"), TAO_PEGTL_STRING("int"),
-                       TAO_PEGTL_STRING("float")> {
+                       TAO_PEGTL_STRING("float"), TAO_PEGTL_STRING("char")> {
 };
 
 struct interface_name : identifier {
@@ -257,7 +259,7 @@ value value::with_string(std::string str)
   value v;
   v.value_type = type::string;
 
-  if(str.at(0) != ':') {
+  if (str.at(0) != ':') {
     throw std::runtime_error("Invalid string literal");
   }
 
@@ -271,5 +273,5 @@ signature operator""_sig(const char* str, size_t len)
 {
   return signature::parse(std::string_view(str, len));
 }
-}
-}
+} // namespace literals
+} // namespace props

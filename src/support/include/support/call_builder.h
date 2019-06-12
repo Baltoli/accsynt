@@ -31,7 +31,7 @@ T from_bytes(uint8_t const* data)
   memcpy(&ret, data, sizeof(T));
   return ret;
 }
-}
+} // namespace detail
 
 /**
  * Custom exception class for errors that occur during argument pack
@@ -149,6 +149,7 @@ private:
   size_t current_arg_ = 0;
   std::vector<std::vector<int>> int_data_ = {};
   std::vector<std::vector<float>> float_data_ = {};
+  std::vector<std::vector<char>> char_data_ = {};
 };
 
 struct output_example {
@@ -160,10 +161,14 @@ template <typename T>
 void call_builder::add(T arg)
 {
   using Base = std::decay_t<T>;
-  static_assert(
-      (std::is_same_v<Base,
-           int> || std::is_same_v<Base, float>)&&!std::is_pointer_v<Base>,
-      "Must be int or float and not pointer!");
+
+  // clang-format off
+  static_assert((
+    std::is_same_v<Base, int> || 
+    std::is_same_v<Base, float> || 
+    std::is_same_v<Base, char>) &&
+    !std::is_pointer_v<Base>, "Must be scalar, not pointer!");
+  // clang-format on
 
   if (current_arg_ >= signature_.parameters.size()) {
     throw call_builder_error("Parameter list is already full");
@@ -171,13 +176,22 @@ void call_builder::add(T arg)
 
   auto param = signature_.parameters.at(current_arg_);
 
-  if (std::is_same_v<Base, int> && (param.type != props::data_type::integer)) {
-    throw call_builder_error("Adding non-integer when integer expected");
+  if constexpr (std::is_same_v<Base, char>) {
+    if (param.type != props::data_type::character) {
+      throw call_builder_error("Adding non-character when character expected");
+    }
   }
 
-  if (std::is_same_v<Base,
-          float> && (param.type != props::data_type::floating)) {
-    throw call_builder_error("Adding non-float when float expected");
+  if constexpr (std::is_same_v<Base, int>) {
+    if (param.type != props::data_type::integer) {
+      throw call_builder_error("Adding non-integer when integer expected");
+    }
+  }
+
+  if constexpr (std::is_same_v<Base, float>) {
+    if (param.type != props::data_type::floating) {
+      throw call_builder_error("Adding non-float when float expected");
+    }
   }
 
   if (param.pointer_depth != 0) {
@@ -194,25 +208,39 @@ void call_builder::add(T arg)
 template <typename T>
 void call_builder::add(std::vector<T> arg)
 {
-  static_assert(std::is_same_v<T, int> || std::is_same_v<T, float>,
+  static_assert(std::is_same_v<T,
+                    int> || std::is_same_v<T, float> || std::is_same_v<T, char>,
       "Pointed-to data must be of base type");
 
   assert(current_arg_ < signature_.parameters.size());
 
   auto param = signature_.parameters.at(current_arg_);
 
+  if constexpr (std::is_same_v<T, char>) {
+    if (param.type != props::data_type::character) {
+      throw call_builder_error("Adding non-character when character expected");
+    }
+  }
+
   if constexpr (std::is_same_v<T, int>) {
-    assert(param.type == props::data_type::integer);
+    if (param.type != props::data_type::integer) {
+      throw call_builder_error("Adding non-integer when integer expected");
+    }
   }
 
   if constexpr (std::is_same_v<T, float>) {
-    assert(param.type == props::data_type::floating);
+    if (param.type != props::data_type::floating) {
+      throw call_builder_error("Adding non-float when float expected");
+    }
   }
 
   assert(param.pointer_depth == 1);
 
   void* data = nullptr;
-  if constexpr (std::is_same_v<T, int>) {
+  if constexpr (std::is_same_v<T, char>) {
+    char_data_.push_back(arg);
+    data = char_data_.back().data();
+  } else if constexpr (std::is_same_v<T, int>) {
     int_data_.push_back(arg);
     data = int_data_.back().data();
   } else if constexpr (std::is_same_v<T, float>) {
@@ -246,18 +274,21 @@ T call_builder::get(size_t idx) const
   size_t offset = 0;
   size_t int_offset = 0;
   size_t float_offset = 0;
+  size_t char_offset = 0;
 
   for (auto i = 0u; i < idx; ++i) {
     auto const& param = signature_.parameters.at(i);
 
     if (param.pointer_depth == 0) {
-      offset += 4;
+      offset += data_type_size(param.type);
     } else {
       if (param.pointer_depth != 1) {
         throw std::runtime_error("Can't extract nested pointers");
       }
 
-      if (param.type == props::data_type::integer) {
+      if (param.type == props::data_type::character) {
+        ++char_offset;
+      } else if (param.type == props::data_type::integer) {
         ++int_offset;
       } else if (param.type == props::data_type::floating) {
         ++float_offset;
@@ -267,12 +298,16 @@ T call_builder::get(size_t idx) const
     }
   }
 
-  if constexpr (std::is_same_v<T, int> || std::is_same_v<T, float>) {
+  if constexpr (
+      std::is_same_v<T,
+          int> || std::is_same_v<T, float> || std::is_same_v<T, char>) {
     return detail::from_bytes<T>(args_.data() + offset);
   } else if constexpr (std::is_same_v<T, std::vector<int>>) {
     return int_data_.at(int_offset);
   } else if constexpr (std::is_same_v<T, std::vector<float>>) {
     return float_data_.at(float_offset);
+  } else if constexpr (std::is_same_v<T, std::vector<char>>) {
+    return char_data_.at(float_offset);
   } else {
     static_fail("Unknown type when extracting!");
   }
@@ -291,4 +326,5 @@ T call_builder::get(std::string const& name) const
     throw call_builder_error("Parameter name not found when extracting");
   }
 }
-}
+
+} // namespace support

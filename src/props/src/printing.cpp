@@ -7,6 +7,9 @@ using namespace props;
 std::ostream& operator<<(std::ostream& os, const data_type& dt)
 {
   switch (dt) {
+  case data_type::character:
+    os << "char";
+    break;
   case data_type::integer:
     os << "int";
     break;

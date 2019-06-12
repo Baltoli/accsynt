@@ -11,7 +11,7 @@ TEST_CASE("can validate property sets")
   {
     auto str =
         R"(
-int main(int x)
+int main(int x, char c)
 )";
 
     REQUIRE_NOTHROW(property_set::parse(str));
@@ -42,7 +42,7 @@ size :str, 0.2, 23, x, y
   {
     auto str =
         R"(
-int main(int x, float *y)
+int main(int x, char c, float *y)
 size 3452.231, 3, x, nope
 )";
 
@@ -74,7 +74,7 @@ third
   {
     auto str =
         R"(
-void main(int x)
+void main(char x)
 size 34
 size 22
 other_name
