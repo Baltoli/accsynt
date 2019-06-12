@@ -280,7 +280,7 @@ T call_builder::get(size_t idx) const
     auto const& param = signature_.parameters.at(i);
 
     if (param.pointer_depth == 0) {
-      offset += 4;
+      offset += sizeof(T);
     } else {
       if (param.pointer_depth != 1) {
         throw std::runtime_error("Can't extract nested pointers");
@@ -326,4 +326,5 @@ T call_builder::get(std::string const& name) const
     throw call_builder_error("Parameter name not found when extracting");
   }
 }
+
 } // namespace support

@@ -19,6 +19,12 @@ TEST_CASE("Can extract the nth byte of values")
     REQUIRE(detail::nth_byte(val, 3) == 222);
   }
 
+  SECTION("for character vals")
+  {
+    auto val = 'A';
+    REQUIRE(detail::nth_byte(val, 0) == 65);
+  }
+
   SECTION("for floating values")
   {
     auto val = float{ 12.345 };
@@ -48,42 +54,39 @@ TEST_CASE("Can extract the nth byte of values")
 }
 
 #define u8ptr(v) reinterpret_cast<uint8_t const*>(&v)
+#define MAXV(T) (std::numeric_limits<T>::max())
+#define MINV(T) (std::numeric_limits<T>::min())
+#define ALLVS(T) random(MINV(T), MAXV(T))
+
 TEST_CASE("Can get values back from bytes")
 {
-  auto rd = std::random_device{};
-  auto engine = std::default_random_engine(rd());
-
   SECTION("for ints")
   {
-    auto dis = std::uniform_int_distribution<int>();
-    for (auto i = 0; i < 100; ++i) {
-      auto val = dis(engine);
-      REQUIRE(detail::from_bytes<int>(u8ptr(val)) == val);
-    }
+    auto i = GENERATE(take(1000, ALLVS(int)));
+    REQUIRE(detail::from_bytes<int>(u8ptr(i)) == i);
   }
 
   SECTION("for floats")
   {
-    auto dis = std::uniform_real_distribution<float>();
-    for (auto i = 0; i < 100; ++i) {
-      auto val = dis(engine);
-      REQUIRE(detail::from_bytes<float>(u8ptr(val)) == val);
-    }
+    auto i = GENERATE(take(1000, ALLVS(float)));
+    REQUIRE(detail::from_bytes<float>(u8ptr(i)) == i);
+  }
+
+  SECTION("for chars")
+  {
+    char i = GENERATE(take(1000, random(0, 255)));
+    REQUIRE(detail::from_bytes<char>(u8ptr(i)) == i);
   }
 
   SECTION("for pointers")
   {
     REQUIRE(sizeof(long) == sizeof(int*));
 
-    auto dis = std::uniform_int_distribution<long>();
-    for (auto i = 0; i < 100; ++i) {
-      auto val = dis(engine);
-      int* ptr;
+    long long_val = GENERATE(take(1000, ALLVS(long)));
 
-      memcpy(&ptr, &val, sizeof(val));
-
-      REQUIRE(detail::from_bytes<int*>(u8ptr(ptr)) == ptr);
-    }
+    int* ptr;
+    memcpy(&ptr, &long_val, sizeof(long_val));
+    REQUIRE(detail::from_bytes<int*>(u8ptr(ptr)) == ptr);
   }
 }
 #undef u8ptr
@@ -92,6 +95,9 @@ TEST_CASE("Can construct call builders from signatures")
 {
   auto s1 = "void f()"_sig;
   auto c1 = call_builder(s1);
+
+  auto s2 = "char c(int a, char b, float c)"_sig;
+  auto c2 = call_builder(s2);
 }
 
 TEST_CASE("Can extract arguments from a call_builder")
@@ -111,30 +117,30 @@ TEST_CASE("Can extract arguments from a call_builder")
     auto c3 = call_builder("void f(int x, int y, int z)"_sig);
     c3.add(0, 0);
     REQUIRE_THROWS_AS(c3.get<int>(2), call_builder_error);
+
+    auto c4 = call_builder("void f(char v, int g)"_sig);
+    c4.add('a', 78);
+    REQUIRE_THROWS_AS(c4.get<char>(2), call_builder_error);
   }
 
   SECTION("Can get ints back correctly")
   {
-    for (int i = 0; i < 100; ++i) {
-      auto dis = std::uniform_int_distribution<int>();
-
+    SECTION("A simple case")
+    {
       auto c1 = call_builder("void f(int x)"_sig);
-      auto v = dis(engine);
-      c1.add(v);
-      REQUIRE(c1.get<int>(0) == v);
+      auto v1 = GENERATE(take(100, ALLVS(int)));
+      c1.add(v1);
+      REQUIRE(c1.get<int>(0) == v1);
     }
 
-    for (int i = 0; i < 100; ++i) {
-      auto dis = std::uniform_int_distribution<int>();
-
-      auto c = call_builder("void g(int x, float v, int y)"_sig);
-      auto v = dis(engine);
-      auto v1 = dis(engine);
-
-      c.add(v, 0.4f, v1);
-
-      REQUIRE(c.get<int>(0) == v);
-      REQUIRE(c.get<int>(2) == v1);
+    SECTION("More args")
+    {
+      auto c2 = call_builder("void g(int x, float v, int y)"_sig);
+      auto v2_0 = GENERATE(take(100, ALLVS(int)));
+      auto v2_1 = GENERATE(take(100, ALLVS(int)));
+      c2.add(v2_0, 0.4f, v2_1);
+      REQUIRE(c2.get<int>(0) == v2_0);
+      REQUIRE(c2.get<int>(2) == v2_1);
     }
   }
 
