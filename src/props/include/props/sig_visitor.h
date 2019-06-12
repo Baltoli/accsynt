@@ -5,11 +5,15 @@
 
 #include <optional>
 #include <tuple>
+#include <type_traits>
 
 namespace props {
 
 template <typename F>
 class on {
+  static_assert(std::is_invocable_v<F, param const&> || std::is_invocable_v<F>,
+      "Visitor function must be invocable with param or no args");
+
 public:
   on(data_type dt, F&& f);
   on(data_type dt, int depth, F&& f);
