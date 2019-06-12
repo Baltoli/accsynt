@@ -22,13 +22,6 @@ hill_synth::hill_synth(property_set ps, call_wrapper& ref)
   }
 }
 
-Function* hill_synth::generate()
-{
-  for (int i = 0; i < 3; ++i) {
-    auto sol = fragment::sample(choices_, 2);
-    fmt::print("{}\n\n", sol->to_str());
-  }
-  return nullptr;
-}
+Function* hill_synth::generate() { return nullptr; }
 
 } // namespace synth

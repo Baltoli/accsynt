@@ -9,6 +9,17 @@
 
 namespace synth {
 
+class scored_fragment {
+public:
+  scored_fragment(fragment::frag_ptr f);
+
+  double mean() const;
+
+private:
+  size_t samples_;
+  double mean_;
+};
+
 class hill_synth {
 public:
   hill_synth(props::property_set ps, support::call_wrapper& ref);
