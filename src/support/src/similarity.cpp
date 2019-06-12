@@ -49,6 +49,24 @@ double mean(std::vector<double> const& v)
   return sum / v.size();
 }
 
+template <typename T>
+auto vector_similarity_func(
+    call_builder const& a, call_builder const& b, std::vector<double>& scores)
+{
+  return [&a, &b, &scores](param const& p) {
+    auto a_vec = a.get<std::vector<T>>(p.name);
+    auto b_vec = b.get<std::vector<T>>(p.name);
+    auto sim_vec = std::vector<double>{};
+
+    // TODO: what if different sizes?
+    for (auto i = 0u; i < a_vec.size(); ++i) {
+      sim_vec.push_back(scalar_similarity<T>(a_vec[i], b_vec[i]));
+    }
+
+    scores.push_back(mean(sim_vec));
+  };
+}
+
 double params_similarity(call_builder const& a, call_builder const& b)
 {
   // Should only be called from `similarity`, which enforces this condition
@@ -63,30 +81,8 @@ double params_similarity(call_builder const& a, call_builder const& b)
 
   // clang-format off
   sig_visitor{
-    on(data_type::integer, 1, [&](auto const& p) {
-      auto a_vec = a.get<std::vector<int>>(p.name);
-      auto b_vec = b.get<std::vector<int>>(p.name);
-      auto sim_vec = std::vector<double>{};
-
-      // TODO: what if different sizes?
-      for(auto i = 0u; i < a_vec.size(); ++i) {
-        sim_vec.push_back(scalar_similarity<int>(a_vec[i], b_vec[i]));
-      }
-
-      scores.push_back(mean(sim_vec));
-    }),
-    on(data_type::floating, 1, [&](param const& p) {
-      auto a_vec = a.get<std::vector<float>>(p.name);
-      auto b_vec = b.get<std::vector<float>>(p.name);
-      auto sim_vec = std::vector<double>{};
-
-      // TODO: what if different sizes?
-      for(auto i = 0u; i < a_vec.size(); ++i) {
-        sim_vec.push_back(scalar_similarity<float>(a_vec[i], b_vec[i]));
-      }
-
-      scores.push_back(mean(sim_vec));
-    })
+    on(data_type::integer, 1, vector_similarity_func<int>(a, b, scores)),
+    on(data_type::floating, 1, vector_similarity_func<float>(a, b, scores))
   }.visit(a.signature());
   // clang-format on
 
