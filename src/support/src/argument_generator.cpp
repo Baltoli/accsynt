@@ -1,5 +1,6 @@
 #include <support/argument_generator.h>
 #include <support/random.h>
+#include <support/visitor.h>
 
 #include <optional>
 
@@ -51,36 +52,51 @@ void uniform_generator::seed(std::random_device::result_type seed)
 
 void uniform_generator::gen_args(call_builder& build)
 {
-  auto const& sig = build.signature();
-  for (auto p : sig.parameters) {
-    if (p.pointer_depth > 1) {
-      throw std::runtime_error("No nested pointers");
-    }
+  // clang-format off
+  sig_visitor {
+    on(data_type::integer, [&] (auto const&) { build.add(gen_single<int>()); }),
+    on(data_type::floating, [&] (auto const&) { build.add(gen_single<float>()); }),
+    on(data_type::integer, 1, [&] (auto const&) { build.add(gen_array<int>()); }),
+    on(data_type::floating, 1, [&] (auto const&) { build.add(gen_array<float>()); })
+  }.visit(build.signature());
+  // clang-format on
 
-    if (p.pointer_depth == 0) {
-      if (p.type == data_type::integer) {
-        build.add(gen_single<int>());
-      } else if (p.type == data_type::floating) {
-        build.add(gen_single<float>());
-      } else {
-        throw std::runtime_error("Unknown data_type");
-      }
-    } else {
-      if (p.type == data_type::integer) {
-        build.add(gen_array<int>());
-      } else if (p.type == data_type::floating) {
-        build.add(gen_array<float>());
-      } else {
-        throw std::runtime_error("Unknown data_type");
-      }
-    }
-  }
+  /* auto const& sig = build.signature(); */
+  /* for (auto p : sig.parameters) { */
+  /*   if (p.pointer_depth > 1) { */
+  /*     throw std::runtime_error("No nested pointers"); */
+  /*   } */
+
+  /*   if (p.pointer_depth == 0) { */
+  /*     if (p.type == data_type::integer) { */
+  /*       build.add(gen_single<int>()); */
+  /*     } else if (p.type == data_type::floating) { */
+  /*       build.add(gen_single<float>()); */
+  /*     } else { */
+  /*       throw std::runtime_error("Unknown data_type"); */
+  /*     } */
+  /*   } else { */
+  /*     if (p.type == data_type::integer) { */
+  /*       build.add(gen_array<int>()); */
+  /*     } else if (p.type == data_type::floating) { */
+  /*       build.add(gen_array<float>()); */
+  /*     } else { */
+  /*       throw std::runtime_error("Unknown data_type"); */
+  /*     } */
+  /*   } */
+  /* } */
 }
 
 template <>
 int uniform_generator::gen_single<int>()
 {
   return std::uniform_int_distribution<int>(0, size_ - 1)(engine_);
+}
+
+template <>
+char uniform_generator::gen_single<char>()
+{
+  return std::uniform_int_distribution<char>()(engine_);
 }
 
 template <>
@@ -196,4 +212,4 @@ std::vector<float> csr_generator::gen_output(int rows)
 {
   return std::vector<float>(rows);
 }
-}
+} // namespace support
