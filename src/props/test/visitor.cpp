@@ -16,7 +16,7 @@ TEST_CASE("Can use the v2 visitor")
 
     auto c = 0;
     sig_visitor{
-      on(data_type::integer, [&] (auto const&) { ++c; })
+      on(data_type::integer, [&] { ++c; })
     }.visit(s);
 
     REQUIRE(c == 1);
@@ -28,9 +28,9 @@ TEST_CASE("Can use the v2 visitor")
 
     auto c = 0;
     sig_visitor{
-      on(data_type::character, [&] (auto const&) { throw 0; }),
-      on(data_type::character, 2, [&] (auto const&) { ++c; }),
-      on(data_type::integer, [&] (auto const&) { c -= 2; })
+      on(data_type::character,    [&] { throw 0; }),
+      on(data_type::character, 2, [&] { ++c; }),
+      on(data_type::integer,      [&] { c -= 2; })
     }.visit(s);
 
     REQUIRE(c == -1);
@@ -42,10 +42,10 @@ TEST_CASE("Can use the v2 visitor")
 
     auto ss = std::stringstream{};
     sig_visitor{
-      on(data_type::integer, [&] (auto const&) { ss << "A"; }),
-      on(data_type::integer, 1, [&] (auto const&) { ss << "B"; }),
-      on(data_type::integer, 2, [&] (auto const&) { ss << "C"; }),
-      on(data_type::integer, 3, [&] (auto const&) { ss << "D"; })
+      on(data_type::integer,    [&] { ss << "A"; }),
+      on(data_type::integer, 1, [&] { ss << "B"; }),
+      on(data_type::integer, 2, [&] { ss << "C"; }),
+      on(data_type::integer, 3, [&] { ss << "D"; })
     }.visit(s);
 
     REQUIRE(ss.str() == "ABCB");
@@ -57,7 +57,7 @@ TEST_CASE("Can use the v2 visitor")
     
     auto c = 0;
     sig_visitor{
-      on(data_type::integer, [&] (auto const&) { ++c; })
+      on(data_type::integer, [&] { ++c; })
     }.visit(s);
 
     REQUIRE(c == 2);
@@ -70,10 +70,10 @@ TEST_CASE("Can use the v2 visitor")
     auto ss = std::stringstream{};
     sig_visitor {
       on(data_type::character, 2, [&] (auto const& p) { ss << "Cp2" << p.name; }),
-      on(data_type::floating, 3, [&] (auto const& p) { ss << "Fp3" << p.name; }),
-      on(data_type::floating, [&] (auto const& p) { ss << "Fs" << p.name; }),
-      on(data_type::integer, 1, [&] (auto const& p) { ss << "Ip1" << p.name; }),
-      on(data_type::integer, [&] (auto const& p) { ss << "Is" << p.name; })
+      on(data_type::floating,  3, [&] (auto const& p) { ss << "Fp3" << p.name; }),
+      on(data_type::floating,     [&] (auto const& p) { ss << "Fs" << p.name; }),
+      on(data_type::integer,   1, [&] (auto const& p) { ss << "Ip1" << p.name; }),
+      on(data_type::integer,      [&] (auto const& p) { ss << "Is" << p.name; })
     }.visit(s);
 
     REQUIRE(ss.str() == "Fp3gFszIsbIp1tCp2n");
