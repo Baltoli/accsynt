@@ -12,12 +12,13 @@ add_library(support
   src/choose.cpp
   src/argument_generator.cpp
   src/string.cpp
+  src/similarity.cpp
   src/thread_context.cpp)
 
 target_link_libraries(support
   ${llvm_libs}
   props
-  dl)
+  )
 
 target_include_directories(support PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -33,6 +34,7 @@ install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 install(EXPORT SupportConfig DESTINATION share/Support/cmake)
 
 add_executable(support_unit
+  test/bit_cast.cpp
   test/call_builder.cpp
   test/cartesian_product.cpp
   test/floats.cpp
@@ -41,6 +43,7 @@ add_executable(support_unit
   test/choose.cpp
   test/argument_generator.cpp
   test/llvm_values.cpp
+  test/similarity.cpp
   test/string.cpp
   test/main.cpp)
 

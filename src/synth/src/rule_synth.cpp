@@ -5,6 +5,7 @@
 #include "fragment.h"
 #include "generator_rules.h"
 #include "rules.h"
+#include "synth_options.h"
 
 #include <support/argument_generator.h>
 
@@ -12,12 +13,6 @@
 
 using namespace support;
 using namespace llvm;
-
-static cl::opt<int> MaxFragments(
-    "max-fragments", cl::desc("Maximum fragments to combine"), cl::init(-1));
-
-static cl::opt<bool> DumpControl("dump-control",
-    cl::desc("Dump control flow before synthesis"), cl::init(false));
 
 namespace synth {
 
@@ -77,4 +72,4 @@ Function* rule_synth::candidate()
   current_fragment_++;
   return fn;
 }
-}
+} // namespace synth

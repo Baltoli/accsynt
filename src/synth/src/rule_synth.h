@@ -22,4 +22,5 @@ private:
   fragment::frag_set fragments_;
   fragment::frag_set::iterator current_fragment_;
 };
-}
+
+} // namespace synth

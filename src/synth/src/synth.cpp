@@ -1,4 +1,5 @@
 #include "blas_synth.h"
+#include "hill_synth.h"
 #include "rule_synth.h"
 
 #include <props/props.h>
@@ -25,6 +26,10 @@ static cl::opt<std::string> LibraryPath(
 static cl::opt<bool> UseBLAS("blas",
     cl::desc("Use old BLAS synthesiser implementation"), cl::init(false));
 
+static cl::opt<bool> HillClimb("climb",
+    cl::desc("Use the new hill-climbing synthesis implementation"),
+    cl::init(false));
+
 // In the future, specifications...
 
 void report(Function* fn)
@@ -38,6 +43,12 @@ void report(Function* fn)
 
 int main(int argc, char** argv)
 {
+  if (UseBLAS && HillClimb) {
+    // TODO: make these into an enum to choose the implementation
+    errs() << "Cannot use both BLAS and hill climber implementations\n";
+    return 1;
+  }
+
   InitializeNativeTarget();
   LLVMInitializeNativeAsmPrinter();
   LLVMInitializeNativeAsmParser();
@@ -54,6 +65,9 @@ int main(int argc, char** argv)
 
   if (UseBLAS) {
     auto synth = blas_synth(property_set, ref);
+    report(synth.generate());
+  } else if (HillClimb) {
+    auto synth = hill_synth(property_set, ref);
     report(synth.generate());
   } else {
     auto synth = rule_synth(property_set, ref);
