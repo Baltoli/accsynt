@@ -1,4 +1,5 @@
 add_library(coresynth
+  src/evaluator.cpp
   src/accessor_rules.cpp
   src/rules.cpp
   src/rule_registry.cpp
