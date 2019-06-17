@@ -11,7 +11,7 @@ using example_set
     = std::vector<std::pair<support::call_builder, support::output_example>>;
 
 struct eval_result {
-  eval_result(double);
+  explicit eval_result(double);
   eval_result(double, bool);
 
   double score;
