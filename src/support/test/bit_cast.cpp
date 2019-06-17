@@ -2,13 +2,19 @@
 
 #include <support/bit_cast.h>
 #include <support/call_builder.h>
+#include <support/call_wrapper.h>
+#include <support/load_module.h>
 #include <support/type_finder.h>
+
+#include <props/props.h>
 
 #include <limits>
 
 #define MINV(T) (std::numeric_limits<T>::min())
 #define MAXV(T) (std::numeric_limits<T>::max())
 
+using namespace props;
+using namespace props::literals;
 using namespace support;
 
 #define TEST_CASES                                                             \
@@ -74,9 +80,27 @@ TEST_CASE("bit_cast is an involution")
     REQUIRE(bit_cast<T>(inter) == n);                                          \
   }
 
-TEST_CASE("can round trip to uint64_t")
-{
+TEST_CASE("can round trip to uint64_t"){
 #define OP ROUND_TRIP
   TEST_CASES
 #undef OP
+}
+
+TEST_CASE("bit casting works with the ABI")
+{
+  SECTION("very basic case")
+  {
+    auto str = R"(
+define float @value() {
+  ret float 0x3FF6666660000000
+})";
+
+    PARSE_TEST_MODULE(mod, str);
+
+    auto wrap = call_wrapper("float value()"_sig, *mod, "value");
+    auto cb = wrap.get_builder();
+
+    auto ret = wrap.call(cb);
+    REQUIRE(bit_cast<float>(ret) == Approx(1.4));
+  }
 }
