@@ -21,7 +21,7 @@ evaluator::evaluator(example_set es)
 {
 }
 
-eval_result evaluator::operator()(support::call_wrapper& func)
+eval_result evaluator::operator()(support::call_wrapper& func) const
 {
   double total_score = 0;
   bool all = true;

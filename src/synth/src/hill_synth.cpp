@@ -4,6 +4,8 @@
 #include "gp_sampler.h"
 #include "rules.h"
 
+#include <support/thread_context.h>
+
 #include <fmt/format.h>
 
 using namespace support;
@@ -13,7 +15,8 @@ using namespace llvm;
 namespace synth {
 
 hill_synth::hill_synth(property_set ps, call_wrapper& ref)
-    : eval_(make_examples(ps, ref))
+    : mod_("hill-synth", thread_context::get())
+    , eval_(make_examples(ps, ref))
     , choices_{}
     , properties_(ps)
     , reference_(ref)

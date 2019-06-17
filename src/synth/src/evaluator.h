@@ -29,7 +29,7 @@ class evaluator {
 public:
   evaluator(example_set);
 
-  eval_result operator()(support::call_wrapper&);
+  eval_result operator()(support::call_wrapper&) const;
 
 private:
   example_set examples_;

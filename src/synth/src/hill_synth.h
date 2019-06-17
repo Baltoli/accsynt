@@ -7,6 +7,7 @@
 #include <support/call_wrapper.h>
 
 #include <llvm/IR/Function.h>
+#include <llvm/IR/Module.h>
 
 namespace synth {
 
@@ -31,6 +32,8 @@ public:
 
 private:
   example_set make_examples(props::property_set, support::call_wrapper&);
+
+  llvm::Module mod_;
 
   evaluator eval_;
   std::vector<fragment::frag_ptr> choices_;
