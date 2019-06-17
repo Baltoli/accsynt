@@ -2,7 +2,6 @@
 
 #include "evaluator.h"
 #include "fragment.h"
-#include "gp_sampler.h"
 
 #include <props/props.h>
 #include <support/call_wrapper.h>
@@ -23,12 +22,17 @@ private:
 };
 
 class hill_synth {
+  static constexpr auto num_examples = 1000;
+
 public:
   hill_synth(props::property_set ps, support::call_wrapper& ref);
 
   llvm::Function* generate();
 
 private:
+  example_set make_examples(props::property_set, support::call_wrapper&);
+
+  evaluator eval_;
   std::vector<fragment::frag_ptr> choices_;
 
   props::property_set properties_;

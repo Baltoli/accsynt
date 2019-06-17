@@ -1,5 +1,6 @@
 #include "hill_synth.h"
 #include "evaluator.h"
+#include "generator_rules.h"
 #include "gp_sampler.h"
 #include "rules.h"
 
@@ -12,7 +13,8 @@ using namespace llvm;
 namespace synth {
 
 hill_synth::hill_synth(property_set ps, call_wrapper& ref)
-    : choices_{}
+    : eval_(make_examples(ps, ref))
+    , choices_{}
     , properties_(ps)
     , reference_(ref)
 {
@@ -25,5 +27,21 @@ hill_synth::hill_synth(property_set ps, call_wrapper& ref)
 }
 
 Function* hill_synth::generate() { return nullptr; }
+
+example_set hill_synth::make_examples(property_set ps, call_wrapper& ref)
+{
+  auto examples = example_set{};
+
+  auto gen = generator_for(ps);
+  for (auto i = 0; i < num_examples; ++i) {
+    auto cb = ref.get_builder();
+    gen.gen_args(cb);
+    auto before = cb;
+    auto ret = ref.call(cb);
+    examples.push_back({ before, { ret, cb } });
+  }
+
+  return examples;
+}
 
 } // namespace synth
