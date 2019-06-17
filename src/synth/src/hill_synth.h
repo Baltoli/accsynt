@@ -1,6 +1,8 @@
 #pragma once
 
+#include "evaluator.h"
 #include "fragment.h"
+#include "gp_sampler.h"
 
 #include <props/props.h>
 #include <support/call_wrapper.h>

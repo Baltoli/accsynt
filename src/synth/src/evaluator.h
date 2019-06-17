@@ -16,6 +16,13 @@ struct eval_result {
 
   double score;
   bool all_correct;
+
+  bool operator==(eval_result const&);
+  bool operator!=(eval_result const&);
+  bool operator<(eval_result const&);
+  bool operator<=(eval_result const&);
+  bool operator>(eval_result const&);
+  bool operator>=(eval_result const&);
 };
 
 class evaluator {

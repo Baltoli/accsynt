@@ -1,4 +1,6 @@
 #include "hill_synth.h"
+#include "evaluator.h"
+#include "gp_sampler.h"
 #include "rules.h"
 
 #include <fmt/format.h>
