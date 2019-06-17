@@ -2,6 +2,7 @@
 #include "linear_fragment.h"
 
 #include <support/choose.h>
+#include <support/random.h>
 #include <value_ptr/value_ptr.h>
 
 #include <llvm/IR/Constant.h>
@@ -17,6 +18,44 @@ using namespace llvm;
 using namespace props;
 
 namespace synth {
+
+fragment::frag_ptr fragment::sample(
+    std::vector<fragment::frag_ptr> const& fragments, size_t num_frags)
+{
+  if (fragments.empty() || num_frags == 0) {
+    return nullptr;
+  }
+
+  // Start by getting the list of indices that can possibly be used to sample
+  // from.
+  auto indices = std::vector<size_t>(fragments.size());
+  std::iota(indices.begin(), indices.end(), 0);
+
+  // Then shuffle the indices to get the order in which we actually want to
+  // sample them in.
+  std::shuffle(indices.begin(), indices.end(), get_random_engine());
+
+  // The solution starts with the first index
+  auto solution = fragments[indices[0]];
+
+  // For the remaining fragments to be added to the running solution:
+  for (auto i = 1u; i < fragments.size() && i < num_frags; ++i) {
+    auto holes = solution->count_holes();
+    auto location = random_int(0ul, holes - 1);
+
+    solution->add_child(fragments[indices[i]], location);
+  }
+
+  // Fill up the remaining space with linear fragments. Can revisit this if the
+  // resulting programs are too complex (i.e. use fewer linear frags / data
+  // blocks)
+  auto holes_remaining = solution->count_holes();
+  for (auto i = 0u; i < holes_remaining; ++i) {
+    solution->add_child(fragment::frag_ptr{ new linear_fragment{ {} } }, 0);
+  }
+
+  return solution;
+}
 
 fragment::frag_set fragment::enumerate(
     std::vector<fragment::frag_ptr> const& fragments,
@@ -144,7 +183,7 @@ bool fragment_equal::operator()(
   return a->to_str() == b->to_str();
   /* return a->equal_to(b); */
 }
-}
+} // namespace synth
 
 size_t std::hash<value_ptr<synth::fragment>>::operator()(
     value_ptr<synth::fragment> const& frag) const noexcept
