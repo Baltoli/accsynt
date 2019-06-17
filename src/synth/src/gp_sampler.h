@@ -2,13 +2,16 @@
 
 #include "evaluator.h"
 
+#include <llvm/IR/Function.h>
+
 namespace synth {
 
 class gp_sampler {
 public:
-  gp_sampler(evaluator const&);
+  gp_sampler(llvm::Function*, evaluator const&);
 
 private:
+  llvm::Function* skeleton_;
   evaluator const& eval_;
 };
 
