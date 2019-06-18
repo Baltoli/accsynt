@@ -29,8 +29,7 @@ std::vector<rule> rule_registry::all()
         type ("sz", data_type::integer) },
       { distinct("ptrA", "ptrB"), 
         negation("output", "ptrA"),
-        is_pointer("ptrA"),
-        is_pointer("ptrB") } 
+        is_pointer("ptrA", "ptrB") }
     },
     { "outputLoop", { "sz", "ptrA", "ptrB" },
       { match("size", "ptrA", "sz"), 
@@ -38,7 +37,7 @@ std::vector<rule> rule_registry::all()
         match("output", "ptrA"),
         type ("sz", data_type::integer) },
       { distinct("ptrA", "ptrB"),
-        is_pointer("ptrA") } 
+        is_pointer("ptrA", "ptrB") } 
     },
     { "regularLoop", { "sz", "ptrA", "ptrB", "ptrC" },
       { match("size", "ptrA", "sz"), 
@@ -46,6 +45,7 @@ std::vector<rule> rule_registry::all()
         match("size", "ptrC", "sz"),
         type ("sz", data_type::integer) },
       { distinct("ptrA", "ptrB", "ptrC"), 
+        is_pointer("ptrA", "ptrB", "ptrC"),
         negation("output", "ptrA") } 
     },
     { "outputLoop", { "sz", "ptrA", "ptrB", "ptrC" },
@@ -54,18 +54,20 @@ std::vector<rule> rule_registry::all()
         match("size", "ptrC", "sz"), 
         match("output", "ptrA"),
         type ("sz", data_type::integer) },
-      { distinct("ptrA", "ptrB", "ptrC") }
+      { distinct("ptrA", "ptrB", "ptrC"),
+        is_pointer("ptrA", "ptrB", "ptrC") }
     },
     {
       "dataLoop", {"ptr"},
       { match("data_ptr", "ptr") },
-      {}
+      { is_pointer("ptr") }
     },
     {
       "dataLoop", {"ptrA", "ptrB"},
       { match("data_ptr", "ptrA"),
         match("data_ptr", "ptrB") },
-      { distinct("ptrA", "ptrB") }
+      { distinct("ptrA", "ptrB"),
+        is_pointer("ptrA", "ptrB") }
     },
     {
       "stringLoop", {"str"},

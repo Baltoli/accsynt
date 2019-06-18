@@ -147,12 +147,13 @@ private:
 
 class is_pointer {
 public:
-  is_pointer(std::string name);
+  template <typename... Args>
+  is_pointer(Args... args);
 
   bool validate(match_result const& unified, props::property_set ps) const;
 
 private:
-  std::string name_;
+  std::vector<std::string> names_;
 };
 
 using validator = std::variant<distinct, negation, is_pointer>;
@@ -250,4 +251,11 @@ negation::negation(std::string name, Args... args)
 {
   (args_.push_back(args), ...);
 }
+
+template <typename... Args>
+is_pointer::is_pointer(Args... args)
+{
+  (names_.push_back(args), ...);
+}
+
 } // namespace synth
