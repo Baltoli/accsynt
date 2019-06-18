@@ -4,7 +4,7 @@ namespace synth {
 
 std::vector<rule> rule_registry::all()
 {
-  using match = match_expression;
+  using match = property_expression;
 
   // clang-format off
   return { 
@@ -57,4 +57,4 @@ std::vector<rule> rule_registry::all()
   };
   // clang-format on
 }
-}
+} // namespace synth

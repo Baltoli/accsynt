@@ -45,13 +45,14 @@ std::optional<props::value> match_result::operator()(std::string name) const
 
 // Match expressions
 
-match_expression::match_expression(std::string name, std::vector<binding_t> bs)
+property_expression::property_expression(
+    std::string name, std::vector<binding_t> bs)
     : property_name_(name)
     , bindings_(bs)
 {
 }
 
-std::vector<match_result> match_expression::match(props::property_set ps)
+std::vector<match_result> property_expression::match(props::property_set ps)
 {
   auto ret = std::vector<match_result>{};
   for (auto prop : ps.properties) {
@@ -129,7 +130,7 @@ bool negation::validate(
 // Rules
 
 rule::rule(std::string frag, std::vector<std::string> args,
-    std::vector<match_expression> es, std::vector<validator> vs)
+    std::vector<property_expression> es, std::vector<validator> vs)
     : fragment_(frag)
     , args_(args)
     , exprs_(es)

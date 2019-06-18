@@ -85,19 +85,19 @@ protected:
  * property name to match against, and a vector of binding rules to associate
  * variable names with values (or to ignore them).
  */
-class match_expression {
+class property_expression {
   using binding_t = std::variant<std::string, ignore_value>;
 
 public:
-  match_expression(std::string name, std::vector<binding_t> bs);
+  property_expression(std::string name, std::vector<binding_t> bs);
 
   template <typename... Args>
-  match_expression(std::string name, Args... args);
+  property_expression(std::string name, Args... args);
 
   std::vector<match_result> match(props::property_set ps);
 
   template <typename OStream>
-  friend OStream& operator<<(OStream& os, match_expression const& m);
+  friend OStream& operator<<(OStream& os, property_expression const& m);
 
 protected:
   std::string property_name_;
@@ -148,7 +148,7 @@ using validator = std::variant<distinct, negation>;
 class rule {
 public:
   rule(std::string fragment, std::vector<std::string> args,
-      std::vector<match_expression> es, std::vector<validator> vs);
+      std::vector<property_expression> es, std::vector<validator> vs);
 
   std::vector<bsc::value_ptr<fragment>> match(props::property_set ps);
 
@@ -157,7 +157,7 @@ private:
 
   std::string fragment_;
   std::vector<std::string> args_;
-  std::vector<match_expression> exprs_;
+  std::vector<property_expression> exprs_;
   std::vector<validator> validators_;
 };
 
@@ -202,13 +202,13 @@ OStream& operator<<(OStream& os, match_result const& mr)
 }
 
 template <typename... Args>
-match_expression::match_expression(std::string name, Args... args)
-    : match_expression(name, { args... })
+property_expression::property_expression(std::string name, Args... args)
+    : property_expression(name, { args... })
 {
 }
 
 template <typename OStream>
-OStream& operator<<(OStream& os, match_expression const& m)
+OStream& operator<<(OStream& os, property_expression const& m)
 {
   auto bind_str = support::visitor{ [](std::string s) { return s; },
     [](ignore_value) { return std::string("_"); } };
