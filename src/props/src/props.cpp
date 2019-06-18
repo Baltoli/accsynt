@@ -32,12 +32,18 @@ size_t signature::param_index(std::string const& name) const
 
 bool signature::accepts_pointer() const
 {
+  bool any = false;
+  auto make_true = [&any] { any = true; };
+
   // clang-format off
   sig_visitor{
+    on(data_type::integer, any_ptr, make_true),
+    on(data_type::character, any_ptr, make_true),
+    on(data_type::floating, any_ptr, make_true)
   }.visit(*this);
   // clang-format on
 
-  return true;
+  return any;
 }
 
 bool property_set::is_valid() const
