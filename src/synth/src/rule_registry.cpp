@@ -62,6 +62,11 @@ std::vector<rule> rule_registry::all()
       { match("data_ptr", "ptrA"),
         match("data_ptr", "ptrB") },
       { distinct("ptrA", "ptrB") }
+    },
+    {
+      "stringLoop", {"str"},
+      { type ("str", data_type::character) },
+      {}
     }
   };
   // clang-format on

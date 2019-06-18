@@ -1,3 +1,5 @@
+#pragma once
+
 #include "fragment.h"
 
 namespace synth {
