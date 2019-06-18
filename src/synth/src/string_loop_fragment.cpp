@@ -41,75 +41,70 @@ std::string string_loop_fragment::to_str(size_t ind)
 void string_loop_fragment::splice(
     compile_context& ctx, llvm::BasicBlock* entry, llvm::BasicBlock* exit)
 {
-  // TODO: throw if any children null - empty fragments fill this role
+  auto& llvm_ctx = entry->getContext();
 
-  /* auto& llvm_ctx = entry->getContext(); */
+  auto inter_first = BasicBlock::Create(llvm_ctx, "str-loop.inter0", ctx.func_);
+  auto inter_second
+      = BasicBlock::Create(llvm_ctx, "str-loop.inter1", ctx.func_);
 
-  /* auto inter_first = BasicBlock::Create(llvm_ctx, "reg-loop.inter0",
-   * ctx.func_); */
-  /* auto inter_second */
-  /*     = BasicBlock::Create(llvm_ctx, "reg-loop.inter1", ctx.func_); */
+  auto last_exit = entry;
 
-  /* auto last_exit = entry; */
+  // Before
 
-  /* // Before */
+  before_->splice(ctx, last_exit, inter_first);
+  last_exit = inter_first;
 
-  /* before_->splice(ctx, last_exit, inter_first); */
-  /* last_exit = inter_first; */
+  // Body
 
-  /* // Body */
+  auto size = get_size(ctx);
 
-  /* auto size = get_size(ctx); */
+  auto header = BasicBlock::Create(llvm_ctx, "str-loop.header", ctx.func_);
+  auto pre_body = BasicBlock::Create(llvm_ctx, "str-loop.pre-body", ctx.func_);
+  auto post_body
+      = BasicBlock::Create(llvm_ctx, "str-loop.post-body", ctx.func_);
 
-  /* auto header = BasicBlock::Create(llvm_ctx, "reg-loop.header", ctx.func_);
-   */
-  /* auto pre_body = BasicBlock::Create(llvm_ctx, "reg-loop.pre-body",
-   * ctx.func_); */
-  /* auto post_body */
-  /*     = BasicBlock::Create(llvm_ctx, "reg-loop.post-body", ctx.func_); */
+  auto B = IRBuilder<>(inter_first);
+  B.CreateBr(header);
 
-  /* auto B = IRBuilder<>(inter_first); */
-  /* B.CreateBr(header); */
+  B.SetInsertPoint(header);
+  auto iter = B.CreatePHI(size->getType(), 2, "str-loop.iter");
+  iter->addIncoming(ConstantInt::get(iter->getType(), 0), inter_first);
+  auto cond = B.CreateICmpSLT(iter, size, "str-loop.cond");
+  B.CreateCondBr(cond, pre_body, inter_second);
 
-  /* B.SetInsertPoint(header); */
-  /* auto iter = B.CreatePHI(size->getType(), 2, "reg-loop.iter"); */
-  /* iter->addIncoming(ConstantInt::get(iter->getType(), 0), inter_first); */
-  /* auto cond = B.CreateICmpSLT(iter, size, "reg-loop.cond"); */
-  /* B.CreateCondBr(cond, pre_body, inter_second); */
+  B.SetInsertPoint(pre_body);
+  for (auto i = 0u; i < num_pointers_; ++i) {
+    auto [ptr, name] = get_pointer(ctx, i);
+    auto geps = ctx.create_geps_for(name, iter, ptr, B, "str-loop.gep");
 
-  /* B.SetInsertPoint(pre_body); */
-  /* for (auto i = 0u; i < num_pointers_; ++i) { */
-  /*   auto [ptr, name] = get_pointer(ctx, i); */
-  /*   auto geps = ctx.create_geps_for(name, iter, ptr, B, "reg-loop.gep"); */
+    for (auto gep : geps) {
+      auto load = B.CreateLoad(gep, "str-loop.load");
+      ctx.metadata_.seeds.insert(load);
+    }
+  }
 
-  /*   for (auto gep : geps) { */
-  /*     auto load = B.CreateLoad(gep, "reg-loop.load"); */
-  /*     ctx.metadata_.seeds.insert(load); */
-  /*   } */
-  /* } */
+  B.SetInsertPoint(post_body);
+  auto next = B.CreateAdd(
+      iter, ConstantInt::get(iter->getType(), 1), "str-loop.next-iter");
+  iter->addIncoming(next, post_body);
 
-  /* B.SetInsertPoint(post_body); */
-  /* auto next = B.CreateAdd( */
-  /*     iter, ConstantInt::get(iter->getType(), 1), "reg-loop.next-iter"); */
-  /* iter->addIncoming(next, post_body); */
+  if (perform_output_) {
+    auto [ptr, name] = get_pointer(ctx, 0);
+    auto geps = ctx.create_geps_for(name, iter, ptr, B, "out-loop.gep");
 
-  /* if (perform_output_) { */
-  /*   auto [ptr, name] = get_pointer(ctx, 0); */
-  /*   auto geps = ctx.create_geps_for(name, iter, ptr, B, "out-loop.gep"); */
+    for (auto gep : geps) {
+      ctx.metadata_.outputs.insert(cast<Instruction>(gep));
+    }
+  }
 
-  /*   for (auto gep : geps) { */
-  /*     ctx.metadata_.outputs.insert(cast<Instruction>(gep)); */
-  /*   } */
-  /* } */
+  B.CreateBr(header);
 
-  /* B.CreateBr(header); */
+  body_->splice(ctx, pre_body, post_body);
+  last_exit = inter_second;
 
-  /* body_->splice(ctx, pre_body, post_body); */
-  /* last_exit = inter_second; */
+  // After
 
-  /* // After */
-
-  /* after_->splice(ctx, last_exit, exit); */
+  after_->splice(ctx, last_exit, exit);
 }
 
 void swap(string_loop_fragment& a, string_loop_fragment& b)
