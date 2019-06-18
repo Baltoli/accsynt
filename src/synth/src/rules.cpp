@@ -89,6 +89,15 @@ std::vector<match_result> type_expression::match(props::property_set ps)
   return {};
 }
 
+// Visitor for match expression variants
+
+std::vector<match_result> expr_match(
+    match_expression& me, props::property_set ps)
+{
+  auto visit = [ps](auto& expr) { return expr.match(ps); };
+  return std::visit(visit, me);
+}
+
 // Validators
 
 bool distinct::validate(
@@ -130,7 +139,7 @@ bool negation::validate(
 // Rules
 
 rule::rule(std::string frag, std::vector<std::string> args,
-    std::vector<property_expression> es, std::vector<validator> vs)
+    std::vector<match_expression> es, std::vector<validator> vs)
     : fragment_(frag)
     , args_(args)
     , exprs_(es)
@@ -144,7 +153,7 @@ std::vector<value_ptr<fragment>> rule::match(props::property_set ps)
 
   auto elements = std::vector<std::vector<match_result>>{};
   for (auto expr : exprs_) {
-    elements.push_back(expr.match(ps));
+    elements.push_back(expr_match(expr, ps));
   }
 
   for (auto prod : support::cartesian_product(elements)) {

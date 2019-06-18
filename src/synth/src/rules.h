@@ -115,6 +115,13 @@ protected:
   props::data_type type_;
 };
 
+using match_expression = std::variant<property_expression, type_expression>;
+
+std::vector<match_result> expr_match(
+    match_expression& me, props::property_set ps);
+
+// Validators
+
 class distinct {
 public:
   template <typename... Strings>
@@ -148,7 +155,7 @@ using validator = std::variant<distinct, negation>;
 class rule {
 public:
   rule(std::string fragment, std::vector<std::string> args,
-      std::vector<property_expression> es, std::vector<validator> vs);
+      std::vector<match_expression> es, std::vector<validator> vs);
 
   std::vector<bsc::value_ptr<fragment>> match(props::property_set ps);
 
@@ -157,7 +164,7 @@ private:
 
   std::string fragment_;
   std::vector<std::string> args_;
-  std::vector<property_expression> exprs_;
+  std::vector<match_expression> exprs_;
   std::vector<validator> validators_;
 };
 
