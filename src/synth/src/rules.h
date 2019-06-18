@@ -104,6 +104,17 @@ protected:
   std::vector<binding_t> bindings_;
 };
 
+class type_expression {
+public:
+  type_expression(std::string, props::data_type);
+
+  std::vector<match_result> match(props::property_set);
+
+protected:
+  std::string name_;
+  props::data_type type_;
+};
+
 class distinct {
 public:
   template <typename... Strings>
@@ -222,4 +233,4 @@ negation::negation(std::string name, Args... args)
 {
   (args_.push_back(args), ...);
 }
-}
+} // namespace synth
