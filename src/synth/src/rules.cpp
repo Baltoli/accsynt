@@ -153,7 +153,18 @@ is_pointer::is_pointer(std::string name)
 bool is_pointer::validate(
     match_result const& unified, props::property_set ps) const
 {
-  return true;
+  if (auto val = unified(name_)) {
+    auto v = *val;
+    if (v.is_param()) {
+      for (auto p : ps.type_signature.parameters) {
+        if (p.name == v.param_val) {
+          return p.pointer_depth != 0;
+        }
+      }
+    }
+  }
+
+  return false;
 }
 
 // Rules

@@ -14,27 +14,31 @@ std::vector<rule> rule_registry::all()
     { "regularLoop", { "sz", "ptr" }, 
       { match("size", "ptr", "sz"),
         type ("sz", data_type::integer) },
-      { negation("output", "ptr") } 
+      { negation("output", "ptr"),
+        is_pointer("ptr") } 
     },
     { "outputLoop", { "sz", "ptr" },
       { match("size", "ptr", "sz"), 
         match("output", "ptr"),
         type( "sz", data_type::integer) }, 
-      {} 
+      { is_pointer("ptr") } 
     },
     { "regularLoop", { "sz", "ptrA", "ptrB" },
       { match("size", "ptrA", "sz"), 
         match("size", "ptrB", "sz"),
         type ("sz", data_type::integer) },
       { distinct("ptrA", "ptrB"), 
-        negation("output", "ptrA") } 
+        negation("output", "ptrA"),
+        is_pointer("ptrA"),
+        is_pointer("ptrB") } 
     },
     { "outputLoop", { "sz", "ptrA", "ptrB" },
       { match("size", "ptrA", "sz"), 
         match("size", "ptrB", "sz"),
         match("output", "ptrA"),
         type ("sz", data_type::integer) },
-      { distinct("ptrA", "ptrB") } 
+      { distinct("ptrA", "ptrB"),
+        is_pointer("ptrA") } 
     },
     { "regularLoop", { "sz", "ptrA", "ptrB", "ptrC" },
       { match("size", "ptrA", "sz"), 
