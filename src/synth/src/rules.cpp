@@ -86,7 +86,16 @@ type_expression::type_expression(std::string n, props::data_type dt)
 
 std::vector<match_result> type_expression::match(props::property_set ps)
 {
-  return {};
+  auto ret = std::vector<match_result>{};
+
+  for (auto param : ps.type_signature.parameters) {
+    if (param.type == type_) {
+      ret.push_back(
+          match_result({ { name_, props::value::with_param(param.name) } }));
+    }
+  }
+
+  return ret;
 }
 
 // Visitor for match expression variants
