@@ -45,7 +45,7 @@ Function* hill_synth::generate()
   auto frag = fragment::sample(choices_, 2);
   frag->compile(ctx);
 
-  sampler.sample(properties_, ctx.metadata_);
+  sampler.sample(5, properties_, ctx.metadata_);
 
   return ctx.func_;
 }
