@@ -12,40 +12,6 @@ using namespace llvm;
 
 namespace synth {
 
-// TODO: make an abstract validation function that can handle the common cases?
-
-regular_loop_fragment::regular_loop_fragment(std::vector<value> args,
-    frag_ptr before, frag_ptr body, frag_ptr after, bool output)
-    : fragment(args)
-    , before_(before)
-    , body_(body)
-    , after_(after)
-    , num_pointers_(args_.size() - 1)
-    , perform_output_(output)
-{
-  if (args_.size() < 2) {
-    throw std::invalid_argument("Regular loop requires at least 2 arguments");
-  }
-
-  auto all_params = std::all_of(args_.begin(), args_.end(),
-      [](auto arg) { return arg.value_type == value::type::parameter; });
-
-  if (!all_params) {
-    throw std::invalid_argument(
-        "Regular loop arguments must all be parameter references");
-  }
-}
-
-regular_loop_fragment::regular_loop_fragment(std::vector<value> args)
-    : regular_loop_fragment(args, nullptr, nullptr, nullptr, false)
-{
-}
-
-regular_loop_fragment::regular_loop_fragment(std::vector<value> args, bool out)
-    : regular_loop_fragment(args, nullptr, nullptr, nullptr, out)
-{
-}
-
 std::string regular_loop_fragment::to_str(size_t ind)
 {
   using namespace fmt::literals;
@@ -143,46 +109,6 @@ void regular_loop_fragment::splice(
   after_->splice(ctx, last_exit, exit);
 }
 
-bool regular_loop_fragment::add_child(frag_ptr f, size_t idx)
-{
-  auto children = children_ref(before_, body_, after_);
-
-  for (frag_ptr& ch : children) {
-    auto max = count_or_empty(ch);
-    if (idx < max) {
-      if (ch) {
-        ch->add_child(f, idx);
-      } else {
-        ch = f;
-      }
-
-      return true;
-    } else {
-      idx -= max;
-    }
-  }
-
-  throw std::invalid_argument("Too few holes in fragment");
-}
-
-size_t regular_loop_fragment::count_holes() const
-{
-  return count_or_empty(before_) + count_or_empty(body_)
-      + count_or_empty(after_);
-}
-
-std::pair<Argument*, std::string> regular_loop_fragment::get_pointer(
-    compile_context& ctx, size_t idx)
-{
-  auto name = args_.at(idx + 1).param_val;
-  return { ctx.argument(name), name };
-}
-
-Argument* regular_loop_fragment::get_size(compile_context& ctx)
-{
-  return ctx.argument(args_.at(0).param_val);
-}
-
 void swap(regular_loop_fragment& a, regular_loop_fragment& b)
 {
   using std::swap;
@@ -220,4 +146,5 @@ bool regular_loop_fragment::equal_to(frag_ptr const& other) const
 {
   return other->equal_as(*this);
 }
-}
+
+} // namespace synth
