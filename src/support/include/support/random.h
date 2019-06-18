@@ -7,6 +7,7 @@
 namespace support {
 
 std::random_device& get_random_device();
+std::mt19937 get_random_engine();
 
 template <typename Iterator>
 auto uniform_sample(Iterator begin, Iterator end)
@@ -71,4 +72,4 @@ IntType random_int(IntType min = std::numeric_limits<IntType>::min(),
   auto dist = std::uniform_int_distribution<IntType>{ min, max };
   return dist(rd);
 }
-}
+} // namespace support

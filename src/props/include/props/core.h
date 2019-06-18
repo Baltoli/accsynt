@@ -42,6 +42,8 @@ struct signature {
 
   size_t param_index(std::string const& name) const;
 
+  bool accepts_pointer() const;
+
   llvm::FunctionType* function_type() const;
   llvm::Function* create_function(llvm::Module& mod) const;
 

@@ -25,7 +25,7 @@ template <>
 struct hash<bsc::value_ptr<synth::fragment>> {
   size_t operator()(bsc::value_ptr<synth::fragment> const& frag) const noexcept;
 };
-}
+} // namespace std
 
 namespace synth {
 
@@ -39,6 +39,14 @@ public:
   using frag_ptr = bsc::value_ptr<fragment>;
   using frag_set
       = std::unordered_set<frag_ptr, std::hash<frag_ptr>, fragment_equal>;
+
+  /**
+   * Randomly sample without replacement from the supplied fragments to create a
+   * partially complete fragment. The remaining holes will be filled with linear
+   * blocks.
+   */
+  static frag_ptr sample(
+      std::vector<frag_ptr> const& fragments, size_t num_frags);
 
   static frag_set enumerate(std::vector<frag_ptr> const& fragments,
       std::optional<size_t> max_size = std::nullopt,
@@ -182,4 +190,4 @@ void fragment::choose(
     size_t n, std::vector<fragment::frag_ptr> const& fragments, Func&& f)
 {
 }
-}
+} // namespace synth

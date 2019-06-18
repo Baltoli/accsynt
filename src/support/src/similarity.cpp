@@ -16,9 +16,12 @@ double similarity(uint64_t ret_a, call_builder const& a, uint64_t ret_b,
     return 1.0;
   }
 
-  auto return_weight = 0.5;
+  // Weight the params equally if the signature accepts any pointers, otherwise
+  // just look at the return value.
+  auto return_weight = a.signature().accepts_pointer() ? 0.5 : 1.0;
   auto return_comp = 0.0;
-  auto params_weight = 0.5;
+
+  auto params_weight = 1.0 - return_weight;
 
   auto const& sig = a.signature();
   if (auto rt_opt = sig.return_type) {

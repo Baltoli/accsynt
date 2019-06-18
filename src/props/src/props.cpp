@@ -30,6 +30,22 @@ size_t signature::param_index(std::string const& name) const
   throw std::runtime_error("Invalid name to get index for");
 }
 
+bool signature::accepts_pointer() const
+{
+  bool any = false;
+  auto make_true = [&any] { any = true; };
+
+  // clang-format off
+  sig_visitor{
+    on(data_type::integer, any_ptr, make_true),
+    on(data_type::character, any_ptr, make_true),
+    on(data_type::floating, any_ptr, make_true)
+  }.visit(*this);
+  // clang-format on
+
+  return any;
+}
+
 bool property_set::is_valid() const
 {
   auto param_names = std::set<std::string_view>{};

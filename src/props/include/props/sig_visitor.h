@@ -9,6 +9,11 @@
 
 namespace props {
 
+struct any_ptr_st {
+};
+
+constexpr inline any_ptr_st any_ptr = any_ptr_st{};
+
 template <typename F>
 class on {
   static_assert(std::is_invocable_v<F, param const&> || std::is_invocable_v<F>,
@@ -19,11 +24,13 @@ class on {
 public:
   on(data_type dt, F&& f);
   on(data_type dt, int depth, F&& f);
+  on(data_type dt, any_ptr_st, F&& f);
 
   void operator()(param const& p);
 
 private:
   data_type dt_;
+  bool any_depth_;
   std::optional<int> depth_;
   F f_;
 };
@@ -31,6 +38,7 @@ private:
 template <typename F>
 on<F>::on(data_type dt, F&& f)
     : dt_(dt)
+    , any_depth_(false)
     , depth_()
     , f_(std::forward<F>(f))
 {
@@ -39,7 +47,17 @@ on<F>::on(data_type dt, F&& f)
 template <typename F>
 on<F>::on(data_type dt, int depth, F&& f)
     : dt_(dt)
+    , any_depth_(false)
     , depth_(depth)
+    , f_(std::forward<F>(f))
+{
+}
+
+template <typename F>
+on<F>::on(data_type dt, any_ptr_st, F&& f)
+    : dt_(dt)
+    , any_depth_(true)
+    , depth_(0)
     , f_(std::forward<F>(f))
 {
 }
@@ -48,8 +66,16 @@ template <typename F>
 void on<F>::operator()(param const& p)
 {
   if (dt_ == p.type) {
-    if (depth_) {
+    if (depth_ && !any_depth_) {
       if (*depth_ == p.pointer_depth) {
+        if constexpr (pass_param) {
+          f_(p);
+        } else {
+          f_();
+        }
+      }
+    } else if (any_depth_) {
+      if (p.pointer_depth != 0) {
         if constexpr (pass_param) {
           f_(p);
         } else {

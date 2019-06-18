@@ -78,5 +78,18 @@ TEST_CASE("Can use the v2 visitor")
 
     REQUIRE(ss.str() == "Fp3gFszIsbIp1tCp2n");
   }
+
+  SECTION("visiting at any depth") {
+    auto s = "void f(int *a, int b, int **c)"_sig;
+
+    auto ss = std::stringstream{};
+    sig_visitor {
+      on(data_type::integer, 2,       [&] () { ss << "dbl"; }),
+      on(data_type::integer, any_ptr, [&] (auto const& p) { ss << p.pointer_depth; }),
+      on(data_type::integer, 1,       [&] () { ss << "star"; })
+    }.visit(s);
+
+    REQUIRE(ss.str() == "1stardbl2");
+  }
 }
 // clang-format on
