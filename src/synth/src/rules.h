@@ -145,7 +145,17 @@ private:
   std::vector<std::string> args_{};
 };
 
-using validator = std::variant<distinct, negation>;
+class is_pointer {
+public:
+  is_pointer(std::string name);
+
+  bool validate(match_result const& unified, props::property_set ps) const;
+
+private:
+  std::string name_;
+};
+
+using validator = std::variant<distinct, negation, is_pointer>;
 
 /**
  * A rule has a fragment name and argument list. When unification succeeds, the

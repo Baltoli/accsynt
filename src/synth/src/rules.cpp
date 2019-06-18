@@ -145,6 +145,17 @@ bool negation::validate(
   return true;
 }
 
+is_pointer::is_pointer(std::string name)
+    : name_(name)
+{
+}
+
+bool is_pointer::validate(
+    match_result const& unified, props::property_set ps) const
+{
+  return true;
+}
+
 // Rules
 
 rule::rule(std::string frag, std::vector<std::string> args,

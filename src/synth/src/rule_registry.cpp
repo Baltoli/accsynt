@@ -66,7 +66,7 @@ std::vector<rule> rule_registry::all()
     {
       "stringLoop", {"str"},
       { type ("str", data_type::character) },
-      {}
+      { is_pointer("str") }
     }
   };
   // clang-format on
