@@ -49,6 +49,7 @@ add_executable(support_unit
 
 target_link_libraries(support_unit
   support
+  ${llvm_libs}
   CONAN_PKG::fmt
   CONAN_PKG::Catch2)
 

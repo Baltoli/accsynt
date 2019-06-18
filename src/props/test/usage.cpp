@@ -139,3 +139,23 @@ TEST_CASE("can check value types")
   REQUIRE(!v4.is_param());
   REQUIRE(v4.is_string());
 }
+
+TEST_CASE("can check for pointer acceptance")
+{
+  using namespace props::literals;
+
+  auto s1 = "void f()"_sig;
+  REQUIRE(!s1.accepts_pointer());
+
+  auto s2 = "int g(int f, char c)"_sig;
+  REQUIRE(!s2.accepts_pointer());
+
+  auto s3 = "int g(float f, char *c)"_sig;
+  REQUIRE(s3.accepts_pointer());
+
+  auto s4 = "int g(float *f, char c)"_sig;
+  REQUIRE(s4.accepts_pointer());
+
+  auto s5 = "int g(float *f, int *d, char *c)"_sig;
+  REQUIRE(s5.accepts_pointer());
+}
