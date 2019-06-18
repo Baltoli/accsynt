@@ -11,6 +11,8 @@ using namespace support;
 
 namespace synth {
 
+// Match results
+
 match_result::match_result(std::map<std::string, props::value> rs)
     : results_(rs)
 {
@@ -41,13 +43,16 @@ std::optional<props::value> match_result::operator()(std::string name) const
   }
 }
 
-match_expression::match_expression(std::string name, std::vector<binding_t> bs)
+// Match expressions
+
+property_expression::property_expression(
+    std::string name, std::vector<binding_t> bs)
     : property_name_(name)
     , bindings_(bs)
 {
 }
 
-std::vector<match_result> match_expression::match(props::property_set ps)
+std::vector<match_result> property_expression::match(props::property_set ps)
 {
   auto ret = std::vector<match_result>{};
   for (auto prop : ps.properties) {
@@ -70,6 +75,39 @@ std::vector<match_result> match_expression::match(props::property_set ps)
 
   return ret;
 }
+
+// Type expressions
+
+type_expression::type_expression(std::string n, props::data_type dt)
+    : name_(n)
+    , type_(dt)
+{
+}
+
+std::vector<match_result> type_expression::match(props::property_set ps)
+{
+  auto ret = std::vector<match_result>{};
+
+  for (auto param : ps.type_signature.parameters) {
+    if (param.type == type_) {
+      ret.push_back(
+          match_result({ { name_, props::value::with_param(param.name) } }));
+    }
+  }
+
+  return ret;
+}
+
+// Visitor for match expression variants
+
+std::vector<match_result> expr_match(
+    match_expression& me, props::property_set ps)
+{
+  auto visit = [ps](auto& expr) { return expr.match(ps); };
+  return std::visit(visit, me);
+}
+
+// Validators
 
 bool distinct::validate(
     match_result const& unified, props::property_set ps) const
@@ -107,6 +145,8 @@ bool negation::validate(
   return true;
 }
 
+// Rules
+
 rule::rule(std::string frag, std::vector<std::string> args,
     std::vector<match_expression> es, std::vector<validator> vs)
     : fragment_(frag)
@@ -122,7 +162,7 @@ std::vector<value_ptr<fragment>> rule::match(props::property_set ps)
 
   auto elements = std::vector<std::vector<match_result>>{};
   for (auto expr : exprs_) {
-    elements.push_back(expr.match(ps));
+    elements.push_back(expr_match(expr, ps));
   }
 
   for (auto prod : support::cartesian_product(elements)) {
@@ -155,4 +195,5 @@ bool rule::validate(match_result const& mr, props::property_set ps) const
   return std::all_of(validators_.begin(), validators_.end(),
       [&](auto v) { return std::visit(call_valid, v); });
 }
-}
+
+} // namespace synth

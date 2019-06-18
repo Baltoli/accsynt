@@ -85,24 +85,42 @@ protected:
  * property name to match against, and a vector of binding rules to associate
  * variable names with values (or to ignore them).
  */
-class match_expression {
+class property_expression {
   using binding_t = std::variant<std::string, ignore_value>;
 
 public:
-  match_expression(std::string name, std::vector<binding_t> bs);
+  property_expression(std::string name, std::vector<binding_t> bs);
 
   template <typename... Args>
-  match_expression(std::string name, Args... args);
+  property_expression(std::string name, Args... args);
 
   std::vector<match_result> match(props::property_set ps);
 
   template <typename OStream>
-  friend OStream& operator<<(OStream& os, match_expression const& m);
+  friend OStream& operator<<(OStream& os, property_expression const& m);
 
 protected:
   std::string property_name_;
   std::vector<binding_t> bindings_;
 };
+
+class type_expression {
+public:
+  type_expression(std::string, props::data_type);
+
+  std::vector<match_result> match(props::property_set);
+
+protected:
+  std::string name_;
+  props::data_type type_;
+};
+
+using match_expression = std::variant<property_expression, type_expression>;
+
+std::vector<match_result> expr_match(
+    match_expression& me, props::property_set ps);
+
+// Validators
 
 class distinct {
 public:
@@ -191,13 +209,13 @@ OStream& operator<<(OStream& os, match_result const& mr)
 }
 
 template <typename... Args>
-match_expression::match_expression(std::string name, Args... args)
-    : match_expression(name, { args... })
+property_expression::property_expression(std::string name, Args... args)
+    : property_expression(name, { args... })
 {
 }
 
 template <typename OStream>
-OStream& operator<<(OStream& os, match_expression const& m)
+OStream& operator<<(OStream& os, property_expression const& m)
 {
   auto bind_str = support::visitor{ [](std::string s) { return s; },
     [](ignore_value) { return std::string("_"); } };
@@ -222,4 +240,4 @@ negation::negation(std::string name, Args... args)
 {
   (args_.push_back(args), ...);
 }
-}
+} // namespace synth

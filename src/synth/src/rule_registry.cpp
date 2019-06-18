@@ -1,38 +1,46 @@
 #include "rules.h"
 
+using namespace props;
+
 namespace synth {
 
 std::vector<rule> rule_registry::all()
 {
-  using match = match_expression;
+  using match = property_expression;
+  using type = type_expression;
 
   // clang-format off
   return { 
     { "regularLoop", { "sz", "ptr" }, 
-      { match("size", "ptr", "sz") },
+      { match("size", "ptr", "sz"),
+        type ("sz", data_type::integer) },
       { negation("output", "ptr") } 
     },
     { "outputLoop", { "sz", "ptr" },
       { match("size", "ptr", "sz"), 
-        match("output", "ptr") }, 
+        match("output", "ptr"),
+        type( "sz", data_type::integer) }, 
       {} 
     },
     { "regularLoop", { "sz", "ptrA", "ptrB" },
       { match("size", "ptrA", "sz"), 
-        match("size", "ptrB", "sz") },
+        match("size", "ptrB", "sz"),
+        type ("sz", data_type::integer) },
       { distinct("ptrA", "ptrB"), 
         negation("output", "ptrA") } 
     },
     { "outputLoop", { "sz", "ptrA", "ptrB" },
       { match("size", "ptrA", "sz"), 
         match("size", "ptrB", "sz"),
-        match("output", "ptrA") },
+        match("output", "ptrA"),
+        type ("sz", data_type::integer) },
       { distinct("ptrA", "ptrB") } 
     },
     { "regularLoop", { "sz", "ptrA", "ptrB", "ptrC" },
       { match("size", "ptrA", "sz"), 
         match("size", "ptrB", "sz"),
-        match("size", "ptrC", "sz") },
+        match("size", "ptrC", "sz"),
+        type ("sz", data_type::integer) },
       { distinct("ptrA", "ptrB", "ptrC"), 
         negation("output", "ptrA") } 
     },
@@ -40,7 +48,8 @@ std::vector<rule> rule_registry::all()
       { match("size", "ptrA", "sz"), 
         match("size", "ptrB", "sz"),
         match("size", "ptrC", "sz"), 
-        match("output", "ptrA") },
+        match("output", "ptrA"),
+        type ("sz", data_type::integer) },
       { distinct("ptrA", "ptrB", "ptrC") }
     },
     {
@@ -57,4 +66,4 @@ std::vector<rule> rule_registry::all()
   };
   // clang-format on
 }
-}
+} // namespace synth
