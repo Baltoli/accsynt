@@ -36,3 +36,5 @@ add_test_shared_library(v_copy)
 add_test_shared_library(vec2sum)
 add_test_shared_library(v_sum)
 add_test_shared_library(v_sum_two)
+
+add_test_shared_library(strlen)
