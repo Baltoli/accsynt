@@ -21,14 +21,14 @@ void gp_sampler::sample(int n, property_set ps, compile_metadata& meta) const
   auto ops = operations();
 
   auto total_weight = 0;
-  ::support::for_each(ops, [&](auto& op) { total_weight += op.weight; });
+  ::support::for_each(ops, [&](auto const& op) { total_weight += op.weight; });
 
   for (int i = 0; i < n; ++i) {
     auto running = 0;
     auto done = false;
     auto thresh = random_int(0, total_weight);
 
-    ::support::for_each(ops, [&](auto& op) {
+    ::support::for_each(ops, [&](auto const& op) {
       running += op.weight;
 
       if (running >= thresh && !done) {
