@@ -1,5 +1,9 @@
 #pragma once
 
+#include <cstddef>
+#include <tuple>
+#include <utility>
+
 namespace {
 
 /**
@@ -19,7 +23,8 @@ auto make_index_dispatcher()
 {
   return make_index_dispatcher(std::make_index_sequence<N>{});
 }
-}
+
+} // namespace
 
 namespace support {
 
@@ -72,4 +77,4 @@ void zip_for_each(Tuple1&& t1, Tuple2&& t2, Func&& f)
         std::get<idx>(std::forward<Tuple2>(t2)));
   });
 }
-}
+} // namespace support

@@ -1,8 +1,11 @@
 #pragma once
 
+#include <support/tuple.h>
+
 #include <algorithm>
 #include <limits>
 #include <random>
+#include <tuple>
 
 namespace support {
 
@@ -72,4 +75,25 @@ IntType random_int(IntType min = std::numeric_limits<IntType>::min(),
   auto dist = std::uniform_int_distribution<IntType>{ min, max };
   return dist(rd);
 }
+
+template <typename Tuple, typename Func>
+void uniform_tuple_sample(Tuple&& t, Func&& f)
+{
+  constexpr auto size = std::tuple_size_v<std::decay_t<Tuple>>;
+  if constexpr (size == 0) {
+    return;
+  }
+
+  auto dist = std::uniform_int_distribution<decltype(size)>(0, size - 1);
+
+  auto eng = get_random_engine();
+  auto val = dist(eng);
+
+  index_for_each(std::forward<Tuple>(t), [&f, val](auto&& elt, auto idx) {
+    if (idx == val) {
+      std::forward<Func>(f)(std::forward<decltype(elt)>(elt));
+    }
+  });
+}
+
 } // namespace support
