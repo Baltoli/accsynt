@@ -17,7 +17,7 @@ std::string string_loop_fragment::to_str(size_t ind)
   using namespace fmt::literals;
 
   auto ptr_names = std::vector<std::string>{};
-  std::transform(args_.begin() + 1, args_.end(), std::back_inserter(ptr_names),
+  std::transform(args_.begin(), args_.end(), std::back_inserter(ptr_names),
       [](auto val) { return val.param_val; });
 
   auto shape = R"({before}
