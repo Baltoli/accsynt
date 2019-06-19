@@ -14,10 +14,6 @@ loop_fragment::loop_fragment(std::vector<props::value> args, frag_ptr before,
     , num_pointers_(args_.size() - 1)
     , perform_output_(output)
 {
-  if (args_.size() < 2) {
-    throw std::invalid_argument("Regular loop requires at least 2 arguments");
-  }
-
   auto all_params = std::all_of(args_.begin(), args_.end(),
       [](auto arg) { return arg.value_type == value::type::parameter; });
 
