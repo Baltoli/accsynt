@@ -1,4 +1,4 @@
-#include "regular_loop_fragment.h"
+#include "string_loop_fragment.h"
 
 #include <support/indent.h>
 
@@ -12,7 +12,7 @@ using namespace llvm;
 
 namespace synth {
 
-std::string regular_loop_fragment::to_str(size_t ind)
+std::string string_loop_fragment::to_str(size_t ind)
 {
   using namespace fmt::literals;
 
@@ -27,7 +27,7 @@ std::string regular_loop_fragment::to_str(size_t ind)
 {after})";
 
   return fmt::format(shape,
-      "name"_a = perform_output_ ? "outputLoop" : "regularLoop",
+      "name"_a = perform_output_ ? "stringOutputLoop" : "stringLoop",
       "ind1"_a = ::support::indent{ ind },
       "ind2"_a = ::support::indent{ ind + 1 },
       "before"_a = string_or_empty(before_, ind),
@@ -38,16 +38,14 @@ std::string regular_loop_fragment::to_str(size_t ind)
       "sz"_a = args_.at(0).param_val);
 }
 
-void regular_loop_fragment::splice(
+void string_loop_fragment::splice(
     compile_context& ctx, llvm::BasicBlock* entry, llvm::BasicBlock* exit)
 {
-  // TODO: throw if any children null - empty fragments fill this role
-
   auto& llvm_ctx = entry->getContext();
 
-  auto inter_first = BasicBlock::Create(llvm_ctx, "reg-loop.inter0", ctx.func_);
+  auto inter_first = BasicBlock::Create(llvm_ctx, "str-loop.inter0", ctx.func_);
   auto inter_second
-      = BasicBlock::Create(llvm_ctx, "reg-loop.inter1", ctx.func_);
+      = BasicBlock::Create(llvm_ctx, "str-loop.inter1", ctx.func_);
 
   auto last_exit = entry;
 
@@ -58,41 +56,43 @@ void regular_loop_fragment::splice(
 
   // Body
 
-  auto size = get_size(ctx);
-
-  auto header = BasicBlock::Create(llvm_ctx, "reg-loop.header", ctx.func_);
-  auto pre_body = BasicBlock::Create(llvm_ctx, "reg-loop.pre-body", ctx.func_);
+  auto header = BasicBlock::Create(llvm_ctx, "str-loop.header", ctx.func_);
+  auto pre_body = BasicBlock::Create(llvm_ctx, "str-loop.pre-body", ctx.func_);
   auto post_body
-      = BasicBlock::Create(llvm_ctx, "reg-loop.post-body", ctx.func_);
+      = BasicBlock::Create(llvm_ctx, "str-loop.post-body", ctx.func_);
 
   auto B = IRBuilder<>(inter_first);
   B.CreateBr(header);
 
   B.SetInsertPoint(header);
-  auto iter = B.CreatePHI(size->getType(), 2, "reg-loop.iter");
+  auto iter = B.CreatePHI(B.getInt32Ty(), 2, "str-loop.iter");
   iter->addIncoming(ConstantInt::get(iter->getType(), 0), inter_first);
-  auto cond = B.CreateICmpSLT(iter, size, "reg-loop.cond");
-  B.CreateCondBr(cond, pre_body, inter_second);
 
-  B.SetInsertPoint(pre_body);
-  for (auto i = 0u; i < num_pointers_; ++i) {
+  for (auto i = 0u; i < num_pointers_ + 1; ++i) {
     auto [ptr, name] = get_pointer(ctx, i);
-    auto geps = ctx.create_geps_for(name, iter, ptr, B, "reg-loop.gep");
+    auto geps = ctx.create_geps_for(name, iter, ptr, B, "str-loop.gep");
 
     for (auto gep : geps) {
-      auto load = B.CreateLoad(gep, "reg-loop.load");
+      auto load = B.CreateLoad(gep, "str-loop.load");
       ctx.metadata_.seeds.insert(load);
+
+      if (i == 0) {
+        auto cond = B.CreateICmpEQ(load, B.getInt8(0), "str-loop.cond");
+        B.CreateCondBr(cond, inter_second, pre_body);
+      }
     }
   }
 
+  B.SetInsertPoint(pre_body);
+
   B.SetInsertPoint(post_body);
   auto next = B.CreateAdd(
-      iter, ConstantInt::get(iter->getType(), 1), "reg-loop.next-iter");
+      iter, ConstantInt::get(iter->getType(), 1), "str-loop.next-iter");
   iter->addIncoming(next, post_body);
 
   if (perform_output_) {
     auto [ptr, name] = get_pointer(ctx, 0);
-    auto geps = ctx.create_geps_for(name, iter, ptr, B, "out-loop.gep");
+    auto geps = ctx.create_geps_for(name, iter, ptr, B, "str-out-loop.gep");
 
     for (auto gep : geps) {
       ctx.metadata_.outputs.insert(cast<Instruction>(gep));
@@ -109,19 +109,14 @@ void regular_loop_fragment::splice(
   after_->splice(ctx, last_exit, exit);
 }
 
-Argument* regular_loop_fragment::get_size(compile_context& ctx)
-{
-  return ctx.argument(args_.at(0).param_val);
-}
-
-std::pair<Argument*, std::string> regular_loop_fragment::get_pointer(
+std::pair<Argument*, std::string> string_loop_fragment::get_pointer(
     compile_context& ctx, size_t idx)
 {
-  auto name = args_.at(idx + 1).param_val;
+  auto name = args_.at(idx).param_val;
   return { ctx.argument(name), name };
 }
 
-void swap(regular_loop_fragment& a, regular_loop_fragment& b)
+void swap(string_loop_fragment& a, string_loop_fragment& b)
 {
   using std::swap;
   swap(a.before_, b.before_);
@@ -131,7 +126,7 @@ void swap(regular_loop_fragment& a, regular_loop_fragment& b)
   swap(a.perform_output_, b.perform_output_);
 }
 
-bool regular_loop_fragment::operator==(regular_loop_fragment const& other) const
+bool string_loop_fragment::operator==(string_loop_fragment const& other) const
 {
   auto equal_non_null = [](auto const& a, auto const& b) {
     if (!a && !b) {
@@ -149,12 +144,12 @@ bool regular_loop_fragment::operator==(regular_loop_fragment const& other) const
       && perform_output_ == other.perform_output_;
 }
 
-bool regular_loop_fragment::operator!=(regular_loop_fragment const& other) const
+bool string_loop_fragment::operator!=(string_loop_fragment const& other) const
 {
   return !(*this == other);
 }
 
-bool regular_loop_fragment::equal_to(frag_ptr const& other) const
+bool string_loop_fragment::equal_to(frag_ptr const& other) const
 {
   return other->equal_as(*this);
 }

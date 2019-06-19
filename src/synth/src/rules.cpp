@@ -145,6 +145,27 @@ bool negation::validate(
   return true;
 }
 
+bool is_pointer::validate(
+    match_result const& unified, props::property_set ps) const
+{
+  bool all = true;
+
+  for (auto name : names_) {
+    if (auto val = unified(name)) {
+      auto v = *val;
+      if (v.is_param()) {
+        for (auto p : ps.type_signature.parameters) {
+          if (p.name == v.param_val) {
+            all = all && (p.pointer_depth != 0);
+          }
+        }
+      }
+    }
+  }
+
+  return all;
+}
+
 // Rules
 
 rule::rule(std::string frag, std::vector<std::string> args,

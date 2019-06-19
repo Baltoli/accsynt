@@ -145,7 +145,18 @@ private:
   std::vector<std::string> args_{};
 };
 
-using validator = std::variant<distinct, negation>;
+class is_pointer {
+public:
+  template <typename... Args>
+  is_pointer(Args... args);
+
+  bool validate(match_result const& unified, props::property_set ps) const;
+
+private:
+  std::vector<std::string> names_;
+};
+
+using validator = std::variant<distinct, negation, is_pointer>;
 
 /**
  * A rule has a fragment name and argument list. When unification succeeds, the
@@ -240,4 +251,11 @@ negation::negation(std::string name, Args... args)
 {
   (args_.push_back(args), ...);
 }
+
+template <typename... Args>
+is_pointer::is_pointer(Args... args)
+{
+  (names_.push_back(args), ...);
+}
+
 } // namespace synth
