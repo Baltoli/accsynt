@@ -47,8 +47,10 @@ void value_sampler::block(
 
   for (auto i = 0u; i < n; ++i) {
     if (!live.empty()) {
-      auto v1 = support::uniform_sample_if(live, non_const);
-      auto v2 = support::uniform_sample_if(live, non_const);
+      /* auto v1 = support::uniform_sample_if(live, non_const); */
+      /* auto v2 = support::uniform_sample_if(live, non_const); */
+      auto v1 = support::uniform_sample(live);
+      auto v2 = support::uniform_sample(live);
       if (v1 != live.end() && v2 != live.end()) {
         auto val = arithmetic(B, *v1, *v2);
         if (val) {
@@ -87,12 +89,12 @@ llvm::Value* value_sampler::arithmetic(
     return nullptr;
   }
 
-  if (v1->getType()->isIntegerTy()) {
-    return nullptr;
-  }
+  /* if (v1->getType()->isIntegerTy()) { */
+  /*   return nullptr; */
+  /* } */
 
   // TODO: check integer vs. floating point etc
-  auto options = std::vector{ 0, 1 };
+  auto options = std::vector{ 8, 9, 10 };
   auto choice = *support::uniform_sample(options);
   switch (choice) {
   case 0:
@@ -111,8 +113,14 @@ llvm::Value* value_sampler::arithmetic(
     return make_clamp(B, v1);
   case 7:
     return B.CreateFDiv(v1, v2);
+  case 8:
+    return B.getInt32(0);
+  case 9:
+    return B.getInt32(1);
+  case 10:
+    return B.CreateAdd(v1, v2);
   }
 
   __builtin_unreachable();
 }
-}
+} // namespace synth

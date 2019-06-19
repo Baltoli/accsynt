@@ -113,4 +113,4 @@ Function* synthesizer::create_stub()
 std::string null_synth::name() const { return "Null"; }
 
 Function* null_synth::generate() { return nullptr; }
-}
+} // namespace synth

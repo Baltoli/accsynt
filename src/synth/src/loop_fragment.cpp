@@ -61,16 +61,4 @@ size_t loop_fragment::count_holes() const
       + count_or_empty(after_);
 }
 
-std::pair<Argument*, std::string> loop_fragment::get_pointer(
-    compile_context& ctx, size_t idx)
-{
-  auto name = args_.at(idx + 1).param_val;
-  return { ctx.argument(name), name };
-}
-
-Argument* loop_fragment::get_size(compile_context& ctx)
-{
-  return ctx.argument(args_.at(0).param_val);
-}
-
 } // namespace synth

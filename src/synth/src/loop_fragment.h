@@ -21,10 +21,6 @@ public:
   virtual size_t count_holes() const override;
 
 protected:
-  std::pair<llvm::Argument*, std::string> get_pointer(
-      compile_context&, size_t idx);
-  llvm::Argument* get_size(compile_context&);
-
   fragment::frag_ptr before_;
   fragment::frag_ptr body_;
   fragment::frag_ptr after_;

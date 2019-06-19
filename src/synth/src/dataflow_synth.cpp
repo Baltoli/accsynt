@@ -33,15 +33,9 @@ dataflow_synth::dataflow_synth(compile_context const& ctx)
   }
 }
 
-void dataflow_synth::seed(Value* instr)
-{
-  seeds_.push_back(instr);
-}
+void dataflow_synth::seed(Value* instr) { seeds_.push_back(instr); }
 
-void dataflow_synth::output(Instruction* val)
-{
-  outputs_.push_back(val);
-}
+void dataflow_synth::output(Instruction* val) { outputs_.push_back(val); }
 
 void dataflow_synth::create_dataflow()
 {
@@ -50,14 +44,14 @@ void dataflow_synth::create_dataflow()
 
   auto root_live = std::vector<llvm::Value*>{};
   root_live.push_back(
-      sampler_.constant(Type::getFloatTy(function_->getContext())));
+      sampler_.constant(Type::getInt32Ty(function_->getContext())));
 
   for (auto seed : seeds_) {
     if (auto arg = dyn_cast<Argument>(seed)) {
       // TODO: fix to include integers
-      if (arg->getType()->isFloatTy()) {
-        root_live.push_back(arg);
-      }
+      /* if (arg->getType()->isFloatTy()) { */
+      root_live.push_back(arg);
+      /* } */
     }
   }
 
@@ -102,7 +96,13 @@ void dataflow_synth::create_outputs()
       if (isa<ReturnInst>(term)) {
         term->eraseFromParent();
         auto exit_live = final_live_.at(&block);
-        auto ret_val = *uniform_sample(with_type(rt, exit_live));
+        auto live_with_type = with_type(rt, exit_live);
+        auto ret_val = *uniform_sample(live_with_type);
+
+        if (!ret_val) {
+          ret_val = Constant::getNullValue(rt);
+        }
+
         ReturnInst::Create(ctx, ret_val, &block);
       }
     }
@@ -151,4 +151,4 @@ dataflow_synth::block_live_map const& dataflow_synth::block_live() const
 {
   return final_live_;
 }
-}
+} // namespace synth

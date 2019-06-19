@@ -56,8 +56,6 @@ void string_loop_fragment::splice(
 
   // Body
 
-  auto size = get_size(ctx);
-
   auto header = BasicBlock::Create(llvm_ctx, "str-loop.header", ctx.func_);
   auto pre_body = BasicBlock::Create(llvm_ctx, "str-loop.pre-body", ctx.func_);
   auto post_body
@@ -67,21 +65,25 @@ void string_loop_fragment::splice(
   B.CreateBr(header);
 
   B.SetInsertPoint(header);
-  auto iter = B.CreatePHI(size->getType(), 2, "str-loop.iter");
+  auto iter = B.CreatePHI(B.getInt32Ty(), 2, "str-loop.iter");
   iter->addIncoming(ConstantInt::get(iter->getType(), 0), inter_first);
-  auto cond = B.CreateICmpSLT(iter, size, "str-loop.cond");
-  B.CreateCondBr(cond, pre_body, inter_second);
 
-  B.SetInsertPoint(pre_body);
-  for (auto i = 0u; i < num_pointers_; ++i) {
+  for (auto i = 0u; i < num_pointers_ + 1; ++i) {
     auto [ptr, name] = get_pointer(ctx, i);
     auto geps = ctx.create_geps_for(name, iter, ptr, B, "str-loop.gep");
 
     for (auto gep : geps) {
       auto load = B.CreateLoad(gep, "str-loop.load");
       ctx.metadata_.seeds.insert(load);
+
+      if (i == 0) {
+        auto cond = B.CreateICmpEQ(load, B.getInt8(0), "str-loop.cond");
+        B.CreateCondBr(cond, pre_body, inter_second);
+      }
     }
   }
+
+  B.SetInsertPoint(pre_body);
 
   B.SetInsertPoint(post_body);
   auto next = B.CreateAdd(
@@ -90,7 +92,7 @@ void string_loop_fragment::splice(
 
   if (perform_output_) {
     auto [ptr, name] = get_pointer(ctx, 0);
-    auto geps = ctx.create_geps_for(name, iter, ptr, B, "out-loop.gep");
+    auto geps = ctx.create_geps_for(name, iter, ptr, B, "str-out-loop.gep");
 
     for (auto gep : geps) {
       ctx.metadata_.outputs.insert(cast<Instruction>(gep));
@@ -105,6 +107,13 @@ void string_loop_fragment::splice(
   // After
 
   after_->splice(ctx, last_exit, exit);
+}
+
+std::pair<Argument*, std::string> string_loop_fragment::get_pointer(
+    compile_context& ctx, size_t idx)
+{
+  auto name = args_.at(idx).param_val;
+  return { ctx.argument(name), name };
 }
 
 void swap(string_loop_fragment& a, string_loop_fragment& b)

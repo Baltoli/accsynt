@@ -109,6 +109,18 @@ void regular_loop_fragment::splice(
   after_->splice(ctx, last_exit, exit);
 }
 
+Argument* regular_loop_fragment::get_size(compile_context& ctx)
+{
+  return ctx.argument(args_.at(0).param_val);
+}
+
+std::pair<Argument*, std::string> regular_loop_fragment::get_pointer(
+    compile_context& ctx, size_t idx)
+{
+  auto name = args_.at(idx + 1).param_val;
+  return { ctx.argument(name), name };
+}
+
 void swap(regular_loop_fragment& a, regular_loop_fragment& b)
 {
   using std::swap;

@@ -22,6 +22,10 @@ public:
       llvm::BasicBlock* exit) override;
 
   friend void swap(string_loop_fragment& a, string_loop_fragment& b);
+
+private:
+  std::pair<llvm::Argument*, std::string> get_pointer(
+      compile_context&, size_t idx);
 };
 
 } // namespace synth
