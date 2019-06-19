@@ -78,7 +78,7 @@ void string_loop_fragment::splice(
 
       if (i == 0) {
         auto cond = B.CreateICmpEQ(load, B.getInt8(0), "str-loop.cond");
-        B.CreateCondBr(cond, pre_body, inter_second);
+        B.CreateCondBr(cond, inter_second, pre_body);
       }
     }
   }
