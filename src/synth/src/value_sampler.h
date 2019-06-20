@@ -14,6 +14,8 @@
 
 namespace synth {
 
+// New sampling rules
+
 template <typename Pred, typename Build>
 class sampling_rule {
 public:
@@ -49,6 +51,16 @@ void sampling_rule<Pred, Build>::build(
 {
   build_(B, v1, v2);
 }
+
+// Sampling predicates
+
+bool both_floats(llvm::Type*, llvm::Type*);
+bool one_float(llvm::Type*, llvm::Type*);
+
+bool same_ints(llvm::Type*, llvm::Type*);
+bool one_int(llvm::Type*, llvm::Type*);
+
+bool same_type(llvm::Type*, llvm::Type*);
 
 /*
  * TODO: this is BLAS specific code - need to tidy it up and put it behind a
