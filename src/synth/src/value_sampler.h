@@ -14,10 +14,46 @@
 
 namespace synth {
 
+template <typename Pred, typename Build>
+class sampling_rule {
+public:
+  sampling_rule(Pred&&, Build&&);
+
+  bool valid_for(llvm::Type*, llvm::Type*);
+
+  template <typename IRBuilder>
+  void build(IRBuilder&, llvm::Value*, llvm::Value*);
+
+private:
+  Pred pred_;
+  Build build_;
+};
+
+template <typename Pred, typename Build>
+sampling_rule<Pred, Build>::sampling_rule(Pred&& p, Build&& b)
+    : pred_(std::forward<Pred>(p))
+    , build_(std::forward<Build>(b))
+{
+}
+
+template <typename Pred, typename Build>
+bool sampling_rule<Pred, Build>::valid_for(llvm::Type* t1, llvm::Type* t2)
+{
+  return pred_(t1, t2);
+}
+
+template <typename Pred, typename Build>
+template <typename IRBuilder>
+void sampling_rule<Pred, Build>::build(
+    IRBuilder& B, llvm::Value* v1, llvm::Value* v2)
+{
+  build_(B, v1, v2);
+}
+
 /*
  * TODO: this is BLAS specific code - need to tidy it up and put it behind a
- * more general interface so that other domains can then pick how they want to
- * build their dataflow. Keeping instructions restricted for now.
+ * more general interface so that other domains can then pick how they want
+ * to build their dataflow. Keeping instructions restricted for now.
  */
 class value_sampler {
 public:
@@ -123,4 +159,5 @@ llvm::Value* value_sampler::arithmetic(
 
   __builtin_unreachable();
 }
+
 } // namespace synth
