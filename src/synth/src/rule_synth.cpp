@@ -70,7 +70,12 @@ Function* rule_synth::candidate()
   data_synth.create_outputs();
 
   current_fragment_++;
-  errs() << *fn << '\n';
+
+  if (AllPrograms) {
+    errs() << *fn << '\n';
+  }
+
   return fn;
 }
+
 } // namespace synth

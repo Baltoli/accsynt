@@ -101,40 +101,40 @@ bool none(llvm::Type*, llvm::Type*);
 // clang-format off
 inline auto all_rules() { 
   return std::tuple{
-    sampling_rule(both_floats, [] (auto& B, auto v1, auto v2) {
+    sampling_rule(1, both_floats, [] (auto& B, auto v1, auto v2) {
       return B.CreateFMul(v1, v2);
     }),
-    sampling_rule(both_floats, [] (auto& B, auto v1, auto v2) {
+    sampling_rule(1, both_floats, [] (auto& B, auto v1, auto v2) {
       return B.CreateFAdd(v1, v2);
     }),
-    sampling_rule(both_floats, [] (auto& B, auto v1, auto v2) {
+    sampling_rule(1, both_floats, [] (auto& B, auto v1, auto v2) {
       return B.CreateFSub(v1, v2);
     }),
-    sampling_rule(one_float, [] (auto& B, auto v, auto) {
+    sampling_rule(1, one_float, [] (auto& B, auto v, auto) {
       return make_clamp(B, v);
     }),
-    sampling_rule(one_float, [] (auto& B, auto v, auto) {
+    sampling_rule(1, one_float, [] (auto& B, auto v, auto) {
       return make_intrinsic(B, llvm::Intrinsic::fabs, v);
     }),
-    sampling_rule(one_float, [] (auto& B, auto v, auto) {
+    sampling_rule(1, one_float, [] (auto& B, auto v, auto) {
       return make_intrinsic(B, llvm::Intrinsic::exp, v);
     }),
-    sampling_rule(one_float, [] (auto& B, auto v, auto) {
+    sampling_rule(1, one_float, [] (auto& B, auto v, auto) {
       return make_intrinsic(B, llvm::Intrinsic::sqrt, v);
     }),
-    sampling_rule(same_ints, [] (auto& B, auto v1, auto v2) {
+    sampling_rule(1, same_ints, [] (auto& B, auto v1, auto v2) {
       return B.CreateAdd(v1, v2);
     }),
-    sampling_rule(same_ints, [] (auto& B, auto v1, auto v2) {
+    sampling_rule(1, same_ints, [] (auto& B, auto v1, auto v2) {
       return B.CreateMul(v1, v2);
     }),
-    sampling_rule(same_ints, [] (auto& B, auto v1, auto v2) {
+    sampling_rule(1, same_ints, [] (auto& B, auto v1, auto v2) {
       return B.CreateSub(v1, v2);
     }),
-    sampling_rule(any, [] (auto& B, auto v1, auto v2) {
+    sampling_rule(1, any, [] (auto& B, auto v1, auto v2) {
       return B.getInt32(0);
     }),
-    sampling_rule(any, [] (auto& B, auto v1, auto v2) {
+    sampling_rule(1, any, [] (auto& B, auto v1, auto v2) {
       return B.getInt32(1);
     })
   };
@@ -157,27 +157,32 @@ void weighted_rule_sample(Builder&& B, std::vector<llvm::Value*>& live)
   }
 
   auto spot = support::random_int<size_t>(0, total_weight - 1);
-  size_t running_weight = 0;
   bool done = false;
 
+  size_t running_weight = 0;
+  size_t max_attempts = 16;
+
   support::for_each(rules, [&](auto& rule) {
-    if (done) {
+    running_weight += rule.weight();
+
+    if (done || rule.weight() == 0) {
       return;
     }
 
     if (spot < running_weight) {
-      auto v1 = support::uniform_sample(live);
-      auto v2 = support::uniform_sample(live);
+      for (auto attempts = 0u; attempts < max_attempts && !done; ++attempts) {
+        auto v1 = support::uniform_sample(live);
+        auto v2 = support::uniform_sample(live);
 
-      if (v1 != live.end() && v2 != live.end()
-          && rule.valid_for((*v1)->getType(), (*v2)->getType())) {
-        auto val = rule.build(B, *v1, *v2);
-        if (val) {
-          live.push_back(val);
+        if (v1 != live.end() && v2 != live.end()
+            && rule.valid_for((*v1)->getType(), (*v2)->getType())) {
+          auto val = rule.build(B, *v1, *v2);
+          if (val) {
+            live.push_back(val);
+            done = true;
+          }
         }
       }
-    } else {
-      running_weight += rule.weight();
     }
   });
 }
