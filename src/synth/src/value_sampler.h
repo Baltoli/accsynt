@@ -62,6 +62,18 @@ bool one_int(llvm::Type*, llvm::Type*);
 
 bool same_type(llvm::Type*, llvm::Type*);
 
+// Collection of sampling rules in the new style
+
+// clang-format off
+inline auto all_rules() { 
+  return std::tuple{
+    sampling_rule(both_floats, [] (auto& B, auto v1, auto v2) {
+      B.CreateFMul(v1, v2);
+    })
+  };
+}
+// clang-format on
+
 /*
  * TODO: this is BLAS specific code - need to tidy it up and put it behind a
  * more general interface so that other domains can then pick how they want
