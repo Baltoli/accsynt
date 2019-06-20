@@ -14,6 +14,25 @@
 
 namespace synth {
 
+// Helpers to make slightly more complex patterns
+
+template <typename Builder>
+llvm::Value* make_intrinsic(
+    Builder&& B, llvm::Intrinsic::ID id, llvm::Value* v1)
+{
+  auto mod = B.GetInsertBlock()->getParent()->getParent();
+  auto intrinsic = llvm::Intrinsic::getDeclaration(mod, id, v1->getType());
+  return B.CreateCall(intrinsic, v1);
+}
+
+template <typename Builder>
+llvm::Value* make_clamp(Builder&& B, llvm::Value* v1)
+{
+  auto zero = llvm::ConstantFP::get(B.getFloatTy(), 0.0);
+  auto cond = B.CreateFCmpOLT(v1, zero);
+  return B.CreateSelect(cond, zero, v1);
+}
+
 // New sampling rules
 
 template <typename Pred, typename Build>
@@ -69,6 +88,18 @@ inline auto all_rules() {
   return std::tuple{
     sampling_rule(both_floats, [] (auto& B, auto v1, auto v2) {
       B.CreateFMul(v1, v2);
+    }),
+    sampling_rule(both_floats, [] (auto& B, auto v1, auto v2) {
+      B.CreateFAdd(v1, v2);
+    }),
+    sampling_rule(both_floats, [] (auto& B, auto v1, auto v2) {
+      B.CreateFSub(v1, v2);
+    }),
+    sampling_rule(one_float, [] (auto& B, auto v, auto) {
+      make_clamp(B, v);
+    }),
+    sampling_rule(one_float, [] (auto& B, auto v, auto) {
+      make_intrinsic(B, llvm::Intrinsic::fabs, v);
     })
   };
 }
@@ -119,23 +150,6 @@ void value_sampler::block(
       }
     }
   }
-}
-
-template <typename Builder>
-llvm::Value* make_intrinsic(
-    Builder&& B, llvm::Intrinsic::ID id, llvm::Value* v1)
-{
-  auto mod = B.GetInsertBlock()->getParent()->getParent();
-  auto intrinsic = llvm::Intrinsic::getDeclaration(mod, id, v1->getType());
-  return B.CreateCall(intrinsic, v1);
-}
-
-template <typename Builder>
-llvm::Value* make_clamp(Builder&& B, llvm::Value* v1)
-{
-  auto zero = llvm::ConstantFP::get(B.getFloatTy(), 0.0);
-  auto cond = B.CreateFCmpOLT(v1, zero);
-  return B.CreateSelect(cond, zero, v1);
 }
 
 template <typename Builder>
