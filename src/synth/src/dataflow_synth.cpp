@@ -45,6 +45,8 @@ void dataflow_synth::create_dataflow()
   auto root_live = std::vector<llvm::Value*>{};
   root_live.push_back(
       sampler_.constant(Type::getInt32Ty(function_->getContext())));
+  root_live.push_back(
+      sampler_.constant(Type::getFloatTy(function_->getContext())));
 
   for (auto seed : seeds_) {
     if (auto arg = dyn_cast<Argument>(seed)) {

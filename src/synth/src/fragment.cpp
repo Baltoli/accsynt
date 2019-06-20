@@ -155,6 +155,14 @@ fragment::fragment(std::vector<value> args)
 
 compile_metadata fragment::compile(compile_context& ctx)
 {
+  // TODO: is this the right place to do this?
+  //       it works for now so just leave it - reconsider if needed
+  for (auto& arg : ctx.metadata_.function->args()) {
+    if (!arg.getType()->isPointerTy()) {
+      ctx.metadata_.seeds.insert(&arg);
+    }
+  }
+
   splice(ctx, ctx.entry_, ctx.exit_);
   return ctx.metadata_;
 }
