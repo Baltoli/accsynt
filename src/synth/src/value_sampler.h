@@ -1,6 +1,7 @@
 #pragma once
 
 #include <support/random.h>
+#include <support/tuple.h>
 
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/CFG.h>
@@ -44,7 +45,7 @@ public:
   bool valid_for(llvm::Type*, llvm::Type*);
 
   template <typename IRBuilder>
-  void build(IRBuilder&, llvm::Value*, llvm::Value*);
+  llvm::Value* build(IRBuilder&, llvm::Value*, llvm::Value*);
 
 private:
   size_t weight_;
@@ -74,10 +75,10 @@ bool sampling_rule<Pred, Build>::valid_for(llvm::Type* t1, llvm::Type* t2)
 
 template <typename Pred, typename Build>
 template <typename IRBuilder>
-void sampling_rule<Pred, Build>::build(
+llvm::Value* sampling_rule<Pred, Build>::build(
     IRBuilder& B, llvm::Value* v1, llvm::Value* v2)
 {
-  build_(B, v1, v2);
+  return build_(B, v1, v2);
 }
 
 // Sampling predicates
@@ -96,23 +97,25 @@ bool same_type(llvm::Type*, llvm::Type*);
 inline auto all_rules() { 
   return std::tuple{
     sampling_rule(both_floats, [] (auto& B, auto v1, auto v2) {
-      B.CreateFMul(v1, v2);
+      return B.CreateFMul(v1, v2);
     }),
     sampling_rule(both_floats, [] (auto& B, auto v1, auto v2) {
-      B.CreateFAdd(v1, v2);
+      return B.CreateFAdd(v1, v2);
     }),
     sampling_rule(both_floats, [] (auto& B, auto v1, auto v2) {
-      B.CreateFSub(v1, v2);
+      return B.CreateFSub(v1, v2);
     }),
     sampling_rule(one_float, [] (auto& B, auto v, auto) {
-      make_clamp(B, v);
+      return make_clamp(B, v);
     }),
     sampling_rule(one_float, [] (auto& B, auto v, auto) {
-      make_intrinsic(B, llvm::Intrinsic::fabs, v);
+      return make_intrinsic(B, llvm::Intrinsic::fabs, v);
     })
   };
 }
 // clang-format on
+
+// Sampling from a tuple of rules
 
 /*
  * TODO: this is BLAS specific code - need to tidy it up and put it behind a
