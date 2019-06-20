@@ -39,6 +39,7 @@ template <typename Pred, typename Build>
 class sampling_rule {
 public:
   sampling_rule(Pred&&, Build&&);
+  sampling_rule(size_t, Pred&&, Build&&);
 
   bool valid_for(llvm::Type*, llvm::Type*);
 
@@ -46,14 +47,22 @@ public:
   void build(IRBuilder&, llvm::Value*, llvm::Value*);
 
 private:
+  size_t weight_;
   Pred pred_;
   Build build_;
 };
 
 template <typename Pred, typename Build>
-sampling_rule<Pred, Build>::sampling_rule(Pred&& p, Build&& b)
-    : pred_(std::forward<Pred>(p))
+sampling_rule<Pred, Build>::sampling_rule(size_t w, Pred&& p, Build&& b)
+    : weight_(w)
+    , pred_(std::forward<Pred>(p))
     , build_(std::forward<Build>(b))
+{
+}
+
+template <typename Pred, typename Build>
+sampling_rule<Pred, Build>::sampling_rule(Pred&& p, Build&& b)
+    : sampling_rule(1, std::forward<Pred>(p), std::forward<Build>(b))
 {
 }
 
