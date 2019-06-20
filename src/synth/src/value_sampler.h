@@ -47,6 +47,8 @@ public:
   template <typename IRBuilder>
   llvm::Value* build(IRBuilder&, llvm::Value*, llvm::Value*);
 
+  size_t weight() const { return weight_; }
+
 private:
   size_t weight_;
   Pred pred_;
@@ -91,6 +93,9 @@ bool one_int(llvm::Type*, llvm::Type*);
 
 bool same_type(llvm::Type*, llvm::Type*);
 
+bool any(llvm::Type*, llvm::Type*);
+bool none(llvm::Type*, llvm::Type*);
+
 // Collection of sampling rules in the new style
 
 // clang-format off
@@ -110,6 +115,27 @@ inline auto all_rules() {
     }),
     sampling_rule(one_float, [] (auto& B, auto v, auto) {
       return make_intrinsic(B, llvm::Intrinsic::fabs, v);
+    }),
+    sampling_rule(one_float, [] (auto& B, auto v, auto) {
+      return make_intrinsic(B, llvm::Intrinsic::exp, v);
+    }),
+    sampling_rule(one_float, [] (auto& B, auto v, auto) {
+      return make_intrinsic(B, llvm::Intrinsic::sqrt, v);
+    }),
+    sampling_rule(same_ints, [] (auto& B, auto v1, auto v2) {
+      return B.CreateAdd(v1, v2);
+    }),
+    sampling_rule(same_ints, [] (auto& B, auto v1, auto v2) {
+      return B.CreateMul(v1, v2);
+    }),
+    sampling_rule(same_ints, [] (auto& B, auto v1, auto v2) {
+      return B.CreateSub(v1, v2);
+    }),
+    sampling_rule(any, [] (auto& B, auto v1, auto v2) {
+      return B.getInt32(0);
+    }),
+    sampling_rule(any, [] (auto& B, auto v1, auto v2) {
+      return B.getInt32(1);
     })
   };
 }
@@ -117,11 +143,47 @@ inline auto all_rules() {
 
 // Sampling from a tuple of rules
 
-/*
- * TODO: this is BLAS specific code - need to tidy it up and put it behind a
- * more general interface so that other domains can then pick how they want
- * to build their dataflow. Keeping instructions restricted for now.
- */
+template <typename Builder>
+void weighted_rule_sample(Builder&& B, std::vector<llvm::Value*>& live)
+{
+  auto rules = all_rules();
+  size_t total_weight = 0;
+
+  support::for_each(
+      rules, [&total_weight](auto& rule) { total_weight += rule.weight(); });
+
+  if (total_weight == 0) {
+    return;
+  }
+
+  auto spot = support::random_int<size_t>(0, total_weight - 1);
+  size_t running_weight = 0;
+  bool done = false;
+
+  support::for_each(rules, [&](auto& rule) {
+    if (done) {
+      return;
+    }
+
+    if (spot < running_weight) {
+      auto v1 = support::uniform_sample(live);
+      auto v2 = support::uniform_sample(live);
+
+      if (v1 != live.end() && v2 != live.end()
+          && rule.valid_for((*v1)->getType(), (*v2)->getType())) {
+        auto val = rule.build(B, *v1, *v2);
+        if (val) {
+          live.push_back(val);
+        }
+      }
+    } else {
+      running_weight += rule.weight();
+    }
+  });
+}
+
+// value sampling wrapper class called by the dataflow synthesis process
+
 class value_sampler {
 public:
   value_sampler() = default;
@@ -133,81 +195,15 @@ public:
       std::map<llvm::BasicBlock*, std::vector<llvm::Value*>> const& live);
 
   llvm::Value* constant(llvm::Type* ty) const;
-
-protected:
-  template <typename Builder>
-  llvm::Value* arithmetic(Builder&& B, llvm::Value* v1, llvm::Value* v2) const;
-
-private:
-  // Internal state kept during the generation process
 };
 
 template <typename Builder>
 void value_sampler::block(
     Builder&& B, size_t n, std::vector<llvm::Value*>& live)
 {
-  auto non_const = [](auto* v) { return !llvm::isa<llvm::Constant>(v); };
-
   for (auto i = 0u; i < n; ++i) {
-    if (!live.empty()) {
-      /* auto v1 = support::uniform_sample_if(live, non_const); */
-      /* auto v2 = support::uniform_sample_if(live, non_const); */
-      auto v1 = support::uniform_sample(live);
-      auto v2 = support::uniform_sample(live);
-      if (v1 != live.end() && v2 != live.end()) {
-        auto val = arithmetic(B, *v1, *v2);
-        if (val) {
-          live.push_back(val);
-        }
-      }
-    }
+    weighted_rule_sample(B, live);
   }
-}
-
-template <typename Builder>
-llvm::Value* value_sampler::arithmetic(
-    Builder&& B, llvm::Value* v1, llvm::Value* v2) const
-{
-  // TODO: be more forgiving to different types being passed in here - look for
-  // common base type etc and try to do some extensions / upcasting
-
-  if (v1->getType() != v2->getType()) {
-    return nullptr;
-  }
-
-  /* if (v1->getType()->isIntegerTy()) { */
-  /*   return nullptr; */
-  /* } */
-
-  // TODO: check integer vs. floating point etc
-  auto options = std::vector{ 8, 9, 10 };
-  auto choice = *support::uniform_sample(options);
-  switch (choice) {
-  case 0:
-    return B.CreateFAdd(v1, v2);
-  case 1:
-    return B.CreateFMul(v1, v2);
-  case 2:
-    return B.CreateFSub(v1, v2);
-  case 3:
-    return make_intrinsic(B, llvm::Intrinsic::fabs, v1);
-  case 4:
-    return make_intrinsic(B, llvm::Intrinsic::sqrt, v1);
-  case 5:
-    return make_intrinsic(B, llvm::Intrinsic::exp, v1);
-  case 6:
-    return make_clamp(B, v1);
-  case 7:
-    return B.CreateFDiv(v1, v2);
-  case 8:
-    return B.getInt32(0);
-  case 9:
-    return B.getInt32(1);
-  case 10:
-    return B.CreateAdd(v1, v2);
-  }
-
-  __builtin_unreachable();
 }
 
 } // namespace synth

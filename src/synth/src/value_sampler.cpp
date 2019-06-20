@@ -29,6 +29,9 @@ bool one_int(llvm::Type* t, llvm::Type*) { return t->isIntegerTy(); }
 
 bool same_type(llvm::Type* t1, llvm::Type* t2) { return t1 == t2; }
 
+bool any(llvm::Type*, llvm::Type*) { return true; }
+bool none(llvm::Type*, llvm::Type*) { return false; }
+
 // Sampler implementation
 
 void value_sampler::add_incoming(
@@ -70,4 +73,5 @@ Value* value_sampler::constant(Type* ty) const
 {
   return Constant::getNullValue(ty);
 }
+
 } // namespace synth
