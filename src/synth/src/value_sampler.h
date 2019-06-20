@@ -6,6 +6,7 @@
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/CFG.h>
 #include <llvm/IR/Constant.h>
+#include <llvm/IR/Constants.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Intrinsics.h>
 #include <llvm/IR/Value.h>
@@ -131,11 +132,14 @@ inline auto all_rules() {
     sampling_rule(1, same_ints, [] (auto& B, auto v1, auto v2) {
       return B.CreateSub(v1, v2);
     }),
-    sampling_rule(1, any, [] (auto& B, auto v1, auto v2) {
+    sampling_rule(1, any, [] (auto& B, auto, auto) {
       return B.getInt32(0);
     }),
-    sampling_rule(1, any, [] (auto& B, auto v1, auto v2) {
+    sampling_rule(1, any, [] (auto& B, auto, auto) {
       return B.getInt32(1);
+    }),
+    sampling_rule(1, any, [] (auto& B, auto, auto) {
+      return llvm::ConstantFP::get(B.getFloatTy(), 0.0);
     })
   };
 }
