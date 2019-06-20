@@ -66,9 +66,6 @@ Function* rule_synth::candidate()
   auto meta = ctx.metadata_;
 
   auto data_synth = dataflow_synth(ctx);
-  for (auto s : ctx.metadata_.seeds) {
-    llvm::errs() << *s << '\n';
-  }
   data_synth.create_dataflow();
   data_synth.create_outputs();
 
