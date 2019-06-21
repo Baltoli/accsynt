@@ -61,6 +61,7 @@ int main(int argc, char** argv)
   auto lib = dynamic_library(LibraryPath);
 
   auto mod = Module("test_mod", thread_context::get());
+
   auto ref = call_wrapper(property_set.type_signature, mod, fn_name, lib);
 
   if (UseBLAS) {

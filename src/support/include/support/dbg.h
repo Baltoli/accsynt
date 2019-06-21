@@ -32,6 +32,7 @@ License (MIT):
 #pragma message("WARNING: the 'dbg.h' header is included in your code base")
 
 #include <llvm/IR/Value.h>
+#include <llvm/Support/raw_ostream.h>
 
 #include <ios>
 #include <iostream>
@@ -111,15 +112,24 @@ std::string type_name()
   return get_type_name(type_tag<T>{});
 }
 
-std::string get_type_name(type_tag<short>) { return "short"; }
+inline std::string get_type_name(type_tag<short>) { return "short"; }
 
-std::string get_type_name(type_tag<unsigned short>) { return "unsigned short"; }
+inline std::string get_type_name(type_tag<unsigned short>)
+{
+  return "unsigned short";
+}
 
-std::string get_type_name(type_tag<long>) { return "long"; }
+inline std::string get_type_name(type_tag<long>) { return "long"; }
 
-std::string get_type_name(type_tag<unsigned long>) { return "unsigned long"; }
+inline std::string get_type_name(type_tag<unsigned long>)
+{
+  return "unsigned long";
+}
 
-std::string get_type_name(type_tag<std::string>) { return "std::string"; }
+inline std::string get_type_name(type_tag<std::string>)
+{
+  return "std::string";
+}
 
 template <typename T>
 std::string get_type_name(type_tag<std::vector<T, std::allocator<T>>>)
@@ -190,14 +200,14 @@ prettyPrint(std::ostream& stream, const T& value)
 }
 
 template <>
-bool prettyPrint(std::ostream& stream, const bool& value)
+inline bool prettyPrint(std::ostream& stream, const bool& value)
 {
   stream << std::boolalpha << value;
   return true;
 }
 
 template <>
-bool prettyPrint(std::ostream& stream, const char& value)
+inline bool prettyPrint(std::ostream& stream, const char& value)
 {
   stream << "'" << value << "'";
   return true;
@@ -222,7 +232,7 @@ bool prettyPrint(std::ostream& stream, const char (&value)[N])
 }
 
 template <>
-bool prettyPrint(std::ostream& stream, const char* const& value)
+inline bool prettyPrint(std::ostream& stream, const char* const& value)
 {
   stream << '"' << value << '"';
   return true;
@@ -269,16 +279,20 @@ prettyPrint(std::ostream& stream, Container const& value)
 }
 
 template <>
-bool prettyPrint(std::ostream& stream, const std::string& value)
+inline bool prettyPrint(std::ostream& stream, const std::string& value)
 {
   stream << '"' << value << '"';
   return true;
 }
 
-template <>
-bool prettyPrint(std::ostream& stream, llvm::Value const& val)
+template <typename T>
+std::enable_if_t<std::is_base_of_v<llvm::Value, T>, bool> prettyPrint(
+    std::ostream& stream, T const& val)
 {
-  stream << "LLVM??" << '\n';
+  auto str = std::string{};
+  auto llvm_os = llvm::raw_string_ostream(str);
+  llvm_os << val;
+  stream << str;
   return true;
 }
 
