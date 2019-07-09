@@ -35,7 +35,7 @@ static cl::opt<bool> HillClimb("climb",
 void report(Function* fn)
 {
   if (fn) {
-    outs() << *fn << '\n';
+    outs() << *fn->getParent() << '\n';
   } else {
     errs() << "No function found\n";
   }

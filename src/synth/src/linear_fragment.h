@@ -76,9 +76,9 @@ template <bool use_data>
 std::string linear_fragment_base<use_data>::to_str(size_t indent)
 {
   if constexpr (use_data) {
-    return fmt::format("{}[linear region]", support::indent{ indent });
+    return fmt::format("{}[linear region]", support::indent { indent });
   } else {
-    return fmt::format("{}[empty region]", support::indent{ indent });
+    return fmt::format("{}[empty region]", support::indent { indent });
   }
 }
 
@@ -130,4 +130,5 @@ void swap(linear_fragment_base<use_data>& a, linear_fragment_base<use_data>& b)
 
 using linear_fragment = linear_fragment_base<true>;
 using empty_fragment = linear_fragment_base<false>;
-}
+
+} // namespace synth
