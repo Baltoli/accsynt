@@ -254,6 +254,9 @@ void Match::print_constraints_line(
   case Instruction::trunc:
     ostr << "trunc";
     break;
+  case Instruction::call:
+    ostr << "call";
+    break;
   }
 }
 
