@@ -139,7 +139,7 @@ void dataflow_synth::create_block_dataflow(
   // it might synthesise things that shouldn't be considered.
   builder.SetInsertPoint(block->getTerminator());
   if (should_populate_(block)) {
-    sampler_.block(builder, 3, live);
+    sampler_.block(builder, 4, live);
   }
 
   for (auto ch : dom_tree_.getNode(block)->getChildren()) {

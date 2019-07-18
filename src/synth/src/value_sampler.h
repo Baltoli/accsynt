@@ -102,19 +102,19 @@ bool none(llvm::Type*, llvm::Type*);
 // clang-format off
 inline auto all_rules() { 
   return std::tuple{
-    sampling_rule(1, both_floats, [] (auto& B, auto v1, auto v2) {
+    sampling_rule(100, both_floats, [] (auto& B, auto v1, auto v2) {
       return B.CreateFMul(v1, v2);
     }),
-    sampling_rule(1, both_floats, [] (auto& B, auto v1, auto v2) {
+    sampling_rule(100, both_floats, [] (auto& B, auto v1, auto v2) {
       return B.CreateFAdd(v1, v2);
     }),
-    sampling_rule(1, both_floats, [] (auto& B, auto v1, auto v2) {
+    sampling_rule(50, both_floats, [] (auto& B, auto v1, auto v2) {
       return B.CreateFSub(v1, v2);
     }),
     sampling_rule(1, one_float, [] (auto& B, auto v, auto) {
       return make_clamp(B, v);
     }),
-    sampling_rule(1, one_float, [] (auto& B, auto v, auto) {
+    sampling_rule(5, one_float, [] (auto& B, auto v, auto) {
       return make_intrinsic(B, llvm::Intrinsic::fabs, v);
     }),
     sampling_rule(1, one_float, [] (auto& B, auto v, auto) {
@@ -123,22 +123,22 @@ inline auto all_rules() {
     sampling_rule(1, one_float, [] (auto& B, auto v, auto) {
       return make_intrinsic(B, llvm::Intrinsic::sqrt, v);
     }),
-    sampling_rule(1, same_ints, [] (auto& B, auto v1, auto v2) {
+    sampling_rule(100, same_ints, [] (auto& B, auto v1, auto v2) {
       return B.CreateAdd(v1, v2);
     }),
-    sampling_rule(1, same_ints, [] (auto& B, auto v1, auto v2) {
+    sampling_rule(100, same_ints, [] (auto& B, auto v1, auto v2) {
       return B.CreateMul(v1, v2);
     }),
-    sampling_rule(1, same_ints, [] (auto& B, auto v1, auto v2) {
+    sampling_rule(50, same_ints, [] (auto& B, auto v1, auto v2) {
       return B.CreateSub(v1, v2);
     }),
-    sampling_rule(1, any, [] (auto& B, auto, auto) {
+    sampling_rule(25, any, [] (auto& B, auto, auto) {
       return B.getInt32(0);
     }),
-    sampling_rule(1, any, [] (auto& B, auto, auto) {
+    sampling_rule(25, any, [] (auto& B, auto, auto) {
       return B.getInt32(1);
     }),
-    sampling_rule(1, any, [] (auto& B, auto, auto) {
+    sampling_rule(25, any, [] (auto& B, auto, auto) {
       return llvm::ConstantFP::get(B.getFloatTy(), 0.0);
     })
   };
