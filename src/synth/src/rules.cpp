@@ -98,6 +98,25 @@ std::vector<match_result> type_expression::match(props::property_set ps)
   return ret;
 }
 
+// Wildcard expressions
+
+wildcard_expression::wildcard_expression(std::string name)
+    : name_(name)
+{
+}
+
+std::vector<match_result> wildcard_expression::match(props::property_set ps)
+{
+  auto ret = std::vector<match_result>{};
+
+  for (auto param : ps.type_signature.parameters) {
+    ret.push_back(
+        match_result({ { name_, props::value::with_param(param.name) } }));
+  }
+
+  return ret;
+}
+
 // Visitor for match expression variants
 
 std::vector<match_result> expr_match(

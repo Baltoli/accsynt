@@ -8,6 +8,7 @@ std::vector<rule> rule_registry::all()
 {
   using match = property_expression;
   using type = type_expression;
+  using wildcard = wildcard_expression;
 
   // clang-format off
   return { 
@@ -73,8 +74,14 @@ std::vector<rule> rule_registry::all()
       "stringLoop", {"str"},
       { type ("str", data_type::character) },
       { is_pointer("str") }
+    },
+    {
+      "affineAccess", {"ptr"},
+      { wildcard("ptr") },
+      { is_pointer("ptr") }
     }
   };
   // clang-format on
 }
+
 } // namespace synth
