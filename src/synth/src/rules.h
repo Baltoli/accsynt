@@ -115,7 +115,20 @@ protected:
   props::data_type type_;
 };
 
-using match_expression = std::variant<property_expression, type_expression>;
+// Will match all the function parameters individually, binding to the name
+// associated with this expression.
+class wildcard_expression {
+public:
+  wildcard_expression(std::string);
+
+  std::vector<match_result> match(props::property_set);
+
+protected:
+  std::string name_;
+};
+
+using match_expression
+    = std::variant<property_expression, type_expression, wildcard_expression>;
 
 std::vector<match_result> expr_match(
     match_expression& me, props::property_set ps);
