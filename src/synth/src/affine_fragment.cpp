@@ -64,6 +64,13 @@ void affine_fragment::splice(
     before_->splice(ctx, entry, exit);
     return;
   }
+
+  // Now create a block to hold the index computation
+  // splice the before block in before it, and at the end splice the new block
+  // to the exit
+  // in the new block, set the irb location
+  // then pass it to the affine sampling above
+  // let it do the arithmetic
 }
 
 bool affine_fragment::add_child(frag_ptr f, size_t idx)
