@@ -1,8 +1,11 @@
 #include "affine_fragment.h"
 
 #include <support/indent.h>
+#include <support/random.h>
 
 #include <fmt/format.h>
+
+using namespace support;
 
 namespace synth {
 
@@ -18,11 +21,28 @@ affine_fragment::affine_fragment(std::vector<props::value> args)
 {
 }
 
+// Takes by value so that we can shuffle and sample without replacement - means
+// less random sampling I think, and more just getting the right information.
 llvm::Value* affine_fragment::create_affine(
     std::set<llvm::Value*> const& constants,
     std::set<llvm::Value*> const& indices) const
 {
   constexpr auto is_int = [](auto v) { return v->getType()->isIntegerTy(); };
+
+  auto affine_len = std::min(indices.size(), constants.size() + 1);
+
+  auto c_shuf = std::vector<llvm::Value*>{};
+  std::copy(constants.begin(), constants.end(), std::back_inserter(c_shuf));
+
+  auto i_shuf = std::vector<llvm::Value*>{};
+  std::copy(indices.begin(), indices.end(), std::back_inserter(i_shuf));
+
+  auto engine = get_random_engine();
+  std::shuffle(i_shuf.begin(), i_shuf.end(), engine);
+  std::shuffle(c_shuf.begin(), c_shuf.end(), engine);
+
+  auto summands = std::vector<llvm::Value*>{};
+
   return nullptr;
 }
 
