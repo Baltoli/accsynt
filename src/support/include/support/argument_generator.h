@@ -52,7 +52,7 @@ template <typename T>
 constexpr bool is_generator_v = is_generator<T>::value;
 
 // clang-format on
-}
+} // namespace detail
 
 /**
  * Type-erased wrapper class that allows any type satisfying is_generator to be
@@ -135,7 +135,7 @@ protected:
  */
 class uniform_generator {
 public:
-  static constexpr size_t max_size = 1024;
+  static constexpr size_t max_size = 32;
 
   uniform_generator();
   uniform_generator(size_t);
@@ -194,10 +194,12 @@ float uniform_generator::gen_single<float>();
 template <typename T>
 std::vector<T> uniform_generator::gen_array()
 {
-  auto ret = std::vector<T>(size_);
+  // Cubing here to ensure that sizes are respected even if we're in the
+  // presence of (say) an O(n^3) algorithm.
+  auto ret = std::vector<T>(size_ * size_ * size_);
   std::generate(ret.begin(), ret.end(), [this] { return gen_single<T>(); });
   return ret;
 }
-}
+} // namespace support
 
 #undef VAL
