@@ -1,5 +1,9 @@
 #include "affine_fragment.h"
 
+#include <support/indent.h>
+
+#include <fmt/format.h>
+
 namespace synth {
 
 affine_fragment::affine_fragment(
@@ -56,7 +60,13 @@ bool affine_fragment::add_child(frag_ptr f, size_t idx)
 
 std::string affine_fragment::to_str(size_t indent)
 {
-  return "AFFINE"; // TODO
+  using namespace fmt::literals;
+
+  auto shape = R"({before}
+{ind}affine({name}))";
+
+  return fmt::format(shape, "before"_a = string_or_empty(before_, indent),
+      "ind"_a = ::support::indent{ indent }, "name"_a = args_.at(0).param_val);
 }
 
 size_t affine_fragment::count_holes() const { return count_or_empty(before_); }
