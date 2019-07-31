@@ -14,6 +14,22 @@ affine_fragment::affine_fragment(std::vector<props::value> args)
 {
 }
 
+bool affine_fragment::operator==(affine_fragment const& other) const
+{
+  return args_ == other.args_
+      && (before_ ? before_->equal_to(other.before_) : !other.before_);
+}
+
+bool affine_fragment::operator!=(affine_fragment const& other) const
+{
+  return !(*this == other);
+}
+
+bool affine_fragment::equal_to(frag_ptr const& other) const
+{
+  return other->equal_as(*this);
+}
+
 void affine_fragment::splice(
     compile_context& ctx, llvm::BasicBlock* entry, llvm::BasicBlock* exit)
 {
