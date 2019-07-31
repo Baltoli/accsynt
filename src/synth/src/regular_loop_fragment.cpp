@@ -74,6 +74,8 @@ void regular_loop_fragment::splice(
   auto cond = B.CreateICmpSLT(iter, size, "reg-loop.cond");
   B.CreateCondBr(cond, pre_body, inter_second);
 
+  ctx.metadata_.indices.insert(iter);
+
   B.SetInsertPoint(pre_body);
   for (auto i = 0u; i < num_pointers_; ++i) {
     auto [ptr, name] = get_pointer(ctx, i);

@@ -35,6 +35,10 @@ protected:
   // to implement all the member functions that are awkward for multiple
   // children.
   fragment::frag_ptr before_;
+
+private:
+  llvm::Value* create_affine(std::set<llvm::Value*> const& constants,
+      std::set<llvm::Value*> const& indices) const;
 };
 
 } // namespace synth

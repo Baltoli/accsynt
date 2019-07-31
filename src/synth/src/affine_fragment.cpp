@@ -18,28 +18,24 @@ affine_fragment::affine_fragment(std::vector<props::value> args)
 {
 }
 
-bool affine_fragment::operator==(affine_fragment const& other) const
+llvm::Value* affine_fragment::create_affine(
+    std::set<llvm::Value*> const& constants,
+    std::set<llvm::Value*> const& indices) const
 {
-  return args_ == other.args_
-      && (before_ ? before_->equal_to(other.before_) : !other.before_);
-}
-
-bool affine_fragment::operator!=(affine_fragment const& other) const
-{
-  return !(*this == other);
-}
-
-bool affine_fragment::equal_to(frag_ptr const& other) const
-{
-  return other->equal_as(*this);
+  constexpr auto is_int = [](auto v) { return v->getType()->isIntegerTy(); };
+  return nullptr;
 }
 
 void affine_fragment::splice(
     compile_context& ctx, llvm::BasicBlock* entry, llvm::BasicBlock* exit)
 {
   auto& llvm_ctx = entry->getContext();
+  auto& inds = ctx.metadata_.indices;
 
-  before_->splice(ctx, entry, exit);
+  if (inds.empty()) {
+    before_->splice(ctx, entry, exit);
+    return;
+  }
 }
 
 bool affine_fragment::add_child(frag_ptr f, size_t idx)
@@ -72,6 +68,22 @@ std::string affine_fragment::to_str(size_t indent)
 }
 
 size_t affine_fragment::count_holes() const { return count_or_empty(before_); }
+
+bool affine_fragment::operator==(affine_fragment const& other) const
+{
+  return args_ == other.args_
+      && (before_ ? before_->equal_to(other.before_) : !other.before_);
+}
+
+bool affine_fragment::operator!=(affine_fragment const& other) const
+{
+  return !(*this == other);
+}
+
+bool affine_fragment::equal_to(frag_ptr const& other) const
+{
+  return other->equal_as(*this);
+}
 
 void swap(affine_fragment& a, affine_fragment& b)
 {
