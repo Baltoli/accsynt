@@ -37,7 +37,9 @@ bool affine_fragment::equal_to(frag_ptr const& other) const
 void affine_fragment::splice(
     compile_context& ctx, llvm::BasicBlock* entry, llvm::BasicBlock* exit)
 {
-  // TODO
+  auto& llvm_ctx = entry->getContext();
+
+  before_->splice(ctx, entry, exit);
 }
 
 bool affine_fragment::add_child(frag_ptr f, size_t idx)
