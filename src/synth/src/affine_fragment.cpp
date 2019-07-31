@@ -43,6 +43,14 @@ llvm::Value* affine_fragment::create_affine(
 
   auto summands = std::vector<llvm::Value*>{};
 
+  auto i_prod = i_shuf.begin();
+  auto c_prod = c_shuf.begin();
+
+  summands.push(*i_prod++);
+
+  for (auto i = 1u; i < affine_len; ++i) {
+  }
+
   return nullptr;
 }
 
