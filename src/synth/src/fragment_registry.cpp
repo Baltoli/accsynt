@@ -1,5 +1,6 @@
 #include "rules.h"
 
+#include "affine_fragment.h"
 #include "data_loop_fragment.h"
 #include "regular_loop_fragment.h"
 #include "string_loop_fragment.h"
@@ -31,6 +32,10 @@ value_ptr<fragment> fragment_registry::get(
 
   if (name == "stringOutputLoop") {
     return make_val<string_loop_fragment>(args, true);
+  }
+
+  if (name == "affineAccess") {
+    return make_val<affine_fragment>(args);
   }
 
   return nullptr;
