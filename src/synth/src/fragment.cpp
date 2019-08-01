@@ -1,7 +1,9 @@
 #include "fragment.h"
 #include "linear_fragment.h"
+#include "synth_options.h"
 
 #include <support/choose.h>
+#include <support/hash.h>
 #include <support/random.h>
 #include <value_ptr/value_ptr.h>
 
@@ -101,7 +103,13 @@ fragment::frag_set fragment::enumerate(
         frag_copy->add_child(vec.at(i), 0);
       }
 
-      results.insert(frag_copy);
+      if (FragmentHash != "-") {
+        if (nice_hash(frag_copy->to_str()) == FragmentHash) {
+          results.insert(frag_copy);
+        }
+      } else {
+        results.insert(frag_copy);
+      }
     } while (std::next_permutation(vec.begin(), vec.end()));
   }
 
