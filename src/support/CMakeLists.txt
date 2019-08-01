@@ -47,6 +47,7 @@ add_executable(support_unit
   test/random.cpp
   test/similarity.cpp
   test/string.cpp
+  test/hash.cpp
   test/main.cpp)
 
 target_link_libraries(support_unit
