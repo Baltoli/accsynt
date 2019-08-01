@@ -40,12 +40,13 @@ void affine_fragment::splice(
   before_->splice(ctx, entry, affine_block);
 
   auto B = IRBuilder<>(affine_block);
-
-  create_affine(B, consts, inds);
+  auto idx = create_affine(B, consts, inds);
+  auto ptr = ctx.argument(args_[0].param_val);
+  auto gep = B.CreateGEP(ptr, idx, "affine.gep");
+  auto load = B.CreateLoad(gep);
+  ctx.metadata_.seeds.insert(load);
 
   B.CreateBr(exit);
-
-  errs() << *ctx.func_ << '\n';
   // Now create a block to hold the index computation
   // splice the before block in before it, and at the end splice the new block
   // to the exit

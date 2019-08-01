@@ -5,7 +5,8 @@
 namespace support {
 
 template <typename Builder, typename Iterator>
-llvm::Value* create_sum(Builder& b, Iterator begin, Iterator end)
+llvm::Value* create_sum(
+    Builder& b, Iterator begin, Iterator end, std::string const& name = "")
 {
   if (begin == end) {
     return nullptr;
@@ -13,7 +14,7 @@ llvm::Value* create_sum(Builder& b, Iterator begin, Iterator end)
 
   auto sum = *begin;
   for (auto it = std::next(begin); it != end; ++it) {
-    sum = b.CreateAdd(sum, *it, "affine-sum");
+    sum = b.CreateAdd(sum, *it, name);
   }
 
   return sum;

@@ -75,10 +75,10 @@ llvm::Value* affine_fragment::create_affine(Builder& b,
   summands.push_back(*i_prod++);
 
   for (auto i = 1u; i < affine_len; ++i) {
-    summands.push_back(b.CreateMul(*i_prod++, *c_prod++, "affine-mul"));
+    summands.push_back(b.CreateMul(*i_prod++, *c_prod++, "affine.mul"));
   }
 
-  return support::create_sum(b, summands.begin(), summands.end());
+  return support::create_sum(b, summands.begin(), summands.end(), "affine.sum");
 }
 
 } // namespace synth
