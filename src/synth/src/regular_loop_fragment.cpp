@@ -108,6 +108,7 @@ void regular_loop_fragment::splice(
 
   // After
 
+  ctx.metadata_.indices.erase(iter);
   after_->splice(ctx, last_exit, exit);
 }
 
