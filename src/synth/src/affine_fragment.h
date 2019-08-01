@@ -37,7 +37,7 @@ protected:
   // Restrict this fragment to having things after it for simplicity - will help
   // to implement all the member functions that are awkward for multiple
   // children.
-  fragment::frag_ptr before_;
+  fragment::frag_ptr after_;
 
 private:
   template <typename Builder>

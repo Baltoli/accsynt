@@ -12,10 +12,9 @@ using namespace llvm;
 
 namespace synth {
 
-affine_fragment::affine_fragment(
-    std::vector<props::value> args, frag_ptr before)
+affine_fragment::affine_fragment(std::vector<props::value> args, frag_ptr after)
     : fragment(args)
-    , before_(before)
+    , after_(after)
 {
 }
 
@@ -32,21 +31,22 @@ void affine_fragment::splice(
   auto const& consts = ctx.metadata_.seeds;
 
   if (inds.empty()) {
-    before_->splice(ctx, entry, exit);
+    after_->splice(ctx, entry, exit);
     return;
   }
 
   auto affine_block = BasicBlock::Create(llvm_ctx, "affine", ctx.func_);
-  before_->splice(ctx, entry, affine_block);
+  auto B = IRBuilder<>(entry);
+  B.CreateBr(affine_block);
 
-  auto B = IRBuilder<>(affine_block);
+  B.SetInsertPoint(affine_block);
   auto idx = create_affine(B, consts, inds);
   auto ptr = ctx.argument(args_[0].param_val);
   auto gep = B.CreateGEP(ptr, idx, "affine.gep");
   auto load = B.CreateLoad(gep);
   ctx.metadata_.seeds.insert(load);
 
-  B.CreateBr(exit);
+  after_->splice(ctx, affine_block, exit);
   // Now create a block to hold the index computation
   // splice the before block in before it, and at the end splice the new block
   // to the exit
@@ -57,12 +57,12 @@ void affine_fragment::splice(
 
 bool affine_fragment::add_child(frag_ptr f, size_t idx)
 {
-  auto max = count_or_empty(before_);
+  auto max = count_or_empty(after_);
   if (idx < max) {
-    if (before_) {
-      before_->add_child(f, idx);
+    if (after_) {
+      after_->add_child(f, idx);
     } else {
-      before_ = f;
+      after_ = f;
     }
 
     return true;
@@ -77,19 +77,19 @@ std::string affine_fragment::to_str(size_t indent)
 {
   using namespace fmt::literals;
 
-  auto shape = R"({before}
-{ind}affine({name}))";
+  auto shape = R"({ind}affine({name})
+{after})";
 
-  return fmt::format(shape, "before"_a = string_or_empty(before_, indent),
+  return fmt::format(shape, "after"_a = string_or_empty(after_, indent),
       "ind"_a = ::support::indent{ indent }, "name"_a = args_.at(0).param_val);
 }
 
-size_t affine_fragment::count_holes() const { return count_or_empty(before_); }
+size_t affine_fragment::count_holes() const { return count_or_empty(after_); }
 
 bool affine_fragment::operator==(affine_fragment const& other) const
 {
   return args_ == other.args_
-      && (before_ ? before_->equal_to(other.before_) : !other.before_);
+      && (after_ ? after_->equal_to(other.after_) : !other.after_);
 }
 
 bool affine_fragment::operator!=(affine_fragment const& other) const
@@ -105,7 +105,7 @@ bool affine_fragment::equal_to(frag_ptr const& other) const
 void swap(affine_fragment& a, affine_fragment& b)
 {
   using std::swap;
-  swap(a.before_, b.before_);
+  swap(a.after_, b.after_);
 }
 
 } // namespace synth
