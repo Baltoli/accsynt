@@ -9,6 +9,9 @@
 #include "synth_options.h"
 
 #include <support/argument_generator.h>
+#include <support/hash.h>
+
+#include <fmt/format.h>
 
 #include <llvm/Support/CommandLine.h>
 
@@ -44,8 +47,7 @@ rule_synth::rule_synth(props::property_set ps, call_wrapper& ref)
 
   if (DumpControl) {
     for (auto const& frag : fragments_) {
-      errs() << "FRAGMENT " << std::hash<std::string>()(frag->to_str())
-             << ":\n";
+      errs() << fmt::format("FRAGMENT {}:\n", nice_hash(frag->to_str()));
       errs() << frag->to_str(1) << "\n\n";
     }
   }
