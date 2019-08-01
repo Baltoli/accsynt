@@ -1,11 +1,14 @@
 #include "affine_fragment.h"
 
 #include <support/indent.h>
-#include <support/random.h>
 
 #include <fmt/format.h>
 
+#include <llvm/IR/BasicBlock.h>
+#include <llvm/IR/IRBuilder.h>
+
 using namespace support;
+using namespace llvm;
 
 namespace synth {
 
@@ -21,50 +24,28 @@ affine_fragment::affine_fragment(std::vector<props::value> args)
 {
 }
 
-// Takes by value so that we can shuffle and sample without replacement - means
-// less random sampling I think, and more just getting the right information.
-llvm::Value* affine_fragment::create_affine(
-    std::set<llvm::Value*> const& constants,
-    std::set<llvm::Value*> const& indices) const
-{
-  constexpr auto is_int = [](auto v) { return v->getType()->isIntegerTy(); };
-
-  auto affine_len = std::min(indices.size(), constants.size() + 1);
-
-  auto c_shuf = std::vector<llvm::Value*>{};
-  std::copy(constants.begin(), constants.end(), std::back_inserter(c_shuf));
-
-  auto i_shuf = std::vector<llvm::Value*>{};
-  std::copy(indices.begin(), indices.end(), std::back_inserter(i_shuf));
-
-  auto engine = get_random_engine();
-  std::shuffle(i_shuf.begin(), i_shuf.end(), engine);
-  std::shuffle(c_shuf.begin(), c_shuf.end(), engine);
-
-  auto summands = std::vector<llvm::Value*>{};
-
-  auto i_prod = i_shuf.begin();
-  auto c_prod = c_shuf.begin();
-
-  summands.push_back(*i_prod++);
-
-  for (auto i = 1u; i < affine_len; ++i) {
-  }
-
-  return nullptr;
-}
-
 void affine_fragment::splice(
-    compile_context& ctx, llvm::BasicBlock* entry, llvm::BasicBlock* exit)
+    compile_context& ctx, BasicBlock* entry, BasicBlock* exit)
 {
   auto& llvm_ctx = entry->getContext();
-  auto& inds = ctx.metadata_.indices;
+  auto const& inds = ctx.metadata_.indices;
+  auto const& consts = ctx.metadata_.seeds;
 
   if (inds.empty()) {
     before_->splice(ctx, entry, exit);
     return;
   }
 
+  auto affine_block = BasicBlock::Create(llvm_ctx, "affine", ctx.func_);
+  before_->splice(ctx, entry, affine_block);
+
+  auto B = IRBuilder<>(affine_block);
+
+  create_affine(B, consts, inds);
+
+  B.CreateBr(exit);
+
+  errs() << *ctx.func_ << '\n';
   // Now create a block to hold the index computation
   // splice the before block in before it, and at the end splice the new block
   // to the exit

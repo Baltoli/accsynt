@@ -2,6 +2,9 @@
 
 #include "fragment.h"
 
+#include <support/llvm_utils.h>
+#include <support/random.h>
+
 namespace synth {
 
 class affine_fragment : public fragment {
@@ -37,8 +40,45 @@ protected:
   fragment::frag_ptr before_;
 
 private:
-  llvm::Value* create_affine(std::set<llvm::Value*> const& constants,
+  template <typename Builder>
+  llvm::Value* create_affine(Builder& b,
+      std::set<llvm::Value*> const& constants,
       std::set<llvm::Value*> const& indices) const;
 };
+
+template <typename Builder>
+llvm::Value* affine_fragment::create_affine(Builder& b,
+    std::set<llvm::Value*> const& constants,
+    std::set<llvm::Value*> const& indices) const
+{
+  constexpr auto is_int = [](auto v) { return v->getType()->isIntegerTy(); };
+
+  auto affine_len = std::min(indices.size(), constants.size() + 1);
+
+  auto c_shuf = std::vector<llvm::Value*>{};
+  std::copy_if(
+      constants.begin(), constants.end(), std::back_inserter(c_shuf), is_int);
+
+  auto i_shuf = std::vector<llvm::Value*>{};
+  std::copy_if(
+      indices.begin(), indices.end(), std::back_inserter(i_shuf), is_int);
+
+  auto engine = support::get_random_engine();
+  std::shuffle(i_shuf.begin(), i_shuf.end(), engine);
+  std::shuffle(c_shuf.begin(), c_shuf.end(), engine);
+
+  auto summands = std::vector<llvm::Value*>{};
+
+  auto i_prod = i_shuf.begin();
+  auto c_prod = c_shuf.begin();
+
+  summands.push_back(*i_prod++);
+
+  for (auto i = 1u; i < affine_len; ++i) {
+    summands.push_back(b.CreateMul(*i_prod++, *c_prod++, "affine-mul"));
+  }
+
+  return support::create_sum(b, summands.begin(), summands.end());
+}
 
 } // namespace synth
