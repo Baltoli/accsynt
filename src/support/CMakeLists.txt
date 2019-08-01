@@ -5,8 +5,9 @@ add_library(support
   src/call_wrapper.cpp
   src/float_compare.cpp
   src/random.cpp
-  src/llvm_values.cpp
   src/llvm_cloning.cpp
+  src/llvm_values.cpp
+  src/llvm_utils.cpp
   src/load_module.cpp
   src/dynamic_library.cpp
   src/choose.cpp
