@@ -23,7 +23,8 @@ add_library(coresynth
   src/generator_rules.cpp
   src/loop_fragment.cpp
   src/string_loop_fragment.cpp
-  src/regular_loop_fragment.cpp)
+  src/regular_loop_fragment.cpp
+  src/affine_fragment.cpp)
 
 add_executable(synth
   src/synth.cpp)

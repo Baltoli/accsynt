@@ -4,9 +4,11 @@ add_library(support
   src/call_builder.cpp
   src/call_wrapper.cpp
   src/float_compare.cpp
+  src/hash.cpp
   src/random.cpp
-  src/llvm_values.cpp
   src/llvm_cloning.cpp
+  src/llvm_values.cpp
+  src/llvm_utils.cpp
   src/load_module.cpp
   src/dynamic_library.cpp
   src/choose.cpp
@@ -46,6 +48,7 @@ add_executable(support_unit
   test/random.cpp
   test/similarity.cpp
   test/string.cpp
+  test/hash.cpp
   test/main.cpp)
 
 target_link_libraries(support_unit

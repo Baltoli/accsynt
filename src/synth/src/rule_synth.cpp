@@ -9,6 +9,9 @@
 #include "synth_options.h"
 
 #include <support/argument_generator.h>
+#include <support/hash.h>
+
+#include <fmt/format.h>
 
 #include <llvm/Support/CommandLine.h>
 
@@ -22,7 +25,7 @@ rule_synth::rule_synth(props::property_set ps, call_wrapper& ref)
 {
   make_examples(generator_for(ps), 1'000);
 
-  auto choices = std::vector<fragment::frag_ptr> {};
+  auto choices = std::vector<fragment::frag_ptr>{};
 
   for (auto rule : rule_registry::all()) {
     auto matches = rule.match(ps);
@@ -32,10 +35,10 @@ rule_synth::rule_synth(props::property_set ps, call_wrapper& ref)
   }
 
   if (choices.empty()) {
-    choices.emplace_back(new linear_fragment { {} });
+    choices.emplace_back(new linear_fragment{ {} });
   }
 
-  auto max_frags = std::optional<size_t> {};
+  auto max_frags = std::optional<size_t>{};
   if (MaxFragments >= 0) {
     max_frags = MaxFragments;
   }
@@ -44,7 +47,7 @@ rule_synth::rule_synth(props::property_set ps, call_wrapper& ref)
 
   if (DumpControl) {
     for (auto const& frag : fragments_) {
-      errs() << "FRAGMENT:\n";
+      errs() << fmt::format("FRAGMENT {}:\n", nice_hash(frag->to_str()));
       errs() << frag->to_str(1) << "\n\n";
     }
   }
@@ -62,7 +65,7 @@ Function* rule_synth::candidate()
     current_fragment_ = fragments_.begin();
   }
 
-  auto ctx = compile_context { mod_, properties_.type_signature,
+  auto ctx = compile_context{ mod_, properties_.type_signature,
     accessors_from_rules(properties_) };
   auto& frag = *current_fragment_;
 

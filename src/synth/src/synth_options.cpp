@@ -12,3 +12,6 @@ cl::opt<bool> AllPrograms("all-programs",
     cl::desc(
         "Dump every candidated program to standard error during synthesis"),
     cl::init(false));
+
+cl::opt<std::string> FragmentHash("hash",
+    cl::desc("Only try programs that have the following hash"), cl::init("-"));
