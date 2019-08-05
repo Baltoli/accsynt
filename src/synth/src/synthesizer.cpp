@@ -1,5 +1,7 @@
 #include "synthesizer.h"
+
 #include "generator.h"
+#include "synth_options.h"
 
 #include <support/llvm_cloning.h>
 #include <support/thread_context.h>
@@ -85,7 +87,12 @@ Function* synthesizer::generate()
 
   auto attempts = 0;
   while (!cand) {
-    errs() << attempts << '\r';
+    // If we want to count the number of attempts interactively, print the
+    // attempt number and clear the cursor back to the start of the line to
+    // reprint it.
+    if (InteractiveCount) {
+      errs() << attempts << '\r';
+    }
 
     cand = candidate();
 
@@ -101,7 +108,8 @@ Function* synthesizer::generate()
     ++attempts;
   }
 
-  errs() << "Took " << attempts << " attempts\n";
+  outs() << "; synthesized a valid solution\n";
+  outs() << "; attempts: " << attempts << '\n';
   return cand;
 }
 
