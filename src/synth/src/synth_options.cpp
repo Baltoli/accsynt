@@ -15,3 +15,6 @@ cl::opt<bool> AllPrograms("all-programs",
 
 cl::opt<std::string> FragmentHash("hash",
     cl::desc("Only try programs that have the following hash"), cl::init("-"));
+
+cl::opt<bool> InteractiveCount("count",
+    cl::desc("Interactively print the running program count"), cl::init(false));
