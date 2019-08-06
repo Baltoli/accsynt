@@ -1,0 +1,1 @@
+int safe_string_copy(char *pszDest, int cchDest, char *pszSrc)
