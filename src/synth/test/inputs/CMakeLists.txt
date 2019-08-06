@@ -8,6 +8,8 @@ function(add_test_shared_library name)
     LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/inputs"
   )
 
+  target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
   configure_file(
     "${name}.props" 
     "${CMAKE_BINARY_DIR}/inputs/${name}.props" 
@@ -34,10 +36,9 @@ add_test_shared_library(relu-over)
 add_test_shared_library(saxpy)
 add_test_shared_library(spmv)
 add_test_shared_library(store)
+add_test_shared_library(strlen)
 add_test_shared_library(v_add)
 add_test_shared_library(v_copy)
 add_test_shared_library(vec2sum)
 add_test_shared_library(v_sum)
 add_test_shared_library(v_sum_two)
-
-add_test_shared_library(strlen)
