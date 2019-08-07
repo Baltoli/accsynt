@@ -23,6 +23,13 @@ static cl::opt<std::string> PropertiesPath(
 static cl::opt<std::string> LibraryPath(
     cl::Positional, cl::Required, cl::desc("<shared library>"));
 
+static cl::opt<std::string> OutputPath("output",
+    cl::desc("Specify output filename"), cl::value_desc("filename"),
+    cl::init("-"));
+
+static cl::alias OutputPathA(
+    "o", cl::desc("Alias for -output"), cl::aliasopt(OutputPath));
+
 static cl::opt<bool> UseBLAS("blas",
     cl::desc("Use old BLAS synthesiser implementation"), cl::init(false));
 
@@ -34,11 +41,15 @@ static cl::opt<bool> HillClimb("climb",
 
 void report(Function* fn)
 {
-  if (fn) {
-    outs() << *fn->getParent() << '\n';
-  } else {
-    errs() << "No function found\n";
-  }
+  auto report_impl = [fn](auto& os) {
+    if (fn) {
+      os << *fn->getParent() << '\n';
+    } else {
+      os << "No function found\n";
+    }
+  };
+
+  report_impl(outs());
 }
 
 int main(int argc, char** argv)
