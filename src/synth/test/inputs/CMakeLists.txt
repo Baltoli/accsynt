@@ -14,6 +14,7 @@ function(add_test_shared_library name)
     COPYONLY)
 endfunction(add_test_shared_library)
 
+# Misc Inputs
 add_test_shared_library(add)
 add_test_shared_library(asum)
 add_test_shared_library(bias)
@@ -41,3 +42,6 @@ add_test_shared_library(v_copy)
 add_test_shared_library(vec2sum)
 add_test_shared_library(v_sum)
 add_test_shared_library(v_sum_two)
+
+# Mathfu
+add_test_shared_library(mf_subeq)
