@@ -30,6 +30,9 @@ static cl::opt<std::string> OutputPath("output",
 static cl::alias OutputPathA(
     "o", cl::desc("Alias for -output"), cl::aliasopt(OutputPath));
 
+static cl::opt<bool> PrintAttempts("attempts",
+    cl::desc("Print the number of attempts to stdout"), cl::init(false));
+
 static cl::opt<bool> UseBLAS("blas",
     cl::desc("Use old BLAS synthesiser implementation"), cl::init(false));
 
@@ -41,11 +44,13 @@ static cl::opt<bool> HillClimb("climb",
 
 void report(generate_result result)
 {
-  auto [atts, fn] = result;
+  auto report_impl = [result](auto& os) {
+    if (result.function) {
+      os << *result.function->getParent();
 
-  auto report_impl = [fn](auto& os) {
-    if (fn) {
-      os << *fn->getParent() << '\n';
+      if (PrintAttempts) {
+        outs() << result.attempts << '\n';
+      }
     } else {
       os << "No function found\n";
     }
@@ -54,6 +59,9 @@ void report(generate_result result)
   if (OutputPath == "-") {
     report_impl(outs());
   } else {
+    auto err = std::error_code{};
+    auto os = raw_fd_ostream(OutputPath, err, sys::fs::FA_Write);
+    report_impl(os);
   }
 }
 

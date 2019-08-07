@@ -108,8 +108,6 @@ generate_result synthesizer::generate()
     ++attempts;
   }
 
-  /* outs() << "; synthesized a valid solution\n"; */
-  /* outs() << "; attempts: " << attempts << '\n'; */
   return { attempts, cand };
 }
 
