@@ -11,12 +11,17 @@
 
 namespace synth {
 
+struct generate_result {
+  size_t attempts;
+  llvm::Function* function;
+};
+
 class synthesizer {
 public:
   synthesizer(props::property_set ps, support::call_wrapper& wrap);
 
   virtual std::string name() const = 0;
-  virtual llvm::Function* generate();
+  virtual generate_result generate();
 
 protected:
   void make_examples(support::argument_generator gen, size_t n);
@@ -36,7 +41,7 @@ protected:
   llvm::Module mod_;
 
 private:
-  llvm::Function* debug_generate();
+  generate_result debug_generate();
 };
 
 class null_synth : public synthesizer {
@@ -44,6 +49,7 @@ public:
   using synthesizer::synthesizer;
 
   std::string name() const override;
-  llvm::Function* generate() override;
+  generate_result generate() override;
 };
-}
+
+} // namespace synth

@@ -39,8 +39,10 @@ static cl::opt<bool> HillClimb("climb",
 
 // In the future, specifications...
 
-void report(Function* fn)
+void report(generate_result result)
 {
+  auto [atts, fn] = result;
+
   auto report_impl = [fn](auto& os) {
     if (fn) {
       os << *fn->getParent() << '\n';

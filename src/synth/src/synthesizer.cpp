@@ -56,7 +56,7 @@ bool synthesizer::satisfies_examples(Function* cand) const
   return true;
 }
 
-Function* synthesizer::debug_generate()
+generate_result synthesizer::debug_generate()
 {
   auto& ctx = thread_context::get();
   SMDiagnostic Err;
@@ -64,20 +64,20 @@ Function* synthesizer::debug_generate()
   auto&& mod = parseIRFile(DebugInput, Err, ctx, true, "");
   if (!mod) {
     Err.print("synth debug", errs());
-    return nullptr;
+    return { 0, nullptr };
   }
 
   auto name = properties_.type_signature.name;
   auto fn = copy_function(mod->getFunction(name), &mod_);
 
   if (!satisfies_examples(fn)) {
-    return nullptr;
+    return { 0, nullptr };
   }
 
-  return fn;
+  return { 1, fn };
 }
 
-Function* synthesizer::generate()
+generate_result synthesizer::generate()
 {
   if (DebugInput != "") {
     return debug_generate();
@@ -85,7 +85,7 @@ Function* synthesizer::generate()
 
   Function* cand = nullptr;
 
-  auto attempts = 0;
+  auto attempts = size_t(0);
   while (!cand) {
     // If we want to count the number of attempts interactively, print the
     // attempt number and clear the cursor back to the start of the line to
@@ -97,7 +97,7 @@ Function* synthesizer::generate()
     cand = candidate();
 
     if (!cand) {
-      return nullptr;
+      return { attempts, nullptr };
     }
 
     if (!satisfies_examples(cand)) {
@@ -108,9 +108,9 @@ Function* synthesizer::generate()
     ++attempts;
   }
 
-  outs() << "; synthesized a valid solution\n";
-  outs() << "; attempts: " << attempts << '\n';
-  return cand;
+  /* outs() << "; synthesized a valid solution\n"; */
+  /* outs() << "; attempts: " << attempts << '\n'; */
+  return { attempts, cand };
 }
 
 Function* synthesizer::create_stub()
@@ -120,5 +120,6 @@ Function* synthesizer::create_stub()
 
 std::string null_synth::name() const { return "Null"; }
 
-Function* null_synth::generate() { return nullptr; }
+generate_result null_synth::generate() { return { 0, nullptr }; }
+
 } // namespace synth
