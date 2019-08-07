@@ -35,7 +35,7 @@ hill_synth::hill_synth(property_set ps, call_wrapper& ref)
 // all possible functions - it needs to handle score tracking, fragment
 // sampling / enumeration and progress printing (i.e. seeing how scores / number
 // of fragments / programs etc. evolve as the process goes on).
-Function* hill_synth::generate()
+generate_result hill_synth::generate()
 {
   auto sampler = gp_sampler(eval_);
 
@@ -47,7 +47,7 @@ Function* hill_synth::generate()
 
   sampler.sample(5, properties_, ctx.metadata_);
 
-  return ctx.func_;
+  return { 1, ctx.func_ };
 }
 
 example_set hill_synth::make_examples(property_set ps, call_wrapper& ref)

@@ -2,6 +2,7 @@
 
 #include "evaluator.h"
 #include "fragment.h"
+#include "synthesizer.h"
 
 #include <props/props.h>
 #include <support/call_wrapper.h>
@@ -28,7 +29,7 @@ class hill_synth {
 public:
   hill_synth(props::property_set ps, support::call_wrapper& ref);
 
-  llvm::Function* generate();
+  generate_result generate();
 
 private:
   example_set make_examples(props::property_set, support::call_wrapper&);

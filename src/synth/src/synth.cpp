@@ -23,6 +23,16 @@ static cl::opt<std::string> PropertiesPath(
 static cl::opt<std::string> LibraryPath(
     cl::Positional, cl::Required, cl::desc("<shared library>"));
 
+static cl::opt<std::string> OutputPath("output",
+    cl::desc("Specify output filename"), cl::value_desc("filename"),
+    cl::init("-"));
+
+static cl::alias OutputPathA(
+    "o", cl::desc("Alias for -output"), cl::aliasopt(OutputPath));
+
+static cl::opt<bool> PrintAttempts("attempts",
+    cl::desc("Print the number of attempts to stdout"), cl::init(false));
+
 static cl::opt<bool> UseBLAS("blas",
     cl::desc("Use old BLAS synthesiser implementation"), cl::init(false));
 
@@ -32,12 +42,26 @@ static cl::opt<bool> HillClimb("climb",
 
 // In the future, specifications...
 
-void report(Function* fn)
+void report(generate_result result)
 {
-  if (fn) {
-    outs() << *fn->getParent() << '\n';
+  auto report_impl = [result](auto& os) {
+    if (result.function) {
+      os << *result.function->getParent();
+
+      if (PrintAttempts) {
+        outs() << result.attempts << '\n';
+      }
+    } else {
+      os << "No function found\n";
+    }
+  };
+
+  if (OutputPath == "-") {
+    report_impl(outs());
   } else {
-    errs() << "No function found\n";
+    auto err = std::error_code{};
+    auto os = raw_fd_ostream(OutputPath, err, sys::fs::FA_Write);
+    report_impl(os);
   }
 }
 
