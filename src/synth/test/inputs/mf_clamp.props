@@ -1,0 +1,3 @@
+void clamp(float *x, int n)
+size x, n
+output x

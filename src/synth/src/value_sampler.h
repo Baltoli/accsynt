@@ -143,6 +143,9 @@ inline auto all_rules() {
     }),
     sampling_rule(25, any, [] (auto& B, auto, auto) {
       return llvm::ConstantFP::get(B.getFloatTy(), 0.0);
+    }),
+    sampling_rule(25, any, [] (auto& B, auto, auto) {
+      return llvm::ConstantFP::get(B.getFloatTy(), 1.0);
     })
   };
 }
