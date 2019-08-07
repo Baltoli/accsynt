@@ -1,0 +1,2 @@
+float length(float *x, int n)
+size x, n

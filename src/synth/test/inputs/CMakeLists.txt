@@ -73,3 +73,6 @@ add_test_shared_library(mf_length_sq)
 # SafeStr
 
 # BLAS
+
+# GLM
+add_test_shared_library(glm_length)
