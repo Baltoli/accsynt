@@ -65,7 +65,7 @@ char uniform_generator::gen_single<char>()
 template <>
 float uniform_generator::gen_single<float>()
 {
-  return std::uniform_real_distribution<float>()(engine_);
+  return std::uniform_real_distribution<float>(-5.0, 5.0)(engine_);
 }
 
 void uniform_generator::gen_args(call_builder& build)
