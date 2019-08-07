@@ -49,7 +49,10 @@ void report(Function* fn)
     }
   };
 
-  report_impl(outs());
+  if (OutputPath == "-") {
+    report_impl(outs());
+  } else {
+  }
 }
 
 int main(int argc, char** argv)
