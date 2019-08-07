@@ -62,6 +62,7 @@ add_test_shared_library(mf_subeq_sca)
 add_test_shared_library(mf_addeq_sca)
 add_test_shared_library(mf_muleq_sca)
 add_test_shared_library(mf_diveq_sca)
+add_test_shared_library(mf_negate)
 add_test_shared_library(mf_clamp)
 add_test_shared_library(mf_lerp)
 
