@@ -1,0 +1,4 @@
+void muleq(float *x, float *y, int n)
+size x, n
+size y, n
+output x

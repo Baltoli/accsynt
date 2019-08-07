@@ -55,3 +55,6 @@ add_test_shared_library(v_sum_two)
 
 # Mathfu
 add_test_shared_library(mf_subeq)
+add_test_shared_library(mf_addeq)
+add_test_shared_library(mf_muleq)
+add_test_shared_library(mf_diveq)
