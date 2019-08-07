@@ -1,0 +1,3 @@
+void diveq(float *x, float y, int n)
+size x, n
+output x
