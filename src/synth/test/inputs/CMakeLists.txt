@@ -12,6 +12,16 @@ function(add_test_shared_library name)
     "${name}.props" 
     "${CMAKE_BINARY_DIR}/inputs/${name}.props" 
     COPYONLY)
+
+  install(
+    TARGETS ${name}
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/share/accsynt
+  )
+
+  install(
+    FILES "${CMAKE_BINARY_DIR}/inputs/${name}.props"
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/share/accsynt
+  )
 endfunction(add_test_shared_library)
 
 # Misc Inputs
