@@ -65,6 +65,8 @@ add_test_shared_library(mf_diveq_sca)
 add_test_shared_library(mf_negate)
 add_test_shared_library(mf_clamp)
 add_test_shared_library(mf_lerp)
+add_test_shared_library(mf_length)
+add_test_shared_library(mf_length_sq)
 
 # string.h
 

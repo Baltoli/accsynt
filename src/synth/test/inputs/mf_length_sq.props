@@ -1,0 +1,2 @@
+float length_sq(float *x, int n)
+size x, n
