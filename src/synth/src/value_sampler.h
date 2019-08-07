@@ -111,6 +111,9 @@ inline auto all_rules() {
     sampling_rule(50, both_floats, [] (auto& B, auto v1, auto v2) {
       return B.CreateFSub(v1, v2);
     }),
+    sampling_rule(10, both_floats, [] (auto& B, auto v1, auto v2) {
+      return B.CreateFDiv(v1, v2);
+    }),
     sampling_rule(1, one_float, [] (auto& B, auto v, auto) {
       return make_clamp(B, v);
     }),
