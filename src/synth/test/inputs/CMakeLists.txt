@@ -69,6 +69,7 @@ add_test_shared_library(mf_length)
 add_test_shared_library(mf_length_sq)
 
 # string.h
+add_test_shared_library(str_strlen)
 
 # SafeStr
 
@@ -80,3 +81,4 @@ add_test_shared_library(glm_abs)
 add_test_shared_library(glm_dot)
 add_test_shared_library(glm_sqrt)
 add_test_shared_library(glm_invsqrt)
+add_test_shared_library(glm_fma)

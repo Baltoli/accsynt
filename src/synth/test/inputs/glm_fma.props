@@ -1,0 +1,5 @@
+void fma_(int n, float *a, float *b, float *c)
+size a, n
+size b, n
+size c, n
+output a
