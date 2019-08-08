@@ -88,3 +88,9 @@ add_test_shared_library(glm_dot)
 add_test_shared_library(glm_sqrt)
 add_test_shared_library(glm_invsqrt)
 add_test_shared_library(glm_fma)
+
+# Ti DSP
+add_test_shared_library(ti_dotp)
+
+# ARM DSP
+add_test_shared_library(arm_vdot)
