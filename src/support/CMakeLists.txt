@@ -5,6 +5,7 @@ add_library(support
   src/call_wrapper.cpp
   src/float_compare.cpp
   src/hash.cpp
+  src/file.cpp
   src/random.cpp
   src/llvm_cloning.cpp
   src/llvm_values.cpp
