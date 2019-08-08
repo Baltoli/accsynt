@@ -1,0 +1,4 @@
+void as_memmove(char *dest, char *src, int n)
+size dest, n
+size src, n
+output dest

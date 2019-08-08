@@ -1,0 +1,3 @@
+void as_memset(char *ptr, char v, int n)
+size ptr, n
+output ptr

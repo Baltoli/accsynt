@@ -70,6 +70,9 @@ add_test_shared_library(mf_length_sq)
 
 # string.h
 add_test_shared_library(str_strlen)
+add_test_shared_library(str_memcpy)
+add_test_shared_library(str_memmove)
+add_test_shared_library(str_memset)
 
 # SafeStr
 
