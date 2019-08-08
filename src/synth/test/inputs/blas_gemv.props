@@ -1,0 +1,4 @@
+void gemv(int M, int N, float *A, float *x, float *y)
+size y, M
+size x, N
+output y
