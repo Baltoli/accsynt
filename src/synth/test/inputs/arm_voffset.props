@@ -1,0 +1,3 @@
+void voffset(int n, float *a, float b)
+size a, n
+output a
