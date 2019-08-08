@@ -9,6 +9,7 @@
 #include "synth_options.h"
 
 #include <support/argument_generator.h>
+#include <support/file.h>
 #include <support/hash.h>
 
 #include <fmt/format.h>
@@ -25,7 +26,7 @@ rule_synth::rule_synth(props::property_set ps, call_wrapper& ref)
 {
   make_examples(generator_for(ps), 1'000);
 
-  auto choices = std::vector<fragment::frag_ptr>{};
+  auto choices = std::vector<fragment::frag_ptr> {};
 
   for (auto rule : rule_registry::all()) {
     auto matches = rule.match(ps);
@@ -35,21 +36,36 @@ rule_synth::rule_synth(props::property_set ps, call_wrapper& ref)
   }
 
   if (choices.empty()) {
-    choices.emplace_back(new linear_fragment{ {} });
+    choices.emplace_back(new linear_fragment { {} });
   }
 
-  auto max_frags = std::optional<size_t>{};
+  auto max_frags = std::optional<size_t> {};
   if (MaxFragments >= 0) {
     max_frags = MaxFragments;
   }
 
   fragments_ = fragment::enumerate(choices, max_frags);
 
-  if (DumpControl) {
-    for (auto const& frag : fragments_) {
-      errs() << fmt::format("FRAGMENT {}:\n", nice_hash(frag->to_str()));
-      errs() << frag->to_str(1) << "\n\n";
+  auto dump_impl = [&](auto& os) {
+    if (DumpControl) {
+      for (auto const& frag : fragments_) {
+        auto fmt = "FRAGMENT {}:\n{}\n\n";
+        auto str
+            = std::string(fmt::format(fmt, nice_hash(frag), frag->to_str(1)));
+        /* os << "FRAGMENT " << nice_hash(frag) << ":\n"; */
+        /* os << frag->to_str(1) << "\n\n"; */
+      }
     }
+
+    if (CountControl) {
+      /* os << "Total fragments: " << fragments_.size() << "\n"; */
+    }
+  };
+
+  if (ControlOutputFile == "-") {
+    dump_impl(errs());
+  } else {
+    dump_impl(*get_fd_ostream(ControlOutputFile));
   }
 }
 
@@ -65,7 +81,7 @@ Function* rule_synth::candidate()
     current_fragment_ = fragments_.begin();
   }
 
-  auto ctx = compile_context{ mod_, properties_.type_signature,
+  auto ctx = compile_context { mod_, properties_.type_signature,
     accessors_from_rules(properties_) };
   auto& frag = *current_fragment_;
 
