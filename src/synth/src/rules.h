@@ -92,7 +92,7 @@ public:
   property_expression(std::string name, std::vector<binding_t> bs);
 
   template <typename... Args>
-  property_expression(std::string name, Args... args);
+  explicit property_expression(std::string name, Args... args);
 
   std::vector<match_result> match(props::property_set ps);
 
@@ -138,30 +138,30 @@ std::vector<match_result> expr_match(
 class distinct {
 public:
   template <typename... Strings>
-  distinct(Strings... vars);
+  explicit distinct(Strings... vars);
 
   bool validate(match_result const& unified, props::property_set ps) const;
 
 private:
-  std::set<std::string> vars_{};
+  std::set<std::string> vars_ {};
 };
 
 class negation {
 public:
   template <typename... Args>
-  negation(std::string name, Args... args);
+  explicit negation(std::string name, Args... args);
 
   bool validate(match_result const& unified, props::property_set ps) const;
 
 private:
   std::string name_;
-  std::vector<std::string> args_{};
+  std::vector<std::string> args_ {};
 };
 
 class is_pointer {
 public:
   template <typename... Args>
-  is_pointer(Args... args);
+  explicit is_pointer(Args... args);
 
   bool validate(match_result const& unified, props::property_set ps) const;
 
@@ -202,7 +202,7 @@ std::optional<match_result> match_result::unify_all(
     return std::nullopt;
   }
 
-  auto accum = std::optional<match_result>{ *begin };
+  auto accum = std::optional<match_result> { *begin };
   for (auto it = begin; it != end && accum; ++it) {
     accum = accum->unify_with(*it);
   }
@@ -241,7 +241,7 @@ property_expression::property_expression(std::string name, Args... args)
 template <typename OStream>
 OStream& operator<<(OStream& os, property_expression const& m)
 {
-  auto bind_str = support::visitor{ [](std::string s) { return s; },
+  auto bind_str = support::visitor { [](std::string s) { return s; },
     [](ignore_value) { return std::string("_"); } };
 
   os << "match(" << m.property_name_;

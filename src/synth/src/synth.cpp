@@ -3,8 +3,10 @@
 #include "rule_synth.h"
 
 #include <props/props.h>
+
 #include <support/call_wrapper.h>
 #include <support/dynamic_library.h>
+#include <support/file.h>
 #include <support/thread_context.h>
 
 #include <fmt/format.h>
@@ -44,7 +46,7 @@ static cl::opt<bool> HillClimb("climb",
 
 void report(generate_result result)
 {
-  auto report_impl = [result](auto& os) {
+  to_file_or_default(OutputPath, [result](auto& os) {
     if (result.function) {
       os << *result.function->getParent();
 
@@ -54,15 +56,7 @@ void report(generate_result result)
     } else {
       os << "No function found\n";
     }
-  };
-
-  if (OutputPath == "-") {
-    report_impl(outs());
-  } else {
-    auto err = std::error_code{};
-    auto os = raw_fd_ostream(OutputPath, err, sys::fs::FA_Write);
-    report_impl(os);
-  }
+  });
 }
 
 int main(int argc, char** argv)
