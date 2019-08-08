@@ -24,6 +24,8 @@ namespace synth {
 rule_synth::rule_synth(props::property_set ps, call_wrapper& ref)
     : synthesizer(ps, ref)
 {
+  using namespace fmt::literals;
+
   make_examples(generator_for(ps), 1'000);
 
   auto choices = std::vector<fragment::frag_ptr> {};
@@ -49,16 +51,13 @@ rule_synth::rule_synth(props::property_set ps, call_wrapper& ref)
   auto dump_impl = [&](auto& os) {
     if (DumpControl) {
       for (auto const& frag : fragments_) {
-        auto fmt = "FRAGMENT {}:\n{}\n\n";
-        auto str
-            = std::string(fmt::format(fmt, nice_hash(frag), frag->to_str(1)));
-        /* os << "FRAGMENT " << nice_hash(frag) << ":\n"; */
-        /* os << frag->to_str(1) << "\n\n"; */
+        os << "FRAGMENT {hash}:\n{frag}\n\n"_format(
+            "hash"_a = nice_hash(frag), "frag"_a = frag->to_str(1));
       }
     }
 
     if (CountControl) {
-      /* os << "Total fragments: " << fragments_.size() << "\n"; */
+      os << "Total fragments: {fs}\n"_format("fs"_a = fragments_.size());
     }
   };
 
