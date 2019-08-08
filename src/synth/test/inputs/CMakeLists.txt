@@ -95,3 +95,6 @@ add_test_shared_library(ti_dotp)
 
 # ARM DSP
 add_test_shared_library(arm_vdot)
+add_test_shared_library(arm_vmul)
+add_test_shared_library(arm_vadd)
+add_test_shared_library(arm_vcopy)

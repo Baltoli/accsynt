@@ -1,0 +1,4 @@
+void vadd(int n, float *a, float *b)
+size a, n
+size b, n
+output a
