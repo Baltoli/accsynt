@@ -48,7 +48,7 @@ rule_synth::rule_synth(props::property_set ps, call_wrapper& ref)
 
   fragments_ = fragment::enumerate(choices, max_frags);
 
-  auto dump_impl = [&](auto& os) {
+  to_file_or_default(ControlOutputFile, [&](auto& os) {
     if (DumpControl) {
       for (auto const& frag : fragments_) {
         os << "FRAGMENT {hash}:\n{frag}\n\n"_format(
@@ -59,13 +59,7 @@ rule_synth::rule_synth(props::property_set ps, call_wrapper& ref)
     if (CountControl) {
       os << "Total fragments: {fs}\n"_format("fs"_a = fragments_.size());
     }
-  };
-
-  if (ControlOutputFile == "-") {
-    dump_impl(errs());
-  } else {
-    dump_impl(*get_fd_ostream(ControlOutputFile));
-  }
+  });
 }
 
 std::string rule_synth::name() const { return "rule_synth"; }

@@ -46,7 +46,7 @@ static cl::opt<bool> HillClimb("climb",
 
 void report(generate_result result)
 {
-  auto report_impl = [result](auto& os) {
+  to_file_or_default(OutputPath, [result](auto& os) {
     if (result.function) {
       os << *result.function->getParent();
 
@@ -56,13 +56,7 @@ void report(generate_result result)
     } else {
       os << "No function found\n";
     }
-  };
-
-  if (OutputPath == "-") {
-    report_impl(outs());
-  } else {
-    report_impl(*get_fd_ostream(OutputPath));
-  }
+  });
 }
 
 int main(int argc, char** argv)
