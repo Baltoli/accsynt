@@ -3,8 +3,10 @@
 #include "rule_synth.h"
 
 #include <props/props.h>
+
 #include <support/call_wrapper.h>
 #include <support/dynamic_library.h>
+#include <support/file.h>
 #include <support/thread_context.h>
 
 #include <fmt/format.h>
@@ -59,9 +61,7 @@ void report(generate_result result)
   if (OutputPath == "-") {
     report_impl(outs());
   } else {
-    auto err = std::error_code{};
-    auto os = raw_fd_ostream(OutputPath, err, sys::fs::FA_Write);
-    report_impl(os);
+    report_impl(*get_fd_ostream(OutputPath));
   }
 }
 
