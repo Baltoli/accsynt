@@ -77,6 +77,7 @@ add_test_shared_library(str_memset)
 # SafeStr
 
 # BLAS
+add_test_shared_library(blas_asum)
 add_test_shared_library(blas_dot)
 add_test_shared_library(blas_gemv)
 add_test_shared_library(blas_ger)
