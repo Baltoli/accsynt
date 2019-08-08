@@ -1,0 +1,3 @@
+void abs_(float *x, int n)
+size x, n
+output x

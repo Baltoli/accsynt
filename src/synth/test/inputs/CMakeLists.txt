@@ -76,3 +76,7 @@ add_test_shared_library(mf_length_sq)
 
 # GLM
 add_test_shared_library(glm_length)
+add_test_shared_library(glm_abs)
+add_test_shared_library(glm_dot)
+add_test_shared_library(glm_sqrt)
+add_test_shared_library(glm_invsqrt)
