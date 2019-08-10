@@ -42,7 +42,6 @@ add_test_shared_library(normalise)
 add_test_shared_library(offset_sum)
 add_test_shared_library(relu)
 add_test_shared_library(relu-over)
-add_test_shared_library(safe_string_copy)
 add_test_shared_library(saxpy)
 add_test_shared_library(spmv)
 add_test_shared_library(store)
@@ -74,7 +73,9 @@ add_test_shared_library(str_memcpy)
 add_test_shared_library(str_memmove)
 add_test_shared_library(str_memset)
 
-# SafeStr
+# StrSafe
+add_test_shared_library(safe_copy)
+add_test_shared_library(safe_bcopy)
 
 # BLAS
 add_test_shared_library(blas_asum)
