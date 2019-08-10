@@ -61,6 +61,8 @@ using namespace llvm;
       return ::Instruction::trunc;
     case llvm::Instruction::Call:
       return ::Instruction::call;
+    case llvm::Instruction::FDiv:
+      return ::Instruction::fdiv;
     }
   }
 
@@ -92,7 +94,7 @@ std::string instr_name(Value const& v)
 
 std::vector<Node> get_nodes(Function const& fn)
 {
-  auto vals = std::map<std::string, int>{};
+  auto vals = std::map<std::string, int> {};
 
   auto const_idx = [&vals](Constant const* c, int& count) {
     auto name = instr_name(*c);
@@ -104,8 +106,8 @@ std::vector<Node> get_nodes(Function const& fn)
     return vals[name];
   };
 
-  auto nodes = std::vector<Node>{};
-  auto idxs = std::map<Value const*, int>{};
+  auto nodes = std::vector<Node> {};
+  auto idxs = std::map<Value const*, int> {};
   int counter = 0;
 
   // Build indexes
@@ -141,7 +143,7 @@ std::vector<Node> get_nodes(Function const& fn)
 
   for (auto const& BB : fn) {
     for (auto const& I : BB) {
-      auto edges = std::vector<int>{};
+      auto edges = std::vector<int> {};
 
       for (auto const& o : I.operands()) {
         if (auto cst = dyn_cast<Constant>(&o)) {
@@ -160,7 +162,7 @@ std::vector<Node> get_nodes(Function const& fn)
     }
   }
 
-  auto names = std::set<std::string>{};
+  auto names = std::set<std::string> {};
   for (auto const& BB : fn) {
     for (auto const& I : BB) {
       for (auto const& o : I.operands()) {
