@@ -15,6 +15,9 @@ using namespace llvm;
 static cl::opt<std::string> FunctionName(
     cl::Positional, cl::desc("<function>"), cl::value_desc("function name"));
 
+static cl::opt<std::string> FunctionName2(
+    cl::Positional, cl::desc("<function>"), cl::value_desc("function name 2"));
+
 static cl::list<std::string> InputFiles(cl::Positional,
     cl::desc("<bitcode files>"), cl::OneOrMore, cl::value_desc("filenames"));
 
@@ -31,15 +34,20 @@ int main(int argc, char** argv)
   auto&& first_mod = parseIRFile(InputFiles[0], Err, Context, true, "");
   auto first_fn = first_mod->getFunction(FunctionName);
 
-  auto graphs = std::vector<Graph>{};
+  auto&& second_mod = parseIRFile(InputFiles[1], Err, Context, true, "");
+  auto second_fn = second_mod->getFunction(FunctionName2);
+
+  auto graphs = std::vector<Graph> {};
   graphs.push_back(from_function(*first_fn));
+  graphs.push_back(from_function(*second_fn));
 
-  for (auto it = std::next(InputFiles.begin()); it != InputFiles.end(); ++it) {
-    auto&& next_mod = parseIRFile(*it, Err, Context, true, "");
-    auto next_fn = next_mod->getFunction(FunctionName);
+  /* for (auto it = std::next(InputFiles.begin()); it != InputFiles.end(); ++it)
+   * { */
+  /*   auto&& next_mod = parseIRFile(*it, Err, Context, true, ""); */
+  /*   auto next_fn = next_mod->getFunction(FunctionName); */
 
-    graphs.push_back(from_function(*next_fn));
-  }
+  /*   graphs.push_back(from_function(*next_fn)); */
+  /* } */
 
   /* auto&& modA = parseIRFile(InputA, Err, Context, true, ""); */
   /* if (!modA) { */
