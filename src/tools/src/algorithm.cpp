@@ -130,7 +130,8 @@ void compute_impl(Graph graph, size_t sa, size_t sb)
   double score = matches[max_pos].evaluate(graph, true);
 
   std::cout << "Result: max score = " << (int)max_score << "\n";
-  std::cout << "Instrs: " << (sa + sb) << '\n';
+  std::cout << "Instrs: " << (1.0 * std::max(sa, sb) / std::min(sa, sb))
+            << '\n';
 
   std::cout << "Graph:\n";
   graph.print(std::cout);
