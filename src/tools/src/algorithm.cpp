@@ -29,7 +29,7 @@ void compute_impl(Graph graph, size_t sa, size_t sb)
 
   std::vector<Match> matches_new(400, graph.nodes.size());
 
-  for (size_t i = 0; i < 100; i++) {
+  for (size_t i = 0; i < 250; i++) {
     for (size_t j = 0; j < matches_new.size(); j++) {
       matches_new[j] = matches[j % matches.size()];
 

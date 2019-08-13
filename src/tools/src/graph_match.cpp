@@ -4,11 +4,13 @@
 #include <support/instr_count.h>
 
 #include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/LegacyPassManager.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IRReader/IRReader.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/SourceMgr.h>
 #include <llvm/Support/raw_ostream.h>
+#include <llvm/Transforms/IPO/PassManagerBuilder.h>
 
 #include <vector>
 
@@ -28,6 +30,20 @@ static cl::opt<std::string> OutputFilename("o",
     cl::desc("Filename to save the generated constraints to"),
     cl::value_desc("filename"), cl::init("-"));
 
+void run_norm_passes(Module& mod)
+{
+  auto pm = legacy::PassManager();
+
+  auto pmb = PassManagerBuilder();
+  pmb.OptLevel = 2;
+  pmb.DisableUnrollLoops = true;
+  pmb.LoopVectorize = false;
+  pmb.SLPVectorize = false;
+  pmb.populateModulePassManager(pm);
+
+  pm.run(mod);
+}
+
 int main(int argc, char** argv)
 {
   cl::ParseCommandLineOptions(argc, argv);
@@ -35,12 +51,15 @@ int main(int argc, char** argv)
   SMDiagnostic Err;
 
   auto&& first_mod = parseIRFile(InputFiles[0], Err, Context, true, "");
-  auto first_fn = first_mod->getFunction(FunctionName);
-
   auto&& second_mod = parseIRFile(InputFiles[1], Err, Context, true, "");
+
+  run_norm_passes(*first_mod);
+  run_norm_passes(*second_mod);
+
+  auto first_fn = first_mod->getFunction(FunctionName);
   auto second_fn = second_mod->getFunction(FunctionName2);
 
-  auto graphs = std::vector<Graph>{};
+  auto graphs = std::vector<Graph> {};
   graphs.push_back(from_function(*first_fn));
   graphs.push_back(from_function(*second_fn));
 
