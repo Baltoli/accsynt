@@ -47,6 +47,7 @@ add_executable(support_unit
   test/choose.cpp
   test/argument_generator.cpp
   test/llvm_values.cpp
+  test/instr_count.cpp
   test/random.cpp
   test/similarity.cpp
   test/string.cpp

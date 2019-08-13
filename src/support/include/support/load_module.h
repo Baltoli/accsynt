@@ -13,6 +13,6 @@
 namespace support {
 
 std::unique_ptr<llvm::Module> parse_module(std::string const& str);
-
 std::unique_ptr<llvm::Module> load_module(std::string const& path);
-}
+
+} // namespace support
