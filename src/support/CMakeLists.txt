@@ -1,6 +1,7 @@
 project(libsupport VERSION 0.1 LANGUAGES CXX)
 
 add_library(support
+  src/instr_count.cpp
   src/call_builder.cpp
   src/call_wrapper.cpp
   src/float_compare.cpp

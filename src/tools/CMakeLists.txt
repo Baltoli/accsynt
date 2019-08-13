@@ -29,6 +29,7 @@ endif()
 
 
 target_link_libraries(graph-match
+  support
   ${llvm_libs})
 
 install(
