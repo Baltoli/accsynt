@@ -1,6 +1,10 @@
 #include "algorithm.h"
 #include "match.h"
 
+#include <support/instr_count.h>
+
+using namespace support;
+
 void compute(std::vector<Graph> rest)
 {
   if (rest.empty()) {
@@ -9,8 +13,8 @@ void compute(std::vector<Graph> rest)
 
   auto graph = rest.at(0);
 
-  for (auto& g : rest) {
-    graph.add(g);
+  for (auto it = std::next(rest.begin()); it != rest.end(); ++it) {
+    graph.add(*it);
   }
 
   compute_impl(graph);
