@@ -63,6 +63,8 @@ using namespace llvm;
       return ::Instruction::call;
     case llvm::Instruction::FDiv:
       return ::Instruction::fdiv;
+    case llvm::Instruction::And:
+      return ::Instruction::and_;
     }
   }
 

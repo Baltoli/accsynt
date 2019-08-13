@@ -28,7 +28,8 @@ enum class Instruction {
   select,
   trunc,
   call,
-  fdiv
+  fdiv,
+  and_
 };
 
 class Node {

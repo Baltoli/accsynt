@@ -252,13 +252,16 @@ void Match::print_constraints_line(
     ostr << "select instruction";
     break;
   case Instruction::trunc:
-    ostr << "trunc";
+    ostr << "trunc instruction";
     break;
   case Instruction::call:
-    ostr << "call";
+    ostr << "call instruction";
     break;
   case Instruction::fdiv:
-    ostr << "fdiv";
+    ostr << "fdiv instruction";
+    break;
+  case Instruction::and_:
+    ostr << "and instruction";
     break;
   }
 }
