@@ -1,6 +1,8 @@
 #include "algorithm.h"
 #include "match.h"
 
+#include <support/instr_count.h>
+
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IRReader/IRReader.h>
@@ -10,6 +12,7 @@
 
 #include <vector>
 
+using namespace support;
 using namespace llvm;
 
 static cl::opt<std::string> FunctionName(
@@ -37,7 +40,7 @@ int main(int argc, char** argv)
   auto&& second_mod = parseIRFile(InputFiles[1], Err, Context, true, "");
   auto second_fn = second_mod->getFunction(FunctionName2);
 
-  auto graphs = std::vector<Graph> {};
+  auto graphs = std::vector<Graph>{};
   graphs.push_back(from_function(*first_fn));
   graphs.push_back(from_function(*second_fn));
 
@@ -66,7 +69,7 @@ int main(int argc, char** argv)
 
   /* auto graphA = from_function(*fnA); */
   /* auto graphB = from_function(*fnB); */
-  compute(graphs);
+  compute(graphs, instr_count(*first_fn), instr_count(*second_fn));
 }
 
 /*

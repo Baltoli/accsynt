@@ -6,9 +6,9 @@
 #include <type_traits>
 #include <vector>
 
-void compute(std::vector<Graph> rest);
+void compute(std::vector<Graph> rest, size_t sa, size_t sb);
 
-void compute_impl(Graph graph);
+void compute_impl(Graph graph, size_t sa, size_t sb);
 
 template <typename G, typename... Gs>
 auto compute(G graph, Gs... rest)

@@ -5,7 +5,7 @@
 
 using namespace support;
 
-void compute(std::vector<Graph> rest)
+void compute(std::vector<Graph> rest, size_t sa, size_t sb)
 {
   if (rest.empty()) {
     return;
@@ -17,10 +17,10 @@ void compute(std::vector<Graph> rest)
     graph.add(*it);
   }
 
-  compute_impl(graph);
+  compute_impl(graph, sa, sb);
 }
 
-void compute_impl(Graph graph)
+void compute_impl(Graph graph, size_t sa, size_t sb)
 {
   std::vector<Match> matches;
   for (int i = 0; i < 50; i++) {
@@ -130,6 +130,7 @@ void compute_impl(Graph graph)
   double score = matches[max_pos].evaluate(graph, true);
 
   std::cout << "Result: max score = " << (int)max_score << "\n";
+  std::cout << "Instrs: " << (sa + sb) << '\n';
 
   std::cout << "Graph:\n";
   graph.print(std::cout);
