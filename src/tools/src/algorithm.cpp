@@ -3,7 +3,12 @@
 
 #include <support/instr_count.h>
 
+#include <llvm/Support/CommandLine.h>
+
 using namespace support;
+using namespace llvm;
+
+static llvm::cl::opt<int> NumIters("i", cl::desc("Specify number of iterations"), cl::init(250));
 
 void compute(std::vector<Graph> rest, size_t sa, size_t sb)
 {
@@ -29,7 +34,7 @@ void compute_impl(Graph graph, size_t sa, size_t sb)
 
   std::vector<Match> matches_new(400, graph.nodes.size());
 
-  for (size_t i = 0; i < 250; i++) {
+  for (auto i = 0; i < NumIters; i++) {
     for (size_t j = 0; j < matches_new.size(); j++) {
       matches_new[j] = matches[j % matches.size()];
 
