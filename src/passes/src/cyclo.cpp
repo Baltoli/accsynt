@@ -45,3 +45,8 @@ static RegisterPass<Cyclo> X(
     "cyclo", "Compute the cyclomatic complexity of a function", false, false);
 
 } // namespace
+
+std::unique_ptr<FunctionPass> createCycloPass()
+{
+  return std::unique_ptr<FunctionPass>(new Cyclo());
+}
