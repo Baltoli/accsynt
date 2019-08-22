@@ -12,6 +12,9 @@ add_executable(graph-match
   src/graph.cpp
   src/match.cpp)
 
+add_executable(cyclo
+  src/cyclo.cpp)
+
 target_link_libraries(convert
   CONAN_PKG::fmt
   ${llvm_libs}
@@ -27,12 +30,14 @@ else()
     -Wl,--whole-archive ${llvm_libs} -Wl,--no-whole-archive)
 endif()
 
-
 target_link_libraries(graph-match
   support
   ${llvm_libs})
 
+target_link_libraries(cyclo
+  ${llvm_libs}
+  AccsyntPasses)
+
 install(
-  #TARGETS detect convert graph-match
-  TARGETS detect convert graph-match
+  TARGETS detect convert graph-match cyclo
   DESTINATION ${CMAKE_INSTALL_BINDIR})
