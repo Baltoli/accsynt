@@ -5,6 +5,7 @@ list(APPEND pass_sources
   src/to_idl.cpp
   src/translate.cpp
   src/deduplicate.cpp
+  src/cyclo.cpp
   src/opcode.cpp)
 
 add_library(AccsyntPasses SHARED ${pass_sources})
