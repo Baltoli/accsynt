@@ -34,24 +34,43 @@ std::string loop_to_n_fragment::to_str(size_t ind)
       "bound"_a = args_.at(0).param_val);
 }
 
-/* void regular_loop_fragment::splice( */
-/*     compile_context& ctx, llvm::BasicBlock* entry, llvm::BasicBlock* exit) */
-/* { */
-/* } */
+void loop_to_n_fragment::splice(
+    compile_context& ctx, llvm::BasicBlock* entry, llvm::BasicBlock* exit)
+{
+  // TODO implement
+}
 
-/* std::pair<Argument*, std::string> regular_loop_fragment::get_pointer( */
-/*     compile_context& ctx, size_t idx) */
-/* { */
-/* } */
+std::pair<Argument*, std::string> loop_to_n_fragment::get_bound(
+    compile_context& ctx)
+{
+  auto name = args_.at(0).param_val;
+  return { ctx.argument(name), name };
+}
 
-/* void swap(regular_loop_fragment& a, regular_loop_fragment& b) {} */
+void swap(loop_to_n_fragment& a, loop_to_n_fragment& b)
+{
+  using std::swap;
+  swap(a.before_, b.before_);
+  swap(a.body_, b.body_);
+  swap(a.after_, b.after_);
+  swap(a.args_, b.args_);
+}
 
-/* bool regular_loop_fragment::operator==(regular_loop_fragment const& other)
- * const */
+bool loop_to_n_fragment::operator==(loop_to_n_fragment const& other) const
+{
+  return args_ == other.args_ && equal_non_null(before_, other.before_)
+      && equal_non_null(body_, other.body_)
+      && equal_non_null(after_, other.after_);
+}
 
-/* bool regular_loop_fragment::operator!=(regular_loop_fragment const& other)
- * const */
+bool loop_to_n_fragment::operator!=(loop_to_n_fragment const& other) const
+{
+  return !(*this == other);
+}
 
-/* bool regular_loop_fragment::equal_to(frag_ptr const& other) const */
+bool loop_to_n_fragment::equal_to(frag_ptr const& other) const
+{
+  return other->equal_as(*this);
+}
 
 } // namespace synth

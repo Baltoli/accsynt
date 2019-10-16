@@ -20,8 +20,7 @@ public:
   friend void swap(loop_to_n_fragment& a, loop_to_n_fragment& b);
 
 private:
-  std::pair<llvm::Argument*, std::string> get_bound(
-      compile_context&, size_t idx);
+  std::pair<llvm::Argument*, std::string> get_bound(compile_context&);
 };
 
 } // namespace synth
