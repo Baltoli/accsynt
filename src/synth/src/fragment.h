@@ -116,6 +116,8 @@ public:
 
   virtual bool equal_to(frag_ptr const& other) const = 0;
 
+  static bool equal_non_null(frag_ptr const& a, frag_ptr const& b);
+
 protected:
   template <typename Func>
   static void choose(
