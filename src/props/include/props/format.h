@@ -15,13 +15,16 @@ struct fmt::formatter<props::data_type> {
   template <typename FormatContext>
   auto format(const props::data_type& dt, FormatContext& ctx)
   {
-    if (dt == props::data_type::character) {
+    switch (dt) {
+    case props::data_type::character:
       return format_to(ctx.out(), "char");
-    } else if (dt == props::data_type::integer) {
-      return format_to(ctx.out(), "int");
-    } else if (dt == props::data_type::floating) {
+    case props::data_type::floating:
       return format_to(ctx.out(), "float");
-    } else {
+    case props::data_type::integer:
+      return format_to(ctx.out(), "int");
+    case props::data_type::boolean:
+      return format_to(ctx.out(), "bool");
+    default:
       return format_to(ctx.out(), "<BAD TYPE>");
     }
   }
