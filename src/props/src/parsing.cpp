@@ -3,6 +3,8 @@
 #define TAO_PEGTL_NAMESPACE props_pegtl
 #include <tao/pegtl.hpp>
 
+#include <unordered_map>
+
 namespace props {
 
 namespace pegtl = tao::props_pegtl;
@@ -10,14 +12,17 @@ using namespace pegtl;
 
 std::optional<data_type> data_type_from_string(std::string const& str)
 {
-  if (str == "char") {
-    return data_type::character;
-  } else if (str == "int") {
-    return data_type::integer;
-  } else if (str == "float") {
-    return data_type::floating;
-  } else if (str == "bool") {
-    return data_type::boolean;
+  // clang-format off
+  auto map = std::unordered_map<std::string, data_type>{
+    { "char",   data_type::character }, 
+    { "int",    data_type::integer },
+    { "float",  data_type::floating }, 
+    { "bool",   data_type::boolean }
+  };
+  // clang-format on
+
+  if (map.find(str) != map.end()) {
+    return map.at(str);
   } else {
     return std::nullopt;
   }
@@ -105,7 +110,7 @@ struct property_action<property_name> {
   {
     prop.name = in.string();
   }
-};
+}; // namespace props
 
 template <>
 struct property_action<value_string> {

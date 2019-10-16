@@ -10,6 +10,7 @@ add_library(props
 target_link_libraries(props
   ${llvm_libs}
   support
+  CONAN_PKG::frozen
   CONAN_PKG::fmt
   CONAN_PKG::pegtl)
 
@@ -37,7 +38,6 @@ add_executable(props_unit
 target_link_libraries(props_unit
   props
   stdc++fs
-  CONAN_PKG::frozen
   CONAN_PKG::fmt
   CONAN_PKG::Catch2)
 
