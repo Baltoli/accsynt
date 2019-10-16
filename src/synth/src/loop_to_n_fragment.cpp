@@ -12,7 +12,27 @@ using namespace llvm;
 
 namespace synth {
 
-/* std::string regular_loop_fragment::to_str(size_t ind) {} */
+std::string loop_to_n_fragment::to_str(size_t ind)
+{
+  using namespace fmt::literals;
+
+  auto ptr_names = std::vector<std::string>{};
+  std::transform(args_.begin() + 1, args_.end(), std::back_inserter(ptr_names),
+      [](auto val) { return val.param_val; });
+
+  auto shape = R"({before}
+{ind1}loopToN({bound}) {{
+{body}
+{ind1}}}
+{after})";
+
+  return fmt::format(shape, "ind1"_a = ::support::indent{ ind },
+      "ind2"_a = ::support::indent{ ind + 1 },
+      "before"_a = string_or_empty(before_, ind),
+      "body"_a = string_or_empty(body_, ind + 1),
+      "after"_a = string_or_empty(after_, ind),
+      "bound"_a = args_.at(0).param_val);
+}
 
 /* void regular_loop_fragment::splice( */
 /*     compile_context& ctx, llvm::BasicBlock* entry, llvm::BasicBlock* exit) */
