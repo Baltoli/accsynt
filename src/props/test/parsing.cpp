@@ -8,6 +8,7 @@
 
 namespace fs = std::filesystem;
 using namespace props;
+using namespace props::literals;
 
 TEST_CASE("signatures can be parsed")
 {
@@ -44,19 +45,32 @@ TEST_CASE("signatures can be parsed")
     REQUIRE(s4.parameters.at(0).name == "c");
     REQUIRE(s4.parameters.at(0).type == data_type::character);
     REQUIRE(s4.parameters.at(0).pointer_depth == 1);
+
+    auto s5 = "bool g(bool b,  char **s)"_sig;
+    REQUIRE(s5.name == "g");
+    REQUIRE(s5.return_type);
+    REQUIRE(s5.return_type.value() == data_type::boolean);
+    REQUIRE(s5.parameters.at(0).name == "b");
+    REQUIRE(s5.parameters.at(0).type == data_type::boolean);
+    REQUIRE(s5.parameters.at(0).pointer_depth == 0);
+    REQUIRE(s5.parameters.at(1).name == "s");
+    REQUIRE(s5.parameters.at(1).type == data_type::character);
+    REQUIRE(s5.parameters.at(1).pointer_depth == 2);
   }
 
   SECTION("without valid signatures")
   {
-    REQUIRE_THROWS(signature::parse("aefjio"));
-    REQUIRE_THROWS(signature::parse(""));
-    REQUIRE_THROWS(signature::parse("int *woo()"));
-    REQUIRE_THROWS(signature::parse("int f("));
-    REQUIRE_THROWS(signature::parse("double d()"));
-    REQUIRE_THROWS(signature::parse("int)"));
-    REQUIRE_THROWS(signature::parse("int woo()  fef"));
-    REQUIRE_THROWS(signature::parse("int(int, float)"));
-    REQUIRE_THROWS(signature::parse("character f()"));
+    REQUIRE_THROWS("aefjio"_sig);
+    REQUIRE_THROWS(""_sig);
+    REQUIRE_THROWS("int *woo()"_sig);
+    REQUIRE_THROWS("int f("_sig);
+    REQUIRE_THROWS("double d()"_sig);
+    REQUIRE_THROWS("int)"_sig);
+    REQUIRE_THROWS("int woo()  fef"_sig);
+    REQUIRE_THROWS("int(int, float)"_sig);
+    REQUIRE_THROWS("character f()"_sig);
+    REQUIRE_THROWS("boolean f(char c, int *g)"_sig);
+    REQUIRE_THROWS("void f(int c, boolean g)"_sig);
   }
 }
 
