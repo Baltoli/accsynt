@@ -11,7 +11,7 @@ TEST_CASE("can validate property sets")
   {
     auto str =
         R"(
-int main(int x, char c)
+int main(int x, char c, bool b)
 )";
 
     REQUIRE_NOTHROW(property_set::parse(str));
@@ -42,7 +42,7 @@ size :str, 0.2, 23, x, y
   {
     auto str =
         R"(
-int main(int x, char c, float *y)
+int main(int x, char c, bool *y)
 size 3452.231, 3, x, nope
 )";
 
@@ -74,7 +74,7 @@ third
   {
     auto str =
         R"(
-void main(char x)
+void main(char x, bool b)
 size 34
 size 22
 other_name
@@ -96,7 +96,7 @@ TEST_CASE("can find signature indices")
 {
   SECTION("when the name exists")
   {
-    auto str = "int main(int x, int y, float *z)";
+    auto str = "int main(int x, bool y, float *z)";
     auto sig = signature::parse(str);
 
     REQUIRE(sig.param_index("x") == 0);
@@ -158,4 +158,7 @@ TEST_CASE("can check for pointer acceptance")
 
   auto s5 = "int g(float *f, int *d, char *c)"_sig;
   REQUIRE(s5.accepts_pointer());
+
+  auto s6 = "int g(float f, bool *d)"_sig;
+  REQUIRE(s6.accepts_pointer());
 }
