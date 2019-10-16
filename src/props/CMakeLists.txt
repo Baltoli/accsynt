@@ -37,6 +37,7 @@ add_executable(props_unit
 target_link_libraries(props_unit
   props
   stdc++fs
+  CONAN_PKG::frozen
   CONAN_PKG::fmt
   CONAN_PKG::Catch2)
 
