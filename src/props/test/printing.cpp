@@ -15,6 +15,9 @@ TEST_CASE("can print data types")
 
   auto ch = data_type::character;
   REQUIRE_THAT(fmt::format("{}", ch), Equals("char"));
+
+  auto bo = data_type::boolean;
+  REQUIRE_THAT(fmt::format("{}", bo), Equals("bool"));
 }
 
 TEST_CASE("can print params")
@@ -27,6 +30,9 @@ TEST_CASE("can print params")
 
   auto p3 = param{ "chiw", data_type::character, 1 };
   REQUIRE_THAT(fmt::format("{}", p3), Equals("char *chiw"));
+
+  auto p4 = param{ "wofg", data_type::boolean, 0 };
+  REQUIRE_THAT(fmt::format("{}", p4), Equals("bool wofg"));
 }
 
 TEST_CASE("can print signatures")
@@ -46,6 +52,10 @@ TEST_CASE("can print signatures")
   auto str4 = "char er(char **c, int y, float ju)";
   auto sig4 = signature::parse(str4);
   REQUIRE_THAT(fmt::format("{}", sig4), Equals(str4));
+
+  auto str5 = "bool woo(int x, bool **b)";
+  auto sig5 = signature::parse(str5);
+  REQUIRE_THAT(fmt::format("{}", sig5), Equals(str5));
 }
 
 TEST_CASE("can print values")

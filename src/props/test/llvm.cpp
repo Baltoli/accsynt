@@ -6,6 +6,7 @@
 #include <llvm/Support/raw_ostream.h>
 
 using namespace props;
+using namespace props::literals;
 using namespace support;
 
 using namespace llvm;
@@ -26,6 +27,14 @@ TEST_CASE("can get LLVM types from parameters")
     auto t = p.llvm_type();
 
     REQUIRE(t->isIntegerTy(8));
+  }
+
+  SECTION("for boolean values")
+  {
+    auto p = param{ "fwe", data_type::boolean, 0 };
+    auto t = p.llvm_type();
+
+    REQUIRE(t->isIntegerTy(1));
   }
 
   SECTION("for floating values")
@@ -58,6 +67,20 @@ TEST_CASE("can get LLVM types from parameters")
     REQUIRE(t1->isIntegerTy(8));
   }
 
+  SECTION("for boolean pointers")
+  {
+    auto p = param{ "efji", data_type::boolean, 2 };
+    auto t = p.llvm_type();
+
+    REQUIRE(t->isPointerTy());
+
+    auto t1 = cast<PointerType>(t)->getElementType();
+    REQUIRE(t1->isPointerTy());
+
+    auto t2 = cast<PointerType>(t1)->getElementType();
+    REQUIRE(t2->isIntegerTy(1));
+  }
+
   SECTION("for floating pointers")
   {
     auto p = param{ "rwe", data_type::floating, 2 };
@@ -77,7 +100,7 @@ TEST_CASE("can get LLVM types from signatures")
 {
   SECTION("with return")
   {
-    auto sig = signature::parse("int func()");
+    auto sig = "int func()"_sig;
     auto ft = sig.function_type();
 
     REQUIRE(!ft->isVarArg());
@@ -90,8 +113,7 @@ TEST_CASE("can get LLVM types from signatures")
 
   SECTION("with void return")
   {
-    auto sig
-        = signature::parse("void fj_io(int *x, char cad, float y, float **z)");
+    auto sig = "void fj_io(int *x, char cad, float y, float **z, bool b)"_sig;
     auto ft = sig.function_type();
 
     REQUIRE(!ft->isVarArg());
@@ -99,16 +121,18 @@ TEST_CASE("can get LLVM types from signatures")
     auto rt = ft->getReturnType();
     REQUIRE(rt->isVoidTy());
 
-    REQUIRE(ft->getNumParams() == 4);
+    REQUIRE(ft->getNumParams() == 5);
     auto p0 = ft->getParamType(0);
     auto p1 = ft->getParamType(1);
     auto p2 = ft->getParamType(2);
     auto p3 = ft->getParamType(3);
+    auto p4 = ft->getParamType(4);
 
     REQUIRE(p0->isPointerTy());
     REQUIRE(p1->isIntegerTy(8));
     REQUIRE(p2->isFloatTy());
     REQUIRE(p3->isPointerTy());
+    REQUIRE(p4->isIntegerTy(1));
 
     auto p0_t = cast<PointerType>(p0)->getElementType();
     auto p3_t = cast<PointerType>(p3)->getElementType();
@@ -125,7 +149,7 @@ TEST_CASE("can get LLVM types from signatures")
 TEST_CASE("can create functions from signatures")
 {
   auto mod = Module("test-mod", thread_context::get());
-  auto sig = signature::parse("void test(int x, char *d, float *y)");
+  auto sig = signature::parse("void test(int x, char *d, float *y, bool *b)");
   auto fn = sig.create_function(mod);
 
   REQUIRE(fn);
@@ -133,18 +157,23 @@ TEST_CASE("can create functions from signatures")
   auto ft = fn->getFunctionType();
   REQUIRE(ft->getReturnType()->isVoidTy());
 
-  REQUIRE(ft->getNumParams() == 3);
+  REQUIRE(ft->getNumParams() == 4);
   auto p0 = ft->getParamType(0);
   auto p1 = ft->getParamType(1);
   auto p2 = ft->getParamType(2);
+  auto p3 = ft->getParamType(3);
 
   REQUIRE(p0->isIntegerTy(32));
   REQUIRE(p1->isPointerTy());
   REQUIRE(p2->isPointerTy());
+  REQUIRE(p3->isPointerTy());
 
   auto p1_t = cast<PointerType>(p1)->getElementType();
   REQUIRE(p1_t->isIntegerTy(8));
 
   auto p2_t = cast<PointerType>(p2)->getElementType();
   REQUIRE(p2_t->isFloatTy());
+
+  auto p3_t = cast<PointerType>(p3)->getElementType();
+  REQUIRE(p3_t->isIntegerTy(1));
 }

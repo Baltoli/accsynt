@@ -11,6 +11,8 @@ Type* base_llvm_type(data_type dt)
   switch (dt) {
   case data_type::character:
     return IntegerType::get(thread_context::get(), 8);
+  case data_type::boolean:
+    return IntegerType::get(thread_context::get(), 1);
   case data_type::integer:
     return IntegerType::get(thread_context::get(), 32);
   case data_type::floating:

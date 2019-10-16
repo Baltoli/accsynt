@@ -36,6 +36,21 @@ TEST_CASE("Can use the v2 visitor")
     REQUIRE(c == -1);
   }
 
+  SECTION("basic case with bools")
+  {
+    auto s = "void func(bool b1, int **c, bool *b1)"_sig;
+
+    auto c = 0;
+    sig_visitor{
+      on(data_type::character,            [&] { throw 0; }),
+      on(data_type::floating,             [&] { throw 0; }),
+      on(data_type::boolean,              [&] { ++c; }),
+      on(data_type::boolean,    1,        [&] { c -= 3; }),
+      on(data_type::integer,    any_ptr,  [&] { --c; })
+    }.visit(s);
+    REQUIRE(c == -3);
+  }
+
   SECTION("visiting different depths")
   {
     auto s = "void f(int a, int *b, int **c, int *d)"_sig;
@@ -65,7 +80,7 @@ TEST_CASE("Can use the v2 visitor")
 
   SECTION("complex visiting")
   {
-    auto s = "float h(float ***g, float z, int b, int *t, char **n)"_sig;
+    auto s = "float h(float ***g, float z, int b, int *t, char **n, bool *s)"_sig;
 
     auto ss = std::stringstream{};
     sig_visitor {
@@ -73,10 +88,11 @@ TEST_CASE("Can use the v2 visitor")
       on(data_type::floating,  3, [&] (auto const& p) { ss << "Fp3" << p.name; }),
       on(data_type::floating,     [&] (auto const& p) { ss << "Fs" << p.name; }),
       on(data_type::integer,   1, [&] (auto const& p) { ss << "Ip1" << p.name; }),
-      on(data_type::integer,      [&] (auto const& p) { ss << "Is" << p.name; })
+      on(data_type::integer,      [&] (auto const& p) { ss << "Is" << p.name; }),
+      on(data_type::boolean,   1, [&] (auto const& p) { ss << "Bp1" << p.name; })
     }.visit(s);
 
-    REQUIRE(ss.str() == "Fp3gFszIsbIp1tCp2n");
+    REQUIRE(ss.str() == "Fp3gFszIsbIp1tCp2nBp1s");
   }
 
   SECTION("visiting at any depth") {

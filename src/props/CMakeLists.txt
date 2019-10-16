@@ -10,6 +10,7 @@ add_library(props
 target_link_libraries(props
   ${llvm_libs}
   support
+  CONAN_PKG::frozen
   CONAN_PKG::fmt
   CONAN_PKG::pegtl)
 

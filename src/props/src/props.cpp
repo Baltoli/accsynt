@@ -8,6 +8,7 @@ size_t data_type_size(data_type dt)
 {
   switch (dt) {
   case data_type::character:
+  case data_type::boolean:
     return 1;
   case data_type::integer:
   case data_type::floating:
@@ -37,9 +38,10 @@ bool signature::accepts_pointer() const
 
   // clang-format off
   sig_visitor{
-    on(data_type::integer, any_ptr, make_true),
-    on(data_type::character, any_ptr, make_true),
-    on(data_type::floating, any_ptr, make_true)
+    on(data_type::boolean,    any_ptr, make_true),
+    on(data_type::integer,    any_ptr, make_true),
+    on(data_type::character,  any_ptr, make_true),
+    on(data_type::floating,   any_ptr, make_true)
   }.visit(*this);
   // clang-format on
 

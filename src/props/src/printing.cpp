@@ -16,6 +16,9 @@ std::ostream& operator<<(std::ostream& os, const data_type& dt)
   case data_type::floating:
     os << "float";
     break;
+  case data_type::boolean:
+    os << "bool";
+    break;
   }
   return os;
 }
