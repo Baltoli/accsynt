@@ -41,7 +41,8 @@ struct property_action : nothing<Rule> {
 };
 
 struct type_name : sor<TAO_PEGTL_STRING("void"), TAO_PEGTL_STRING("int"),
-                       TAO_PEGTL_STRING("float"), TAO_PEGTL_STRING("char")> {
+                       TAO_PEGTL_STRING("float"), TAO_PEGTL_STRING("char"),
+                       TAO_PEGTL_STRING("bool")> {
 };
 
 struct interface_name : identifier {
