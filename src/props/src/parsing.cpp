@@ -16,6 +16,8 @@ std::optional<data_type> data_type_from_string(std::string const& str)
     return data_type::integer;
   } else if (str == "float") {
     return data_type::floating;
+  } else if (str == "bool") {
+    return data_type::boolean;
   } else {
     return std::nullopt;
   }
