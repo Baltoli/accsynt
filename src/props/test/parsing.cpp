@@ -96,7 +96,7 @@ TEST_CASE("files can be parsed")
 ;werjio
 
 
-int main(int s, float *d, char **argv)
+int main(int s, float *d, char **argv, bool on)
 name 2.111, 0.000, 4, :string, s, d
 fjio
 wefjop
@@ -116,6 +116,10 @@ wefjop
   REQUIRE(ps.type_signature.parameters.at(2).type == data_type::character);
   REQUIRE(ps.type_signature.parameters.at(2).name == "argv");
   REQUIRE(ps.type_signature.parameters.at(2).pointer_depth == 2);
+
+  REQUIRE(ps.type_signature.parameters.at(3).type == data_type::boolean);
+  REQUIRE(ps.type_signature.parameters.at(3).name == "on");
+  REQUIRE(ps.type_signature.parameters.at(3).pointer_depth == 0);
 
   REQUIRE(ps.properties.size() == 3);
 }
