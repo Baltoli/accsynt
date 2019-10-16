@@ -15,6 +15,9 @@ TEST_CASE("can print data types")
 
   auto ch = data_type::character;
   REQUIRE_THAT(fmt::format("{}", ch), Equals("char"));
+
+  auto bo = data_type::boolean;
+  REQUIRE_THAT(fmt::format("{}", bo), Equals("bool"));
 }
 
 TEST_CASE("can print params")
