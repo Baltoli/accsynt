@@ -40,11 +40,11 @@ analysis_result finder::run(Module& mod, json config)
 
   auto reference = call_wrapper(
       find.signature_, mod, find.signature_.name, find.dynamic_library_);
-  auto ref_decl = find.signature_.create_function(mod);
+  find.signature_.create_function(mod);
 
   auto sig_t = find.signature_.function_type();
 
-  auto fns = std::vector<Function*>{};
+  auto fns = std::vector<Function*> {};
 
   for (auto& fn : mod) {
     if (!fn.isDeclaration()) {
@@ -92,4 +92,4 @@ analysis_result finder::run(Module& mod, json config)
 
   return result;
 }
-}
+} // namespace interfind

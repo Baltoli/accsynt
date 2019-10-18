@@ -8,7 +8,8 @@
 using namespace support;
 using namespace llvm;
 
-static llvm::cl::opt<int> NumIters("i", cl::desc("Specify number of iterations"), cl::init(250));
+static llvm::cl::opt<int> NumIters(
+    "i", cl::desc("Specify number of iterations"), cl::init(250));
 
 void compute(std::vector<Graph> rest, size_t sa, size_t sb)
 {
@@ -71,7 +72,7 @@ void compute_impl(Graph graph, size_t sa, size_t sb)
     double score_max = 0.0;
     double score_min = 1.0 / 0.0;
     size_t max_pos = 0;
-    size_t min_pos = 0;
+
     std::vector<double> scores;
 
     for (auto& match : matches_new) {
@@ -81,10 +82,6 @@ void compute_impl(Graph graph, size_t sa, size_t sb)
       if (score > score_max) {
         score_max = score;
         max_pos = scores.size();
-      }
-      if (score < score_min) {
-        score_min = score;
-        min_pos = scores.size();
       }
       scores.push_back(score_sum);
     }
@@ -132,7 +129,7 @@ void compute_impl(Graph graph, size_t sa, size_t sb)
     }
   }
 
-  double score = matches[max_pos].evaluate(graph, true);
+  matches[max_pos].evaluate(graph, true);
 
   std::cout << "Result: max score = " << (int)max_score << "\n";
   std::cout << "Instrs: " << (1.0 * std::max(sa, sb) / std::min(sa, sb))
