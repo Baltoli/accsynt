@@ -19,6 +19,7 @@ The build instructions in this section assume an environment variable
 ```
 cd $BUILD_ROOT
 git clone https://github.com/Baltoli/llvm.git
+cd llvm
 git checkout standalone
 cd llvm/tools
 git clone https://github.com/Baltoli/clang.git
@@ -50,6 +51,7 @@ git clone https://github.com/Baltoli/accsynt.git
 mkdir accsynt/build
 cd accsynt/build
 cmake \
+      -DCMAKE_BUILD_TYPE=Debug \
       -DCMAKE_CXX_COMPILER=g++-8 \
       -DLLVM_DIR=$BUILD_ROOT/llvm-install/lib/cmake/llvm \
       ../src
