@@ -12,6 +12,18 @@ using namespace llvm;
 
 namespace synth {
 
+loop_to_n_fragment::loop_to_n_fragment(
+    std::vector<props::value> args, direction dir)
+    : loop_fragment(args)
+    , direction_(dir)
+{
+}
+
+loop_to_n_fragment::loop_to_n_fragment(std::vector<props::value> args)
+    : loop_to_n_fragment(args, direction::upwards)
+{
+}
+
 std::string loop_to_n_fragment::to_str(size_t ind)
 {
   using namespace fmt::literals;
@@ -62,16 +74,26 @@ void loop_to_n_fragment::splice(
 
   B.SetInsertPoint(header);
   auto iter = B.CreatePHI(bound->getType(), 2, "n-loop.iter");
-  iter->addIncoming(ConstantInt::get(iter->getType(), 0), inter_first);
-  auto cond = B.CreateICmpSLT(iter, bound, "n-loop.cond");
-  B.CreateCondBr(cond, pre_body, inter_second);
+
+  if (direction_ == direction::upwards) {
+    iter->addIncoming(ConstantInt::get(iter->getType(), 0), inter_first);
+    auto cond = B.CreateICmpSLT(iter, bound, "n-loop.cond");
+    B.CreateCondBr(cond, pre_body, inter_second);
+  } else {
+    __builtin_trap();
+  }
 
   ctx.metadata_.indices.insert(iter);
 
   B.SetInsertPoint(post_body);
-  auto next = B.CreateAdd(
-      iter, ConstantInt::get(iter->getType(), 1), "n-loop.next-iter");
-  iter->addIncoming(next, post_body);
+
+  if (direction_ == direction::upwards) {
+    auto next = B.CreateAdd(
+        iter, ConstantInt::get(iter->getType(), 1), "n-loop.next-iter");
+    iter->addIncoming(next, post_body);
+  } else {
+    __builtin_trap();
+  }
 
   B.CreateBr(header);
 
