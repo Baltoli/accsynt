@@ -37,6 +37,51 @@ std::string loop_to_n_fragment::to_str(size_t ind)
 void loop_to_n_fragment::splice(
     compile_context& ctx, llvm::BasicBlock* entry, llvm::BasicBlock* exit)
 {
+  auto& llvm_ctx = entry->getContext();
+
+  auto inter_first = BasicBlock::Create(llvm_ctx, "n-loop.inter0", ctx.func_);
+  auto inter_second = BasicBlock::Create(llvm_ctx, "n-loop.inter1", ctx.func_);
+
+  auto last_exit = entry;
+
+  // Before
+
+  before_->splice(ctx, last_exit, inter_first);
+  last_exit = inter_first;
+
+  // Body
+
+  auto [bound, name] = get_bound(ctx);
+
+  auto header = BasicBlock::Create(llvm_ctx, "n-loop.header", ctx.func_);
+  auto pre_body = BasicBlock::Create(llvm_ctx, "n-loop.pre-body", ctx.func_);
+  auto post_body = BasicBlock::Create(llvm_ctx, "n-loop.post-body", ctx.func_);
+
+  auto B = IRBuilder<>(inter_first);
+  B.CreateBr(header);
+
+  B.SetInsertPoint(header);
+  auto iter = B.CreatePHI(bound->getType(), 2, "n-loop.iter");
+  iter->addIncoming(ConstantInt::get(iter->getType(), 0), inter_first);
+  auto cond = B.CreateICmpSLT(iter, bound, "n-loop.cond");
+  B.CreateCondBr(cond, pre_body, inter_second);
+
+  ctx.metadata_.indices.insert(iter);
+
+  B.SetInsertPoint(post_body);
+  auto next = B.CreateAdd(
+      iter, ConstantInt::get(iter->getType(), 1), "n-loop.next-iter");
+  iter->addIncoming(next, post_body);
+
+  B.CreateBr(header);
+
+  body_->splice(ctx, pre_body, post_body);
+  last_exit = inter_second;
+
+  // After
+
+  ctx.metadata_.indices.erase(iter);
+  after_->splice(ctx, last_exit, exit);
 }
 
 std::pair<Argument*, std::string> loop_to_n_fragment::get_bound(
