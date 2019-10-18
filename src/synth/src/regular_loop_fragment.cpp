@@ -136,16 +136,6 @@ void swap(regular_loop_fragment& a, regular_loop_fragment& b)
 
 bool regular_loop_fragment::operator==(regular_loop_fragment const& other) const
 {
-  auto equal_non_null = [](auto const& a, auto const& b) {
-    if (!a && !b) {
-      return true;
-    } else if (!a || !b) {
-      return false;
-    } else {
-      return a->equal_to(b);
-    }
-  };
-
   return args_ == other.args_ && equal_non_null(before_, other.before_)
       && equal_non_null(body_, other.body_)
       && equal_non_null(after_, other.after_)

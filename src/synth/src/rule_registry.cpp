@@ -79,6 +79,18 @@ std::vector<rule> rule_registry::all()
       "affineAccess", {"ptr"},
       { wildcard("ptr") },
       { is_pointer("ptr") }
+    },
+    {
+      "loopToN", {"val"},
+      { type("val", data_type::integer),
+        wildcard("ptr") },
+      { negation("size", "ptr", "val") }
+    },
+    {
+      "loopToZero", {"val"},
+      { type("val", data_type::integer),
+        wildcard("ptr") },
+      { negation("size", "ptr", "val") }
     }
   };
   // clang-format on

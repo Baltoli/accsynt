@@ -2,6 +2,7 @@
 
 #include "affine_fragment.h"
 #include "data_loop_fragment.h"
+#include "loop_to_n_fragment.h"
 #include "regular_loop_fragment.h"
 #include "string_loop_fragment.h"
 
@@ -36,6 +37,16 @@ value_ptr<fragment> fragment_registry::get(
 
   if (name == "affineAccess") {
     return make_val<affine_fragment>(args);
+  }
+
+  if (name == "loopToN") {
+    return make_val<loop_to_n_fragment>(
+        args, loop_to_n_fragment::direction::upwards);
+  }
+
+  if (name == "loopToZero") {
+    return make_val<loop_to_n_fragment>(
+        args, loop_to_n_fragment::direction::downwards);
   }
 
   return nullptr;
