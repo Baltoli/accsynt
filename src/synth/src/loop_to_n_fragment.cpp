@@ -7,6 +7,8 @@
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Instructions.h>
 
+using namespace fmt::literals;
+
 using namespace props;
 using namespace llvm;
 
@@ -28,17 +30,26 @@ std::string loop_to_n_fragment::to_str(size_t ind)
 {
   using namespace fmt::literals;
 
+  auto name = [this] {
+    if (direction_ == direction::upwards) {
+      return "loopToN";
+    } else {
+      return "loopToZero";
+    }
+  }();
+
   auto ptr_names = std::vector<std::string> {};
   std::transform(args_.begin() + 1, args_.end(), std::back_inserter(ptr_names),
       [](auto val) { return val.param_val; });
 
   auto shape = R"({before}
-{ind1}loopToN({bound}) {{
+{ind1}{name}({bound}) {{
 {body}
 {ind1}}}
 {after})";
 
-  return fmt::format(shape, "ind1"_a = ::support::indent { ind },
+  return fmt::format(shape, "name"_a = name,
+      "ind1"_a = ::support::indent { ind },
       "ind2"_a = ::support::indent { ind + 1 },
       "before"_a = string_or_empty(before_, ind),
       "body"_a = string_or_empty(body_, ind + 1),
@@ -49,10 +60,20 @@ std::string loop_to_n_fragment::to_str(size_t ind)
 void loop_to_n_fragment::splice(
     compile_context& ctx, llvm::BasicBlock* entry, llvm::BasicBlock* exit)
 {
+  auto make_name = [this](auto const& suffix) {
+    if (direction_ == direction::upwards) {
+      return "n-loop.{}"_format(suffix);
+    } else {
+      return "zero-loop.{}"_format(suffix);
+    }
+  };
+
   auto& llvm_ctx = entry->getContext();
 
-  auto inter_first = BasicBlock::Create(llvm_ctx, "n-loop.inter0", ctx.func_);
-  auto inter_second = BasicBlock::Create(llvm_ctx, "n-loop.inter1", ctx.func_);
+  auto inter_first
+      = BasicBlock::Create(llvm_ctx, make_name("inter0"), ctx.func_);
+  auto inter_second
+      = BasicBlock::Create(llvm_ctx, make_name("inter1"), ctx.func_);
 
   auto last_exit = entry;
 
@@ -65,34 +86,42 @@ void loop_to_n_fragment::splice(
 
   auto [bound, name] = get_bound(ctx);
 
-  auto header = BasicBlock::Create(llvm_ctx, "n-loop.header", ctx.func_);
-  auto pre_body = BasicBlock::Create(llvm_ctx, "n-loop.pre-body", ctx.func_);
-  auto post_body = BasicBlock::Create(llvm_ctx, "n-loop.post-body", ctx.func_);
+  auto header = BasicBlock::Create(llvm_ctx, make_name("header"), ctx.func_);
+  auto pre_body
+      = BasicBlock::Create(llvm_ctx, make_name("pre-body"), ctx.func_);
+  auto post_body
+      = BasicBlock::Create(llvm_ctx, make_name("post-body"), ctx.func_);
 
   auto B = IRBuilder<>(inter_first);
   B.CreateBr(header);
 
   B.SetInsertPoint(header);
-  auto iter = B.CreatePHI(bound->getType(), 2, "n-loop.iter");
+  auto iter = B.CreatePHI(bound->getType(), 2, make_name("iter"));
 
   if (direction_ == direction::upwards) {
     iter->addIncoming(ConstantInt::get(iter->getType(), 0), inter_first);
-    auto cond = B.CreateICmpSLT(iter, bound, "n-loop.cond");
+    auto cond = B.CreateICmpSLT(iter, bound, make_name("cond"));
     B.CreateCondBr(cond, pre_body, inter_second);
   } else {
-    __builtin_trap();
+    iter->addIncoming(bound, inter_first);
+    auto cond = B.CreateICmpSGT(
+        iter, ConstantInt::get(iter->getType(), 0), make_name("cond"));
+    B.CreateCondBr(cond, pre_body, inter_second);
   }
 
   ctx.metadata_.indices.insert(iter);
+  ctx.metadata_.seeds.insert(iter);
 
   B.SetInsertPoint(post_body);
 
   if (direction_ == direction::upwards) {
     auto next = B.CreateAdd(
-        iter, ConstantInt::get(iter->getType(), 1), "n-loop.next-iter");
+        iter, ConstantInt::get(iter->getType(), 1), make_name("next-iter"));
     iter->addIncoming(next, post_body);
   } else {
-    __builtin_trap();
+    auto next = B.CreateSub(
+        iter, ConstantInt::get(iter->getType(), 1), make_name("next-iter"));
+    iter->addIncoming(next, post_body);
   }
 
   B.CreateBr(header);

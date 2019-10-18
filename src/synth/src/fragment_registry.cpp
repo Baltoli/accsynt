@@ -40,7 +40,13 @@ value_ptr<fragment> fragment_registry::get(
   }
 
   if (name == "loopToN") {
-    return make_val<loop_to_n_fragment>(args);
+    return make_val<loop_to_n_fragment>(
+        args, loop_to_n_fragment::direction::upwards);
+  }
+
+  if (name == "loopToZero") {
+    return make_val<loop_to_n_fragment>(
+        args, loop_to_n_fragment::direction::downwards);
   }
 
   return nullptr;
