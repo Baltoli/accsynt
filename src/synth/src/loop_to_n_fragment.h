@@ -5,8 +5,12 @@ namespace synth {
 
 class loop_to_n_fragment : public loop_fragment {
 public:
+  enum class direction { upwards, downwards };
+
   using fragment::add_child;
-  using loop_fragment::loop_fragment;
+
+  loop_to_n_fragment(std::vector<props::value> args);
+  loop_to_n_fragment(std::vector<props::value> args, direction dir);
 
   bool operator==(loop_to_n_fragment const& other) const;
   bool operator!=(loop_to_n_fragment const& other) const;
@@ -20,6 +24,8 @@ public:
   friend void swap(loop_to_n_fragment& a, loop_to_n_fragment& b);
 
 private:
+  direction direction_;
+
   std::pair<llvm::Argument*, std::string> get_bound(compile_context&);
 };
 
