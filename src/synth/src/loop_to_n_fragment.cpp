@@ -16,7 +16,7 @@ std::string loop_to_n_fragment::to_str(size_t ind)
 {
   using namespace fmt::literals;
 
-  auto ptr_names = std::vector<std::string>{};
+  auto ptr_names = std::vector<std::string> {};
   std::transform(args_.begin() + 1, args_.end(), std::back_inserter(ptr_names),
       [](auto val) { return val.param_val; });
 
@@ -26,8 +26,8 @@ std::string loop_to_n_fragment::to_str(size_t ind)
 {ind1}}}
 {after})";
 
-  return fmt::format(shape, "ind1"_a = ::support::indent{ ind },
-      "ind2"_a = ::support::indent{ ind + 1 },
+  return fmt::format(shape, "ind1"_a = ::support::indent { ind },
+      "ind2"_a = ::support::indent { ind + 1 },
       "before"_a = string_or_empty(before_, ind),
       "body"_a = string_or_empty(body_, ind + 1),
       "after"_a = string_or_empty(after_, ind),
@@ -37,7 +37,6 @@ std::string loop_to_n_fragment::to_str(size_t ind)
 void loop_to_n_fragment::splice(
     compile_context& ctx, llvm::BasicBlock* entry, llvm::BasicBlock* exit)
 {
-  // TODO implement
 }
 
 std::pair<Argument*, std::string> loop_to_n_fragment::get_bound(
