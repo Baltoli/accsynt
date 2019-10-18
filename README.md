@@ -22,15 +22,25 @@ git clone https://github.com/Baltoli/llvm.git
 git checkout standalone
 cd llvm/tools
 git clone https://github.com/Baltoli/clang.git
+cd clang
 git checkout research
 cd $BUILD_ROOT/llvm
 mkdir build
 cd build
-cmake -DCMAKE_CXX_COMPILER=g++-7 -DLLVM_ENABLE_RTTI=On -DCMAKE_INSTALL_PREFIX=$BUILD_ROOT/llvm-install ..
+cmake \
+      -DCMAKE_CXX_COMPILER=g++-8 \
+      -DLLVM_ENABLE_RTTI=On \
+      -DCMAKE_INSTALL_PREFIX=$BUILD_ROOT/llvm-install \
+      -DLLVM_TARGETS_TO_BUILD=X86 \
+      -DLLVM_BUILD_TYPE=Release \
+      ..
+make
 make install
 ```
 
 Any other appropriate options to the LLVM CMake invocation can be used.
+
+Note that it's important to build LLVM and AccSynt with the same host compiler (gcc / g++-8 in these examples), or you will run into library incompatibility issues. The host compiler also needs to support C++17 for AccSynt.
 
 ### AccSynt
 
@@ -39,7 +49,11 @@ cd $BUILD_ROOT
 git clone https://github.com/Baltoli/accsynt.git
 mkdir accsynt/build
 cd accsynt/build
-cmake -DCMAKE_CXX_COMPILER=g++-7 -DLLVM_DIR=$BUILD_ROOT/llvm-install/lib/cmake/llvm ../src
+cmake \
+      -DCMAKE_CXX_COMPILER=g++-8 \
+      -DLLVM_DIR=$BUILD_ROOT/llvm-install/lib/cmake/llvm \
+      ../src
+make
 make install
 ```
 
