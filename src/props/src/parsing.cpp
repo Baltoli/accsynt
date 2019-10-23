@@ -10,14 +10,14 @@ namespace props {
 namespace pegtl = tao::props_pegtl;
 using namespace pegtl;
 
-std::optional<data_type> data_type_from_string(std::string const& str)
+std::optional<base_type> base_type_from_string(std::string const& str)
 {
   // clang-format off
-  auto map = std::unordered_map<std::string, data_type>{
-    { "char",   data_type::character }, 
-    { "int",    data_type::integer },
-    { "float",  data_type::floating }, 
-    { "bool",   data_type::boolean }
+  auto map = std::unordered_map<std::string, base_type>{
+    { "char",   base_type::character }, 
+    { "int",    base_type::integer },
+    { "float",  base_type::floating }, 
+    { "bool",   base_type::boolean }
   };
   // clang-format on
 
@@ -163,7 +163,7 @@ struct signature_action<type_name> {
   template <typename Input>
   static void apply(Input const& in, signature& sig)
   {
-    sig.return_type = data_type_from_string(in.string());
+    sig.return_type = base_type_from_string(in.string());
   }
 };
 
@@ -191,7 +191,7 @@ struct param_action<type_name> {
   static void apply(Input const& in, signature& sig)
   {
     sig.parameters.emplace_back();
-    auto type = data_type_from_string(in.string());
+    auto type = base_type_from_string(in.string());
     if (type) {
       sig.parameters.back().type = type.value();
     }

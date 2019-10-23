@@ -5,7 +5,7 @@
 #include <fmt/format.h>
 
 template <>
-struct fmt::formatter<props::data_type> {
+struct fmt::formatter<props::base_type> {
   template <typename ParseContext>
   constexpr auto parse(ParseContext& ctx)
   {
@@ -13,16 +13,16 @@ struct fmt::formatter<props::data_type> {
   }
 
   template <typename FormatContext>
-  auto format(const props::data_type& dt, FormatContext& ctx)
+  auto format(const props::base_type& dt, FormatContext& ctx)
   {
     switch (dt) {
-    case props::data_type::character:
+    case props::base_type::character:
       return format_to(ctx.out(), "char");
-    case props::data_type::floating:
+    case props::base_type::floating:
       return format_to(ctx.out(), "float");
-    case props::data_type::integer:
+    case props::base_type::integer:
       return format_to(ctx.out(), "int");
-    case props::data_type::boolean:
+    case props::base_type::boolean:
       return format_to(ctx.out(), "bool");
     default:
       return format_to(ctx.out(), "<BAD TYPE>");

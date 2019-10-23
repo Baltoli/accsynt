@@ -4,19 +4,19 @@
 
 using namespace props;
 
-std::ostream& operator<<(std::ostream& os, const data_type& dt)
+std::ostream& operator<<(std::ostream& os, const base_type& dt)
 {
   switch (dt) {
-  case data_type::character:
+  case base_type::character:
     os << "char";
     break;
-  case data_type::integer:
+  case base_type::integer:
     os << "int";
     break;
-  case data_type::floating:
+  case base_type::floating:
     os << "float";
     break;
-  case data_type::boolean:
+  case base_type::boolean:
     os << "bool";
     break;
   }

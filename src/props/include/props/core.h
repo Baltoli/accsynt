@@ -16,16 +16,16 @@ namespace props {
 
 struct property_set;
 
-enum class data_type { boolean, character, integer, floating };
+enum class base_type { boolean, character, integer, floating };
 
-size_t data_type_size(data_type dt);
+size_t base_type_size(base_type dt);
 
-llvm::Type* base_llvm_type(data_type dt);
-llvm::Type* base_llvm_return_type(std::optional<data_type> dt);
+llvm::Type* base_llvm_type(base_type dt);
+llvm::Type* base_llvm_return_type(std::optional<base_type> dt);
 
 struct param {
   std::string name;
-  data_type type;
+  base_type type;
   int pointer_depth;
 
   llvm::Type* llvm_type() const;
@@ -37,7 +37,7 @@ struct param {
 struct signature {
   signature() = default;
 
-  std::optional<data_type> return_type;
+  std::optional<base_type> return_type;
   std::string name;
   std::vector<param> parameters;
 
@@ -167,6 +167,6 @@ signature operator""_sig(const char* str, size_t len);
 
 } // namespace props
 
-std::ostream& operator<<(std::ostream& os, const props::data_type& dt);
+std::ostream& operator<<(std::ostream& os, const props::base_type& dt);
 std::ostream& operator<<(std::ostream& os, const props::param& p);
 std::ostream& operator<<(std::ostream& os, const props::signature& sig);

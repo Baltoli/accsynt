@@ -22,21 +22,21 @@ class on {
   static constexpr bool pass_param = std::is_invocable_v<F, param const&>;
 
 public:
-  on(data_type dt, F&& f);
-  on(data_type dt, int depth, F&& f);
-  on(data_type dt, any_ptr_st, F&& f);
+  on(base_type dt, F&& f);
+  on(base_type dt, int depth, F&& f);
+  on(base_type dt, any_ptr_st, F&& f);
 
   void operator()(param const& p);
 
 private:
-  data_type dt_;
+  base_type dt_;
   bool any_depth_;
   std::optional<int> depth_;
   F f_;
 };
 
 template <typename F>
-on<F>::on(data_type dt, F&& f)
+on<F>::on(base_type dt, F&& f)
     : dt_(dt)
     , any_depth_(false)
     , depth_()
@@ -45,7 +45,7 @@ on<F>::on(data_type dt, F&& f)
 }
 
 template <typename F>
-on<F>::on(data_type dt, int depth, F&& f)
+on<F>::on(base_type dt, int depth, F&& f)
     : dt_(dt)
     , any_depth_(false)
     , depth_(depth)
@@ -54,7 +54,7 @@ on<F>::on(data_type dt, int depth, F&& f)
 }
 
 template <typename F>
-on<F>::on(data_type dt, any_ptr_st, F&& f)
+on<F>::on(base_type dt, any_ptr_st, F&& f)
     : dt_(dt)
     , any_depth_(true)
     , depth_(0)

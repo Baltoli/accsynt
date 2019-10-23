@@ -16,7 +16,7 @@ TEST_CASE("Can use the v2 visitor")
 
     auto c = 0;
     sig_visitor{
-      on(data_type::integer, [&] { ++c; })
+      on(base_type::integer, [&] { ++c; })
     }.visit(s);
 
     REQUIRE(c == 1);
@@ -28,9 +28,9 @@ TEST_CASE("Can use the v2 visitor")
 
     auto c = 0;
     sig_visitor{
-      on(data_type::character,    [&] { throw 0; }),
-      on(data_type::character, 2, [&] { ++c; }),
-      on(data_type::integer,      [&] { c -= 2; })
+      on(base_type::character,    [&] { throw 0; }),
+      on(base_type::character, 2, [&] { ++c; }),
+      on(base_type::integer,      [&] { c -= 2; })
     }.visit(s);
 
     REQUIRE(c == -1);
@@ -42,11 +42,11 @@ TEST_CASE("Can use the v2 visitor")
 
     auto c = 0;
     sig_visitor{
-      on(data_type::character,            [&] { throw 0; }),
-      on(data_type::floating,             [&] { throw 0; }),
-      on(data_type::boolean,              [&] { ++c; }),
-      on(data_type::boolean,    1,        [&] { c -= 3; }),
-      on(data_type::integer,    any_ptr,  [&] { --c; })
+      on(base_type::character,            [&] { throw 0; }),
+      on(base_type::floating,             [&] { throw 0; }),
+      on(base_type::boolean,              [&] { ++c; }),
+      on(base_type::boolean,    1,        [&] { c -= 3; }),
+      on(base_type::integer,    any_ptr,  [&] { --c; })
     }.visit(s);
     REQUIRE(c == -3);
   }
@@ -57,10 +57,10 @@ TEST_CASE("Can use the v2 visitor")
 
     auto ss = std::stringstream{};
     sig_visitor{
-      on(data_type::integer,    [&] { ss << "A"; }),
-      on(data_type::integer, 1, [&] { ss << "B"; }),
-      on(data_type::integer, 2, [&] { ss << "C"; }),
-      on(data_type::integer, 3, [&] { ss << "D"; })
+      on(base_type::integer,    [&] { ss << "A"; }),
+      on(base_type::integer, 1, [&] { ss << "B"; }),
+      on(base_type::integer, 2, [&] { ss << "C"; }),
+      on(base_type::integer, 3, [&] { ss << "D"; })
     }.visit(s);
 
     REQUIRE(ss.str() == "ABCB");
@@ -72,7 +72,7 @@ TEST_CASE("Can use the v2 visitor")
     
     auto c = 0;
     sig_visitor{
-      on(data_type::integer, [&] { ++c; })
+      on(base_type::integer, [&] { ++c; })
     }.visit(s);
 
     REQUIRE(c == 2);
@@ -84,12 +84,12 @@ TEST_CASE("Can use the v2 visitor")
 
     auto ss = std::stringstream{};
     sig_visitor {
-      on(data_type::character, 2, [&] (auto const& p) { ss << "Cp2" << p.name; }),
-      on(data_type::floating,  3, [&] (auto const& p) { ss << "Fp3" << p.name; }),
-      on(data_type::floating,     [&] (auto const& p) { ss << "Fs" << p.name; }),
-      on(data_type::integer,   1, [&] (auto const& p) { ss << "Ip1" << p.name; }),
-      on(data_type::integer,      [&] (auto const& p) { ss << "Is" << p.name; }),
-      on(data_type::boolean,   1, [&] (auto const& p) { ss << "Bp1" << p.name; })
+      on(base_type::character, 2, [&] (auto const& p) { ss << "Cp2" << p.name; }),
+      on(base_type::floating,  3, [&] (auto const& p) { ss << "Fp3" << p.name; }),
+      on(base_type::floating,     [&] (auto const& p) { ss << "Fs" << p.name; }),
+      on(base_type::integer,   1, [&] (auto const& p) { ss << "Ip1" << p.name; }),
+      on(base_type::integer,      [&] (auto const& p) { ss << "Is" << p.name; }),
+      on(base_type::boolean,   1, [&] (auto const& p) { ss << "Bp1" << p.name; })
     }.visit(s);
 
     REQUIRE(ss.str() == "Fp3gFszIsbIp1tCp2nBp1s");
@@ -100,9 +100,9 @@ TEST_CASE("Can use the v2 visitor")
 
     auto ss = std::stringstream{};
     sig_visitor {
-      on(data_type::integer, 2,       [&] () { ss << "dbl"; }),
-      on(data_type::integer, any_ptr, [&] (auto const& p) { ss << p.pointer_depth; }),
-      on(data_type::integer, 1,       [&] () { ss << "star"; })
+      on(base_type::integer, 2,       [&] () { ss << "dbl"; }),
+      on(base_type::integer, any_ptr, [&] (auto const& p) { ss << p.pointer_depth; }),
+      on(base_type::integer, 1,       [&] () { ss << "star"; })
     }.visit(s);
 
     REQUIRE(ss.str() == "1stardbl2");

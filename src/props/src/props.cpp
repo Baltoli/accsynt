@@ -4,14 +4,14 @@
 
 namespace props {
 
-size_t data_type_size(data_type dt)
+size_t base_type_size(base_type dt)
 {
   switch (dt) {
-  case data_type::character:
-  case data_type::boolean:
+  case base_type::character:
+  case base_type::boolean:
     return 1;
-  case data_type::integer:
-  case data_type::floating:
+  case base_type::integer:
+  case base_type::floating:
     return 4;
   }
 
@@ -38,10 +38,10 @@ bool signature::accepts_pointer() const
 
   // clang-format off
   sig_visitor{
-    on(data_type::boolean,    any_ptr, make_true),
-    on(data_type::integer,    any_ptr, make_true),
-    on(data_type::character,  any_ptr, make_true),
-    on(data_type::floating,   any_ptr, make_true)
+    on(base_type::boolean,    any_ptr, make_true),
+    on(base_type::integer,    any_ptr, make_true),
+    on(base_type::character,  any_ptr, make_true),
+    on(base_type::floating,   any_ptr, make_true)
   }.visit(*this);
   // clang-format on
 
