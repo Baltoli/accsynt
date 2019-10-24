@@ -14,7 +14,7 @@
 
 namespace props {
 
-struct property_set;
+class property_set;
 
 enum class base_type { boolean, character, integer, floating };
 

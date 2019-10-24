@@ -309,7 +309,7 @@ T call_builder::get(size_t idx) const
   } else if constexpr (std::is_same_v<T, std::vector<char>>) {
     return char_data_.at(float_offset);
   } else {
-    static_fail("Unknown type when extracting!");
+    static_assert(false_v<T>, "Unknown type when extracting!");
   }
 }
 

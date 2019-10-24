@@ -36,6 +36,15 @@ private:
 };
 
 template <typename F>
+on(base_type, F&&) -> on<F>;
+
+template <typename F>
+on(base_type, int, F&&) -> on<F>;
+
+template <typename F>
+on(base_type, any_ptr_st, F&&) -> on<F>;
+
+template <typename F>
 on<F>::on(base_type dt, F&& f)
     : dt_(dt)
     , any_depth_(false)

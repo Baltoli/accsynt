@@ -5,10 +5,13 @@ add_executable(ifind
 target_link_libraries(ifind
   interfind
   ${llvm_libs}
-  stdc++fs
   CONAN_PKG::fmt
   CONAN_PKG::jsonformoderncpp
 )
+
+if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+  target_link_libraries(ifind stdc++fs)
+endif()
 
 install(
   TARGETS ifind

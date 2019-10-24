@@ -66,6 +66,12 @@ make
 make install
 ```
 
+The following conan remotes might be needed in order to build the project:
+```
+https://api.bintray.com/conan/baltoli/value_ptr
+https://api.bintray.com/conan/bincrafters/public-conan
+```
+
 ## Usage
 
 The project builds a number of different tools for the program synthesis
