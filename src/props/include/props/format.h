@@ -4,6 +4,10 @@
 
 #include <fmt/format.h>
 
+inline std::string pointers(int n) { 
+  return std::string(n, '*'); 
+}
+
 template <>
 struct fmt::formatter<props::base_type> {
   template <typename ParseContext>
@@ -31,6 +35,21 @@ struct fmt::formatter<props::base_type> {
 };
 
 template <>
+struct fmt::formatter<props::data_type> {
+  template <typename ParseContext>
+  constexpr auto parse(ParseContext& ctx)
+  {
+    return ctx.begin();
+  }
+
+  template <typename FormatContext>
+  auto format(const props::data_type& dt, FormatContext& ctx)
+  {
+    return format_to(ctx.out(), "{} {}", dt.base, pointers(dt.pointers));
+  }
+};
+
+template <>
 struct fmt::formatter<props::param> {
   template <typename ParseContext>
   constexpr auto parse(ParseContext& ctx)
@@ -41,8 +60,6 @@ struct fmt::formatter<props::param> {
   template <typename FormatContext>
   auto format(const props::param& p, FormatContext& ctx)
   {
-    constexpr auto pointers = [](auto n) { return std::string(n, '*'); };
-
     return format_to(
         ctx.out(), "{} {}{}", p.type, pointers(p.pointer_depth), p.name);
   }
