@@ -9,9 +9,11 @@
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Intrinsics.h>
+#include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Value.h>
 #include <llvm/Support/raw_ostream.h>
 
+#include <functional>
 #include <vector>
 
 namespace synth {
@@ -37,11 +39,13 @@ llvm::Value* make_clamp(Builder&& B, llvm::Value* v1)
 
 // New sampling rules
 
-template <typename Pred, typename Build>
 class sampling_rule {
 public:
-  sampling_rule(Pred&, Build&);
-  sampling_rule(size_t, Pred&, Build&);
+  template <typename Pred, typename Build>
+  sampling_rule(Pred&&, Build&&);
+
+  template <typename Pred, typename Build>
+  sampling_rule(size_t, Pred&&, Build&&);
 
   bool valid_for(llvm::Type*, llvm::Type*);
 
@@ -52,33 +56,31 @@ public:
 
 private:
   size_t weight_;
-  Pred& pred_;
-  Build& build_;
+  std::function<bool (llvm::Type*, llvm::Type*)> pred_;
+  std::function<llvm::Value* (llvm::IRBuilder<>&, llvm::Value*, llvm::Value*)> build_;
 };
 
 template <typename Pred, typename Build>
-sampling_rule<Pred, Build>::sampling_rule(size_t w, Pred& p, Build& b)
+sampling_rule::sampling_rule(size_t w, Pred&& p, Build&& b)
     : weight_(w)
-    , pred_(p)
-    , build_(b)
+    , pred_(std::forward<Pred>(p))
+    , build_(std::forward<Build>(b))
 {
 }
 
 template <typename Pred, typename Build>
-sampling_rule<Pred, Build>::sampling_rule(Pred& p, Build& b)
-    : sampling_rule(1, p, b)
+sampling_rule<Pred, Build>::sampling_rule(Pred&& p, Build&& b)
+    : sampling_rule(1, std::forward<Pred>(p), std::forward<Build>(b))
 {
 }
 
-template <typename Pred, typename Build>
-bool sampling_rule<Pred, Build>::valid_for(llvm::Type* t1, llvm::Type* t2)
+bool sampling_rule::valid_for(llvm::Type* t1, llvm::Type* t2)
 {
   return pred_(t1, t2);
 }
 
-template <typename Pred, typename Build>
 template <typename IRBuilder>
-llvm::Value* sampling_rule<Pred, Build>::build(
+llvm::Value* sampling_rule::build(
     IRBuilder& B, llvm::Value* v1, llvm::Value* v2)
 {
   return build_(B, v1, v2);
