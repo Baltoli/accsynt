@@ -25,10 +25,10 @@ double similarity(uint64_t ret_a, call_builder const& a, uint64_t ret_b,
 
   auto const& sig = a.signature();
   if (auto rt_opt = sig.return_type) {
-    if (*rt_opt == props::base_type::integer) {
+    if (rt_opt->base == props::base_type::integer) {
       return_comp
           = scalar_similarity(bit_cast<int>(ret_a), bit_cast<int>(ret_b));
-    } else if (*rt_opt == props::base_type::floating) {
+    } else if (rt_opt->base == props::base_type::floating) {
       return_comp
           = scalar_similarity(bit_cast<float>(ret_a), bit_cast<float>(ret_b));
     } else {

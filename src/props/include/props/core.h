@@ -30,7 +30,7 @@ llvm::Type* base_llvm_return_type(std::optional<base_type> dt);
 // It's a big but boring refactoring to change every usage of base_type to
 // data_type where appropriate.
 struct data_type {
-  base_type type;
+  base_type base;
   size_t pointers;
 };
 
