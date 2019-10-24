@@ -11,7 +11,7 @@ namespace props {
 namespace pegtl = tao::props_pegtl;
 using namespace pegtl;
 
-base_type base_type_from_string(std::string const& str)
+std::optional<base_type> base_type_from_string(std::string const& str)
 {
   auto map = std::unordered_map<std::string, base_type>{
     { "char",   base_type::character }, 
@@ -20,7 +20,11 @@ base_type base_type_from_string(std::string const& str)
     { "bool",   base_type::boolean }
   };
 
-  return map.at(str);
+  if(map.find(str) != map.end()) {
+    return map.at(str);
+  } else {
+    return std::nullopt;
+  }
 }
 
 template <typename Rule>
@@ -168,7 +172,10 @@ struct signature_action<type_name> {
   template <typename Input>
   static void apply(Input const& in, signature& sig)
   {
-    sig.return_type = data_type { base_type_from_string(in.string()), 0 };
+    auto type = base_type_from_string(in.string());
+    if(type) {
+      sig.return_type = data_type { type.value(), 0 };
+    }
   }
 };
 
@@ -205,7 +212,10 @@ struct param_action<type_name> {
   static void apply(Input const& in, signature& sig)
   {
     sig.parameters.emplace_back();
-    sig.parameters.back().type = base_type_from_string(in.string());
+    auto type = base_type_from_string(in.string());
+    if (type) {
+      sig.parameters.back().type = type.value();
+    }
   }
 };
 
