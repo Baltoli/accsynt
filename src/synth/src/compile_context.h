@@ -32,8 +32,8 @@ public:
 
   // TODO: define these and add a flag to the object that checks for
   // use-after-move?
-  compile_context(compile_context&&) = default;
-  compile_context& operator=(compile_context&&) = default;
+  compile_context(compile_context&&) = delete;
+  compile_context& operator=(compile_context&&) = delete;
 
   /**
    * Get the LLVM arg for the parameter name passed in. This lives in the
