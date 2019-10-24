@@ -45,7 +45,11 @@ struct fmt::formatter<props::data_type> {
   template <typename FormatContext>
   auto format(const props::data_type& dt, FormatContext& ctx)
   {
-    return format_to(ctx.out(), "{} {}", dt.base, pointers(dt.pointers));
+    if (dt.pointers > 0) {
+      return format_to(ctx.out(), "{} {}", dt.base, pointers(dt.pointers));
+    } else {
+      return format_to(ctx.out(), "{}", dt.base);
+    }
   }
 };
 
