@@ -17,13 +17,13 @@ TEST_CASE("signatures can be parsed")
     auto s = signature::parse("float x()");
     REQUIRE(s.name == "x");
     REQUIRE(s.return_type);
-    REQUIRE(s.return_type.value() == base_type::floating);
+    REQUIRE(s.return_type.value() == data_type{ base_type::floating, 0 });
     REQUIRE(s.parameters.empty());
 
     auto s2 = signature::parse("int na_me(int   x,  float zz_)");
     REQUIRE(s2.name == "na_me");
     REQUIRE(s2.return_type);
-    REQUIRE(s2.return_type.value() == base_type::integer);
+    REQUIRE(s2.return_type.value() == data_type{ base_type::integer, 0 });
     REQUIRE(s2.parameters.at(0).name == "x");
     REQUIRE(s2.parameters.at(0).type == base_type::integer);
     REQUIRE(s2.parameters.at(0).pointer_depth == 0);
@@ -41,7 +41,7 @@ TEST_CASE("signatures can be parsed")
     auto s4 = signature::parse("char f(char *c)");
     REQUIRE(s4.name == "f");
     REQUIRE(s4.return_type);
-    REQUIRE(s4.return_type.value() == base_type::character);
+    REQUIRE(s4.return_type.value() == data_type{ base_type::character, 0 });
     REQUIRE(s4.parameters.at(0).name == "c");
     REQUIRE(s4.parameters.at(0).type == base_type::character);
     REQUIRE(s4.parameters.at(0).pointer_depth == 1);
@@ -49,7 +49,7 @@ TEST_CASE("signatures can be parsed")
     auto s5 = "bool g(bool b,  char **s)"_sig;
     REQUIRE(s5.name == "g");
     REQUIRE(s5.return_type);
-    REQUIRE(s5.return_type.value() == base_type::boolean);
+    REQUIRE(s5.return_type.value() == data_type{ base_type::boolean, 0 });
     REQUIRE(s5.parameters.at(0).name == "b");
     REQUIRE(s5.parameters.at(0).type == base_type::boolean);
     REQUIRE(s5.parameters.at(0).pointer_depth == 0);
@@ -103,7 +103,7 @@ wefjop
 )";
   auto ps = property_set::parse(file);
 
-  REQUIRE(ps.type_signature.return_type == base_type::integer);
+  REQUIRE(ps.type_signature.return_type == data_type{ base_type::integer, 0 });
 
   REQUIRE(ps.type_signature.parameters.at(0).type == base_type::integer);
   REQUIRE(ps.type_signature.parameters.at(0).name == "s");
@@ -131,7 +131,7 @@ TEST_CASE("files can be loaded")
   auto test_a_path = current_path / "test_a.props";
   auto ps_a = property_set::load(test_a_path.string());
 
-  REQUIRE(ps_a.type_signature.return_type == base_type::integer);
+  REQUIRE(ps_a.type_signature.return_type == data_type{ base_type::integer, 0 });
 
   REQUIRE(ps_a.type_signature.name == "main");
 
