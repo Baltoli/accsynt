@@ -32,6 +32,9 @@ llvm::Type* base_llvm_return_type(std::optional<base_type> dt);
 struct data_type {
   base_type base;
   size_t pointers;
+
+  bool operator==(data_type const& other) const;
+  bool operator!=(data_type const& other) const;
 };
 
 struct param {

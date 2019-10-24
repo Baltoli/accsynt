@@ -1,6 +1,7 @@
 #include <props/props.h>
 
 #include <set>
+#include <tuple>
 
 namespace props {
 
@@ -16,6 +17,16 @@ size_t base_type_size(base_type dt)
   }
 
   throw std::runtime_error("Invalid type");
+}
+
+bool data_type::operator==(data_type const& other) const
+{
+  return std::tie(base, pointers) == std::tie(other.base, other.pointers);
+}
+
+bool data_type::operator!=(data_type const& other) const
+{
+  return !(*this == other);
 }
 
 size_t signature::param_index(std::string const& name) const
