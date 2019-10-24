@@ -25,10 +25,10 @@ double similarity(uint64_t ret_a, call_builder const& a, uint64_t ret_b,
 
   auto const& sig = a.signature();
   if (auto rt_opt = sig.return_type) {
-    if (*rt_opt == props::data_type::integer) {
+    if (rt_opt->base == props::base_type::integer) {
       return_comp
           = scalar_similarity(bit_cast<int>(ret_a), bit_cast<int>(ret_b));
-    } else if (*rt_opt == props::data_type::floating) {
+    } else if (rt_opt->base == props::base_type::floating) {
       return_comp
           = scalar_similarity(bit_cast<float>(ret_a), bit_cast<float>(ret_b));
     } else {
@@ -84,8 +84,8 @@ double params_similarity(call_builder const& a, call_builder const& b)
 
   // clang-format off
   sig_visitor{
-    on(data_type::integer, 1, vector_similarity_func<int>(a, b, scores)),
-    on(data_type::floating, 1, vector_similarity_func<float>(a, b, scores))
+    on(base_type::integer, 1, vector_similarity_func<int>(a, b, scores)),
+    on(base_type::floating, 1, vector_similarity_func<float>(a, b, scores))
   }.visit(a.signature());
   // clang-format on
 

@@ -4,19 +4,19 @@
 
 using namespace props;
 
-std::ostream& operator<<(std::ostream& os, const data_type& dt)
+std::ostream& operator<<(std::ostream& os, const base_type& dt)
 {
   switch (dt) {
-  case data_type::character:
+  case base_type::character:
     os << "char";
     break;
-  case data_type::integer:
+  case base_type::integer:
     os << "int";
     break;
-  case data_type::floating:
+  case base_type::floating:
     os << "float";
     break;
-  case data_type::boolean:
+  case base_type::boolean:
     os << "bool";
     break;
   }
@@ -35,11 +35,14 @@ std::ostream& operator<<(std::ostream& os, const param& p)
 
 std::ostream& operator<<(std::ostream& os, const signature& sig)
 {
-  if (auto rt = sig.return_type) {
-    os << rt.value();
-  } else {
-    os << "void";
-  }
+  // FIXME: does any code actually call this or can the entire stream bit be
+  // removed?
+
+  /* if (auto rt = sig.return_type) { */
+  /*   os << rt.value(); */
+  /* } else { */
+  /*   os << "void"; */
+  /* } */
 
   os << " " << sig.name << "(";
 

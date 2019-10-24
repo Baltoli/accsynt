@@ -31,15 +31,15 @@ void generator::generate_value(call_builder& builder, props::param param)
   assert(param.pointer_depth < 2 && "Nested pointers not supported");
 
   if (param.pointer_depth == 0) {
-    if (param.type == data_type::integer) {
+    if (param.type == base_type::integer) {
       builder.add(random_int(0, 128));
-    } else if (param.type == data_type::floating) {
+    } else if (param.type == base_type::floating) {
       builder.add(random_float(-10, 10));
     }
   } else if (param.pointer_depth == 1) {
-    if (param.type == data_type::integer) {
+    if (param.type == base_type::integer) {
       builder.add(random_int_data(16 * 16 * 4, -128, 128));
-    } else if (param.type == data_type::floating) {
+    } else if (param.type == base_type::floating) {
       builder.add(random_float_data(16 * 16 * 4, -10, 10));
     }
   }

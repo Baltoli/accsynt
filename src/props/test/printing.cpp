@@ -7,31 +7,31 @@ using namespace props;
 
 TEST_CASE("can print data types")
 {
-  auto it = data_type::integer;
+  auto it = base_type::integer;
   REQUIRE_THAT(fmt::format("{}", it), Equals("int"));
 
-  auto flt = data_type::floating;
+  auto flt = base_type::floating;
   REQUIRE_THAT(fmt::format("{}", flt), Equals("float"));
 
-  auto ch = data_type::character;
+  auto ch = base_type::character;
   REQUIRE_THAT(fmt::format("{}", ch), Equals("char"));
 
-  auto bo = data_type::boolean;
+  auto bo = base_type::boolean;
   REQUIRE_THAT(fmt::format("{}", bo), Equals("bool"));
 }
 
 TEST_CASE("can print params")
 {
-  auto p1 = param{ "x", data_type::integer, 2 };
+  auto p1 = param{ "x", base_type::integer, 2 };
   REQUIRE_THAT(fmt::format("{}", p1), Equals("int **x"));
 
-  auto p2 = param{ "wefhui", data_type::floating, 0 };
+  auto p2 = param{ "wefhui", base_type::floating, 0 };
   REQUIRE_THAT(fmt::format("{}", p2), Equals("float wefhui"));
 
-  auto p3 = param{ "chiw", data_type::character, 1 };
+  auto p3 = param{ "chiw", base_type::character, 1 };
   REQUIRE_THAT(fmt::format("{}", p3), Equals("char *chiw"));
 
-  auto p4 = param{ "wofg", data_type::boolean, 0 };
+  auto p4 = param{ "wofg", base_type::boolean, 0 };
   REQUIRE_THAT(fmt::format("{}", p4), Equals("bool wofg"));
 }
 

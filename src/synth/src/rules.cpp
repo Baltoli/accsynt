@@ -78,7 +78,7 @@ std::vector<match_result> property_expression::match(props::property_set ps)
 
 // Type expressions
 
-type_expression::type_expression(std::string n, props::data_type dt)
+type_expression::type_expression(std::string n, props::base_type dt)
     : name_(n)
     , type_(dt)
 {

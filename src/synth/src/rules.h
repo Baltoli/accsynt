@@ -106,13 +106,13 @@ protected:
 
 class type_expression {
 public:
-  type_expression(std::string, props::data_type);
+  type_expression(std::string, props::base_type);
 
   std::vector<match_result> match(props::property_set);
 
 protected:
   std::string name_;
-  props::data_type type_;
+  props::base_type type_;
 };
 
 // Will match all the function parameters individually, binding to the name
