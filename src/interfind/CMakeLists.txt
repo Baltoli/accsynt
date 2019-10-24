@@ -13,12 +13,15 @@ add_library(interfind
 target_link_libraries(interfind
   ${llvm_libs}
   AccsyntPasses_static
-  stdc++fs
   support
   props
   CONAN_PKG::fmt
   CONAN_PKG::jsonformoderncpp
 )
+
+if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+  target_link_libraries(interfind stdc++fs)
+endif()
 
 target_include_directories(interfind PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
