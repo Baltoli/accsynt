@@ -8,8 +8,6 @@ set(CMAKE_CXX_STANDARD 17)
 add_compile_options(
   "$<$<COMPILE_LANGUAGE:CXX>:-fvisibility-inlines-hidden>"
   -Wall -Werror -pedantic 
-  -Wno-error=class-memaccess
-  -Wno-error=unused-but-set-variable 
   -Wno-error=unused-function 
   -Wno-error=unused-variable
   -Wno-error=sign-compare
