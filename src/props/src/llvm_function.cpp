@@ -24,10 +24,14 @@ Type* base_llvm_type(base_type dt)
   __builtin_unreachable();
 }
 
-Type* base_llvm_return_type(std::optional<base_type> dt)
+Type* base_llvm_return_type(std::optional<data_type> dt)
 {
   if (dt) {
-    return base_llvm_type(dt.value());
+    auto base_ty = base_llvm_type(dt->base);
+    for(auto i = 0; i < dt->pointers; ++i) {
+      base_ty = PointerType::getUnqual(base_ty);
+    }
+    return base_ty;
   } else {
     return Type::getVoidTy(thread_context::get());
   }

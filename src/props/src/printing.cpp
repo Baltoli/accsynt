@@ -35,11 +35,14 @@ std::ostream& operator<<(std::ostream& os, const param& p)
 
 std::ostream& operator<<(std::ostream& os, const signature& sig)
 {
-  if (auto rt = sig.return_type) {
-    os << rt.value();
-  } else {
-    os << "void";
-  }
+  // FIXME: does any code actually call this or can the entire stream bit be
+  // removed?
+
+  /* if (auto rt = sig.return_type) { */
+  /*   os << rt.value(); */
+  /* } else { */
+  /*   os << "void"; */
+  /* } */
 
   os << " " << sig.name << "(";
 
