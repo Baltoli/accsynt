@@ -3,6 +3,7 @@
 #define TAO_PEGTL_NAMESPACE props_pegtl
 #include <tao/pegtl.hpp>
 
+#include <iostream>
 #include <unordered_map>
 
 namespace props {
@@ -45,7 +46,15 @@ struct interface_name : identifier {
 struct pointers : star<string<'*'>> {
 };
 
-struct return_type : seq<type_name, star<blank>, pointers> {};
+struct return_type :
+  sor<
+    seq<
+      type_name,
+      star<blank>,
+      plus<string<'*'>>
+    >,
+    type_name
+  > {};
 
 struct param_spec : seq<type_name, plus<blank>, pointers, interface_name> {
 };
@@ -107,7 +116,7 @@ struct property_action<property_name> {
   {
     prop.name = in.string();
   }
-}; // namespace props
+};
 
 template <>
 struct property_action<value_string> {
