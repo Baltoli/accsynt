@@ -10,6 +10,11 @@ using namespace llvm;
 
 namespace synth {
 
+bool sampling_rule::valid_for(llvm::Type* t1, llvm::Type* t2)
+{
+  return pred_(t1, t2);
+}
+
 // Sampling predicates
 
 bool both_floats(Type* t1, Type* t2)
