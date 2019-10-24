@@ -3,9 +3,9 @@ cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 project(AccSynt)
 
 cmake_policy(SET CMP0025 NEW)
+set(CMAKE_CXX_STANDARD 17)
 
 add_compile_options(
-  "$<$<COMPILE_LANGUAGE:CXX>:-std=c++17>"
   "$<$<COMPILE_LANGUAGE:CXX>:-fvisibility-inlines-hidden>"
   -Wall -Werror -pedantic 
   -Wno-error=class-memaccess
