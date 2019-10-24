@@ -206,7 +206,7 @@ BasicBlock* blas_synth::build_loop(loop shape, BasicBlock* end_dst,
     for (auto i = 0u; i < pack; ++i) {
       auto real_idx = B.CreateAdd(base_idx, B.getInt32(i));
 
-      auto gep = B.CreateGEP(ptr_arg, { real_idx });
+      auto gep = B.CreateGEP(ptr_arg, real_idx);
       auto load = B.CreateLoad(gep);
 
       seeds.push_back(load);
@@ -219,7 +219,7 @@ BasicBlock* blas_synth::build_loop(loop shape, BasicBlock* end_dst,
       auto ip = B.saveIP();
 
       B.SetInsertPoint(body_post);
-      auto store_gep = B.CreateGEP(ptr_arg, { iter });
+      auto store_gep = B.CreateGEP(ptr_arg, iter);
       outputs.push_back(cast<Instruction>(store_gep));
 
       B.restoreIP(ip);
@@ -237,7 +237,7 @@ BasicBlock* blas_synth::build_loop(loop shape, BasicBlock* end_dst,
       auto stride = std::next(fn->arg_begin());
       auto mul = B.CreateMul(iters.at(0), stride);
       auto array_index = B.CreateAdd(iters.at(1), mul);
-      auto gep = B.CreateGEP(ptr_arg, { array_index });
+      auto gep = B.CreateGEP(ptr_arg, array_index);
       auto load = B.CreateLoad(gep);
 
       seeds.push_back(load);
@@ -256,7 +256,7 @@ BasicBlock* blas_synth::build_loop(loop shape, BasicBlock* end_dst,
         auto ip = B.saveIP();
 
         B.SetInsertPoint(body_post);
-        auto store_gep = B.CreateGEP(ptr_arg, { array_index });
+        auto store_gep = B.CreateGEP(ptr_arg, array_index);
         outputs.push_back(cast<Instruction>(store_gep));
 
         B.restoreIP(ip);

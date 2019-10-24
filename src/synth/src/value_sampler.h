@@ -74,11 +74,6 @@ sampling_rule::sampling_rule(Pred&& p, Build&& b)
 {
 }
 
-bool sampling_rule::valid_for(llvm::Type* t1, llvm::Type* t2)
-{
-  return pred_(t1, t2);
-}
-
 template <typename IRBuilder>
 llvm::Value* sampling_rule::build(
     IRBuilder& B, llvm::Value* v1, llvm::Value* v2)
