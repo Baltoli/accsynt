@@ -41,9 +41,14 @@ Function* blas_synth::candidate()
 
   auto fn = create_stub();
 
-  auto [seeds, outputs, blocks, exit] = should_loop()
+  auto ctrl_data = should_loop()
       ? build_control_flow(fn, *current_loop_)
       : build_control_flow(fn);
+
+  auto& seeds = ctrl_data.seeds;
+  auto& outputs = ctrl_data.outputs;
+  auto& blocks = ctrl_data.data_blocks;
+  auto& exit =  ctrl_data.exit;
 
   auto data_synth = dataflow_synth(fn, [&](auto* b) {
     auto ret = std::find(blocks.begin(), blocks.end(), b) != blocks.end();
