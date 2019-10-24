@@ -48,7 +48,7 @@ struct param {
 struct signature {
   signature() = default;
 
-  std::optional<base_type> return_type;
+  std::optional<data_type> return_type;
   std::string name;
   std::vector<param> parameters;
 
