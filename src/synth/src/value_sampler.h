@@ -69,7 +69,7 @@ sampling_rule::sampling_rule(size_t w, Pred&& p, Build&& b)
 }
 
 template <typename Pred, typename Build>
-sampling_rule<Pred, Build>::sampling_rule(Pred&& p, Build&& b)
+sampling_rule::sampling_rule(Pred&& p, Build&& b)
     : sampling_rule(1, std::forward<Pred>(p), std::forward<Build>(b))
 {
 }
