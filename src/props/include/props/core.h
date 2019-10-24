@@ -14,7 +14,7 @@
 
 namespace props {
 
-struct property_set;
+class property_set;
 
 enum class data_type { character, integer, floating };
 size_t data_type_size(data_type dt);
