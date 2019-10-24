@@ -103,7 +103,7 @@ Function* call_wrapper::build_wrapper_function(Module& mod, Function* fn) const
     auto vec = make_vector(B, size);
 
     for (auto i = 0u; i < size; ++i) {
-      auto gep = B.CreateGEP(arg_data, { B.getInt64(offset) });
+      auto gep = B.CreateGEP(arg_data, B.getInt64(offset});
       auto val = B.CreateLoad(gep);
       vec = B.CreateInsertElement(vec, val, i);
       ++offset;
