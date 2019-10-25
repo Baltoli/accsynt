@@ -56,13 +56,18 @@ TEST_CASE("signatures can be parsed")
     REQUIRE(s5.parameters.at(1).name == "s");
     REQUIRE(s5.parameters.at(1).type == base_type::character);
     REQUIRE(s5.parameters.at(1).pointer_depth == 2);
+
+    auto s6 = "int *woo()"_sig;
+    REQUIRE(s6.name == "woo");
+    REQUIRE(s6.return_type);
+    REQUIRE(s6.return_type.value() == data_type{ base_type::integer, 1 });
+    REQUIRE(s6.parameters.empty());
   }
 
   SECTION("without valid signatures")
   {
     REQUIRE_THROWS("aefjio"_sig);
     REQUIRE_THROWS(""_sig);
-    REQUIRE_THROWS("int *woo()"_sig);
     REQUIRE_THROWS("int f("_sig);
     REQUIRE_THROWS("double d()"_sig);
     REQUIRE_THROWS("int)"_sig);

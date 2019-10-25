@@ -60,12 +60,15 @@ struct interface_name : identifier {
 struct pointers : star<string<'*'>> {
 };
 
+struct non_zero_pointers : plus<string<'*'>> {
+};
+
 struct return_type :
   sor<
     seq<
       type_name,
       star<blank>,
-      plus<string<'*'>>,
+      non_zero_pointers,
       star<blank>
     >,
     seq<
@@ -194,7 +197,7 @@ struct signature_action<type_name> {
 };
 
 template <>
-struct signature_action<pointers> {
+struct signature_action<non_zero_pointers> {
   template <typename Input>
   static void apply(Input const& in, signature& sig)
   {
