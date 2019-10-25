@@ -77,8 +77,20 @@ struct return_type :
     >
   > {};
 
-struct param_spec : seq<type_name, plus<blank>, pointers, interface_name> {
-};
+struct param_spec : 
+  seq<
+    type_name,
+    sor<
+      seq<
+        star<blank>,
+        non_zero_pointers,
+        star<blank>
+      >,
+      plus<blank>
+    >,
+    interface_name
+  >
+{};
 
 struct params : list<param_spec, seq<star<blank>, string<','>, star<blank>>> {
 };
@@ -215,7 +227,7 @@ struct param_action<interface_name> {
 };
 
 template <>
-struct param_action<pointers> {
+struct param_action<non_zero_pointers> {
   template <typename Input>
   static void apply(Input const& in, signature& sig)
   {
