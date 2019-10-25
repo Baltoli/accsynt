@@ -95,8 +95,10 @@ int main(int argc, char** argv) try
       report(synth.generate());
     }
   }
-} catch(props::parse_error& perr) {
+} catch (props::parse_error& perr) {
   errs() << perr.what() << '\n';
   errs() << "  when parsing property set " << PropertiesPath << '\n';
   return 2;
+} catch (dyld_error& derr) {
+  return 3;
 }

@@ -2,11 +2,21 @@
 
 namespace support {
 
+dyld_error::dyld_error(char const* err)
+  : str_(err)
+{
+}
+
+char const* dyld_error::what() const noexcept
+{
+  return str_;
+}
+
 dynamic_library::dynamic_library(const std::string& path)
 {
   lib_ = dlopen(path.c_str(), RTLD_NOW);
   if (!lib_) {
-    throw std::runtime_error(dlerror());
+    throw dyld_error(dlerror());
   }
 }
 
@@ -40,16 +50,17 @@ dynamic_library& dynamic_library::operator=(dynamic_library&& other)
 void* dynamic_library::raw_symbol(const std::string& sym) const
 {
   if (!lib_) {
-    throw std::runtime_error("Cannot get symbol from moved-from library");
+    throw dyld_error("Cannot get symbol from moved-from library");
   }
 
   dlerror();
   void* dy_sym = dlsym(lib_, sym.c_str());
-  char* err = dlerror();
+  char const* err = dlerror();
   if (err) {
-    throw std::runtime_error(err);
+    throw dyld_error(err);
   }
 
   return dy_sym;
 }
+
 }
