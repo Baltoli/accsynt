@@ -6,7 +6,8 @@ add_executable(predictor
 
 target_link_libraries(corepredict
   ${llvm_libs}
-  props)
+  props
+  CONAN_PKG::fmt)
 
 target_link_libraries(predictor
   corepredict)
