@@ -31,14 +31,14 @@ TEST_CASE("signatures can be parsed")
     REQUIRE(s2.parameters.at(1).type == base_type::floating);
     REQUIRE(s2.parameters.at(1).pointer_depth == 0);
 
-    auto s3 = signature::parse("void fwio(int ***woo)");
+    auto s3 = signature::parse("void fwio(int***woo)");
     REQUIRE(s3.name == "fwio");
     REQUIRE(!s3.return_type);
     REQUIRE(s3.parameters.at(0).name == "woo");
     REQUIRE(s3.parameters.at(0).type == base_type::integer);
     REQUIRE(s3.parameters.at(0).pointer_depth == 3);
 
-    auto s4 = signature::parse("char f(char *c)");
+    auto s4 = signature::parse("char f(char*   c)");
     REQUIRE(s4.name == "f");
     REQUIRE(s4.return_type);
     REQUIRE(s4.return_type.value() == data_type{ base_type::character, 0 });

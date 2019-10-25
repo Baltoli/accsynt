@@ -57,10 +57,7 @@ struct type_name : sor<TAO_PEGTL_STRING("void"), TAO_PEGTL_STRING("int"),
 struct interface_name : identifier {
 };
 
-struct pointers : star<string<'*'>> {
-};
-
-struct non_zero_pointers : plus<string<'*'>> {
+struct pointers : plus<string<'*'>> {
 };
 
 struct return_type :
@@ -68,7 +65,7 @@ struct return_type :
     seq<
       type_name,
       star<blank>,
-      non_zero_pointers,
+      pointers,
       star<blank>
     >,
     seq<
@@ -77,8 +74,20 @@ struct return_type :
     >
   > {};
 
-struct param_spec : seq<type_name, plus<blank>, pointers, interface_name> {
-};
+struct param_spec : 
+  seq<
+    type_name,
+    sor<
+      seq<
+        star<blank>,
+        pointers,
+        star<blank>
+      >,
+      plus<blank>
+    >,
+    interface_name
+  >
+{};
 
 struct params : list<param_spec, seq<star<blank>, string<','>, star<blank>>> {
 };
@@ -197,7 +206,7 @@ struct signature_action<type_name> {
 };
 
 template <>
-struct signature_action<non_zero_pointers> {
+struct signature_action<pointers> {
   template <typename Input>
   static void apply(Input const& in, signature& sig)
   {
