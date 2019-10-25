@@ -100,5 +100,7 @@ int main(int argc, char** argv) try
   errs() << "  when parsing property set " << PropertiesPath << '\n';
   return 2;
 } catch (dyld_error& derr) {
+  errs() << derr.what() << '\n';
+  errs() << "  when loading dynamic library " << LibraryPath << '\n';
   return 3;
 }
