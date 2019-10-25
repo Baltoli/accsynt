@@ -5,14 +5,22 @@
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/raw_ostream.h>
 
+#include <string>
 #include <vector>
 
 using namespace llvm;
 using namespace predict;
 using namespace props;
 
-int main()
+static cl::list<std::string> InputFilenames(
+    cl::Positional, 
+    cl::desc("<property sets>"), 
+    cl::OneOrMore);
+
+int main(int argc, char **argv)
 {
+  cl::ParseCommandLineOptions(argc, argv);
+
   auto all_props = std::vector<property_set>{};
   auto summary = summarise_props(all_props);
 }
