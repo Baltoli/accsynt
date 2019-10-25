@@ -16,8 +16,13 @@ add_compile_options(
   -Wno-error=unused-function 
   -Wno-error=unused-variable
   -Wno-error=sign-compare
-  -Wno-unused-private-field
 )
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+  add_compile_options(
+    "$<$<COMPILE_LANGUAGE:CXX>:-Wno-unused-private-field>"
+  )
+endif()
 
 if(APPLE)
   set(CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS} -undefined dynamic_lookup")
