@@ -65,9 +65,13 @@ struct return_type :
     seq<
       type_name,
       star<blank>,
-      plus<string<'*'>>
+      plus<string<'*'>>,
+      star<blank>
     >,
-    type_name
+    seq<
+      type_name,
+      plus<blank>
+    >
   > {};
 
 struct param_spec : seq<type_name, plus<blank>, pointers, interface_name> {
@@ -77,7 +81,7 @@ struct params : list<param_spec, seq<star<blank>, string<','>, star<blank>>> {
 };
 
 struct signature_grammar
-    : seq<return_type, plus<blank>, interface_name, string<'('>,
+    : seq<return_type, interface_name, string<'('>,
           action<param_action, opt<params>>, string<')'>> {
 };
 
