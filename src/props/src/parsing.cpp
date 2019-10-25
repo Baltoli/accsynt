@@ -60,14 +60,21 @@ struct interface_name : identifier {
 struct pointers : star<string<'*'>> {
 };
 
+struct non_zero_pointers : plus<string<'*'>> {
+};
+
 struct return_type :
   sor<
     seq<
       type_name,
       star<blank>,
-      plus<string<'*'>>
+      non_zero_pointers,
+      star<blank>
     >,
-    type_name
+    seq<
+      type_name,
+      plus<blank>
+    >
   > {};
 
 struct param_spec : seq<type_name, plus<blank>, pointers, interface_name> {
@@ -77,7 +84,7 @@ struct params : list<param_spec, seq<star<blank>, string<','>, star<blank>>> {
 };
 
 struct signature_grammar
-    : seq<return_type, plus<blank>, interface_name, string<'('>,
+    : seq<return_type, interface_name, string<'('>,
           action<param_action, opt<params>>, string<')'>> {
 };
 
@@ -190,7 +197,7 @@ struct signature_action<type_name> {
 };
 
 template <>
-struct signature_action<pointers> {
+struct signature_action<non_zero_pointers> {
   template <typename Input>
   static void apply(Input const& in, signature& sig)
   {
