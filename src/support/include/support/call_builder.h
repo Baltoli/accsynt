@@ -177,19 +177,19 @@ void call_builder::add(T arg)
   auto param = signature_.parameters.at(current_arg_);
 
   if constexpr (std::is_same_v<Base, char>) {
-    if (param.type != props::data_type::character) {
+    if (param.type != props::base_type::character) {
       throw call_builder_error("Adding non-character when character expected");
     }
   }
 
   if constexpr (std::is_same_v<Base, int>) {
-    if (param.type != props::data_type::integer) {
+    if (param.type != props::base_type::integer) {
       throw call_builder_error("Adding non-integer when integer expected");
     }
   }
 
   if constexpr (std::is_same_v<Base, float>) {
-    if (param.type != props::data_type::floating) {
+    if (param.type != props::base_type::floating) {
       throw call_builder_error("Adding non-float when float expected");
     }
   }
@@ -217,19 +217,19 @@ void call_builder::add(std::vector<T> arg)
   auto param = signature_.parameters.at(current_arg_);
 
   if constexpr (std::is_same_v<T, char>) {
-    if (param.type != props::data_type::character) {
+    if (param.type != props::base_type::character) {
       throw call_builder_error("Adding non-character when character expected");
     }
   }
 
   if constexpr (std::is_same_v<T, int>) {
-    if (param.type != props::data_type::integer) {
+    if (param.type != props::base_type::integer) {
       throw call_builder_error("Adding non-integer when integer expected");
     }
   }
 
   if constexpr (std::is_same_v<T, float>) {
-    if (param.type != props::data_type::floating) {
+    if (param.type != props::base_type::floating) {
       throw call_builder_error("Adding non-float when float expected");
     }
   }
@@ -280,17 +280,17 @@ T call_builder::get(size_t idx) const
     auto const& param = signature_.parameters.at(i);
 
     if (param.pointer_depth == 0) {
-      offset += data_type_size(param.type);
+      offset += base_type_size(param.type);
     } else {
       if (param.pointer_depth != 1) {
         throw std::runtime_error("Can't extract nested pointers");
       }
 
-      if (param.type == props::data_type::character) {
+      if (param.type == props::base_type::character) {
         ++char_offset;
-      } else if (param.type == props::data_type::integer) {
+      } else if (param.type == props::base_type::integer) {
         ++int_offset;
-      } else if (param.type == props::data_type::floating) {
+      } else if (param.type == props::base_type::floating) {
         ++float_offset;
       }
 
@@ -309,7 +309,7 @@ T call_builder::get(size_t idx) const
   } else if constexpr (std::is_same_v<T, std::vector<char>>) {
     return char_data_.at(float_offset);
   } else {
-    static_fail("Unknown type when extracting!");
+    static_assert(false_v<T>, "Unknown type when extracting!");
   }
 }
 

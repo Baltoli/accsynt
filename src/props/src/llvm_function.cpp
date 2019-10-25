@@ -6,16 +6,16 @@ using namespace llvm;
 
 namespace props {
 
-Type* base_llvm_type(data_type dt)
+Type* base_llvm_type(base_type dt)
 {
   switch (dt) {
-  case data_type::character:
+  case base_type::character:
     return IntegerType::get(thread_context::get(), 8);
-  case data_type::boolean:
+  case base_type::boolean:
     return IntegerType::get(thread_context::get(), 1);
-  case data_type::integer:
+  case base_type::integer:
     return IntegerType::get(thread_context::get(), 32);
-  case data_type::floating:
+  case base_type::floating:
     return Type::getFloatTy(thread_context::get());
   default:
     assert(false && "Unsupported data type");
@@ -27,7 +27,11 @@ Type* base_llvm_type(data_type dt)
 Type* base_llvm_return_type(std::optional<data_type> dt)
 {
   if (dt) {
-    return base_llvm_type(dt.value());
+    auto base_ty = base_llvm_type(dt->base);
+    for(auto i = 0; i < dt->pointers; ++i) {
+      base_ty = PointerType::getUnqual(base_ty);
+    }
+    return base_ty;
   } else {
     return Type::getVoidTy(thread_context::get());
   }

@@ -1,10 +1,21 @@
 #pragma once
 
 #include <dlfcn.h>
+#include <exception>
 #include <stdexcept>
 #include <string>
 
 namespace support {
+
+class dyld_error : public std::exception {
+public:
+  dyld_error(char const* err);
+
+  char const *what() const noexcept override;
+
+private:
+  char const *str_;
+};
 
 class dynamic_library {
 public:
@@ -32,4 +43,5 @@ Func* dynamic_library::symbol(const std::string& sym) const
 {
   return reinterpret_cast<Func*>(raw_symbol(sym));
 }
+
 }

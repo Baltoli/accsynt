@@ -14,20 +14,20 @@ std::vector<rule> rule_registry::all()
   return { 
     { "regularLoop", { "sz", "ptr" }, 
       { match("size", "ptr", "sz"),
-        type ("sz", data_type::integer) },
+        type ("sz", base_type::integer) },
       { negation("output", "ptr"),
         is_pointer("ptr") } 
     },
     { "outputLoop", { "sz", "ptr" },
       { match("size", "ptr", "sz"), 
         match("output", "ptr"),
-        type( "sz", data_type::integer) }, 
+        type( "sz", base_type::integer) }, 
       { is_pointer("ptr") } 
     },
     { "regularLoop", { "sz", "ptrA", "ptrB" },
       { match("size", "ptrA", "sz"), 
         match("size", "ptrB", "sz"),
-        type ("sz", data_type::integer) },
+        type ("sz", base_type::integer) },
       { distinct("ptrA", "ptrB"), 
         negation("output", "ptrA"),
         is_pointer("ptrA", "ptrB") }
@@ -36,7 +36,7 @@ std::vector<rule> rule_registry::all()
       { match("size", "ptrA", "sz"), 
         match("size", "ptrB", "sz"),
         match("output", "ptrA"),
-        type ("sz", data_type::integer) },
+        type ("sz", base_type::integer) },
       { distinct("ptrA", "ptrB"),
         is_pointer("ptrA", "ptrB") } 
     },
@@ -44,7 +44,7 @@ std::vector<rule> rule_registry::all()
       { match("size", "ptrA", "sz"), 
         match("size", "ptrB", "sz"),
         match("size", "ptrC", "sz"),
-        type ("sz", data_type::integer) },
+        type ("sz", base_type::integer) },
       { distinct("ptrA", "ptrB", "ptrC"), 
         is_pointer("ptrA", "ptrB", "ptrC"),
         negation("output", "ptrA") } 
@@ -54,7 +54,7 @@ std::vector<rule> rule_registry::all()
         match("size", "ptrB", "sz"),
         match("size", "ptrC", "sz"), 
         match("output", "ptrA"),
-        type ("sz", data_type::integer) },
+        type ("sz", base_type::integer) },
       { distinct("ptrA", "ptrB", "ptrC"),
         is_pointer("ptrA", "ptrB", "ptrC") }
     },
@@ -72,7 +72,7 @@ std::vector<rule> rule_registry::all()
     },
     {
       "stringLoop", {"str"},
-      { type ("str", data_type::character) },
+      { type ("str", base_type::character) },
       { is_pointer("str") }
     },
     {
@@ -82,13 +82,13 @@ std::vector<rule> rule_registry::all()
     },
     {
       "loopToN", {"val"},
-      { type("val", data_type::integer),
+      { type("val", base_type::integer),
         wildcard("ptr") },
       { negation("size", "ptr", "val") }
     },
     {
       "loopToZero", {"val"},
-      { type("val", data_type::integer),
+      { type("val", base_type::integer),
         wildcard("ptr") },
       { negation("size", "ptr", "val") }
     }

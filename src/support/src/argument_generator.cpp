@@ -72,12 +72,12 @@ void uniform_generator::gen_args(call_builder& build)
 {
   // clang-format off
   sig_visitor {
-    on(data_type::integer,      [&] { build.add(gen_single<int>()); }),
-    on(data_type::character,    [&] { build.add(gen_single<char>()); }),
-    on(data_type::floating,     [&] { build.add(gen_single<float>()); }),
-    on(data_type::integer,   1, [&] { build.add(gen_array<int>()); }),
-    on(data_type::character, 1, [&] { build.add(gen_array<char>()); }),
-    on(data_type::floating,  1, [&] { build.add(gen_array<float>()); })
+    on(base_type::integer,      [&] { build.add(gen_single<int>()); }),
+    on(base_type::character,    [&] { build.add(gen_single<char>()); }),
+    on(base_type::floating,     [&] { build.add(gen_single<float>()); }),
+    on(base_type::integer,   1, [&] { build.add(gen_array<int>()); }),
+    on(base_type::character, 1, [&] { build.add(gen_array<char>()); }),
+    on(base_type::floating,  1, [&] { build.add(gen_array<float>()); })
   }.visit(build.signature());
   // clang-format on
 }

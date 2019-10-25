@@ -3,6 +3,7 @@
 #define TAO_PEGTL_NAMESPACE props_pegtl
 #include <tao/pegtl.hpp>
 
+#include <iostream>
 #include <unordered_map>
 
 namespace props {
@@ -10,18 +11,26 @@ namespace props {
 namespace pegtl = tao::props_pegtl;
 using namespace pegtl;
 
-std::optional<data_type> data_type_from_string(std::string const& str)
+parse_error::parse_error(char const* s) :
+  str_(s)
 {
-  // clang-format off
-  auto map = std::unordered_map<std::string, data_type>{
-    { "char",   data_type::character }, 
-    { "int",    data_type::integer },
-    { "float",  data_type::floating }, 
-    { "bool",   data_type::boolean }
-  };
-  // clang-format on
+}
 
-  if (map.find(str) != map.end()) {
+const char *parse_error::what() const noexcept
+{
+  return str_;
+}
+
+std::optional<base_type> base_type_from_string(std::string const& str)
+{
+  auto map = std::unordered_map<std::string, base_type>{
+    { "char",   base_type::character }, 
+    { "int",    base_type::integer },
+    { "float",  base_type::floating }, 
+    { "bool",   base_type::boolean }
+  };
+
+  if(map.find(str) != map.end()) {
     return map.at(str);
   } else {
     return std::nullopt;
@@ -51,6 +60,16 @@ struct interface_name : identifier {
 struct pointers : star<string<'*'>> {
 };
 
+struct return_type :
+  sor<
+    seq<
+      type_name,
+      star<blank>,
+      plus<string<'*'>>
+    >,
+    type_name
+  > {};
+
 struct param_spec : seq<type_name, plus<blank>, pointers, interface_name> {
 };
 
@@ -58,7 +77,7 @@ struct params : list<param_spec, seq<star<blank>, string<','>, star<blank>>> {
 };
 
 struct signature_grammar
-    : seq<type_name, plus<blank>, interface_name, string<'('>,
+    : seq<return_type, plus<blank>, interface_name, string<'('>,
           action<param_action, opt<params>>, string<')'>> {
 };
 
@@ -111,7 +130,7 @@ struct property_action<property_name> {
   {
     prop.name = in.string();
   }
-}; // namespace props
+};
 
 template <>
 struct property_action<value_string> {
@@ -163,7 +182,19 @@ struct signature_action<type_name> {
   template <typename Input>
   static void apply(Input const& in, signature& sig)
   {
-    sig.return_type = data_type_from_string(in.string());
+    auto type = base_type_from_string(in.string());
+    if(type) {
+      sig.return_type = data_type { type.value(), 0 };
+    }
+  }
+};
+
+template <>
+struct signature_action<pointers> {
+  template <typename Input>
+  static void apply(Input const& in, signature& sig)
+  {
+    sig.return_type->pointers = in.string().length();
   }
 };
 
@@ -191,7 +222,7 @@ struct param_action<type_name> {
   static void apply(Input const& in, signature& sig)
   {
     sig.parameters.emplace_back();
-    auto type = data_type_from_string(in.string());
+    auto type = base_type_from_string(in.string());
     if (type) {
       sig.parameters.back().type = type.value();
     }
@@ -220,7 +251,7 @@ property_set property_set::parse(std::string_view str)
   pegtl::parse<must<file_grammar, eof>>(string_input(str, ""), pset);
 
   if (!pset.is_valid()) {
-    throw std::runtime_error("Invalid pset");
+    throw parse_error("Invalid pset");
   }
 
   return pset;
@@ -229,10 +260,14 @@ property_set property_set::parse(std::string_view str)
 property_set property_set::load(std::string_view path)
 {
   property_set pset;
-  pegtl::parse<must<file_grammar, eof>>(file_input(path), pset);
+  auto ok = pegtl::parse<seq<file_grammar, eof>>(file_input(path), pset);
+
+  if (!ok) {
+    throw parse_error("Syntax error");
+  }
 
   if (!pset.is_valid()) {
-    throw std::runtime_error("Invalid pset");
+    throw parse_error("Validation error");
   }
 
   return pset;
@@ -268,7 +303,7 @@ value value::with_string(std::string str)
   v.value_type = type::string;
 
   if (str.at(0) != ':') {
-    throw std::runtime_error("Invalid string literal");
+    throw parse_error("Invalid string literal");
   }
 
   v.string_val = str.substr(1);

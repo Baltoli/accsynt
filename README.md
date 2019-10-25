@@ -21,7 +21,7 @@ cd $BUILD_ROOT
 git clone https://github.com/Baltoli/llvm.git
 cd llvm
 git checkout standalone
-cd llvm/tools
+cd tools
 git clone https://github.com/Baltoli/clang.git
 cd clang
 git checkout research
@@ -33,7 +33,7 @@ cmake \
       -DLLVM_ENABLE_RTTI=On \
       -DCMAKE_INSTALL_PREFIX=$BUILD_ROOT/llvm-install \
       -DLLVM_TARGETS_TO_BUILD=X86 \
-      -DLLVM_BUILD_TYPE=Release \
+      -DCMAKE_BUILD_TYPE=Release \
       ..
 make
 make install
@@ -41,7 +41,14 @@ make install
 
 Any other appropriate options to the LLVM CMake invocation can be used.
 
-Note that it's important to build LLVM and AccSynt with the same host compiler (gcc / g++-8 in these examples), or you will run into library incompatibility issues. The host compiler also needs to support C++17 for AccSynt.
+Note that it's important to build LLVM and AccSynt with the same host compiler
+(gcc / g++-8 in these examples), or you will run into library incompatibility
+issues. The host compiler also needs to support C++17 for AccSynt.
+
+If CMake can't find OpenBLAS to link against, then the extra flag
+`-DOpenBLAS_DIR=...` might also be needed. It should point to the directory
+containing the OpenBLAS CMake config files as installed by your package manager
+or manual installation.
 
 ### AccSynt
 
@@ -57,6 +64,12 @@ cmake \
       ../src
 make
 make install
+```
+
+The following conan remotes might be needed in order to build the project:
+```
+https://api.bintray.com/conan/baltoli/value_ptr
+https://api.bintray.com/conan/bincrafters/public-conan
 ```
 
 ## Usage

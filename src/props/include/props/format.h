@@ -4,6 +4,36 @@
 
 #include <fmt/format.h>
 
+inline std::string pointers(int n) { 
+  return std::string(n, '*'); 
+}
+
+template <>
+struct fmt::formatter<props::base_type> {
+  template <typename ParseContext>
+  constexpr auto parse(ParseContext& ctx)
+  {
+    return ctx.begin();
+  }
+
+  template <typename FormatContext>
+  auto format(const props::base_type& dt, FormatContext& ctx)
+  {
+    switch (dt) {
+    case props::base_type::character:
+      return format_to(ctx.out(), "char");
+    case props::base_type::floating:
+      return format_to(ctx.out(), "float");
+    case props::base_type::integer:
+      return format_to(ctx.out(), "int");
+    case props::base_type::boolean:
+      return format_to(ctx.out(), "bool");
+    default:
+      return format_to(ctx.out(), "<BAD TYPE>");
+    }
+  }
+};
+
 template <>
 struct fmt::formatter<props::data_type> {
   template <typename ParseContext>
@@ -15,17 +45,10 @@ struct fmt::formatter<props::data_type> {
   template <typename FormatContext>
   auto format(const props::data_type& dt, FormatContext& ctx)
   {
-    switch (dt) {
-    case props::data_type::character:
-      return format_to(ctx.out(), "char");
-    case props::data_type::floating:
-      return format_to(ctx.out(), "float");
-    case props::data_type::integer:
-      return format_to(ctx.out(), "int");
-    case props::data_type::boolean:
-      return format_to(ctx.out(), "bool");
-    default:
-      return format_to(ctx.out(), "<BAD TYPE>");
+    if (dt.pointers > 0) {
+      return format_to(ctx.out(), "{} {}", dt.base, pointers(dt.pointers));
+    } else {
+      return format_to(ctx.out(), "{}", dt.base);
     }
   }
 };
@@ -41,8 +64,6 @@ struct fmt::formatter<props::param> {
   template <typename FormatContext>
   auto format(const props::param& p, FormatContext& ctx)
   {
-    constexpr auto pointers = [](auto n) { return std::string(n, '*'); };
-
     return format_to(
         ctx.out(), "{} {}{}", p.type, pointers(p.pointer_depth), p.name);
   }

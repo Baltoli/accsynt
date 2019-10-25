@@ -2,11 +2,13 @@
 
 #include <llvm/IR/Value.h>
 
+#include <string>
+
 namespace support {
 
 template <typename Builder, typename Iterator>
 llvm::Value* create_sum(
-    Builder& b, Iterator begin, Iterator end, std::string const& name = "")
+    Builder& b, Iterator begin, Iterator end, std::string const& name)
 {
   if (begin == end) {
     return nullptr;
@@ -18,6 +20,13 @@ llvm::Value* create_sum(
   }
 
   return sum;
+}
+
+template <typename Builder, typename Iterator>
+llvm::Value* create_sum(
+    Builder& b, Iterator begin, Iterator end)
+{
+  return create_sum(b, begin, end, "");
 }
 
 } // namespace support

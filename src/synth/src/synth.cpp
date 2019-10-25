@@ -1,6 +1,7 @@
 #include "blas_synth.h"
 #include "hill_synth.h"
 #include "rule_synth.h"
+#include "synth_options.h"
 
 #include <props/props.h>
 
@@ -59,7 +60,7 @@ void report(generate_result result)
   });
 }
 
-int main(int argc, char** argv)
+int main(int argc, char** argv) try
 {
   if (UseBLAS && HillClimb) {
     // TODO: make these into an enum to choose the implementation
@@ -82,14 +83,24 @@ int main(int argc, char** argv)
 
   auto ref = call_wrapper(property_set.type_signature, mod, fn_name, lib);
 
-  if (UseBLAS) {
-    auto synth = blas_synth(property_set, ref);
-    report(synth.generate());
-  } else if (HillClimb) {
-    auto synth = hill_synth(property_set, ref);
-    report(synth.generate());
-  } else {
-    auto synth = rule_synth(property_set, ref);
-    report(synth.generate());
+  if (!DryRun) {
+    if (UseBLAS) {
+      auto synth = blas_synth(property_set, ref);
+      report(synth.generate());
+    } else if (HillClimb) {
+      auto synth = hill_synth(property_set, ref);
+      report(synth.generate());
+    } else {
+      auto synth = rule_synth(property_set, ref);
+      report(synth.generate());
+    }
   }
+} catch (props::parse_error& perr) {
+  errs() << perr.what() << '\n';
+  errs() << "  when parsing property set " << PropertiesPath << '\n';
+  return 2;
+} catch (dyld_error& derr) {
+  errs() << derr.what() << '\n';
+  errs() << "  when loading dynamic library " << LibraryPath << '\n';
+  return 3;
 }

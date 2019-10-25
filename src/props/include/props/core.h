@@ -4,6 +4,7 @@
 #include <llvm/IR/Function.h>
 #include <llvm/IR/Module.h>
 
+#include <exception>
 #include <iosfwd>
 #include <optional>
 #include <string>
@@ -14,18 +15,42 @@
 
 namespace props {
 
-struct property_set;
+class parse_error : public std::exception {
+public:
+  parse_error(char const*);
 
-enum class data_type { boolean, character, integer, floating };
+  char const* what() const noexcept override;
 
-size_t data_type_size(data_type dt);
+private:
+  char const* str_;
+};
 
-llvm::Type* base_llvm_type(data_type dt);
-llvm::Type* base_llvm_return_type(std::optional<data_type> dt);
+class property_set;
+
+enum class base_type { boolean, character, integer, floating };
+
+size_t base_type_size(base_type dt);
+
+llvm::Type* base_llvm_type(base_type dt);
+llvm::Type* base_llvm_return_type(std::optional<base_type> dt);
+
+// FIXME: This is a big hack and needs to be fixed properly in the future when I
+// have time to do so. The functionality is duplicated between this struct and
+// the rest of the code - see param below for the problem.
+//
+// It's a big but boring refactoring to change every usage of base_type to
+// data_type where appropriate.
+struct data_type {
+  base_type base;
+  size_t pointers;
+
+  bool operator==(data_type const& other) const;
+  bool operator!=(data_type const& other) const;
+};
 
 struct param {
   std::string name;
-  data_type type;
+  base_type type;
   int pointer_depth;
 
   llvm::Type* llvm_type() const;
@@ -167,6 +192,6 @@ signature operator""_sig(const char* str, size_t len);
 
 } // namespace props
 
-std::ostream& operator<<(std::ostream& os, const props::data_type& dt);
+std::ostream& operator<<(std::ostream& os, const props::base_type& dt);
 std::ostream& operator<<(std::ostream& os, const props::param& p);
 std::ostream& operator<<(std::ostream& os, const props::signature& sig);

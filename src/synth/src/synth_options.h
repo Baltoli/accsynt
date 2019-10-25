@@ -10,3 +10,4 @@ extern llvm::cl::opt<bool> AllPrograms;
 extern llvm::cl::opt<std::string> FragmentHash;
 extern llvm::cl::opt<bool> InteractiveCount;
 extern llvm::cl::opt<bool> NewRules;
+extern llvm::cl::opt<bool> DryRun;

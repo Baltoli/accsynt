@@ -19,12 +19,8 @@ struct pointer_depth<T*> {
 template <typename T>
 constexpr inline size_t pointer_depth_v = pointer_depth<T>::value;
 
-template <typename>
-struct lazy_false : std::false_type {
-};
-
-template <typename T>
-constexpr inline bool lazy_false_v = lazy_false<T>::value;
+template <typename...>
+constexpr inline bool false_v = false;
 
 template <typename, typename = std::void_t<>>
 struct has_member_find : std::false_type {
@@ -53,7 +49,5 @@ decltype(auto) container_find(Container&& c, Key const& key)
   }
 }
 }
-
-#define static_fail(str) static_assert(support::lazy_false_v<void>, str)
 
 #define FWD(x) std::forward<decltype(x)>(x)
