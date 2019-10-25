@@ -71,7 +71,6 @@ void compute_impl(Graph graph, size_t sa, size_t sb)
     double score_max = 0.0;
     double score_min = 1.0 / 0.0;
     size_t max_pos = 0;
-    size_t min_pos = 0;
     std::vector<double> scores;
 
     for (auto& match : matches_new) {
@@ -84,7 +83,6 @@ void compute_impl(Graph graph, size_t sa, size_t sb)
       }
       if (score < score_min) {
         score_min = score;
-        min_pos = scores.size();
       }
       scores.push_back(score_sum);
     }
