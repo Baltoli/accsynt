@@ -60,7 +60,7 @@ void report(generate_result result)
   });
 }
 
-int main(int argc, char** argv)
+int main(int argc, char** argv) try
 {
   if (UseBLAS && HillClimb) {
     // TODO: make these into an enum to choose the implementation
@@ -95,4 +95,8 @@ int main(int argc, char** argv)
       report(synth.generate());
     }
   }
+} catch(props::parse_error& perr) {
+  errs() << perr.what() << '\n';
+  errs() << "  when parsing property set " << PropertiesPath << '\n';
+  return 2;
 }

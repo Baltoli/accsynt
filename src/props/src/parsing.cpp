@@ -11,6 +11,16 @@ namespace props {
 namespace pegtl = tao::props_pegtl;
 using namespace pegtl;
 
+parse_error::parse_error(char const* s) :
+  str_(s)
+{
+}
+
+const char *parse_error::what() const noexcept
+{
+  return str_;
+}
+
 std::optional<base_type> base_type_from_string(std::string const& str)
 {
   auto map = std::unordered_map<std::string, base_type>{
@@ -241,7 +251,7 @@ property_set property_set::parse(std::string_view str)
   pegtl::parse<must<file_grammar, eof>>(string_input(str, ""), pset);
 
   if (!pset.is_valid()) {
-    throw std::runtime_error("Invalid pset");
+    throw parse_error("Invalid pset");
   }
 
   return pset;
@@ -250,10 +260,14 @@ property_set property_set::parse(std::string_view str)
 property_set property_set::load(std::string_view path)
 {
   property_set pset;
-  pegtl::parse<must<file_grammar, eof>>(file_input(path), pset);
+  auto ok = pegtl::parse<seq<file_grammar, eof>>(file_input(path), pset);
+
+  if (!ok) {
+    throw parse_error("Syntax error");
+  }
 
   if (!pset.is_valid()) {
-    throw std::runtime_error("Invalid pset");
+    throw parse_error("Validation error");
   }
 
   return pset;
@@ -289,7 +303,7 @@ value value::with_string(std::string str)
   v.value_type = type::string;
 
   if (str.at(0) != ':') {
-    throw std::runtime_error("Invalid string literal");
+    throw parse_error("Invalid string literal");
   }
 
   v.string_val = str.substr(1);
