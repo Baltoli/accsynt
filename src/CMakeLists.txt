@@ -16,7 +16,6 @@ add_compile_options(
   -Wno-error=unused-function 
   -Wno-error=unused-variable
   -Wno-error=sign-compare
-  -Wno-unused-private-field
 )
 
 if(APPLE)
