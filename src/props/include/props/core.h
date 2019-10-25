@@ -4,6 +4,7 @@
 #include <llvm/IR/Function.h>
 #include <llvm/IR/Module.h>
 
+#include <exception>
 #include <iosfwd>
 #include <optional>
 #include <string>
@@ -13,6 +14,16 @@
 // TODO: abstract parser state from PODs used for domain
 
 namespace props {
+
+class parse_error : public std::exception {
+public:
+  parse_error(char const*);
+
+  char const* what() const noexcept override;
+
+private:
+  char const* str_;
+};
 
 class property_set;
 
