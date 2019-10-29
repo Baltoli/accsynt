@@ -36,7 +36,7 @@ private:
 };
 
 template <typename Iterator>
-summary summarise_props(Iterator begin, Iterator end)
+summary::report summarise_props(Iterator begin, Iterator end)
 {
   auto ret = summary{};
   
@@ -44,11 +44,11 @@ summary summarise_props(Iterator begin, Iterator end)
     ret.update(*it);
   }
 
-  return ret;
+  return ret.get();
 }
 
 template <typename Container>
-summary summarise_props(Container&& c)
+summary::report summarise_props(Container&& c)
 {
   using std::begin;
   using std::end;
