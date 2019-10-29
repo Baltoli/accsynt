@@ -28,7 +28,8 @@ int main(int argc, char **argv)
     all_props.push_back(property_set::load(file));
   }
 
-  auto rep = summary(all_props).get();
+  auto sum = summary(all_props);
+  auto ps = all_props[0];
 
-  fmt::print("{}\n", rep);
+  fmt::print("{}\n\n{}\n", ps, sum.encode(ps));
 }

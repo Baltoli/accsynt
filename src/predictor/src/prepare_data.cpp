@@ -29,7 +29,8 @@ summary::report summary::get() const
 
 example summary::encode(props::property_set const&) const
 {
-  return example{};
+  auto [params, names, props, arity] = get();
+  return {};
 }
 
 props::property_set summary::decode(example const&) const

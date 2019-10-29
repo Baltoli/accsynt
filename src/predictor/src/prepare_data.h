@@ -10,10 +10,18 @@
 #include <unordered_set>
 #include <string>
 #include <type_traits>
+#include <vector>
 
 namespace predict {
 
-class example {
+/**
+ * This structure is deliberately lightweight - all it does is wrap the input
+ * and output data generated from a particular property set such that they can
+ * be easily passed to some kind of learning step later in the process.
+ */
+struct example {
+  std::vector<int> input;
+  std::vector<int> output;
 };
 
 class summary {
@@ -87,6 +95,19 @@ struct formatter<::predict::summary::report> {
       "ps"_a = r.props,
       "a"_a = r.arity
     );
+  }
+};
+
+template <>
+struct formatter<::predict::example> {
+  template <typename ParseContext>
+  constexpr auto parse(ParseContext &ctx) { return ctx.begin(); }
+
+  template <typename FormatContext>
+  auto format(::predict::example const &e, FormatContext &ctx) {
+    using namespace fmt::literals;
+
+    return format_to(ctx.out(), "Example()");
   }
 };
 
