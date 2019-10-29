@@ -122,3 +122,47 @@ struct fmt::formatter<props::value> {
     return format_to(ctx.out(), "<BADVAL>");
   }
 };
+
+template <>
+struct fmt::formatter<props::property> {
+  template <typename ParseContext>
+  constexpr auto parse(ParseContext& ctx)
+  {
+    return ctx.begin();
+  }
+
+  template <typename FormatContext>
+    auto format(const props::property& p, FormatContext& ctx)
+  {
+    using namespace fmt::literals;
+
+    return format_to(ctx.out(),
+      "{name}{sep}{vals}",
+      "name"_a = p.name,
+      "sep"_a = p.values.empty() ? "" : " ",
+      "vals"_a = fmt::join(p.values, ", ")
+    );
+  }
+};
+
+template <>
+struct fmt::formatter<props::property_set> {
+  template <typename ParseContext>
+  constexpr auto parse(ParseContext& ctx)
+  {
+    return ctx.begin();
+  }
+
+  template <typename FormatContext>
+  auto format(const props::property_set& ps, FormatContext& ctx)
+  {
+    using namespace fmt::literals;
+
+    return format_to(ctx.out(), 
+      "{sig}{sep}{props}",
+      "sig"_a = ps.type_signature,
+      "sep"_a = ps.properties.empty() ? "" : "\n",
+      "props"_a = fmt::join(ps.properties, "\n")
+    );
+  }
+};

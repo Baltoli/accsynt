@@ -31,14 +31,14 @@ TEST_CASE("signatures can be parsed")
     REQUIRE(s2.parameters.at(1).type == base_type::floating);
     REQUIRE(s2.parameters.at(1).pointer_depth == 0);
 
-    auto s3 = signature::parse("void fwio(int ***woo)");
+    auto s3 = signature::parse("void fwio(int***woo)");
     REQUIRE(s3.name == "fwio");
     REQUIRE(!s3.return_type);
     REQUIRE(s3.parameters.at(0).name == "woo");
     REQUIRE(s3.parameters.at(0).type == base_type::integer);
     REQUIRE(s3.parameters.at(0).pointer_depth == 3);
 
-    auto s4 = signature::parse("char f(char *c)");
+    auto s4 = signature::parse("char f(char*   c)");
     REQUIRE(s4.name == "f");
     REQUIRE(s4.return_type);
     REQUIRE(s4.return_type.value() == data_type{ base_type::character, 0 });
@@ -56,13 +56,18 @@ TEST_CASE("signatures can be parsed")
     REQUIRE(s5.parameters.at(1).name == "s");
     REQUIRE(s5.parameters.at(1).type == base_type::character);
     REQUIRE(s5.parameters.at(1).pointer_depth == 2);
+
+    auto s6 = "int *woo()"_sig;
+    REQUIRE(s6.name == "woo");
+    REQUIRE(s6.return_type);
+    REQUIRE(s6.return_type.value() == data_type{ base_type::integer, 1 });
+    REQUIRE(s6.parameters.empty());
   }
 
   SECTION("without valid signatures")
   {
     REQUIRE_THROWS("aefjio"_sig);
     REQUIRE_THROWS(""_sig);
-    REQUIRE_THROWS("int *woo()"_sig);
     REQUIRE_THROWS("int f("_sig);
     REQUIRE_THROWS("double d()"_sig);
     REQUIRE_THROWS("int)"_sig);
@@ -88,7 +93,7 @@ TEST_CASE("properties can be parsed")
 
 TEST_CASE("files can be parsed")
 {
-  auto file = R"(;hello
+  auto ps = R"(;hello
 
 ;qwd
 
@@ -100,8 +105,7 @@ int main(int s, float *d, char **argv, bool on)
 name 2.111, 0.000, 4, :string, s, d
 fjio
 wefjop
-)";
-  auto ps = property_set::parse(file);
+)"_ps;
 
   REQUIRE(ps.type_signature.return_type == data_type{ base_type::integer, 0 });
 

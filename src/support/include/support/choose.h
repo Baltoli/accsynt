@@ -5,7 +5,7 @@
 #include <utility>
 #include <vector>
 
-#define FWD(x) std::forward<decltype(x)>(x)
+#include <support/utility.h>
 
 namespace support {
 
@@ -55,5 +55,4 @@ void choose::for_each(Func&& f) const
   recursive_step(indices, {}, FWD(f));
 }
 
-#undef FWD
 }

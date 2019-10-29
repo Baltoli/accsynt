@@ -57,7 +57,7 @@ struct type_name : sor<TAO_PEGTL_STRING("void"), TAO_PEGTL_STRING("int"),
 struct interface_name : identifier {
 };
 
-struct pointers : star<string<'*'>> {
+struct pointers : plus<string<'*'>> {
 };
 
 struct return_type :
@@ -65,19 +65,35 @@ struct return_type :
     seq<
       type_name,
       star<blank>,
-      plus<string<'*'>>
+      pointers,
+      star<blank>
     >,
-    type_name
+    seq<
+      type_name,
+      plus<blank>
+    >
   > {};
 
-struct param_spec : seq<type_name, plus<blank>, pointers, interface_name> {
-};
+struct param_spec : 
+  seq<
+    type_name,
+    sor<
+      seq<
+        star<blank>,
+        pointers,
+        star<blank>
+      >,
+      plus<blank>
+    >,
+    interface_name
+  >
+{};
 
 struct params : list<param_spec, seq<star<blank>, string<','>, star<blank>>> {
 };
 
 struct signature_grammar
-    : seq<return_type, plus<blank>, interface_name, string<'('>,
+    : seq<return_type, interface_name, string<'('>,
           action<param_action, opt<params>>, string<')'>> {
 };
 
@@ -316,5 +332,11 @@ signature operator""_sig(const char* str, size_t len)
 {
   return signature::parse(std::string_view(str, len));
 }
+
+property_set operator""_ps(const char* str, size_t len)
+{
+  return property_set::parse(std::string_view(str, len));
+}
+
 } // namespace literals
 } // namespace props
