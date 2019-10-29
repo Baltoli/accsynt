@@ -7,6 +7,7 @@
 #include <iterator>
 #include <unordered_set>
 #include <string>
+#include <type_traits>
 
 namespace predict {
 
@@ -27,13 +28,20 @@ public:
     }
   }
 
-  template <typename Container>
-  summary(Container&& c) :
-    summary(support::begin(FWD(c)), support::end(FWD(c)))
+  template <
+    typename Container,
+    typename = std::enable_if_t<
+      !std::is_same_v<std::decay_t<Container>, props::property_set>
+    >
+  >
+  explicit summary(Container&& c) :
+    summary(
+      support::adl_begin(FWD(c)),
+      support::adl_end(FWD(c)))
   {
   }
 
-  summary(props::property_set const&);
+  explicit summary(props::property_set const&);
 
   report get() const;
 

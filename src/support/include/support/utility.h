@@ -4,18 +4,34 @@
 
 namespace support {
 
+namespace detail {
+
+using std::begin;
 template <typename T>
-decltype(auto) begin(T&& t)
+auto adl_begin(T&& t) -> decltype(begin(std::forward<T>(t)))
 {
-  using std::begin;
   return begin(std::forward<T>(t));
 }
 
+using std::end;
 template <typename T>
-decltype(auto) end(T&& t)
+auto adl_end(T&& t) -> decltype(end(std::forward<T>(t)))
 {
-  using std::end;
   return end(std::forward<T>(t));
+}
+
+}
+
+template <typename T>
+auto adl_begin(T&& t) -> decltype(detail::adl_begin(std::forward<T>(t)))
+{
+  return detail::adl_begin(std::forward<T>(t));
+}
+
+template <typename T>
+auto adl_end(T&& t) -> decltype(detail::adl_end(std::forward<T>(t)))
+{
+  return detail::adl_end(std::forward<T>(t));
 }
 
 }
