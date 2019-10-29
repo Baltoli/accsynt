@@ -18,10 +18,24 @@ namespace predict {
  * This structure is deliberately lightweight - all it does is wrap the input
  * and output data generated from a particular property set such that they can
  * be easily passed to some kind of learning step later in the process.
+ *
+ * The schema for doing so is as follows:
+ *
+ * missing / padding is always -1 for every type
+ *
+ * base type: void=0, char=1, bool=2, int=3, float=4
+ *
+ * Input:
+ *  return base type as above [1]
+ *  return pointers [1]
+ *  for each param:
+ *    base type as above [1]
+ *    pointers [1]
+ *  padding to max params
  */
 struct example {
-  std::vector<int> input;
-  std::vector<int> output;
+  std::vector<int> input = {};
+  std::vector<int> output = {};
 };
 
 class summary {
@@ -57,6 +71,8 @@ public:
   explicit summary(props::property_set const&);
 
   report get() const;
+
+  int encode(props::base_type) const;
 
   example encode(props::property_set const&) const;
   props::property_set decode(example const&) const;
@@ -107,7 +123,11 @@ struct formatter<::predict::example> {
   auto format(::predict::example const &e, FormatContext &ctx) {
     using namespace fmt::literals;
 
-    return format_to(ctx.out(), "Example()");
+    return format_to(ctx.out(), 
+      "Example(input=[{in}], output=[{out}])",
+      "in"_a = fmt::join(e.input, ", "),
+      "out"_a = fmt::join(e.output, ", ")
+    );
   }
 };
 

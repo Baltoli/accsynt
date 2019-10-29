@@ -27,10 +27,47 @@ summary::report summary::get() const
   return { params_, prop_names_.size(), num_props_, prop_arity_ };
 }
 
-example summary::encode(props::property_set const&) const
+int summary::encode(base_type bt) const
 {
+  switch(bt) {
+    case base_type::character:
+      return 1;
+    case base_type::boolean:
+      return 2;
+    case base_type::integer:
+      return 3;
+    case base_type::floating:
+      return 4;
+  }
+
+  return 0;
+}
+
+example summary::encode(props::property_set const& ps) const
+{
+  auto ret = example{};
   auto [params, names, props, arity] = get();
-  return {};
+
+  if(auto dt = ps.type_signature.return_type) {
+    ret.input.push_back(encode(dt->base));
+    ret.input.push_back(dt->pointers);
+  } else {
+    ret.input.push_back(0);
+    ret.input.push_back(0);
+  }
+
+  for(auto const& param : ps.type_signature.parameters) {
+    ret.input.push_back(encode(param.type));
+    ret.input.push_back(param.pointer_depth);
+  }
+
+  auto params_pad = params - ps.type_signature.parameters.size();
+  for(auto i = 0; i < params_pad; ++i) {
+    ret.input.push_back(-1);
+    ret.input.push_back(-1);
+  }
+
+  return ret;
 }
 
 props::property_set summary::decode(example const&) const
