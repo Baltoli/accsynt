@@ -124,7 +124,7 @@ struct formatter<::predict::example> {
     using namespace fmt::literals;
 
     return format_to(ctx.out(), 
-      "Example(input=[{in}], output=[{out}])",
+      "Example(\n  input=[{in}],\n  output=[{out}]\n)",
       "in"_a = fmt::join(e.input, ", "),
       "out"_a = fmt::join(e.output, ", ")
     );
