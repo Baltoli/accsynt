@@ -72,7 +72,15 @@ struct formatter<::predict::summary::report> {
 
   template <typename FormatContext>
   auto format(::predict::summary::report const &r, FormatContext &ctx) {
-    return format_to(ctx.out(), "{}", "A report");
+    using namespace fmt::literals;
+
+    return format_to(ctx.out(), 
+      "Report(params={fps}, names={ns}, props={ps}, arity={a})", 
+      "fps"_a = r.params,
+      "ns"_a = r.prop_names,
+      "ps"_a = r.props,
+      "a"_a = r.arity
+    );
   }
 };
 
