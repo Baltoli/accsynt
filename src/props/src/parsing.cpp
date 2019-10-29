@@ -332,5 +332,11 @@ signature operator""_sig(const char* str, size_t len)
 {
   return signature::parse(std::string_view(str, len));
 }
+
+property_set operator""_ps(const char* str, size_t len)
+{
+  return property_set::parse(std::string_view(str, len));
+}
+
 } // namespace literals
 } // namespace props

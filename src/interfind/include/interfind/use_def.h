@@ -5,6 +5,7 @@
 #include <llvm/IR/Value.h>
 
 #include <support/traits.h>
+#include <support/utility.h>
 
 #include <map>
 #include <queue>
