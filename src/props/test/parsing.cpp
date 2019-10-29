@@ -93,7 +93,7 @@ TEST_CASE("properties can be parsed")
 
 TEST_CASE("files can be parsed")
 {
-  auto file = R"(;hello
+  auto ps = R"(;hello
 
 ;qwd
 
@@ -105,8 +105,7 @@ int main(int s, float *d, char **argv, bool on)
 name 2.111, 0.000, 4, :string, s, d
 fjio
 wefjop
-)";
-  auto ps = property_set::parse(file);
+)"_ps;
 
   REQUIRE(ps.type_signature.return_type == data_type{ base_type::integer, 0 });
 
