@@ -14,10 +14,21 @@ using namespace llvm;
 using namespace predict;
 using namespace props;
 
+enum mode {
+  python
+};
+
 static cl::list<std::string> InputFilenames(
     cl::Positional, 
     cl::desc("<property sets>"), 
     cl::OneOrMore);
+
+static cl::opt<mode> Mode(
+    cl::desc("Execution mode"),
+    cl::values(
+      clEnumVal(python, "Dump data for python script")
+    ),
+    cl::Required);
 
 int main(int argc, char **argv)
 {
