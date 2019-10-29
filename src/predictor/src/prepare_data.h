@@ -45,6 +45,8 @@ struct example {
   std::vector<int> input = {};
   std::vector<int> output = {};
 
+  int return_type = -1;
+
   std::string dump_input() const;
   std::string dump_output() const;
 };
