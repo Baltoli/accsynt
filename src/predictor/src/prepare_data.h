@@ -3,11 +3,20 @@
 #include <props/props.h>
 
 #include <iterator>
+#include <unordered_set>
+#include <string>
 
 namespace predict {
 
 class summary {
 public:
+  struct report {
+    size_t params;
+    size_t prop_names;
+    size_t props;
+    size_t arity;
+  };
+
   summary() = default;
 
   /**
@@ -17,13 +26,25 @@ public:
    */
   void update(props::property_set ps);
 
+  report get() const;
+
 private:
+  size_t params_ = 0;
+  std::unordered_set<std::string> prop_names_ = {};
+  size_t num_props_ = 0;
+  size_t prop_arity_ = 0;
 };
 
 template <typename Iterator>
 summary summarise_props(Iterator begin, Iterator end)
 {
-  return summary{};
+  auto ret = summary{};
+  
+  for(auto it = begin; it != end; ++it) {
+    ret.update(*it);
+  }
+
+  return ret;
 }
 
 template <typename Container>

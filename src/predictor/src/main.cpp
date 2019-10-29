@@ -22,5 +22,9 @@ int main(int argc, char **argv)
   cl::ParseCommandLineOptions(argc, argv);
 
   auto all_props = std::vector<property_set>{};
+  for(auto file : InputFilenames) {
+    all_props.push_back(property_set::load(file));
+  }
+
   auto summary = summarise_props(all_props);
 }
