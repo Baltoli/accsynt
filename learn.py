@@ -34,7 +34,10 @@ def main(argv):
         pred = clf.predict([test[0]])[0]
         if pred == test[1]:
             correct += 1
-    print("Accuracy on {}: {:.2f}%".format(argv[0], 100*correct / len(data)))
+    print("LOO-CV Accuracy on {}: {:.2f}%".format(
+        argv[0], 
+        100 * correct / len(data)
+    ))
 
 if __name__ == "__main__":
     main(sys.argv[1:])
