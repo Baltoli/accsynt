@@ -6,6 +6,7 @@
 
 using namespace predict;
 using namespace props;
+using namespace props::literals;
 
 TEST_CASE("Can summarise a single property set")
 {
@@ -31,4 +32,28 @@ wefjop
   REQUIRE(names == 3);
   REQUIRE(props == 4);
   REQUIRE(arity == 6);
+}
+
+TEST_CASE("Can summarise a collection of property sets")
+{
+auto p1 = R"(
+int f(int s, int y)
+size s, y
+output y
+)"_ps;
+
+auto p2 = R"(
+)";
+
+auto p3 = R"(
+)";
+
+auto p4 = R"(
+)";
+
+  SECTION("From iters") {
+  }
+
+  SECTION("From containers") {
+  }
 }
