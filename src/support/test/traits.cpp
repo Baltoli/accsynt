@@ -78,3 +78,26 @@ TEST_CASE("has_member_find works")
     REQUIRE(v_not == vec.end());
   }
 }
+
+struct A;
+struct B{};
+
+TEST_CASE("can check for completeness")
+{
+  static_assert(is_complete_v<B>);
+  static_assert(!is_complete_v<A>);
+  static_assert(is_complete_v<A*>);
+  static_assert(is_complete_v<int>);
+}
+
+template <typename> struct S;
+template <> struct S<int> {};
+template <> struct S<float> {};
+
+TEST_CASE("can check for specialization")
+{
+  static_assert(is_specialized_v<S, int>);
+  static_assert(is_specialized_v<S, float>);
+  static_assert(!is_specialized_v<S, bool>);
+  static_assert(!is_specialized_v<S, S<int>>);
+}
