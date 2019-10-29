@@ -2,31 +2,18 @@
 
 import graphviz
 import random
+import sys
 from sklearn import tree
 
-DATA = './dataset.txt'
-
-def load_data():
+def load_data(path):
     ret = []
-    with open(DATA, 'r') as f:
+    with open(path, 'r') as f:
         for line in f:
             ins, outs = line.split(' ')
             ins = [int(x) for x in ins.split(',')]
-            outs = [int(x) for x in outs.split(',')]
+            outs = int(outs)
             ret.append((ins, outs))
     return ret
-
-def err(real, pred):
-    s = 0
-    for r, p in zip(real, pred):
-        s += (r == p)
-    return 1 - (float(s) / len(real))
-
-def split(data, test = 0.1):
-    copy = data[:]
-    random.shuffle(copy)
-    n_test = int(test * len(data))
-    return copy[:n_test], copy[n_test:] 
 
 def xs(data):
     return [p[0] for p in data]
@@ -34,12 +21,20 @@ def xs(data):
 def ys(data):
     return [p[1] for p in data]
 
-def main():
-    data = load_data()
-    train, test = split(data)
-    clf = tree.DecisionTreeClassifier()
-    clf = clf.fit(xs(train), ys(train))
-    print(clf.predict_proba([xs(test)[1]]))
+def loo_splits(data):
+    for i in range(len(data)):
+        yield data[i], data[:i] + data[i+1:]
+
+def main(argv):
+    data = load_data(argv[0])
+    correct = 0.0
+    for test, train in loo_splits(data):
+        clf = tree.DecisionTreeClassifier(random_state=0)
+        clf = clf.fit(xs(train), ys(train))
+        pred = clf.predict([test[0]])[0]
+        if pred == test[1]:
+            correct += 1
+    print("Accuracy on {}: {:.2f}%".format(argv[0], 100*correct / len(data)))
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])
