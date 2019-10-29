@@ -191,7 +191,3 @@ signature operator""_sig(const char* str, size_t len);
 } // namespace literals
 
 } // namespace props
-
-std::ostream& operator<<(std::ostream& os, const props::base_type& dt);
-std::ostream& operator<<(std::ostream& os, const props::param& p);
-std::ostream& operator<<(std::ostream& os, const props::signature& sig);
