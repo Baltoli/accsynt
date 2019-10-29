@@ -61,9 +61,9 @@ public:
   template <typename Iterator>
   summary(Iterator begin, Iterator end)
   {
-    for(auto it = begin; it != end; ++it) {
-      update(*it);
-    }
+    std::for_each(begin, end, [this] (auto const& ps) {
+      update(ps); 
+    });
   }
 
   template <
