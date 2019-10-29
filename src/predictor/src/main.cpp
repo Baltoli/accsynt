@@ -30,14 +30,30 @@ static cl::opt<mode> Mode(
     ),
     cl::Required);
 
-int main(int argc, char **argv)
+int to_python()
 {
-  cl::ParseCommandLineOptions(argc, argv);
-
   auto all_props = std::vector<property_set>{};
   for(auto file : InputFilenames) {
     all_props.push_back(property_set::load(file));
   }
 
   auto sum = summary(all_props);
+
+  for(auto const& ps : all_props) {
+    auto ex = sum.encode(ps);
+
+    fmt::print("{} {}\n", ex.dump_input(), ex.dump_output());
+  }
+
+  return 0;
+}
+
+int main(int argc, char **argv)
+{
+  cl::ParseCommandLineOptions(argc, argv);
+
+  switch(Mode) {
+    case python:
+      return to_python();
+  }
 }

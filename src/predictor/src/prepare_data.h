@@ -44,6 +44,9 @@ namespace predict {
 struct example {
   std::vector<int> input = {};
   std::vector<int> output = {};
+
+  std::string dump_input() const;
+  std::string dump_output() const;
 };
 
 class summary {

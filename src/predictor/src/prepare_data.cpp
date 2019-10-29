@@ -6,6 +6,16 @@ using namespace props;
 
 namespace predict {
 
+std::string example::dump_input() const
+{
+  return "in";
+}
+
+std::string example::dump_output() const
+{
+  return "out";
+}
+
 summary::summary(props::property_set const& ps)
 {
   update(ps);
