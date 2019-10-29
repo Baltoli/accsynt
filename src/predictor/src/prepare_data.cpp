@@ -1,5 +1,7 @@
 #include "prepare_data.h"
 
+#include <fmt/format.h>
+
 #include <algorithm>
 
 using namespace props;
@@ -8,12 +10,12 @@ namespace predict {
 
 std::string example::dump_input() const
 {
-  return "in";
+  return fmt::format("{}", fmt::join(input, ","));
 }
 
 std::string example::dump_output() const
 {
-  return "out";
+  return fmt::format("{}", fmt::join(output, ","));
 }
 
 summary::summary(props::property_set const& ps)
