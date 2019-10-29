@@ -48,6 +48,24 @@ decltype(auto) container_find(Container&& c, Key const& key)
         end(std::forward<decltype(c)>(c)), key);
   }
 }
+
+template <class T, std::size_t = sizeof(T)>
+std::true_type is_complete_impl(T *);
+
+std::false_type is_complete_impl(...);
+
+template <class T>
+using is_complete = decltype(is_complete_impl(std::declval<T*>()));
+
+template <typename T>
+constexpr inline bool is_complete_v = is_complete<T>::value;
+
+template <
+  template <typename...> class Template, 
+  typename... Ts
+>
+constexpr inline bool is_specialized_v = is_complete_v<Template<Ts...>>;
+
 }
 
 #define FWD(x) std::forward<decltype(x)>(x)
