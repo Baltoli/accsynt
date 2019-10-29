@@ -29,7 +29,7 @@ std::string example::dump_input() const
 std::string example::dump_output() const
 {
   if (Variable == variable::return_type) {
-    return fmt::format("{}", this->return_type);
+    return fmt::format("{}", return_type);
   } else {
     return fmt::format("{}", fmt::join(output, ","));
   }
