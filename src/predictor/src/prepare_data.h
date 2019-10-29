@@ -13,6 +13,9 @@
 
 namespace predict {
 
+class example {
+};
+
 class summary {
 public:
   struct report {
@@ -46,6 +49,9 @@ public:
   explicit summary(props::property_set const&);
 
   report get() const;
+
+  example encode(props::property_set const&) const;
+  props::property_set decode(example const&) const;
 
 private:
   /**
