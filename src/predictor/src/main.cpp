@@ -26,5 +26,5 @@ int main(int argc, char **argv)
     all_props.push_back(property_set::load(file));
   }
 
-  /* auto summary = summarise_props(all_props); */
+  auto sum = summary(all_props);
 }
