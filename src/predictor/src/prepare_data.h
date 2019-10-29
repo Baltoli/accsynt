@@ -17,8 +17,21 @@ public:
     size_t arity;
   };
 
-  summary() = default;
+  /* template <typename Iterator> */
+  /* summary(Iterator begin, Iterator end) */
+  /* { */
+  /*   for(auto it = begin; it != end; ++it) { */
+  /*     update(*it); */
+  /*   } */
+  /* } */
 
+  /* template <typename Container> */
+  /* summary(Container&& c) : */
+  /*   summary(c.begin(), c. */
+
+  report get() const;
+
+private:
   /**
    * Update the current summary model to reflect the new state with respect to
    * this new property set - i.e. keeping track of how many params, props,
@@ -26,34 +39,10 @@ public:
    */
   void update(props::property_set ps);
 
-  report get() const;
-
-private:
   size_t params_ = 0;
   std::unordered_set<std::string> prop_names_ = {};
   size_t num_props_ = 0;
   size_t prop_arity_ = 0;
 };
-
-template <typename Iterator>
-summary::report summarise_props(Iterator begin, Iterator end)
-{
-  auto ret = summary{};
-  
-  for(auto it = begin; it != end; ++it) {
-    ret.update(*it);
-  }
-
-  return ret.get();
-}
-
-template <typename Container>
-summary::report summarise_props(Container&& c)
-{
-  using std::begin;
-  using std::end;
-
-  return summarise_props(begin(c), end(c));
-}
 
 }
