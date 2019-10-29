@@ -42,6 +42,12 @@ int summary::encode(base_type bt) const
 
   return 0;
 }
+  
+int summary::encode(std::string const& pn) const
+{
+  auto found = prop_names_.find(pn);
+  return std::distance(prop_names_.begin(), found);
+}
 
 example summary::encode(props::property_set const& ps) const
 {
@@ -65,6 +71,26 @@ example summary::encode(props::property_set const& ps) const
   for(auto i = 0; i < params_pad; ++i) {
     ret.input.push_back(-1);
     ret.input.push_back(-1);
+  }
+
+  for(auto const& prop : ps.properties) {
+    ret.output.push_back(encode(prop.name));
+
+    for(auto const& val : prop.values) {
+      ret.output.push_back(ps.type_signature.param_index(val.param_val));
+    }
+
+    auto values_pad = arity - prop.values.size();
+    for(auto i = 0; i < values_pad; ++i) {
+      ret.output.push_back(-1);
+    }
+  }
+
+  auto props_pad = props - ps.properties.size();
+  for(auto i = 0; i < props_pad; ++i) {
+    for(auto j = 0; j < arity + 1; ++j) {
+      ret.output.push_back(-1);
+    }
   }
 
   return ret;

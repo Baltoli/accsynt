@@ -32,6 +32,14 @@ namespace predict {
  *    base type as above [1]
  *    pointers [1]
  *  padding to max params
+ *
+ * Output:
+ *  for each prop:
+ *    prop name encoded [1]
+ *    for each val:
+ *      index into params of val [1] // TODO: values???
+ *      padding to max arity
+ *    padding to max props
  */
 struct example {
   std::vector<int> input = {};
@@ -73,6 +81,7 @@ public:
   report get() const;
 
   int encode(props::base_type) const;
+  int encode(std::string const&) const;
 
   example encode(props::property_set const&) const;
   props::property_set decode(example const&) const;
