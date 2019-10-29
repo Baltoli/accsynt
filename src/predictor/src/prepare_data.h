@@ -4,6 +4,8 @@
 
 #include <support/utility.h>
 
+#include <fmt/format.h>
+
 #include <iterator>
 #include <unordered_set>
 #include <string>
@@ -57,6 +59,21 @@ private:
   std::unordered_set<std::string> prop_names_ = {};
   size_t num_props_ = 0;
   size_t prop_arity_ = 0;
+};
+
+}
+
+namespace fmt {
+  
+template <>
+struct formatter<::predict::summary::report> {
+  template <typename ParseContext>
+  constexpr auto parse(ParseContext &ctx) { return ctx.begin(); }
+
+  template <typename FormatContext>
+  auto format(::predict::summary::report const &r, FormatContext &ctx) {
+    return format_to(ctx.out(), "{}", "A report");
+  }
 };
 
 }

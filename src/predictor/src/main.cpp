@@ -2,6 +2,8 @@
 
 #include <props/props.h>
 
+#include <fmt/format.h>
+
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/raw_ostream.h>
 
@@ -26,5 +28,7 @@ int main(int argc, char **argv)
     all_props.push_back(property_set::load(file));
   }
 
-  auto sum = summary(all_props);
+  auto rep = summary(all_props).get();
+
+  fmt::print("{}\n", rep);
 }
