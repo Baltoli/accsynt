@@ -27,9 +27,13 @@ public:
     }
   }
 
-  /* template <typename Container> */
-  /* summary(Container&& c) : */
-  /*   summary(c.begin(), c. */
+  template <typename Container>
+  summary(Container&& c) :
+    summary(support::begin(FWD(c)), support::end(FWD(c)))
+  {
+  }
+
+  summary(props::property_set const&);
 
   report get() const;
 
@@ -39,7 +43,7 @@ private:
    * this new property set - i.e. keeping track of how many params, props,
    * arities etc. we need in order to properly construct feature vectors.
    */
-  void update(props::property_set ps);
+  void update(props::property_set const& ps);
 
   size_t params_ = 0;
   std::unordered_set<std::string> prop_names_ = {};

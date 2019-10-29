@@ -6,7 +6,12 @@ using namespace props;
 
 namespace predict {
 
-void summary::update(property_set ps)
+summary::summary(props::property_set const& ps)
+{
+  update(ps);
+}
+
+void summary::update(property_set const &ps)
 {
   params_ = std::max(params_, ps.type_signature.parameters.size());
   num_props_ = std::max(num_props_, ps.properties.size());
