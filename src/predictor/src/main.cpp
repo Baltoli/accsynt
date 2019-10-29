@@ -29,7 +29,7 @@ int main(int argc, char **argv)
   }
 
   auto sum = summary(all_props);
-  auto ps = all_props[0];
+  auto ps = all_props[25];
 
   fmt::print("{}\n\n{}\n", ps, sum.encode(ps));
 }
