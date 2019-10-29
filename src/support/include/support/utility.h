@@ -19,3 +19,5 @@ decltype(auto) end(T&& t)
 }
 
 }
+
+#define FWD(x) std::forward<decltype(x)>(x)

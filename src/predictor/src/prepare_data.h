@@ -2,6 +2,8 @@
 
 #include <props/props.h>
 
+#include <support/utility.h>
+
 #include <iterator>
 #include <unordered_set>
 #include <string>
@@ -17,13 +19,13 @@ public:
     size_t arity;
   };
 
-  /* template <typename Iterator> */
-  /* summary(Iterator begin, Iterator end) */
-  /* { */
-  /*   for(auto it = begin; it != end; ++it) { */
-  /*     update(*it); */
-  /*   } */
-  /* } */
+  template <typename Iterator>
+  summary(Iterator begin, Iterator end)
+  {
+    for(auto it = begin; it != end; ++it) {
+      update(*it);
+    }
+  }
 
   /* template <typename Container> */
   /* summary(Container&& c) : */

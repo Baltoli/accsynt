@@ -67,5 +67,3 @@ template <
 constexpr inline bool is_specialized_v = is_complete_v<Template<Ts...>>;
 
 }
-
-#define FWD(x) std::forward<decltype(x)>(x)
