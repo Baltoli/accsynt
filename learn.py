@@ -11,6 +11,7 @@ from sklearn.gaussian_process import GaussianProcessClassifier
 from sklearn.model_selection import LeaveOneOut
 from sklearn.naive_bayes import GaussianNB
 from sklearn.pipeline import Pipeline
+from sklearn.ensemble import RandomForestClassifier
 
 def input_vars(df):
     return [cn for cn in df.columns if not cn.startswith('out')]
@@ -26,7 +27,7 @@ def output_var(df, var):
 
 def model():
     return Pipeline([
-        ('classification', GaussianNB())
+        ('classification', RandomForestClassifier(n_estimators=100, max_depth=6))
     ])
 
 def main(argv):
