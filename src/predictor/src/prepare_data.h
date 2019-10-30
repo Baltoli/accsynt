@@ -46,27 +46,10 @@ private:
 class dataset {
 public:
   template <typename Iterator>
-  dataset(Iterator begin, Iterator end)
-  {
-    // Summarise the data so that we're able to map property names to unique
-    // indices later - this requires a first pass through the data.
-    std::for_each(begin, end, [this] (auto const& ps) {
-      for(auto const& prop : ps.properties) {
-        prop_names_.insert(prop.name);
-      }
-    });
-
-    // Then construct the set of examples from each property set.
-    std::for_each(begin, end, [this] (auto const& ps) {
-      examples_.emplace_back([] {}, ps);
-    });
-  }
+  dataset(Iterator begin, Iterator end);
 
   template <typename Container>
-  explicit dataset(Container&& c) :
-    dataset(support::adl_begin(FWD(c)), support::adl_end(FWD(c)))
-  {
-  }
+  explicit dataset(Container&& c);
 
   int encode(props::base_type) const;
 
@@ -83,6 +66,29 @@ private:
 
 template <typename Func>
 example::example(Func&&, props::property_set const&)
+{
+}
+
+template <typename Iterator>
+dataset::dataset(Iterator begin, Iterator end)
+{
+  // Summarise the data so that we're able to map property names to unique
+  // indices later - this requires a first pass through the data.
+  std::for_each(begin, end, [this] (auto const& ps) {
+    for(auto const& prop : ps.properties) {
+      prop_names_.insert(prop.name);
+    }
+  });
+
+  // Then construct the set of examples from each property set.
+  std::for_each(begin, end, [this] (auto const& ps) {
+    examples_.emplace_back([] {}, ps);
+  });
+}
+
+template <typename Container>
+dataset::dataset(Container&& c) :
+  dataset(support::adl_begin(FWD(c)), support::adl_end(FWD(c)))
 {
 }
 
