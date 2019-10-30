@@ -38,7 +38,7 @@ int to_python()
   }
 
   auto data = dataset(all_props);
-  fmt::print("{}\n", data);
+  fmt::print("{}\n", data.to_csv());
 
   return 0;
 }

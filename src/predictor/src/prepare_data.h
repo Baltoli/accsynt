@@ -58,9 +58,13 @@ public:
   template <typename Container>
   explicit dataset(Container&& c);
 
+  std::string to_csv() const;
+
   auto const& examples() const { return examples_; }
 
 private:
+  static constexpr int missing_ = -1;
+
   constexpr auto prop_encoder() {
     return [this] (auto const& pn) {
       auto found = prop_names_.find(pn);
