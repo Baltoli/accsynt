@@ -106,6 +106,36 @@ example::example(Func&& prop_enc, props::property_set const& ps)
   if(auto rt = ps.type_signature.return_type) {
     output_["out_return_type"] = detail::encode(rt->base);
   }
+
+  output_["out_num_props"] = ps.properties.size();
+
+  output_["out_num_sizes"] = 0;
+  output_["out_num_outputs"] = 0;
+
+  auto outputs = 0;
+  auto sizes = 0;
+
+  for(auto const& [idx, prop] : support::enumerate(ps.properties)) {
+    auto prop_key = "out_prop_{}_name"_format(idx);
+    output_[prop_key] = prop_enc(prop.name);
+
+    if(prop.name == "size") {
+      auto ptr_key = "out_size_{}_ptr"_format(sizes);
+      output_[ptr_key] = ps.type_signature.param_index(prop.values[0].param_val);
+
+      auto size_key = "out_size_{}_size"_format(sizes++);
+      output_[size_key] = ps.type_signature.param_index(prop.values[1].param_val);
+
+      output_["out_num_sizes"]++;
+    }
+
+    if(prop.name == "output") {
+      auto key = "out_output_{}_arg"_format(outputs++);
+      output_[key] = ps.type_signature.param_index(prop.values[0].param_val);
+
+      output_["out_num_outputs"]++;
+    }
+  }
 }
 
 template <typename Iterator>
