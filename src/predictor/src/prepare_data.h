@@ -15,6 +15,10 @@
 
 namespace predict {
 
+namespace detail {
+  int encode(props::base_type);
+}
+
 using feature_map = std::map<std::string, int>;
 
 /**
@@ -54,8 +58,6 @@ public:
   template <typename Container>
   explicit dataset(Container&& c);
 
-  int encode(props::base_type) const;
-
   auto const& examples() const { return examples_; }
 
 private:
@@ -78,6 +80,11 @@ template <typename Func>
 example::example(Func&& prop_enc, props::property_set const& ps)
 {
   if(auto rt = ps.type_signature.return_type) {
+    input_["return_type"] = detail::encode(rt->base);
+    input_["return_pointers"] = rt->pointers;
+  }
+
+  for (auto const& param : ps.type_signature.parameters) {
   }
 }
 

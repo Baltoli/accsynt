@@ -9,9 +9,9 @@
 using namespace llvm;
 using namespace props;
 
-namespace predict {
+namespace predict::detail {
 
-int dataset::encode(base_type bt) const
+int encode(base_type bt)
 {
   switch(bt) {
     case base_type::character:
