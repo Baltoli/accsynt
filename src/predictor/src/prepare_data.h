@@ -110,9 +110,15 @@ example::example(Func&& prop_enc, props::property_set const& ps)
   output_["out_num_props"] = ps.properties.size();
 
   output_["out_num_sizes"] = 0;
+  output_["out_num_outputs"] = 0;
+
   for(auto const& prop : ps.properties) {
     if(prop.name == "size") {
       output_["out_num_sizes"]++;
+    }
+
+    if(prop.name == "output") {
+      output_["out_num_outputs"]++;
     }
   }
 }
