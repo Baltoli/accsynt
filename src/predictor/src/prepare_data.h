@@ -72,6 +72,8 @@ private:
 template <typename Func>
 example::example(Func&& prop_enc, props::property_set const& ps)
 {
+  if(auto rt = ps.type_signature.return_type) {
+  }
 }
 
 template <typename Iterator>
