@@ -40,9 +40,6 @@ int to_python()
   auto sum = summary(all_props);
 
   for(auto const& ps : all_props) {
-    auto ex = sum.encode(ps);
-
-    fmt::print("{} {}\n", ex.dump_input(), ex.dump_output());
   }
 
   return 0;

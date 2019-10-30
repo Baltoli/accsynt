@@ -11,34 +11,6 @@ using namespace props;
 
 namespace predict {
 
-enum variable {
-  return_type,
-  num_props
-};
-
-static cl::opt<variable> Variable(
-    cl::desc("Variable to analyse"),
-    cl::values(
-      clEnumVal(return_type, "Function return type"),
-      clEnumVal(num_props, "Number of properties")
-    ));
-
-std::string example::dump_input() const
-{
-  return fmt::format("{}", fmt::join(input, ","));
-}
-
-std::string example::dump_output() const
-{
-  if (Variable == variable::return_type) {
-    return fmt::format("{}", return_type);
-  } else if(Variable == variable::num_props) {
-    return fmt::format("{}", num_props);
-  } else {
-    return fmt::format("{}", fmt::join(output, ","));
-  }
-}
-
 summary::summary(props::property_set const& ps)
 {
   update(ps);
@@ -84,64 +56,53 @@ int summary::encode(std::string const& pn) const
 
 example summary::encode(props::property_set const& ps) const
 {
-  auto ret = example{};
-  auto [params, names, props, arity] = get();
+  return {};
+  /* auto ret = example{}; */
+  /* auto [params, names, props, arity] = get(); */
 
-  /*
-   * Encode inputs
-   */
+  /* if(auto dt = ps.type_signature.return_type) { */
+  /*   ret.input.push_back(encode(dt->base)); */
+  /*   ret.input.push_back(dt->pointers); */
+  /* } else { */
+  /*   ret.input.push_back(0); */
+  /*   ret.input.push_back(0); */
+  /* } */
 
-  if(auto dt = ps.type_signature.return_type) {
-    ret.input.push_back(encode(dt->base));
-    ret.input.push_back(dt->pointers);
-  } else {
-    ret.input.push_back(0);
-    ret.input.push_back(0);
-  }
+  /* for(auto const& param : ps.type_signature.parameters) { */
+  /*   ret.input.push_back(encode(param.type)); */
+  /*   ret.input.push_back(param.pointer_depth); */
+  /* } */
 
-  for(auto const& param : ps.type_signature.parameters) {
-    ret.input.push_back(encode(param.type));
-    ret.input.push_back(param.pointer_depth);
-  }
+  /* auto params_pad = params - ps.type_signature.parameters.size(); */
+  /* for(auto i = 0; i < params_pad; ++i) { */
+  /*   ret.input.push_back(-1); */
+  /*   ret.input.push_back(-1); */
+  /* } */
 
-  /*
-   * Encode outputs
-   */
+  /* for(auto const& prop : ps.properties) { */
+  /*   ret.output.push_back(encode(prop.name)); */
 
-  auto params_pad = params - ps.type_signature.parameters.size();
-  for(auto i = 0; i < params_pad; ++i) {
-    ret.input.push_back(-1);
-    ret.input.push_back(-1);
-  }
+  /*   for(auto const& val : prop.values) { */
+  /*     ret.output.push_back(ps.type_signature.param_index(val.param_val)); */
+  /*   } */
 
-  for(auto const& prop : ps.properties) {
-    ret.output.push_back(encode(prop.name));
+  /*   auto values_pad = arity - prop.values.size(); */
+  /*   for(auto i = 0; i < values_pad; ++i) { */
+  /*     ret.output.push_back(-1); */
+  /*   } */
+  /* } */
 
-    for(auto const& val : prop.values) {
-      ret.output.push_back(ps.type_signature.param_index(val.param_val));
-    }
+  /* auto props_pad = props - ps.properties.size(); */
+  /* for(auto i = 0; i < props_pad; ++i) { */
+  /*   for(auto j = 0; j < arity + 1; ++j) { */
+  /*     ret.output.push_back(-1); */
+  /*   } */
+  /* } */
 
-    auto values_pad = arity - prop.values.size();
-    for(auto i = 0; i < values_pad; ++i) {
-      ret.output.push_back(-1);
-    }
-  }
+  /* ret.return_type = ret.input[0]; */
+  /* ret.num_props = ps.properties.size(); */
 
-  auto props_pad = props - ps.properties.size();
-  for(auto i = 0; i < props_pad; ++i) {
-    for(auto j = 0; j < arity + 1; ++j) {
-      ret.output.push_back(-1);
-    }
-  }
-
-  /*
-   * Encode any other variables to model
-   */
-
-  ret.return_type = ret.input[0];
-  ret.num_props = ps.properties.size();
-
-  return ret;
+  /* return ret; */
 }
 
 props::property_set summary::decode(example const&) const

@@ -42,14 +42,6 @@ namespace predict {
  *    padding to max props
  */
 struct example {
-  std::vector<int> input = {};
-  std::vector<int> output = {};
-
-  int return_type = -1;
-  int num_props = -1;
-
-  std::string dump_input() const;
-  std::string dump_output() const;
 };
 
 class summary {
@@ -136,13 +128,7 @@ struct formatter<::predict::example> {
 
   template <typename FormatContext>
   auto format(::predict::example const &e, FormatContext &ctx) {
-    using namespace fmt::literals;
-
-    return format_to(ctx.out(), 
-      "Example(\n  input=[{in}],\n  output=[{out}]\n)",
-      "in"_a = fmt::join(e.input, ", "),
-      "out"_a = fmt::join(e.output, ", ")
-    );
+    return format_to(ctx.out(), "Example()");
   }
 };
 
