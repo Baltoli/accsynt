@@ -5,26 +5,38 @@ import random
 import sys
 import pandas as pd
 from sklearn import svm
-
-def output_vars(df):
-    return [cn for cn in df.columns if cn.startswith('out')]
+from sklearn.model_selection import LeaveOneOut
 
 def input_vars(df):
     return [cn for cn in df.columns if not cn.startswith('out')]
 
-def split(data):
-    return data.loc[:, input_vars(data)], data.loc[:, output_vars(data)]
+def input_data(df):
+    return df.loc[:, input_vars(df)]
+
+def output_var(df, var):
+    return df.loc[:, var]
+
+def model():
+    return svm.SVC(gamma='scale')
 
 def main(argv):
-    data = pd.read_csv(argv[0])
-    data = data.sample(frac=1).reset_index(drop=True)
-    train, test = data.loc[:90], data.loc[91:]
-    xs, ys = split(train)
-    clf = svm.SVC(gamma='scale')
-    clf = clf.fit(xs, ys.values.ravel())
-    txs, tys = split(test)
-    print(clf.predict(txs))
-    print(tys.values.ravel())
+    path = argv[0]
+    var = argv[1]
+
+    data = pd.read_csv(path)
+    xs, ys = input_data(data), output_var(data, var)
+
+    loo = LeaveOneOut()
+    correct = 0
+    for train_idx, test_idx in loo.split(data):
+        train_xs = xs.loc[train_idx]
+        train_ys = ys.loc[train_idx]
+        test_xs = xs.loc[test_idx]
+        test_ys = ys.loc[test_idx]
+        mod = model().fit(train_xs, train_ys)
+        if all(mod.predict(test_xs) == test_ys):
+            correct += 1
+    print("{}: {:.2f}%".format(var, 100.0 * correct / len(data)))
 
 if __name__ == "__main__":
     main(sys.argv[1:])
