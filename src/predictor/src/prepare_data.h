@@ -113,8 +113,16 @@ example::example(Func&& prop_enc, props::property_set const& ps)
   output_["out_num_outputs"] = 0;
 
   auto outputs = 0;
+  auto sizes = 0;
+
   for(auto const& prop : ps.properties) {
     if(prop.name == "size") {
+      auto ptr_key = "out_size_{}_ptr"_format(sizes);
+      output_[ptr_key] = ps.type_signature.param_index(prop.values[0].param_val);
+
+      auto size_key = "out_size_{}_size"_format(sizes++);
+      output_[size_key] = ps.type_signature.param_index(prop.values[1].param_val);
+
       output_["out_num_sizes"]++;
     }
 
