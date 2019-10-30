@@ -27,6 +27,9 @@ public:
   template <typename Func>
   example(Func&&, props::property_set const&);
 
+  feature_map const& input() const { return input_; }
+  feature_map const& output() const { return output_; }
+
 private:
   feature_map input_ = {};
   feature_map output_ = {};
