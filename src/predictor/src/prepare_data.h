@@ -112,12 +112,16 @@ example::example(Func&& prop_enc, props::property_set const& ps)
   output_["out_num_sizes"] = 0;
   output_["out_num_outputs"] = 0;
 
+  auto outputs = 0;
   for(auto const& prop : ps.properties) {
     if(prop.name == "size") {
       output_["out_num_sizes"]++;
     }
 
     if(prop.name == "output") {
+      auto key = "out_output_{}_arg"_format(outputs++);
+      output_[key] = 
+
       output_["out_num_outputs"]++;
     }
   }
