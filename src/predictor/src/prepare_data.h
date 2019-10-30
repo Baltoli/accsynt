@@ -115,7 +115,10 @@ example::example(Func&& prop_enc, props::property_set const& ps)
   auto outputs = 0;
   auto sizes = 0;
 
-  for(auto const& prop : ps.properties) {
+  for(auto const& [idx, prop] : support::enumerate(ps.properties)) {
+    auto prop_key = "out_prop_{}_name"_format(idx);
+    output_[prop_key] = prop_enc(prop.name);
+
     if(prop.name == "size") {
       auto ptr_key = "out_size_{}_ptr"_format(sizes);
       output_[ptr_key] = ps.type_signature.param_index(prop.values[0].param_val);
