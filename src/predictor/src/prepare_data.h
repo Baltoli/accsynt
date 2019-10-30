@@ -113,7 +113,27 @@ struct formatter<::predict::example> {
 
   template <typename FormatContext>
   auto format(::predict::example const &e, FormatContext &ctx) {
+    auto in_entries = std::vector<std::string>{};
+    auto out_entries = std::vector<std::string>{};
+
+    for(auto const& [k, v] : e.input()) {
+    }
+
+    for(auto const& [k, v] : e.output()) {
+    }
+
     return format_to(ctx.out(), "Example()");
+  }
+};
+
+template <>
+struct formatter<::predict::dataset> {
+  template <typename ParseContext>
+  constexpr auto parse(ParseContext &ctx) { return ctx.begin(); }
+
+  template <typename FormatContext>
+  auto format(::predict::dataset const &d, FormatContext &ctx) {
+    return format_to(ctx.out(), "Dataset()");
   }
 };
 

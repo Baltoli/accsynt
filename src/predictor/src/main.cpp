@@ -38,6 +38,7 @@ int to_python()
   }
 
   auto data = dataset(all_props);
+  fmt::print("{}\n", data);
 
   return 0;
 }
