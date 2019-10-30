@@ -3,41 +3,28 @@
 import graphviz
 import random
 import sys
-from sklearn import tree
+import pandas as pd
+from sklearn import svm
 
-def load_data(path):
-    ret = []
-    with open(path, 'r') as f:
-        for line in f:
-            ins, outs = line.split(' ')
-            ins = [int(x) for x in ins.split(',')]
-            outs = int(outs)
-            ret.append((ins, outs))
-    return ret
+def output_vars(df):
+    return [cn for cn in df.columns if cn.startswith('out')]
 
-def xs(data):
-    return [p[0] for p in data]
+def input_vars(df):
+    return [cn for cn in df.columns if not cn.startswith('out')]
 
-def ys(data):
-    return [p[1] for p in data]
-
-def loo_splits(data):
-    for i in range(len(data)):
-        yield data[i], data[:i] + data[i+1:]
+def split(data):
+    return data.loc[:, input_vars(data)], data.loc[:, output_vars(data)]
 
 def main(argv):
-    data = load_data(argv[0])
-    correct = 0.0
-    for test, train in loo_splits(data):
-        clf = tree.DecisionTreeClassifier(random_state=0)
-        clf = clf.fit(xs(train), ys(train))
-        pred = clf.predict([test[0]])[0]
-        if pred == test[1]:
-            correct += 1
-    print("LOO-CV Accuracy on {}: {:.2f}%".format(
-        argv[0], 
-        100 * correct / len(data)
-    ))
+    data = pd.read_csv(argv[0])
+    data = data.sample(frac=1).reset_index(drop=True)
+    train, test = data.loc[:90], data.loc[91:]
+    xs, ys = split(train)
+    clf = svm.SVC(gamma='scale')
+    clf = clf.fit(xs, ys.values.ravel())
+    txs, tys = split(test)
+    print(clf.predict(txs))
+    print(tys.values.ravel())
 
 if __name__ == "__main__":
     main(sys.argv[1:])
