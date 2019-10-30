@@ -5,12 +5,7 @@ import random
 import sys
 import pandas as pd
 
-from sklearn.svm import SVC, LinearSVC
-from sklearn.feature_selection import SelectFromModel
-from sklearn.gaussian_process import GaussianProcessClassifier
-from sklearn.model_selection import LeaveOneOut, GridSearchCV
-from sklearn.naive_bayes import GaussianNB
-from sklearn.pipeline import Pipeline
+from sklearn.model_selection import LeaveOneOut
 from sklearn.ensemble import RandomForestClassifier
 from sklearn_porter import Porter
 
