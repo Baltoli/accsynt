@@ -2,11 +2,26 @@
 
 #include <fmt/format.h>
 
+#include <llvm/Support/Commandline.h>
+
 #include <algorithm>
 
+using namespace llvm;
 using namespace props;
 
 namespace predict {
+
+enum variable {
+  return_type,
+  num_props
+};
+
+static cl::opt<variable> Variable(
+    cl::desc("Variable to analyse"),
+    cl::values(
+      clEnumVal(return_type, "Function return type"),
+      clEnumVal(num_props, "Number of properties")
+    ));
 
 std::string example::dump_input() const
 {
@@ -15,7 +30,13 @@ std::string example::dump_input() const
 
 std::string example::dump_output() const
 {
-  return fmt::format("{}", fmt::join(output, ","));
+  if (Variable == variable::return_type) {
+    return fmt::format("{}", return_type);
+  } else if(Variable == variable::num_props) {
+    return fmt::format("{}", num_props);
+  } else {
+    return fmt::format("{}", fmt::join(output, ","));
+  }
 }
 
 summary::summary(props::property_set const& ps)
@@ -66,6 +87,10 @@ example summary::encode(props::property_set const& ps) const
   auto ret = example{};
   auto [params, names, props, arity] = get();
 
+  /*
+   * Encode inputs
+   */
+
   if(auto dt = ps.type_signature.return_type) {
     ret.input.push_back(encode(dt->base));
     ret.input.push_back(dt->pointers);
@@ -78,6 +103,10 @@ example summary::encode(props::property_set const& ps) const
     ret.input.push_back(encode(param.type));
     ret.input.push_back(param.pointer_depth);
   }
+
+  /*
+   * Encode outputs
+   */
 
   auto params_pad = params - ps.type_signature.parameters.size();
   for(auto i = 0; i < params_pad; ++i) {
@@ -104,6 +133,13 @@ example summary::encode(props::property_set const& ps) const
       ret.output.push_back(-1);
     }
   }
+
+  /*
+   * Encode any other variables to model
+   */
+
+  ret.return_type = ret.input[0];
+  ret.num_props = ps.properties.size();
 
   return ret;
 }
