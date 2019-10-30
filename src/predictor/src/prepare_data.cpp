@@ -11,22 +11,6 @@ using namespace props;
 
 namespace predict {
 
-dataset::dataset(props::property_set const& ps)
-{
-  update(ps);
-}
-
-void dataset::update(property_set const &ps)
-{
-  /* params_ = std::max(params_, ps.type_signature.parameters.size()); */
-  /* num_props_ = std::max(num_props_, ps.properties.size()); */
-  
-  /* for(auto const& prop : ps.properties) { */
-  /*   prop_names_.insert(prop.name); */
-  /*   prop_arity_ = std::max(prop_arity_, prop.values.size()); */
-  /* } */
-}
-
 int dataset::encode(base_type bt) const
 {
   switch(bt) {

@@ -42,16 +42,13 @@ public:
   dataset(Iterator begin, Iterator end)
   {
     std::for_each(begin, end, [this] (auto const& ps) {
-      update(ps); 
+      for(auto const& prop : ps.properties) {
+        prop_names_.insert(prop.name);
+      }
     });
   }
 
-  template <
-    typename Container,
-    typename = std::enable_if_t<
-      !std::is_same_v<std::decay_t<Container>, props::property_set>
-    >
-  >
+  template <typename Container>
   explicit dataset(Container&& c) :
     dataset(
       support::adl_begin(FWD(c)),
@@ -59,17 +56,10 @@ public:
   {
   }
 
-  explicit dataset(props::property_set const&);
-
   int encode(props::base_type) const;
   int encode(std::string const&) const;
 
 private:
-  /**
-   * Update the current summary model to reflect the new state with respect to
-   * this new property set - i.e. keeping track of how many params, props,
-   * arities etc. we need in order to properly construct feature vectors.
-   */
   void update(props::property_set const& ps);
 
   std::unordered_set<std::string> prop_names_ = {};
