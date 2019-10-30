@@ -53,8 +53,8 @@ def main(argv):
                 correct += 1
         print("{}: {:.2f}%".format(var, 100.0 * correct / len(data)))
 
-        port = Porter(model().fit(xs, ys), language='c')
-        print(port.export(embed_data=True))
+        # port = Porter(model().fit(xs, ys), language='c')
+        # print(port.export(embed_data=True))
 
 if __name__ == "__main__":
     main(sys.argv[1:])
