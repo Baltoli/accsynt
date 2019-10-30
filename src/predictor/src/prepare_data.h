@@ -104,7 +104,7 @@ example::example(Func&& prop_enc, props::property_set const& ps)
   // Outputs - whatever variables we want to use
 
   if(auto rt = ps.type_signature.return_type) {
-    output_["return_type"] = detail::encode(rt->base);
+    output_["out_return_type"] = detail::encode(rt->base);
   }
 }
 

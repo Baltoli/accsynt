@@ -22,11 +22,11 @@ std::string dataset::to_csv() const
   // First pass to collect the full set of keys to use
   for(auto const& e : examples_) {
     for(auto const& [k, v] : e.input()) {
-      in_keys.insert("in_{}"_format(k));
+      in_keys.insert("{}"_format(k));
     }
 
     for(auto const& [k, v] : e.output()) {
-      out_keys.insert("out_{}"_format(k));
+      out_keys.insert("{}"_format(k));
     }
   }
 
@@ -36,7 +36,33 @@ std::string dataset::to_csv() const
     fmt::join(out_keys, ",")
   );
 
-  return header;
+  // Then print each row using the collected keys
+
+  auto rows = std::vector<std::string>{};
+
+  for(auto const& e : examples_) {
+    auto row = std::vector<int>{};
+
+    for(auto const& i_k : in_keys) {
+      if(e.input().find(i_k) != e.input().end()) {
+        row.push_back(e.input().at(i_k));
+      } else {
+        row.push_back(missing_);
+      }
+    }
+
+    for(auto const& o_k : out_keys) {
+      if(e.output().find(o_k) != e.output().end()) {
+        row.push_back(e.output().at(o_k));
+      } else {
+        row.push_back(missing_);
+      }
+    }
+
+    rows.push_back(fmt::format("{}", fmt::join(row, ",")));
+  }
+
+  return "{}\n{}"_format(header, fmt::join(rows, "\n"));
 }
   
 namespace detail {
