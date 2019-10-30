@@ -7,15 +7,15 @@
 #include <fmt/format.h>
 
 #include <iterator>
-#include <unordered_map>
-#include <unordered_set>
+#include <map>
+#include <set>
 #include <string>
 #include <type_traits>
 #include <vector>
 
 namespace predict {
 
-using feature_map = std::unordered_map<std::string, int>;
+using feature_map = std::map<std::string, int>;
 
 /**
  * A single instance of example data for a learner to later consume. Belongs to
@@ -61,7 +61,7 @@ private:
     };
   }
 
-  std::unordered_set<std::string> prop_names_ = {};
+  std::set<std::string> prop_names_ = {};
   std::vector<example> examples_ = {};
 };
 
