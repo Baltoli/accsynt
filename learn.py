@@ -15,6 +15,9 @@ from sklearn.pipeline import Pipeline
 def input_vars(df):
     return [cn for cn in df.columns if not cn.startswith('out')]
 
+def output_vars(df):
+    return [cn for cn in df.columns if cn.startswith('out')]
+
 def input_data(df):
     return df.loc[:, input_vars(df)]
 
@@ -28,22 +31,26 @@ def model():
 
 def main(argv):
     path = argv[0]
-    var = argv[1]
-
     data = pd.read_csv(path)
-    xs, ys = input_data(data), output_var(data, var)
 
-    loo = LeaveOneOut()
-    correct = 0
-    for train_idx, test_idx in loo.split(data):
-        train_xs = xs.loc[train_idx]
-        train_ys = ys.loc[train_idx]
-        test_xs = xs.loc[test_idx]
-        test_ys = ys.loc[test_idx]
-        mod = model().fit(train_xs, train_ys)
-        if all(mod.predict(test_xs) == test_ys):
-            correct += 1
-    print("{}: {:.2f}%".format(var, 100.0 * correct / len(data)))
+    e_vars = argv[1:]
+    if len(e_vars) == 0:
+        e_vars = output_vars(data)
+
+    for var in e_vars:
+        xs, ys = input_data(data), output_var(data, var)
+
+        loo = LeaveOneOut()
+        correct = 0
+        for train_idx, test_idx in loo.split(data):
+            train_xs = xs.loc[train_idx]
+            train_ys = ys.loc[train_idx]
+            test_xs = xs.loc[test_idx]
+            test_ys = ys.loc[test_idx]
+            mod = model().fit(train_xs, train_ys)
+            if all(mod.predict(test_xs) == test_ys):
+                correct += 1
+        print("{}: {:.2f}%".format(var, 100.0 * correct / len(data)))
 
 if __name__ == "__main__":
     main(sys.argv[1:])
