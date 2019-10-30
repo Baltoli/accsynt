@@ -12,13 +12,15 @@ using namespace props;
 namespace predict {
 
 enum variable {
-  return_type
+  return_type,
+  num_props
 };
 
 static cl::opt<variable> Variable(
     cl::desc("Variable to analyse"),
     cl::values(
-      clEnumVal(return_type, "Function return type")
+      clEnumVal(return_type, "Function return type"),
+      clEnumVal(num_props, "Number of properties")
     ));
 
 std::string example::dump_input() const
@@ -30,6 +32,8 @@ std::string example::dump_output() const
 {
   if (Variable == variable::return_type) {
     return fmt::format("{}", return_type);
+  } else if(Variable == variable::num_props) {
+    return fmt::format("{}", num_props);
   } else {
     return fmt::format("{}", fmt::join(output, ","));
   }
@@ -135,6 +139,7 @@ example summary::encode(props::property_set const& ps) const
    */
 
   ret.return_type = ret.input[0];
+  ret.num_props = ps.properties.size();
 
   return ret;
 }
