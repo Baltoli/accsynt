@@ -22,7 +22,7 @@ def output_var(df, var):
     return df.loc[:, var]
 
 def model():
-    forest = RandomForestClassifier(n_estimators=10, max_depth=10)
+    forest = RandomForestClassifier(n_estimators=20, max_depth=5)
     return forest
 
 def main(argv):
