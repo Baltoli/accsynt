@@ -34,6 +34,14 @@ public:
 private:
 };
 
+/**
+ * In this model, the only summarisation that needs to be done is mapping
+ * property names to classes - can simplify the summarisation code.
+ *
+ * So this summarisation can be removed and pushed into the dataset class
+ * instead - it will just need to make two passes through the data in order to
+ * summarise, then encode each individual property set.
+ */
 class summary {
 public:
   struct report {
