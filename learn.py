@@ -8,7 +8,7 @@ import pandas as pd
 from sklearn.svm import SVC, LinearSVC
 from sklearn.feature_selection import SelectFromModel
 from sklearn.gaussian_process import GaussianProcessClassifier
-from sklearn.model_selection import LeaveOneOut
+from sklearn.model_selection import LeaveOneOut, GridSearchCV
 from sklearn.naive_bayes import GaussianNB
 from sklearn.pipeline import Pipeline
 from sklearn.ensemble import RandomForestClassifier
@@ -26,9 +26,8 @@ def output_var(df, var):
     return df.loc[:, var]
 
 def model():
-    return Pipeline([
-        ('classification', RandomForestClassifier(n_estimators=100, max_depth=6))
-    ])
+    forest = RandomForestClassifier(n_estimators=10, max_depth=10)
+    return forest
 
 def main(argv):
     path = argv[0]
