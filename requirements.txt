@@ -7,3 +7,4 @@ pytz==2019.3
 scikit-learn==0.21.3
 scipy==1.3.1
 six==1.12.0
+sklearn-porter==0.7.3
