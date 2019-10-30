@@ -120,7 +120,7 @@ example::example(Func&& prop_enc, props::property_set const& ps)
 
     if(prop.name == "output") {
       auto key = "out_output_{}_arg"_format(outputs++);
-      output_[key] = 
+      output_[key] = ps.type_signature.param_index(prop.values[0].param_val);
 
       output_["out_num_outputs"]++;
     }
