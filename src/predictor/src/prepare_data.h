@@ -79,12 +79,20 @@ private:
 template <typename Func>
 example::example(Func&& prop_enc, props::property_set const& ps)
 {
+  using namespace fmt::literals;
+  using namespace support;
+
   if(auto rt = ps.type_signature.return_type) {
     input_["return_type"] = detail::encode(rt->base);
     input_["return_pointers"] = rt->pointers;
   }
 
-  for (auto const& param : ps.type_signature.parameters) {
+  for (auto const& [i, param] : enumerate(ps.type_signature.parameters)) {
+    auto base_key = "param_{}_type"_format(i);
+    auto ptr_key = "param_{}_pointers"_format(i);
+
+    input_[base_key] = detail::encode(param.type);
+    input_[ptr_key] = param.pointer_depth;
   }
 }
 
