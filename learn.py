@@ -12,6 +12,7 @@ from sklearn.model_selection import LeaveOneOut, GridSearchCV
 from sklearn.naive_bayes import GaussianNB
 from sklearn.pipeline import Pipeline
 from sklearn.ensemble import RandomForestClassifier
+from sklearn_porter import Porter
 
 def input_vars(df):
     return [cn for cn in df.columns if not cn.startswith('out')]
@@ -51,6 +52,9 @@ def main(argv):
             if all(mod.predict(test_xs) == test_ys):
                 correct += 1
         print("{}: {:.2f}%".format(var, 100.0 * correct / len(data)))
+
+        port = Porter(model().fit(xs, ys), language='c')
+        print(port.export(embed_data=True))
 
 if __name__ == "__main__":
     main(sys.argv[1:])
