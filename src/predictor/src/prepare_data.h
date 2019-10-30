@@ -82,6 +82,8 @@ example::example(Func&& prop_enc, props::property_set const& ps)
   using namespace fmt::literals;
   using namespace support;
 
+  // Inputs
+
   if(auto rt = ps.type_signature.return_type) {
     input_["return_type"] = detail::encode(rt->base);
     input_["return_pointers"] = rt->pointers;
@@ -93,6 +95,12 @@ example::example(Func&& prop_enc, props::property_set const& ps)
 
     input_[base_key] = detail::encode(param.type);
     input_[ptr_key] = param.pointer_depth;
+  }
+
+  // Outputs - whatever variables we want to use
+
+  if(auto rt = ps.type_signature.return_type) {
+    output_["return_type"] = detail::encode(rt->base);
   }
 }
 
