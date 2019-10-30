@@ -35,24 +35,43 @@ auto adl_end(T&& t) -> decltype(detail::adl_end(std::forward<T>(t)))
   return detail::adl_end(std::forward<T>(t));
 }
 
-template <typename T,
-          typename TIter = decltype(std::begin(std::declval<T>())),
-          typename = decltype(std::end(std::declval<T>()))>
-constexpr auto enumerate(T && iterable)
+namespace detail {
+
+template <typename TIter>
+struct enum_iterator
 {
-    struct iterator
+    size_t i;
+    TIter iter;
+    bool operator!= (const enum_iterator<TIter> & other) const { return iter != other.iter; }
+    void operator++ () { ++i; ++iter; }
+    auto operator* () const { return std::tie(i, *iter); }
+};
+
+}
+
+template <typename TIter>
+constexpr auto enumerate(TIter begin_, TIter end_)
+{
+    struct iterable_wrapper
     {
-        size_t i;
-        TIter iter;
-        bool operator != (const iterator & other) const { return iter != other.iter; }
-        void operator ++ () { ++i; ++iter; }
-        auto operator * () const { return std::tie(i, *iter); }
+        auto begin() { return detail::enum_iterator<TIter>{ 0, begin_ }; }
+        auto end() { return detail::enum_iterator<TIter>{ 0, end_ }; }
     };
+    return iterable_wrapper{};
+}
+
+template <
+  typename T,
+  typename TIter = decltype(adl_begin(std::declval<T>())),
+  typename = decltype(adl_end(std::declval<T>()))
+>
+constexpr auto enumerate(T&& iterable)
+{
     struct iterable_wrapper
     {
         T iterable;
-        auto begin() { return iterator{ 0, std::begin(iterable) }; }
-        auto end() { return iterator{ 0, std::end(iterable) }; }
+        auto begin() { return detail::enum_iterator<TIter>{ 0, adl_begin(iterable) }; }
+        auto end() { return detail::enum_iterator<TIter>{ 0, adl_end(iterable) }; }
     };
     return iterable_wrapper{ std::forward<T>(iterable) };
 }
