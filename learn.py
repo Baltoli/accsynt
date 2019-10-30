@@ -4,8 +4,13 @@ import graphviz
 import random
 import sys
 import pandas as pd
-from sklearn import svm
+
+from sklearn.svm import SVC, LinearSVC
+from sklearn.feature_selection import SelectFromModel
+from sklearn.gaussian_process import GaussianProcessClassifier
 from sklearn.model_selection import LeaveOneOut
+from sklearn.naive_bayes import GaussianNB
+from sklearn.pipeline import Pipeline
 
 def input_vars(df):
     return [cn for cn in df.columns if not cn.startswith('out')]
@@ -17,7 +22,9 @@ def output_var(df, var):
     return df.loc[:, var]
 
 def model():
-    return svm.SVC(gamma='scale')
+    return Pipeline([
+        ('classification', GaussianNB())
+    ])
 
 def main(argv):
     path = argv[0]
