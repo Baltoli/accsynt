@@ -37,10 +37,7 @@ int to_python()
     all_props.push_back(property_set::load(file));
   }
 
-  auto sum = summary(all_props);
-
-  for(auto const& ps : all_props) {
-  }
+  auto data = dataset(all_props);
 
   return 0;
 }
