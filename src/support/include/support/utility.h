@@ -50,14 +50,16 @@ struct enum_iterator
 }
 
 template <typename TIter>
-constexpr auto enumerate(TIter begin_, TIter end_)
+constexpr auto enumerate(TIter b, TIter e)
 {
     struct iterable_wrapper
     {
+        TIter begin_;
+        TIter end_;
         auto begin() { return detail::enum_iterator<TIter>{ 0, begin_ }; }
         auto end() { return detail::enum_iterator<TIter>{ 0, end_ }; }
     };
-    return iterable_wrapper{};
+    return iterable_wrapper{ b, e };
 }
 
 template <

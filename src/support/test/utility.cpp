@@ -19,5 +19,15 @@ TEST_CASE("Can enumerate")
   }
 
   SECTION("With iterators") {
+    auto v = std::vector<int>{ -2, -1, 0, 3, 7 };
+
+    auto b = adl_begin(v);
+    auto e = adl_end(v);
+
+    auto dot = 0;
+    for(auto [i, elt] : enumerate(b, e)) {
+      dot += i * elt;
+    }
+    REQUIRE(dot == 36);
   }
 }
