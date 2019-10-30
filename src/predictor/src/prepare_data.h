@@ -61,8 +61,6 @@ private:
     };
   }
 
-  void update(props::property_set const& ps);
-
   std::unordered_set<std::string> prop_names_ = {};
   std::vector<example> examples_ = {};
 };
@@ -72,7 +70,7 @@ private:
  */
 
 template <typename Func>
-example::example(Func&&, props::property_set const&)
+example::example(Func&& prop_enc, props::property_set const& ps)
 {
 }
 
