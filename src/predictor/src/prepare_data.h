@@ -7,6 +7,7 @@
 #include <fmt/format.h>
 
 #include <iterator>
+#include <unordered_map>
 #include <unordered_set>
 #include <string>
 #include <type_traits>
@@ -15,33 +16,22 @@
 namespace predict {
 
 /**
- * This structure is deliberately lightweight - all it does is wrap the input
- * and output data generated from a particular property set such that they can
- * be easily passed to some kind of learning step later in the process.
- *
- * The schema for doing so is as follows:
- *
- * missing / padding is always -1 for every type
- *
- * base type: void=0, char=1, bool=2, int=3, float=4
- *
- * Input:
- *  return base type as above [1]
- *  return pointers [1]
- *  for each param:
- *    base type as above [1]
- *    pointers [1]
- *  padding to max params
- *
- * Output:
- *  for each prop:
- *    prop name encoded [1]
- *    for each val:
- *      index into params of val [1] // TODO: values???
- *      padding to max arity
- *    padding to max props
+ * A collection of examples, along with logic to make sure that missing values
+ * etc. are encoded properly.
  */
-struct example {
+class dataset {
+public:
+private:
+};
+
+/**
+ * A single instance of example data for a learner to later consume. Belongs to
+ * a dataset, which is responsible for inserting missing values etc. when
+ * encoding.
+ */
+class example {
+public:
+private:
 };
 
 class summary {
