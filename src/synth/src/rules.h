@@ -71,9 +71,6 @@ public:
   template <typename Container>
   static std::optional<match_result> unify_all(Container&& c);
 
-  template <typename OStream>
-  friend OStream& operator<<(OStream& os, match_result const& mr);
-
   std::optional<props::value> operator()(std::string) const;
 
 protected:
@@ -95,9 +92,6 @@ public:
   explicit property_expression(std::string name, Args... args);
 
   std::vector<match_result> match(props::property_set ps);
-
-  template <typename OStream>
-  friend OStream& operator<<(OStream& os, property_expression const& m);
 
 protected:
   std::string property_name_;
@@ -218,38 +212,10 @@ std::optional<match_result> match_result::unify_all(Container&& c)
   return unify_all(begin(c), end(c));
 }
 
-template <typename OStream>
-OStream& operator<<(OStream& os, match_result const& mr)
-{
-  os << "{";
-  auto comma = "";
-  for (auto [name, val] : mr.results_) {
-    os << comma << name << ": " << val;
-    comma = ", ";
-  }
-  os << "}";
-
-  return os;
-}
-
 template <typename... Args>
 property_expression::property_expression(std::string name, Args... args)
     : property_expression(name, { args... })
 {
-}
-
-template <typename OStream>
-OStream& operator<<(OStream& os, property_expression const& m)
-{
-  auto bind_str = support::visitor { [](std::string s) { return s; },
-    [](ignore_value) { return std::string("_"); } };
-
-  os << "match(" << m.property_name_;
-  for (auto b : m.bindings_) {
-    os << ", " << std::visit(bind_str, b);
-  }
-  os << ")";
-  return os;
 }
 
 template <typename... Strings>
