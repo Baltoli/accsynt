@@ -54,6 +54,13 @@ public:
   int encode(props::base_type) const;
 
 private:
+  constexpr auto prop_encoder() {
+    return [this] (auto const& pn) {
+      auto found = prop_names_.find(pn);
+      return std::distance(prop_names_.begin(), found);
+    };
+  }
+
   void update(props::property_set const& ps);
 
   std::unordered_set<std::string> prop_names_ = {};
@@ -82,7 +89,7 @@ dataset::dataset(Iterator begin, Iterator end)
 
   // Then construct the set of examples from each property set.
   std::for_each(begin, end, [this] (auto const& ps) {
-    examples_.emplace_back([] {}, ps);
+    examples_.emplace_back(prop_encoder(), ps);
   });
 }
 

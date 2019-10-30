@@ -27,10 +27,4 @@ int dataset::encode(base_type bt) const
   return 0;
 }
   
-/* int dataset::encode(std::string const& pn) const */
-/* { */
-/*   auto found = prop_names_.find(pn); */
-/*   return std::distance(prop_names_.begin(), found); */
-/* } */
-
 }
