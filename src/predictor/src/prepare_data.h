@@ -15,6 +15,8 @@
 
 namespace predict {
 
+using feature_map = std::unordered_map<std::string, int>;
+
 /**
  * A single instance of example data for a learner to later consume. Belongs to
  * a dataset, which is responsible for inserting missing values etc. when
@@ -22,7 +24,12 @@ namespace predict {
  */
 class example {
 public:
+  template <typename Func>
+  example(Func&&, props::property_set const&);
+
 private:
+  feature_map input_ = {};
+  feature_map output_ = {};
 };
 
 /**
@@ -41,29 +48,43 @@ public:
   template <typename Iterator>
   dataset(Iterator begin, Iterator end)
   {
+    // Summarise the data so that we're able to map property names to unique
+    // indices later - this requires a first pass through the data.
     std::for_each(begin, end, [this] (auto const& ps) {
       for(auto const& prop : ps.properties) {
         prop_names_.insert(prop.name);
       }
     });
+
+    // Then construct the set of examples from each property set.
+    std::for_each(begin, end, [this] (auto const& ps) {
+      examples_.emplace_back([] {}, ps);
+    });
   }
 
   template <typename Container>
   explicit dataset(Container&& c) :
-    dataset(
-      support::adl_begin(FWD(c)),
-      support::adl_end(FWD(c)))
+    dataset(support::adl_begin(FWD(c)), support::adl_end(FWD(c)))
   {
   }
 
   int encode(props::base_type) const;
-  int encode(std::string const&) const;
 
 private:
   void update(props::property_set const& ps);
 
   std::unordered_set<std::string> prop_names_ = {};
+  std::vector<example> examples_ = {};
 };
+
+/**
+ * Implementations
+ */
+
+template <typename Func>
+example::example(Func&&, props::property_set const&)
+{
+}
 
 }
 
