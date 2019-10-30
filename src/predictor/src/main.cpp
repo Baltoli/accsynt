@@ -37,13 +37,8 @@ int to_python()
     all_props.push_back(property_set::load(file));
   }
 
-  auto sum = summary(all_props);
-
-  for(auto const& ps : all_props) {
-    auto ex = sum.encode(ps);
-
-    fmt::print("{} {}\n", ex.dump_input(), ex.dump_output());
-  }
+  auto data = dataset(all_props);
+  fmt::print("{}\n", data.to_csv());
 
   return 0;
 }
