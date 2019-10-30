@@ -27,8 +27,8 @@ public:
   template <typename Func>
   example(Func&&, props::property_set const&);
 
-  feature_map const& input() const { return input_; }
-  feature_map const& output() const { return output_; }
+  auto const& input() const { return input_; }
+  auto const& output() const { return output_; }
 
 private:
   feature_map input_ = {};
@@ -55,6 +55,8 @@ public:
   explicit dataset(Container&& c);
 
   int encode(props::base_type) const;
+
+  auto const& examples() const { return examples_; }
 
 private:
   constexpr auto prop_encoder() {
@@ -127,18 +129,14 @@ struct formatter<::predict::example> {
     }
 
     auto format = R"(Example(
-  input=(
-    {}
-  ),
-  output=(
-    {}
-  )
+  input=( {} ),
+  output=( {} )
 ))";
 
     return format_to(
       ctx.out(), format,
-      fmt::join(in_entries, "\n"),
-      fmt::join(out_entries, "\n")
+      fmt::join(in_entries, ", "),
+      fmt::join(out_entries, ", ")
     );
   }
 };
@@ -150,7 +148,13 @@ struct formatter<::predict::dataset> {
 
   template <typename FormatContext>
   auto format(::predict::dataset const &d, FormatContext &ctx) {
-    return format_to(ctx.out(), "Dataset()");
+    auto format = R"(Dataset(
+{}
+))";
+
+    return format_to(
+      ctx.out(), format, fmt::join(d.examples(), ",\n")
+    );
   }
 };
 
