@@ -113,16 +113,33 @@ struct formatter<::predict::example> {
 
   template <typename FormatContext>
   auto format(::predict::example const &e, FormatContext &ctx) {
+    using namespace fmt::literals;
+
     auto in_entries = std::vector<std::string>{};
     auto out_entries = std::vector<std::string>{};
 
     for(auto const& [k, v] : e.input()) {
+      in_entries.push_back("{}={}"_format(k, v));
     }
 
     for(auto const& [k, v] : e.output()) {
+      out_entries.push_back("{}={}"_format(k, v));
     }
 
-    return format_to(ctx.out(), "Example()");
+    auto format = R"(Example(
+  input=(
+    {}
+  ),
+  output=(
+    {}
+  )
+))";
+
+    return format_to(
+      ctx.out(), format,
+      fmt::join(in_entries, "\n"),
+      fmt::join(out_entries, "\n")
+    );
   }
 };
 
