@@ -139,6 +139,9 @@ example::example(Func&& prop_enc, props::property_set const& ps)
       output_["out_num_outputs"]++;
     }
   }
+
+  output_["out_uses_size"] = output_["out_num_sizes"] != 0;
+  output_["out_uses_output"] = output_["out_num_outputs"] != 0;
 }
 
 template <typename Iterator>

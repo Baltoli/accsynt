@@ -52,12 +52,17 @@ def main(argv):
         xs, ys = input_data(data), output_var(data, var)
 
         accs = []
+        max_a = 0
         for s in seeds():
             train_xs, test_xs, train_ys, test_ys = train_test_split(
-                xs, ys, test_size=0.25, random_state=s)
+                xs, ys, test_size=0.33, random_state=s)
 
             mod = model(s).fit(train_xs, train_ys)
-            accs.append(np.sum(mod.predict(test_xs) == test_ys) / float(len(test_ys)))
+            acc = np.sum(mod.predict(test_xs) == test_ys) / float(len(test_ys))
+            if acc > max_a:
+                best_mod = mod
+                max_a = acc
+            accs.append(acc)
 
         if mode == 'stats':
             print("{}: {:.2f}%".format(var, 100 * sum(accs) / len(accs)))
@@ -65,7 +70,7 @@ def main(argv):
         if mode == 'code':
             func_name = 'predict_{}'.format(var)
 
-            port = Porter(mod, language='c')
+            port = Porter(best_mod, language='c')
             code = port.export(embed_data=True)
             code = code.replace('int predict_', 'static int predict_')
             code = code.replace('predict', func_name)

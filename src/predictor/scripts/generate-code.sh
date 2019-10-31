@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 vars=(
+  out_uses_output
   out_output_0_arg
   out_output_1_arg
 )

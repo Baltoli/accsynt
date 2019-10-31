@@ -21,11 +21,12 @@ props::property_set predict(props::property_set ps)
   auto in = predict::example(prop_category, ps).model_input();
   fmt::print("{}\n", fmt::join(in, ","));
 
+  auto uses = predict_out_uses_output(in.data());
   auto out_0 = predict_out_output_0_arg(in.data());
   auto out_1 = predict_out_output_1_arg(in.data());
 
   fmt::print("{}\n", ps);
-  fmt::print("Outputs: {}, {}\n", out_0, out_1);
+  fmt::print("Outputs: {}, {}, {}\n", uses, out_0, out_1);
 
   return ps;
 }
