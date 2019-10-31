@@ -44,6 +44,7 @@ target_link_libraries(coresynth
   CONAN_PKG::spdlog
   CONAN_PKG::value-ptr
   support
+  model
   props)
 
 target_link_libraries(synth
