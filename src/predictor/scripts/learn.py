@@ -72,7 +72,7 @@ def main(argv):
 
             print(code, file=sys.stdout)
 
-            header_line = 'int {} (float features[]);'.format(func_name);
+            header_line = 'extern "C" int {} (float features[]);'.format(func_name);
             print(header_line, file=sys.stderr)
 
 if __name__ == "__main__":
