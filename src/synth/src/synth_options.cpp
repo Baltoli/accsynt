@@ -28,9 +28,17 @@ cl::opt<bool> InteractiveCount("count",
     cl::desc("Interactively print the running program count"), cl::init(false));
 
 cl::opt<bool> NewRules("new-rules",
-    cl::desc("Use new rules for instantiating fragments (ignore properties"),
+    cl::desc("Use new rules for instantiating fragments (ignore properties)"),
     cl::init(false));
 
 cl::opt<bool> DryRun("dry-run",
     cl::desc("Only parse the properties and load the function symbol"),
     cl::init(false));
+
+cl::opt<int> NumExamples("examples",
+    cl::desc("Number of random examples to generate (default 1000)"),
+    cl::init(1000));
+
+cl::alias NumExamplesA("N",
+    cl::desc("Alias for --examples"),
+    cl::aliasopt(NumExamples));
