@@ -4,7 +4,7 @@ vars=(
   out_num_props
 )
 
-root=$(realpath ../model)
+root=$(realpath ..)
 
 gen_c="$root/src/generated.c"
 header="$root/src/internal.h"
