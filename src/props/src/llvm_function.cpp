@@ -28,7 +28,7 @@ Type* base_llvm_return_type(std::optional<data_type> dt)
 {
   if (dt) {
     auto base_ty = base_llvm_type(dt->base);
-    for(auto i = 0; i < dt->pointers; ++i) {
+    for (auto i = 0; i < dt->pointers; ++i) {
       base_ty = PointerType::getUnqual(base_ty);
     }
     return base_ty;

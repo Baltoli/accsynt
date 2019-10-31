@@ -80,4 +80,4 @@ static_assert(support::detail::is_generator_v<gen_adaptor<generator>>,
     "Default generator should adapt to new interface");
 static_assert(support::detail::is_generator_v<gen_adaptor<blas_generator>>,
     "BLAS generator should adapt to new interface");
-}
+} // namespace synth

@@ -19,7 +19,7 @@ class FunctionType;
 class Instruction;
 class Type;
 class Value;
-}
+} // namespace llvm
 
 namespace interfind {
 
@@ -146,4 +146,4 @@ private:
 
   use_def_analysis ud_analysis_;
 };
-}
+} // namespace interfind

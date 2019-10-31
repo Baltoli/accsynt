@@ -54,4 +54,4 @@ dataflow_synth::dataflow_synth(llvm::Function* fn, BlockPred&& pred)
     , should_populate_(pred)
 {
 }
-}
+} // namespace synth

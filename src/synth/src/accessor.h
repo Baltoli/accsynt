@@ -75,4 +75,4 @@ private:
   backing_map_t backing_map_;
   accessor default_accessor_;
 };
-}
+} // namespace synth

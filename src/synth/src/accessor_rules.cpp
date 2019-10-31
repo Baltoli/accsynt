@@ -25,4 +25,4 @@ accessor_map accessors_from_rules(props::property_set ps)
 
   return map;
 }
-}
+} // namespace synth

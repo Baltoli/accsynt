@@ -28,4 +28,4 @@ argument_generator generator_named(std::string const& name)
 
   throw std::runtime_error("No such named generator");
 }
-}
+} // namespace synth

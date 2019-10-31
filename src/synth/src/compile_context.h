@@ -64,4 +64,4 @@ public:
 private:
   accessor_map accessor_map_;
 };
-}
+} // namespace synth

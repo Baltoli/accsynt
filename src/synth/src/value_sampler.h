@@ -7,9 +7,9 @@
 #include <llvm/IR/CFG.h>
 #include <llvm/IR/Constant.h>
 #include <llvm/IR/Constants.h>
+#include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Intrinsics.h>
-#include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Value.h>
 #include <llvm/Support/raw_ostream.h>
 
@@ -56,8 +56,9 @@ public:
 
 private:
   size_t weight_;
-  std::function<bool (llvm::Type*, llvm::Type*)> pred_;
-  std::function<llvm::Value* (llvm::IRBuilder<>&, llvm::Value*, llvm::Value*)> build_;
+  std::function<bool(llvm::Type*, llvm::Type*)> pred_;
+  std::function<llvm::Value*(llvm::IRBuilder<>&, llvm::Value*, llvm::Value*)>
+      build_;
 };
 
 template <typename Pred, typename Build>

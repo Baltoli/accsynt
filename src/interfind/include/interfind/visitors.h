@@ -70,7 +70,7 @@ void predicate_visitor<Pred>::visitValues(Range&& rng)
     }
   }
 }
-}
+} // namespace detail
 
 template <typename Pred>
 std::set<llvm::Value*> values_by_pred(llvm::Function& fn, Pred pred)
@@ -85,4 +85,4 @@ std::set<llvm::Value*> values_by_pred(llvm::Function& fn, Pred pred)
 }
 
 std::set<llvm::Value*> values_of_type(llvm::Function&, llvm::Type*);
-}
+} // namespace interfind

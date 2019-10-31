@@ -26,4 +26,4 @@ void to_json(json& j, analysis_result const& ar)
   j = { { "signature", fmt::format("{}", ar.signature()) },
     { "regions", ar.regions() } };
 }
-}
+} // namespace interfind

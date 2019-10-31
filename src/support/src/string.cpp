@@ -12,4 +12,4 @@ std::string left_trim(std::string s)
   s.erase(s.begin(), not_space);
   return s;
 }
-}
+} // namespace support

@@ -1,1 +1,1 @@
-extern "C" int predict_out_num_props (float features[]);
+extern "C" int predict_out_num_props(float features[]);

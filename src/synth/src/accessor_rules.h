@@ -50,4 +50,4 @@ typename accessor_rule<Acc>::optional_entry accessor_rule<Acc>::operator()(
 }
 
 accessor_map accessors_from_rules(props::property_set ps);
-}
+} // namespace synth

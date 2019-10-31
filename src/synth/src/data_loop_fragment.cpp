@@ -189,4 +189,4 @@ bool data_loop_fragment::equal_to(frag_ptr const& other) const
 {
   return other->equal_as(*this);
 }
-}
+} // namespace synth
