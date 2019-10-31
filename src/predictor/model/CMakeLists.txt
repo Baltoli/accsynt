@@ -3,6 +3,7 @@ add_library(model
   src/generated.c)
 
 target_link_libraries(model
+  CONAN_PKG::fmt
   props)
 
 target_include_directories(model PUBLIC
