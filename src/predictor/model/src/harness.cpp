@@ -10,6 +10,10 @@ namespace model {
 
 props::property_set predict(props::property_set ps)
 {
+  ps.properties.clear();
+
+  fmt::print("{}\n", ps);
+
   return ps;
 }
 
