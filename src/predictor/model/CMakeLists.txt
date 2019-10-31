@@ -2,6 +2,9 @@ add_library(model
   src/harness.cpp
   src/generated.c)
 
+target_link_libraries(model
+  props)
+
 target_include_directories(model PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
