@@ -64,6 +64,19 @@ std::string dataset::to_csv() const
 
   return "{}\n{}"_format(header, fmt::join(rows, "\n"));
 }
+
+std::string dataset::name_map_csv() const
+{
+  using namespace fmt::literals;
+
+  auto rows = std::vector<std::string>{"name,index"};
+
+  for(auto const& name : prop_names_) {
+    rows.push_back("{},{}"_format(name, prop_encoder()(name)));
+  }
+
+  return "{}"_format(fmt::join(rows, "\n"));
+}
   
 namespace detail {
 
