@@ -7,13 +7,13 @@ vars=(
 root=$(realpath ../model)
 
 gen_c="$root/src/generated.c"
-header="$root/include/model/model.h"
+header="$root/src/internal.h"
 
 rm -f "$gen_c"
 rm -f "$header"
 
 for var in "${vars[@]}"; do
   ./learn.py data.csv code "$var" \
-    >   "$gen_c" \
-    2>  "$header"
+    >>   "$gen_c" \
+   2>>   "$header"
 done
