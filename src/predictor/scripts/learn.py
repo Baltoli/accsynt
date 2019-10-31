@@ -67,6 +67,7 @@ def main(argv):
 
             port = Porter(mod, language='c')
             code = port.export(embed_data=True)
+            code = code.replace('int predict_', 'static int predict_')
             code = code.replace('predict', func_name)
             code = "\n".join(code.split('\n')[:-10])
 

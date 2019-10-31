@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 
-int predict_out_num_props_0(float features[]) {
+static int predict_out_num_props_0(float features[]) {
     int classes[5];
     
     if (features[13] <= 0.0) {
@@ -102,7 +102,7 @@ int predict_out_num_props_0(float features[]) {
     return class_idx;
 }
 
-int predict_out_num_props_1(float features[]) {
+static int predict_out_num_props_1(float features[]) {
     int classes[5];
     
     if (features[7] <= 3.5) {
@@ -202,7 +202,7 @@ int predict_out_num_props_1(float features[]) {
     return class_idx;
 }
 
-int predict_out_num_props_2(float features[]) {
+static int predict_out_num_props_2(float features[]) {
     int classes[5];
     
     if (features[12] <= -0.5) {
@@ -318,7 +318,7 @@ int predict_out_num_props_2(float features[]) {
     return class_idx;
 }
 
-int predict_out_num_props_3(float features[]) {
+static int predict_out_num_props_3(float features[]) {
     int classes[5];
     
     if (features[0] <= 0.5) {
@@ -442,7 +442,7 @@ int predict_out_num_props_3(float features[]) {
     return class_idx;
 }
 
-int predict_out_num_props_4(float features[]) {
+static int predict_out_num_props_4(float features[]) {
     int classes[5];
     
     if (features[13] <= 2.5) {
@@ -582,7 +582,7 @@ int predict_out_num_props_4(float features[]) {
     return class_idx;
 }
 
-int predict_out_num_props_5(float features[]) {
+static int predict_out_num_props_5(float features[]) {
     int classes[5];
     
     if (features[0] <= 0.5) {
@@ -658,7 +658,7 @@ int predict_out_num_props_5(float features[]) {
     return class_idx;
 }
 
-int predict_out_num_props_6(float features[]) {
+static int predict_out_num_props_6(float features[]) {
     int classes[5];
     
     if (features[1] <= 3.5) {
@@ -782,7 +782,7 @@ int predict_out_num_props_6(float features[]) {
     return class_idx;
 }
 
-int predict_out_num_props_7(float features[]) {
+static int predict_out_num_props_7(float features[]) {
     int classes[5];
     
     if (features[4] <= 0.5) {
@@ -914,7 +914,7 @@ int predict_out_num_props_7(float features[]) {
     return class_idx;
 }
 
-int predict_out_num_props_8(float features[]) {
+static int predict_out_num_props_8(float features[]) {
     int classes[5];
     
     if (features[4] <= -0.5) {
@@ -1046,7 +1046,7 @@ int predict_out_num_props_8(float features[]) {
     return class_idx;
 }
 
-int predict_out_num_props_9(float features[]) {
+static int predict_out_num_props_9(float features[]) {
     int classes[5];
     
     if (features[0] <= 0.5) {
@@ -1154,7 +1154,7 @@ int predict_out_num_props_9(float features[]) {
     return class_idx;
 }
 
-int predict_out_num_props_10(float features[]) {
+static int predict_out_num_props_10(float features[]) {
     int classes[5];
     
     if (features[0] <= 0.5) {
@@ -1262,7 +1262,7 @@ int predict_out_num_props_10(float features[]) {
     return class_idx;
 }
 
-int predict_out_num_props_11(float features[]) {
+static int predict_out_num_props_11(float features[]) {
     int classes[5];
     
     if (features[13] <= 0.0) {
@@ -1394,7 +1394,7 @@ int predict_out_num_props_11(float features[]) {
     return class_idx;
 }
 
-int predict_out_num_props_12(float features[]) {
+static int predict_out_num_props_12(float features[]) {
     int classes[5];
     
     if (features[9] <= 3.5) {
@@ -1502,7 +1502,7 @@ int predict_out_num_props_12(float features[]) {
     return class_idx;
 }
 
-int predict_out_num_props_13(float features[]) {
+static int predict_out_num_props_13(float features[]) {
     int classes[5];
     
     if (features[2] <= -0.5) {
@@ -1570,7 +1570,7 @@ int predict_out_num_props_13(float features[]) {
     return class_idx;
 }
 
-int predict_out_num_props_14(float features[]) {
+static int predict_out_num_props_14(float features[]) {
     int classes[5];
     
     if (features[2] <= -0.5) {
@@ -1678,7 +1678,7 @@ int predict_out_num_props_14(float features[]) {
     return class_idx;
 }
 
-int predict_out_num_props_15(float features[]) {
+static int predict_out_num_props_15(float features[]) {
     int classes[5];
     
     if (features[13] <= 0.0) {
@@ -1794,7 +1794,7 @@ int predict_out_num_props_15(float features[]) {
     return class_idx;
 }
 
-int predict_out_num_props_16(float features[]) {
+static int predict_out_num_props_16(float features[]) {
     int classes[5];
     
     if (features[2] <= -0.5) {
@@ -1902,7 +1902,7 @@ int predict_out_num_props_16(float features[]) {
     return class_idx;
 }
 
-int predict_out_num_props_17(float features[]) {
+static int predict_out_num_props_17(float features[]) {
     int classes[5];
     
     if (features[2] <= -0.5) {
@@ -2010,7 +2010,7 @@ int predict_out_num_props_17(float features[]) {
     return class_idx;
 }
 
-int predict_out_num_props_18(float features[]) {
+static int predict_out_num_props_18(float features[]) {
     int classes[5];
     
     if (features[3] <= 0.0) {
@@ -2110,7 +2110,7 @@ int predict_out_num_props_18(float features[]) {
     return class_idx;
 }
 
-int predict_out_num_props_19(float features[]) {
+static int predict_out_num_props_19(float features[]) {
     int classes[5];
     
     if (features[0] <= 0.5) {
