@@ -1,3 +1,14 @@
+#include "internal.h"
+
 #include <model/model.h>
 
-#include "internal.h"
+#include <props/props.h>
+
+namespace model {
+
+props::property_set predict(props::property_set ps)
+{
+  return ps;
+}
+
+}
