@@ -26,7 +26,7 @@ rule_synth::rule_synth(props::property_set ps, call_wrapper& ref)
 {
   using namespace fmt::literals;
 
-  make_examples(generator_for(ps), 1'000);
+  make_examples(generator_for(ps), NumExamples);
 
   auto choices = std::vector<fragment::frag_ptr> {};
 
