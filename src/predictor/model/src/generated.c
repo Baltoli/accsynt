@@ -1,3 +1,9 @@
+#include <string.h>
+int map_name(char const* str) {
+  if (strcmp(str, "output") == 0) { return 0; }
+  if (strcmp(str, "size") == 0) { return 1; }
+  return -1;
+}
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
