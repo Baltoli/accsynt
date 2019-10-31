@@ -9,6 +9,17 @@
 
 namespace model {
 
+std::set<std::string> input_keys()
+{
+  auto ret = std::set<std::string>{};
+
+  for (auto i = 0; i < n_keys; ++i) {
+    ret.insert(keys[i]);
+  }
+
+  return ret;
+}
+
 int prop_category(std::string const& str)
 {
   return map_name(str.c_str());

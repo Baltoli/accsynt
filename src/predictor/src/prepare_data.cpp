@@ -1,5 +1,7 @@
 #include "prepare_data.h"
 
+#include <model/model.h>
+
 #include <fmt/format.h>
 
 #include <llvm/Support/Commandline.h>
@@ -15,6 +17,10 @@ namespace predict {
 std::vector<float> example::model_input() const
 {
   auto ret = std::vector<float>{};
+
+  for(auto const& k : model::input_keys()) {
+    fmt::print("{}\n", k);
+  }
 
   for(auto [feat, val] : input_) {
     ret.push_back(static_cast<float>(val));
