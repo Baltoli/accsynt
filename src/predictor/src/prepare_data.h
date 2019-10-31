@@ -7,125 +7,164 @@
 #include <fmt/format.h>
 
 #include <iterator>
-#include <unordered_set>
+#include <map>
+#include <set>
 #include <string>
 #include <type_traits>
 #include <vector>
 
 namespace predict {
 
+namespace detail {
+  int encode(props::base_type);
+}
+
+using feature_map = std::map<std::string, int>;
+
 /**
- * This structure is deliberately lightweight - all it does is wrap the input
- * and output data generated from a particular property set such that they can
- * be easily passed to some kind of learning step later in the process.
- *
- * The schema for doing so is as follows:
- *
- * missing / padding is always -1 for every type
- *
- * base type: void=0, char=1, bool=2, int=3, float=4
- *
- * Input:
- *  return base type as above [1]
- *  return pointers [1]
- *  for each param:
- *    base type as above [1]
- *    pointers [1]
- *  padding to max params
- *
- * Output:
- *  for each prop:
- *    prop name encoded [1]
- *    for each val:
- *      index into params of val [1] // TODO: values???
- *      padding to max arity
- *    padding to max props
+ * A single instance of example data for a learner to later consume. Belongs to
+ * a dataset, which is responsible for inserting missing values etc. when
+ * encoding.
  */
-struct example {
-  std::vector<int> input = {};
-  std::vector<int> output = {};
-
-  std::string dump_input() const;
-  std::string dump_output() const;
-};
-
-class summary {
+class example {
 public:
-  struct report {
-    size_t params;
-    size_t prop_names;
-    size_t props;
-    size_t arity;
-  };
+  template <typename Func>
+  example(Func&&, props::property_set const&);
 
-  template <typename Iterator>
-  summary(Iterator begin, Iterator end)
-  {
-    for(auto it = begin; it != end; ++it) {
-      update(*it);
-    }
-  }
-
-  template <
-    typename Container,
-    typename = std::enable_if_t<
-      !std::is_same_v<std::decay_t<Container>, props::property_set>
-    >
-  >
-  explicit summary(Container&& c) :
-    summary(
-      support::adl_begin(FWD(c)),
-      support::adl_end(FWD(c)))
-  {
-  }
-
-  explicit summary(props::property_set const&);
-
-  report get() const;
-
-  int encode(props::base_type) const;
-  int encode(std::string const&) const;
-
-  example encode(props::property_set const&) const;
-  props::property_set decode(example const&) const;
+  auto const& input() const { return input_; }
+  auto const& output() const { return output_; }
 
 private:
-  /**
-   * Update the current summary model to reflect the new state with respect to
-   * this new property set - i.e. keeping track of how many params, props,
-   * arities etc. we need in order to properly construct feature vectors.
-   */
-  void update(props::property_set const& ps);
-
-  size_t params_ = 0;
-  std::unordered_set<std::string> prop_names_ = {};
-  size_t num_props_ = 0;
-  size_t prop_arity_ = 0;
+  feature_map input_ = {};
+  feature_map output_ = {};
 };
+
+/**
+ * A collection of examples, along with logic to make sure that missing values
+ * etc. are encoded properly.
+ *
+ * In this model, the only summarisation that needs to be done is mapping
+ * property names to classes - can simplify the summarisation code.
+ *
+ * So this summarisation can be removed and pushed into the dataset class
+ * instead - it will just need to make two passes through the data in order to
+ * summarise, then encode each individual property set.
+ */
+class dataset {
+public:
+  template <typename Iterator>
+  dataset(Iterator begin, Iterator end);
+
+  template <typename Container>
+  explicit dataset(Container&& c);
+
+  std::string to_csv() const;
+
+  auto const& examples() const { return examples_; }
+
+private:
+  static constexpr int missing_ = -1;
+
+  constexpr auto prop_encoder() {
+    return [this] (auto const& pn) {
+      auto found = prop_names_.find(pn);
+      return std::distance(prop_names_.begin(), found);
+    };
+  }
+
+  std::set<std::string> prop_names_ = {};
+  std::vector<example> examples_ = {};
+};
+
+/**
+ * Implementations
+ */
+
+template <typename Func>
+example::example(Func&& prop_enc, props::property_set const& ps)
+{
+  using namespace fmt::literals;
+  using namespace support;
+
+  // Inputs
+
+  if(auto rt = ps.type_signature.return_type) {
+    input_["return_type"] = detail::encode(rt->base);
+    input_["return_pointers"] = rt->pointers;
+  }
+
+  for (auto const& [i, param] : enumerate(ps.type_signature.parameters)) {
+    auto base_key = "param_{}_type"_format(i);
+    auto ptr_key = "param_{}_pointers"_format(i);
+
+    input_[base_key] = detail::encode(param.type);
+    input_[ptr_key] = param.pointer_depth;
+  }
+
+  // Outputs - whatever variables we want to use
+
+  if(auto rt = ps.type_signature.return_type) {
+    output_["out_return_type"] = detail::encode(rt->base);
+  }
+
+  output_["out_num_props"] = ps.properties.size();
+
+  output_["out_num_sizes"] = 0;
+  output_["out_num_outputs"] = 0;
+
+  auto outputs = 0;
+  auto sizes = 0;
+
+  for(auto const& [idx, prop] : support::enumerate(ps.properties)) {
+    auto prop_key = "out_prop_{}_name"_format(idx);
+    output_[prop_key] = prop_enc(prop.name);
+
+    if(prop.name == "size") {
+      auto ptr_key = "out_size_{}_ptr"_format(sizes);
+      output_[ptr_key] = ps.type_signature.param_index(prop.values[0].param_val);
+
+      auto size_key = "out_size_{}_size"_format(sizes++);
+      output_[size_key] = ps.type_signature.param_index(prop.values[1].param_val);
+
+      output_["out_num_sizes"]++;
+    }
+
+    if(prop.name == "output") {
+      auto key = "out_output_{}_arg"_format(outputs++);
+      output_[key] = ps.type_signature.param_index(prop.values[0].param_val);
+
+      output_["out_num_outputs"]++;
+    }
+  }
+}
+
+template <typename Iterator>
+dataset::dataset(Iterator begin, Iterator end)
+{
+  // Summarise the data so that we're able to map property names to unique
+  // indices later - this requires a first pass through the data.
+  std::for_each(begin, end, [this] (auto const& ps) {
+    for(auto const& prop : ps.properties) {
+      prop_names_.insert(prop.name);
+    }
+  });
+
+  // Then construct the set of examples from each property set.
+  std::for_each(begin, end, [this] (auto const& ps) {
+    examples_.emplace_back(prop_encoder(), ps);
+  });
+}
+
+template <typename Container>
+dataset::dataset(Container&& c) :
+  dataset(support::adl_begin(FWD(c)), support::adl_end(FWD(c)))
+{
+}
 
 }
 
 namespace fmt {
   
-template <>
-struct formatter<::predict::summary::report> {
-  template <typename ParseContext>
-  constexpr auto parse(ParseContext &ctx) { return ctx.begin(); }
-
-  template <typename FormatContext>
-  auto format(::predict::summary::report const &r, FormatContext &ctx) {
-    using namespace fmt::literals;
-
-    return format_to(ctx.out(), 
-      "Report(params={fps}, names={ns}, props={ps}, arity={a})", 
-      "fps"_a = r.params,
-      "ns"_a = r.prop_names,
-      "ps"_a = r.props,
-      "a"_a = r.arity
-    );
-  }
-};
-
 template <>
 struct formatter<::predict::example> {
   template <typename ParseContext>
@@ -135,10 +174,43 @@ struct formatter<::predict::example> {
   auto format(::predict::example const &e, FormatContext &ctx) {
     using namespace fmt::literals;
 
-    return format_to(ctx.out(), 
-      "Example(\n  input=[{in}],\n  output=[{out}]\n)",
-      "in"_a = fmt::join(e.input, ", "),
-      "out"_a = fmt::join(e.output, ", ")
+    auto in_entries = std::vector<std::string>{};
+    auto out_entries = std::vector<std::string>{};
+
+    for(auto const& [k, v] : e.input()) {
+      in_entries.push_back("{}={}"_format(k, v));
+    }
+
+    for(auto const& [k, v] : e.output()) {
+      out_entries.push_back("{}={}"_format(k, v));
+    }
+
+    auto format = R"(Example(
+  input=( {} ),
+  output=( {} )
+))";
+
+    return format_to(
+      ctx.out(), format,
+      fmt::join(in_entries, ", "),
+      fmt::join(out_entries, ", ")
+    );
+  }
+};
+
+template <>
+struct formatter<::predict::dataset> {
+  template <typename ParseContext>
+  constexpr auto parse(ParseContext &ctx) { return ctx.begin(); }
+
+  template <typename FormatContext>
+  auto format(::predict::dataset const &d, FormatContext &ctx) {
+    auto format = R"(Dataset(
+{}
+))";
+
+    return format_to(
+      ctx.out(), format, fmt::join(d.examples(), ",\n")
     );
   }
 };
