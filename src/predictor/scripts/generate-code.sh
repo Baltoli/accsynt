@@ -18,6 +18,10 @@ rm -f "$header"
     >>   "$gen_c" \
    2>>   "$header"
 
+./keys.py data.csv \
+    >>   "$gen_c" \
+   2>>   "$header"
+
 for var in "${vars[@]}"; do
   ./learn.py data.csv code "$var" \
     >>   "$gen_c" \

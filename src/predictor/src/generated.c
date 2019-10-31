@@ -4,6 +4,23 @@ int map_name(char const* str) {
   if (strcmp(str, "size") == 0) { return 1; }
   return -1;
 }
+char const* keys[] = {
+  "param_0_pointers",
+  "param_0_type",
+  "param_1_pointers",
+  "param_1_type",
+  "param_2_pointers",
+  "param_2_type",
+  "param_3_pointers",
+  "param_3_type",
+  "param_4_pointers",
+  "param_4_type",
+  "param_5_pointers",
+  "param_5_type",
+  "return_pointers",
+  "return_type"
+};
+int n_keys=14;
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
