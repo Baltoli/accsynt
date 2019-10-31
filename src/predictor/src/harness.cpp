@@ -1,4 +1,5 @@
 #include "internal.h"
+#include "prepare_data.h"
 
 #include <model/model.h>
 
@@ -15,6 +16,9 @@ int prop_category(std::string const& str)
 
 props::property_set predict(props::property_set ps)
 {
+  auto in = predict::example(prop_category, ps).model_input();
+  fmt::print("{}\n", fmt::join(in, ","));
+
   ps.properties.clear();
 
   fmt::print("{}\n", ps);

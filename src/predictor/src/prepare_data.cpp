@@ -12,6 +12,17 @@ using namespace props;
 
 namespace predict {
 
+std::vector<float> example::model_input() const
+{
+  auto ret = std::vector<float>{};
+
+  for(auto [feat, val] : input_) {
+    ret.push_back(static_cast<float>(val));
+  }
+
+  return ret;
+}
+
 std::string dataset::to_csv() const
 {
   using namespace fmt::literals;

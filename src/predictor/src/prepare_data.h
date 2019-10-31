@@ -34,6 +34,8 @@ public:
   auto const& input() const { return input_; }
   auto const& output() const { return output_; }
 
+  std::vector<float> model_input() const;
+
 private:
   feature_map input_ = {};
   feature_map output_ = {};
