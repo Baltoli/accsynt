@@ -30,11 +30,15 @@ rule_synth::rule_synth(props::property_set ps, call_wrapper& ref)
 
   auto choices = std::vector<fragment::frag_ptr> {};
 
-  for (auto rule : rule_registry::all()) {
-    auto matches = rule.match(ps);
-    for (auto&& choice : matches) {
-      choices.push_back(choice);
+  if (!NewRules) {
+    for (auto rule : rule_registry::all()) {
+      auto matches = rule.match(ps);
+      for (auto&& choice : matches) {
+        choices.push_back(choice);
+      }
     }
+  } else {
+    errs() << "NOT IMPLEMENTED\n";
   }
 
   if (choices.empty()) {

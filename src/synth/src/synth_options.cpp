@@ -27,6 +27,10 @@ cl::opt<std::string> FragmentHash("hash",
 cl::opt<bool> InteractiveCount("count",
     cl::desc("Interactively print the running program count"), cl::init(false));
 
+cl::opt<bool> NewRules("new-rules",
+    cl::desc("Use new rules for instantiating fragments (ignore properties"),
+    cl::init(false));
+
 cl::opt<bool> DryRun("dry-run",
     cl::desc("Only parse the properties and load the function symbol"),
     cl::init(false));
