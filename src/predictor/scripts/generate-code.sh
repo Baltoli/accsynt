@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 
 vars=(
-  out_num_props
-  out_num_sizes
-  out_num_outputs
+  out_output_0_arg
+  out_output_1_arg
 )
 
 root=$(realpath ..)

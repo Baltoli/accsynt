@@ -21,12 +21,11 @@ props::property_set predict(props::property_set ps)
   auto in = predict::example(prop_category, ps).model_input();
   fmt::print("{}\n", fmt::join(in, ","));
 
-  auto props = predict_out_num_props(in.data());
-  auto sizes = predict_out_num_sizes(in.data());
-  auto outs = predict_out_num_outputs(in.data());
+  auto out_0 = predict_out_output_0_arg(in.data());
+  auto out_1 = predict_out_output_1_arg(in.data());
 
   fmt::print("{}\n", ps);
-  fmt::print("Predicted: {} props, {} size, {} out\n", props, sizes, outs);
+  fmt::print("Outputs: {}, {}\n", out_0, out_1);
 
   return ps;
 }
