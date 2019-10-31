@@ -59,6 +59,7 @@ public:
   explicit dataset(Container&& c);
 
   std::string to_csv() const;
+  std::string name_map_csv() const;
 
   auto const& examples() const { return examples_; }
 

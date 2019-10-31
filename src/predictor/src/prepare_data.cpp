@@ -64,6 +64,11 @@ std::string dataset::to_csv() const
 
   return "{}\n{}"_format(header, fmt::join(rows, "\n"));
 }
+
+std::string dataset::name_map_csv() const
+{
+  return "some,names";
+}
   
 namespace detail {
 
