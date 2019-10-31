@@ -55,4 +55,4 @@ void choose::for_each(Func&& f) const
   recursive_step(indices, {}, FWD(f));
 }
 
-}
+} // namespace support

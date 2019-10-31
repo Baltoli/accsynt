@@ -16,7 +16,7 @@ namespace synth {
 struct hole;
 struct loop_id;
 class loop;
-}
+} // namespace synth
 
 namespace std {
 template <>
@@ -33,7 +33,7 @@ template <>
 struct hash<synth::loop> {
   size_t operator()(synth::loop const& h) const;
 };
-}
+} // namespace std
 
 namespace synth {
 
@@ -45,16 +45,10 @@ namespace synth {
  */
 struct hole {
   /// Always returns true; all holes are equivalent.
-  bool operator==(hole const& other) const
-  {
-    return true;
-  }
+  bool operator==(hole const& other) const { return true; }
 
   /// Always returns false; all holes are equivalent.
-  bool operator!=(hole const& other) const
-  {
-    return false;
-  }
+  bool operator!=(hole const& other) const { return false; }
 };
 
 /**
@@ -64,16 +58,10 @@ struct loop_id {
   loop_id() = delete;
 
   /// Comparisons use underlying id.
-  bool operator==(loop_id const& other) const
-  {
-    return id == other.id;
-  }
+  bool operator==(loop_id const& other) const { return id == other.id; }
 
   /// Comparisons use underlying id.
-  bool operator!=(loop_id const& other) const
-  {
-    return !(*this == other);
-  }
+  bool operator!=(loop_id const& other) const { return !(*this == other); }
 
   /// Underlying ID.
   long id;
@@ -214,31 +202,13 @@ public:
    * \name Iteration
    */
   ///@{
-  size_t children_size() const
-  {
-    return loops_.size();
-  }
-  loop& nth_child(size_t n) const
-  {
-    return *loops_.at(n);
-  }
+  size_t children_size() const { return loops_.size(); }
+  loop& nth_child(size_t n) const { return *loops_.at(n); }
 
-  auto begin() const
-  {
-    return loops_.begin();
-  }
-  auto end() const
-  {
-    return loops_.end();
-  }
-  auto rbegin() const
-  {
-    return loops_.rbegin();
-  }
-  auto rend() const
-  {
-    return loops_.rend();
-  }
+  auto begin() const { return loops_.begin(); }
+  auto end() const { return loops_.end(); }
+  auto rbegin() const { return loops_.rbegin(); }
+  auto rend() const { return loops_.rend(); }
   ///@}
 
   /**
@@ -305,4 +275,4 @@ std::pair<loop, Iterator> loop::instantiated(Iterator begin, Iterator end) const
 
   return { ret, it };
 }
-}
+} // namespace synth

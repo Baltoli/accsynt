@@ -64,4 +64,4 @@ accessor const& accessor_map::operator()(std::string const& name) const
     return default_accessor_;
   }
 }
-}
+} // namespace synth

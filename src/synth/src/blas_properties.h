@@ -44,4 +44,4 @@ private:
   // iteration
   std::map<size_t, size_t> packing_ = {};
 };
-}
+} // namespace synth

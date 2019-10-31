@@ -31,15 +31,9 @@ region::region(
 {
 }
 
-Instruction* region::output() const
-{
-  return output_;
-}
+Instruction* region::output() const { return output_; }
 
-std::vector<Value*> const& region::inputs() const
-{
-  return inputs_;
-}
+std::vector<Value*> const& region::inputs() const { return inputs_; }
 
 Function* region::extract() const
 {
@@ -288,4 +282,4 @@ std::vector<region> region_finder::all_candidates() const
 
   return regions;
 }
-}
+} // namespace interfind

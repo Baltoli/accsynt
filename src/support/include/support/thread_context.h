@@ -31,4 +31,4 @@ private:
 
   std::mutex map_mutex_;
 };
-}
+} // namespace support

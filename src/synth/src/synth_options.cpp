@@ -39,6 +39,5 @@ cl::opt<int> NumExamples("examples",
     cl::desc("Number of random examples to generate (default 1000)"),
     cl::init(1000));
 
-cl::alias NumExamplesA("N",
-    cl::desc("Alias for --examples"),
-    cl::aliasopt(NumExamples));
+cl::alias NumExamplesA(
+    "N", cl::desc("Alias for --examples"), cl::aliasopt(NumExamples));

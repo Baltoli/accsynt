@@ -133,7 +133,7 @@ void Clean::cloneRetyped(Function& F) const
 
 char Clean::ID = 0;
 static RegisterPass<Clean> X("clean", "Accsynt cleaning pass", false, false);
-}
+} // namespace
 
 std::unique_ptr<ModulePass> createCleanPass()
 {

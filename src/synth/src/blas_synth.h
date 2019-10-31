@@ -45,4 +45,4 @@ private:
   std::unordered_set<loop> loops_;
   decltype(loops_)::iterator current_loop_;
 };
-}
+} // namespace synth

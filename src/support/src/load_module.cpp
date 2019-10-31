@@ -38,4 +38,4 @@ std::unique_ptr<Module> load_module(std::string const& path)
 
   return mod;
 }
-}
+} // namespace support

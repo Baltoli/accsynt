@@ -37,4 +37,4 @@ private:
 
   size_t num_pointers_;
 };
-}
+} // namespace synth

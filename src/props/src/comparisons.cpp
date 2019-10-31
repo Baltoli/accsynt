@@ -10,10 +10,7 @@ bool param::operator==(param const& other) const
       == std::tie(other.name, other.type, other.pointer_depth);
 }
 
-bool param::operator!=(param const& other) const
-{
-  return !(*this == other);
-}
+bool param::operator!=(param const& other) const { return !(*this == other); }
 
 bool signature::operator==(signature const& other) const
 {
@@ -25,4 +22,4 @@ bool signature::operator!=(signature const& other) const
 {
   return !(*this == other);
 }
-}
+} // namespace props

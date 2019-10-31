@@ -57,7 +57,7 @@ bool ConvertToIDL::runOnFunction(Function& F)
 char ConvertToIDL::ID = 0;
 static RegisterPass<ConvertToIDL> X(
     "to-idl", "Convert a function to IDL constraints", false, false);
-}
+} // namespace
 
 std::unique_ptr<FunctionPass> createConvertToIDLPass()
 {

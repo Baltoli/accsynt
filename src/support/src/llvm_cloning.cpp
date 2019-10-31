@@ -55,4 +55,4 @@ std::unique_ptr<Module> copy_module_to(LLVMContext& ctx, Module const& m)
     return std::move(expect.get());
   }
 }
-}
+} // namespace support

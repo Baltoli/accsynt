@@ -32,10 +32,7 @@ std::set<Value*> all_uses(Value* v)
   return ret;
 }
 
-std::set<Value*> all_deps(Value* v)
-{
-  return all_deps(v, {});
-}
+std::set<Value*> all_deps(Value* v) { return all_deps(v, {}); }
 
 std::set<Value*> all_deps(Value* v, std::vector<Value*> const& roots)
 {
@@ -106,7 +103,7 @@ void visit(Value* v, std::set<Value*> const& vals, std::map<Value*, int>& marks,
   marks.at(v) = 1;
   ret.push_back(v);
 }
-}
+} // namespace
 
 std::vector<Value*> topo_sort(std::set<Value*> const& vals)
 {
@@ -157,4 +154,4 @@ llvm::Value* get_by_name(Function& fn, std::string name)
 
   return nullptr;
 }
-}
+} // namespace support
