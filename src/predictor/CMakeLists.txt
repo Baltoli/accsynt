@@ -25,3 +25,5 @@ target_include_directories(predictor_unit
 
 add_test(NAME predictor_unit
          COMMAND $<TARGET_FILE:predictor_unit>)
+
+add_subdirectory(model)
