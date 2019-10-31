@@ -19,11 +19,11 @@ std::vector<float> example::model_input() const
   auto ret = std::vector<float>{};
 
   for(auto const& k : model::input_keys()) {
-    fmt::print("{}\n", k);
-  }
-
-  for(auto [feat, val] : input_) {
-    ret.push_back(static_cast<float>(val));
+    if(input_.find(k) != input_.end()) {
+      ret.push_back(static_cast<float>(input_.at(k)));
+    } else {
+      ret.push_back(static_cast<float>(dataset::missing_));
+    }
   }
 
   return ret;

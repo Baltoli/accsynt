@@ -65,9 +65,9 @@ public:
 
   auto const& examples() const { return examples_; }
 
-private:
   static constexpr int missing_ = -1;
 
+private:
   constexpr auto prop_encoder() const {
     return [this] (auto const& pn) {
       auto found = prop_names_.find(pn);
