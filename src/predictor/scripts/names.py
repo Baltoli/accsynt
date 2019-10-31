@@ -12,7 +12,7 @@ def func_end():
     return "  return -1;\n}";
 
 def header():
-    return "int map_name(char const* str);"
+    return 'extern "C" int map_name(char const* str);'
 
 def main(args):
     name_dict = pd.read_csv(args[0]).set_index('name').to_dict()['index']

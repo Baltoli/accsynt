@@ -8,6 +8,11 @@
 
 namespace model {
 
+int prop_category(std::string const& str)
+{
+  return map_name(str.c_str());
+}
+
 props::property_set predict(props::property_set ps)
 {
   ps.properties.clear();
