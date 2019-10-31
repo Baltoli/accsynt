@@ -66,7 +66,7 @@ public:
 private:
   static constexpr int missing_ = -1;
 
-  constexpr auto prop_encoder() {
+  constexpr auto prop_encoder() const {
     return [this] (auto const& pn) {
       auto found = prop_names_.find(pn);
       return std::distance(prop_names_.begin(), found);
