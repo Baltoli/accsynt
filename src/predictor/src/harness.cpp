@@ -16,12 +16,14 @@ int prop_category(std::string const& str)
 
 props::property_set predict(props::property_set ps)
 {
+  ps.properties.clear();
+
   auto in = predict::example(prop_category, ps).model_input();
   fmt::print("{}\n", fmt::join(in, ","));
 
-  ps.properties.clear();
-
+  auto pred = predict_out_num_props(in.data());
   fmt::print("{}\n", ps);
+  fmt::print("Predicted: {} props\n", pred);
 
   return ps;
 }
