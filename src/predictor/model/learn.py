@@ -34,7 +34,17 @@ def main(argv):
     path = argv[0]
     data = pd.read_csv(path)
 
-    e_vars = argv[1:]
+    mode = argv[1]
+    if mode not in ['stats', 'code']:
+        print('Invalid mode: {}'.format(mode))
+        sys.exit(1)
+
+    e_vars = argv[2:]
+
+    if mode == 'code' and len(e_vars) != 1:
+        print('Can only export code for one model')
+        sys.exit(2)
+
     if len(e_vars) == 0:
         e_vars = output_vars(data)
 
@@ -49,10 +59,15 @@ def main(argv):
             mod = model(s).fit(train_xs, train_ys)
             accs.append(np.sum(mod.predict(test_xs) == test_ys) / float(len(test_ys)))
 
-        print("{}: {:.2f}%".format(var, 100 * sum(accs) / len(accs)))
+        if mode == 'stats':
+            print("{}: {:.2f}%".format(var, 100 * sum(accs) / len(accs)))
 
-        # port = Porter(model().fit(xs, ys), language='c')
-        # print(port.export(embed_data=True))
+        if mode == 'code':
+            port = Porter(mod, language='c')
+            code = port.export(embed_data=True)
+            code = code.replace('predict', 'predict_{}'.format(var))
+            code = "\n".join(code.split('\n')[:-10])
+            print(code)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
