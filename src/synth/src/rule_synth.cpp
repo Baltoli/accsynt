@@ -8,6 +8,8 @@
 #include "rules.h"
 #include "synth_options.h"
 
+#include <model/model.h>
+
 #include <support/argument_generator.h>
 #include <support/file.h>
 #include <support/hash.h>
@@ -30,15 +32,15 @@ rule_synth::rule_synth(props::property_set ps, call_wrapper& ref)
 
   auto choices = std::vector<fragment::frag_ptr> {};
 
-  if (!NewRules) {
-    for (auto rule : rule_registry::all()) {
-      auto matches = rule.match(ps);
-      for (auto&& choice : matches) {
-        choices.push_back(choice);
-      }
+  if (NewRules) {
+    ps = model::predict(ps);
+  }
+
+  for (auto rule : rule_registry::all()) {
+    auto matches = rule.match(ps);
+    for (auto&& choice : matches) {
+      choices.push_back(choice);
     }
-  } else {
-    errs() << "NOT IMPLEMENTED\n";
   }
 
   if (choices.empty()) {

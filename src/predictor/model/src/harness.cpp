@@ -4,6 +4,8 @@
 
 #include <props/props.h>
 
+#include <fmt/format.h>
+
 namespace model {
 
 props::property_set predict(props::property_set ps)
