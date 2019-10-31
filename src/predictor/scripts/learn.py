@@ -24,7 +24,7 @@ def output_var(df, var):
     return df.loc[:, var]
 
 def model(seed):
-    forest = RandomForestClassifier(n_estimators=50, max_depth=8, random_state=seed)
+    forest = RandomForestClassifier(n_estimators=100, max_depth=10, random_state=seed)
     return forest
 
 def seeds():
