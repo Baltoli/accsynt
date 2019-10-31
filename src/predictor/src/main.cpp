@@ -23,6 +23,15 @@ static cl::list<std::string> InputFilenames(
     cl::desc("<property sets>"), 
     cl::OneOrMore);
 
+static cl::opt<std::string> OutputDirectory(
+    "output-dir",
+    cl::desc("Directory to output generated CSV files"),
+    cl::init("-"));
+
+static cl::alias OutputDirectoryA(
+    "-o", cl::desc("Alias for output-dir"),
+    cl::aliasopt(OutputDirectory));
+
 static cl::opt<mode> Mode(
     cl::desc("Execution mode"),
     cl::values(
