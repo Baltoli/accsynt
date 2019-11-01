@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <optional>
+#include <type_traits>
 
 namespace synth {
 
@@ -18,15 +19,19 @@ struct register_fragment_id {
 };
 
 template <typename T>
-std::optional<int> get_fragment_id()
+int get_fragment_id()
 {
-  return get_id(&T::ID);
+  if (auto id = detail::get_id(&T::ID)) {
+    return id.value();
+  } else {
+    throw std::runtime_error("Unregistered type");
+  }
 }
 
 template <typename T>
 decltype(auto) get_fragment_id(T&& t)
 {
-  return get_fragment_id<T>();
+  return get_fragment_id<std::decay_t<T>>();
 }
 
 } // namespace synth
