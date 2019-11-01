@@ -5,6 +5,3 @@ namespace {
 std::set<char*> reg_ptrs_ = {};
 
 }
-
-namespace synth {
-}
