@@ -25,7 +25,8 @@ add_library(coresynth
   src/string_loop_fragment.cpp
   src/regular_loop_fragment.cpp
   src/loop_to_n_fragment.cpp
-  src/affine_fragment.cpp)
+  src/affine_fragment.cpp
+  src/fragment_id.cpp)
 
 add_executable(synth
   src/synth.cpp)
