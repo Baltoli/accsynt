@@ -37,6 +37,7 @@ add_executable(fragment-demo
 add_executable(synth_unit
   test/regular_loop_fragment.cpp
   test/linear_fragment.cpp
+  test/fragment_id.cpp
   test/main.cpp)
 
 target_link_libraries(coresynth
