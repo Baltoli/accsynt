@@ -9,4 +9,4 @@ struct visitor : Ts... {
 
 template <class... Ts>
 visitor(Ts...)->visitor<Ts...>;
-}
+} // namespace support

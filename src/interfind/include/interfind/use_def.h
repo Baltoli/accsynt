@@ -15,7 +15,7 @@ namespace llvm {
 class Function;
 class Instruction;
 class Value;
-}
+} // namespace llvm
 
 namespace interfind {
 
@@ -128,4 +128,4 @@ bool use_def_analysis::is_root_set(llvm::Value* use, Container&& roots) const
 
   return true;
 }
-}
+} // namespace interfind

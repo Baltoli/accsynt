@@ -80,7 +80,8 @@ TEST_CASE("has_member_find works")
 }
 
 struct A;
-struct B{};
+struct B {
+};
 
 TEST_CASE("can check for completeness")
 {
@@ -90,9 +91,14 @@ TEST_CASE("can check for completeness")
   static_assert(is_complete_v<int>);
 }
 
-template <typename> struct S;
-template <> struct S<int> {};
-template <> struct S<float> {};
+template <typename>
+struct S;
+template <>
+struct S<int> {
+};
+template <>
+struct S<float> {
+};
 
 TEST_CASE("can check for specialization")
 {

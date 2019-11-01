@@ -55,7 +55,7 @@ bool Namer::runOnFunction(Function& F)
 char Namer::ID = 0;
 static RegisterPass<Namer> X(
     "name", "Value naming pass for fiddling around", false, false);
-}
+} // namespace
 
 std::unique_ptr<FunctionPass> createNamerPass()
 {

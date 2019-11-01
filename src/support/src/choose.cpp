@@ -9,4 +9,4 @@ choose::choose(size_t n, size_t k)
     , choice_size_(k)
 {
 }
-}
+} // namespace support

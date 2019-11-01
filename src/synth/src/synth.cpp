@@ -60,8 +60,7 @@ void report(generate_result result)
   });
 }
 
-int main(int argc, char** argv) try
-{
+int main(int argc, char** argv) try {
   if (UseBLAS && HillClimb) {
     // TODO: make these into an enum to choose the implementation
     errs() << "Cannot use both BLAS and hill climber implementations\n";

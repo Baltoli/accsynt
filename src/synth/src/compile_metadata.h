@@ -25,4 +25,4 @@ struct compile_metadata {
 
   explicit compile_metadata(llvm::Function* fn);
 };
-}
+} // namespace synth

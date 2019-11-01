@@ -44,7 +44,7 @@ analysis_result finder::run(Module& mod, json config)
 
   auto sig_t = find.signature_.function_type();
 
-  auto fns = std::vector<Function*> {};
+  auto fns = std::vector<Function*>{};
 
   for (auto& fn : mod) {
     if (!fn.isDeclaration()) {

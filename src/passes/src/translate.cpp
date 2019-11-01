@@ -158,7 +158,7 @@ std::optional<std::string> constraint(Function const& F)
 
   return std::nullopt;
 }
-}
+} // namespace convert::detail
 
 namespace convert {
 
@@ -174,4 +174,4 @@ std::optional<std::string> to_idl(Function const& F)
 
   return std::nullopt;
 }
-}
+} // namespace convert

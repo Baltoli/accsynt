@@ -47,4 +47,4 @@ std::set<llvm::Value*> compile_context::create_geps_for(std::string const& name,
 {
   return accessor_for(name).create_geps(metadata_, base, ptr, builder, prefix);
 }
-}
+} // namespace synth

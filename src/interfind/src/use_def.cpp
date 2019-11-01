@@ -32,4 +32,4 @@ bool use_def_analysis::depends(Value* use, Value* def) const
 
   return false;
 }
-}
+} // namespace interfind

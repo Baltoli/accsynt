@@ -185,8 +185,8 @@ double Match::evaluate(const Graph& g, bool print) const
 
   return 1000000000.0
       / pow(p1 * distinct_groups + p2 * opcode_mismatches
-              + p3 * param_mismatches + p4 * overlapped_params,
-          3);
+                + p3 * param_mismatches + p4 * overlapped_params,
+            3);
 }
 
 void Match::print_constraints_line(
@@ -315,10 +315,10 @@ void Match::print_constraints(const Graph& g, std::ostream& ostr) const
 
       if (uniques == 1
           && (opcodes[0] == Instruction::fadd || opcodes[0] == Instruction::fmul
-              || opcodes[0] == Instruction::add
-              || opcodes[0] == Instruction::mul
-              || opcodes[0] == Instruction::phi
-              || opcodes[0] == Instruction::icmp)) {
+                 || opcodes[0] == Instruction::add
+                 || opcodes[0] == Instruction::mul
+                 || opcodes[0] == Instruction::phi
+                 || opcodes[0] == Instruction::icmp)) {
         ostr << "  ( (";
         bool first = true;
         for (size_t j = 0; j < args.size(); j++) {

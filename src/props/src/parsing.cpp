@@ -11,26 +11,21 @@ namespace props {
 namespace pegtl = tao::props_pegtl;
 using namespace pegtl;
 
-parse_error::parse_error(char const* s) :
-  str_(s)
+parse_error::parse_error(char const* s)
+    : str_(s)
 {
 }
 
-const char *parse_error::what() const noexcept
-{
-  return str_;
-}
+const char* parse_error::what() const noexcept { return str_; }
 
 std::optional<base_type> base_type_from_string(std::string const& str)
 {
   auto map = std::unordered_map<std::string, base_type>{
-    { "char",   base_type::character }, 
-    { "int",    base_type::integer },
-    { "float",  base_type::floating }, 
-    { "bool",   base_type::boolean }
+    { "char", base_type::character }, { "int", base_type::integer },
+    { "float", base_type::floating }, { "bool", base_type::boolean }
   };
 
-  if(map.find(str) != map.end()) {
+  if (map.find(str) != map.end()) {
     return map.at(str);
   } else {
     return std::nullopt;
@@ -60,41 +55,20 @@ struct interface_name : identifier {
 struct pointers : plus<string<'*'>> {
 };
 
-struct return_type :
-  sor<
-    seq<
-      type_name,
-      star<blank>,
-      pointers,
-      star<blank>
-    >,
-    seq<
-      type_name,
-      plus<blank>
-    >
-  > {};
+struct return_type : sor<seq<type_name, star<blank>, pointers, star<blank>>,
+                         seq<type_name, plus<blank>>> {
+};
 
-struct param_spec : 
-  seq<
-    type_name,
-    sor<
-      seq<
-        star<blank>,
-        pointers,
-        star<blank>
-      >,
-      plus<blank>
-    >,
-    interface_name
-  >
-{};
+struct param_spec
+    : seq<type_name, sor<seq<star<blank>, pointers, star<blank>>, plus<blank>>,
+          interface_name> {
+};
 
 struct params : list<param_spec, seq<star<blank>, string<','>, star<blank>>> {
 };
 
-struct signature_grammar
-    : seq<return_type, interface_name, string<'('>,
-          action<param_action, opt<params>>, string<')'>> {
+struct signature_grammar : seq<return_type, interface_name, string<'('>,
+                               action<param_action, opt<params>>, string<')'>> {
 };
 
 struct any_in_line : seq<not_at<eol>, any> {
@@ -199,8 +173,8 @@ struct signature_action<type_name> {
   static void apply(Input const& in, signature& sig)
   {
     auto type = base_type_from_string(in.string());
-    if(type) {
-      sig.return_type = data_type { type.value(), 0 };
+    if (type) {
+      sig.return_type = data_type{ type.value(), 0 };
     }
   }
 };

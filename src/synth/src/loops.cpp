@@ -136,10 +136,7 @@ bool loop::operator==(loop const& other) const
   return true;
 }
 
-bool loop::operator!=(loop const& other) const
-{
-  return !(*this == other);
-}
+bool loop::operator!=(loop const& other) const { return !(*this == other); }
 
 size_t loop::hash() const
 {
@@ -199,15 +196,12 @@ std::ostream& operator<<(std::ostream& os, loop const& loop)
 
   return os;
 }
-}
+} // namespace synth
 
 namespace std {
 using namespace synth;
 
-size_t hash<hole>::operator()(hole const& h) const
-{
-  return 0;
-}
+size_t hash<hole>::operator()(hole const& h) const { return 0; }
 
 size_t hash<loop_id>::operator()(loop_id const& h) const
 {
@@ -216,8 +210,5 @@ size_t hash<loop_id>::operator()(loop_id const& h) const
   return ret;
 }
 
-size_t hash<loop>::operator()(loop const& l) const
-{
-  return l.hash();
-}
-}
+size_t hash<loop>::operator()(loop const& l) const { return l.hash(); }
+} // namespace std

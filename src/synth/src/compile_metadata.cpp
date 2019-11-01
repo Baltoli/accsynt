@@ -8,4 +8,4 @@ compile_metadata::compile_metadata(llvm::Function* fn)
     : function(fn)
 {
 }
-}
+} // namespace synth

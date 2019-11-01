@@ -24,9 +24,7 @@ enum mode {
 };
 
 static cl::list<std::string> InputFilenames(
-    cl::Positional, 
-    cl::desc("<property sets>"), 
-    cl::OneOrMore);
+    cl::Positional, cl::desc("<property sets>"), cl::OneOrMore);
 
 static cl::opt<std::string> OutputDirectory(
     "output-dir",
@@ -47,7 +45,7 @@ static cl::opt<mode> Mode(
 int to_python()
 {
   auto all_props = std::vector<property_set>{};
-  for(auto file : InputFilenames) {
+  for (auto file : InputFilenames) {
     all_props.push_back(property_set::load(file));
   }
 
@@ -85,12 +83,12 @@ int to_python()
   return 0;
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
   cl::ParseCommandLineOptions(argc, argv);
 
-  switch(Mode) {
-    case python:
-      return to_python();
+  switch (Mode) {
+  case python:
+    return to_python();
   }
 }

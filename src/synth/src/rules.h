@@ -137,7 +137,7 @@ public:
   bool validate(match_result const& unified, props::property_set ps) const;
 
 private:
-  std::set<std::string> vars_ {};
+  std::set<std::string> vars_{};
 };
 
 class negation {
@@ -149,7 +149,7 @@ public:
 
 private:
   std::string name_;
-  std::vector<std::string> args_ {};
+  std::vector<std::string> args_{};
 };
 
 class is_pointer {
@@ -196,7 +196,7 @@ std::optional<match_result> match_result::unify_all(
     return std::nullopt;
   }
 
-  auto accum = std::optional<match_result> { *begin };
+  auto accum = std::optional<match_result>{ *begin };
   for (auto it = begin; it != end && accum; ++it) {
     accum = accum->unify_with(*it);
   }

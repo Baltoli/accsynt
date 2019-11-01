@@ -33,4 +33,4 @@ private:
 };
 
 void to_json(nlohmann::json& j, analysis_result const& ar);
-}
+} // namespace interfind

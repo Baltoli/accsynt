@@ -23,8 +23,7 @@ llvm::Value* create_sum(
 }
 
 template <typename Builder, typename Iterator>
-llvm::Value* create_sum(
-    Builder& b, Iterator begin, Iterator end)
+llvm::Value* create_sum(Builder& b, Iterator begin, Iterator end)
 {
   return create_sum(b, begin, end, "");
 }

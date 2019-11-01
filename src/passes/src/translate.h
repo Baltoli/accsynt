@@ -43,4 +43,4 @@ std::string constraint_and(Container c)
 
   return constraint_and(begin(c), end(c));
 }
-}
+} // namespace convert::detail

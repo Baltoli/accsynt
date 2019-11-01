@@ -36,4 +36,4 @@ private:
   std::filesystem::path library_path_;
   support::dynamic_library dynamic_library_;
 };
-}
+} // namespace interfind

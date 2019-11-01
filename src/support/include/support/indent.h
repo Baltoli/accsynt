@@ -7,7 +7,7 @@ namespace support {
 struct indent {
   size_t depth = 0;
 };
-}
+} // namespace support
 
 namespace fmt {
 
@@ -29,4 +29,4 @@ struct formatter<support::indent> {
     return it;
   }
 };
-}
+} // namespace fmt

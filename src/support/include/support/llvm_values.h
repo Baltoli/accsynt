@@ -39,4 +39,4 @@ std::set<llvm::Value*> all_deps(
 std::vector<llvm::Value*> topo_sort(std::set<llvm::Value*> const& vals);
 
 llvm::Value* get_by_name(llvm::Function& fn, std::string name);
-}
+} // namespace support

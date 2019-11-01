@@ -4,9 +4,7 @@
 
 #include <fmt/format.h>
 
-inline std::string pointers(int n) { 
-  return std::string(n, '*'); 
-}
+inline std::string pointers(int n) { return std::string(n, '*'); }
 
 template <>
 struct fmt::formatter<props::base_type> {
@@ -132,16 +130,13 @@ struct fmt::formatter<props::property> {
   }
 
   template <typename FormatContext>
-    auto format(const props::property& p, FormatContext& ctx)
+  auto format(const props::property& p, FormatContext& ctx)
   {
     using namespace fmt::literals;
 
-    return format_to(ctx.out(),
-      "{name}{sep}{vals}",
-      "name"_a = p.name,
-      "sep"_a = p.values.empty() ? "" : " ",
-      "vals"_a = fmt::join(p.values, ", ")
-    );
+    return format_to(ctx.out(), "{name}{sep}{vals}", "name"_a = p.name,
+        "sep"_a = p.values.empty() ? "" : " ",
+        "vals"_a = fmt::join(p.values, ", "));
   }
 };
 
@@ -158,11 +153,9 @@ struct fmt::formatter<props::property_set> {
   {
     using namespace fmt::literals;
 
-    return format_to(ctx.out(), 
-      "{sig}{sep}{props}",
-      "sig"_a = ps.type_signature,
-      "sep"_a = ps.properties.empty() ? "" : "\n",
-      "props"_a = fmt::join(ps.properties, "\n")
-    );
+    return format_to(ctx.out(), "{sig}{sep}{props}",
+        "sig"_a = ps.type_signature,
+        "sep"_a = ps.properties.empty() ? "" : "\n",
+        "props"_a = fmt::join(ps.properties, "\n"));
   }
 };

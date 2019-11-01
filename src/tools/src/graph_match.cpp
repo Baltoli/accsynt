@@ -59,7 +59,7 @@ int main(int argc, char** argv)
   auto first_fn = first_mod->getFunction(FunctionName);
   auto second_fn = second_mod->getFunction(FunctionName2);
 
-  auto graphs = std::vector<Graph> {};
+  auto graphs = std::vector<Graph>{};
   graphs.push_back(from_function(*first_fn));
   graphs.push_back(from_function(*second_fn));
 

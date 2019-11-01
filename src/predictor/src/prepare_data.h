@@ -16,7 +16,7 @@
 namespace predict {
 
 namespace detail {
-  int encode(props::base_type);
+int encode(props::base_type);
 }
 
 using feature_map = std::map<std::string, int>;
@@ -91,7 +91,7 @@ example::example(Func&& prop_enc, props::property_set const& ps)
 
   // Inputs
 
-  if(auto rt = ps.type_signature.return_type) {
+  if (auto rt = ps.type_signature.return_type) {
     input_["return_type"] = detail::encode(rt->base);
     input_["return_pointers"] = rt->pointers;
   }
@@ -106,7 +106,7 @@ example::example(Func&& prop_enc, props::property_set const& ps)
 
   // Outputs - whatever variables we want to use
 
-  if(auto rt = ps.type_signature.return_type) {
+  if (auto rt = ps.type_signature.return_type) {
     output_["out_return_type"] = detail::encode(rt->base);
   }
 
@@ -118,21 +118,23 @@ example::example(Func&& prop_enc, props::property_set const& ps)
   auto outputs = 0;
   auto sizes = 0;
 
-  for(auto const& [idx, prop] : support::enumerate(ps.properties)) {
+  for (auto const& [idx, prop] : support::enumerate(ps.properties)) {
     auto prop_key = "out_prop_{}_name"_format(idx);
     output_[prop_key] = prop_enc(prop.name);
 
-    if(prop.name == "size") {
+    if (prop.name == "size") {
       auto ptr_key = "out_size_{}_ptr"_format(sizes);
-      output_[ptr_key] = ps.type_signature.param_index(prop.values[0].param_val);
+      output_[ptr_key]
+          = ps.type_signature.param_index(prop.values[0].param_val);
 
       auto size_key = "out_size_{}_size"_format(sizes++);
-      output_[size_key] = ps.type_signature.param_index(prop.values[1].param_val);
+      output_[size_key]
+          = ps.type_signature.param_index(prop.values[1].param_val);
 
       output_["out_num_sizes"]++;
     }
 
-    if(prop.name == "output") {
+    if (prop.name == "output") {
       auto key = "out_output_{}_arg"_format(outputs++);
       output_[key] = ps.type_signature.param_index(prop.values[0].param_val);
 
@@ -149,45 +151,48 @@ dataset::dataset(Iterator begin, Iterator end)
 {
   // Summarise the data so that we're able to map property names to unique
   // indices later - this requires a first pass through the data.
-  std::for_each(begin, end, [this] (auto const& ps) {
-    for(auto const& prop : ps.properties) {
+  std::for_each(begin, end, [this](auto const& ps) {
+    for (auto const& prop : ps.properties) {
       prop_names_.insert(prop.name);
     }
   });
 
   // Then construct the set of examples from each property set.
-  std::for_each(begin, end, [this] (auto const& ps) {
-    examples_.emplace_back(prop_encoder(), ps);
-  });
+  std::for_each(begin, end,
+      [this](auto const& ps) { examples_.emplace_back(prop_encoder(), ps); });
 }
 
 template <typename Container>
-dataset::dataset(Container&& c) :
-  dataset(support::adl_begin(FWD(c)), support::adl_end(FWD(c)))
+dataset::dataset(Container&& c)
+    : dataset(support::adl_begin(FWD(c)), support::adl_end(FWD(c)))
 {
 }
 
-}
+} // namespace predict
 
 namespace fmt {
-  
+
 template <>
 struct formatter<::predict::example> {
   template <typename ParseContext>
-  constexpr auto parse(ParseContext &ctx) { return ctx.begin(); }
+  constexpr auto parse(ParseContext& ctx)
+  {
+    return ctx.begin();
+  }
 
   template <typename FormatContext>
-  auto format(::predict::example const &e, FormatContext &ctx) {
+  auto format(::predict::example const& e, FormatContext& ctx)
+  {
     using namespace fmt::literals;
 
     auto in_entries = std::vector<std::string>{};
     auto out_entries = std::vector<std::string>{};
 
-    for(auto const& [k, v] : e.input()) {
+    for (auto const& [k, v] : e.input()) {
       in_entries.push_back("{}={}"_format(k, v));
     }
 
-    for(auto const& [k, v] : e.output()) {
+    for (auto const& [k, v] : e.output()) {
       out_entries.push_back("{}={}"_format(k, v));
     }
 
@@ -196,29 +201,28 @@ struct formatter<::predict::example> {
   output=( {} )
 ))";
 
-    return format_to(
-      ctx.out(), format,
-      fmt::join(in_entries, ", "),
-      fmt::join(out_entries, ", ")
-    );
+    return format_to(ctx.out(), format, fmt::join(in_entries, ", "),
+        fmt::join(out_entries, ", "));
   }
 };
 
 template <>
 struct formatter<::predict::dataset> {
   template <typename ParseContext>
-  constexpr auto parse(ParseContext &ctx) { return ctx.begin(); }
+  constexpr auto parse(ParseContext& ctx)
+  {
+    return ctx.begin();
+  }
 
   template <typename FormatContext>
-  auto format(::predict::dataset const &d, FormatContext &ctx) {
+  auto format(::predict::dataset const& d, FormatContext& ctx)
+  {
     auto format = R"(Dataset(
 {}
 ))";
 
-    return format_to(
-      ctx.out(), format, fmt::join(d.examples(), ",\n")
-    );
+    return format_to(ctx.out(), format, fmt::join(d.examples(), ",\n"));
   }
 };
 
-}
+} // namespace fmt
