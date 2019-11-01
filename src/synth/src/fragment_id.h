@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <optional>
 #include <set>
 
 namespace {
@@ -12,15 +13,20 @@ extern std::set<char*> reg_ptrs_;
 namespace synth {
 
 template <typename T>
-int get_id()
+std::optional<int> get_fragment_id()
 {
-  return std::distance(reg_ptrs_.begin(), reg_ptrs_.find(&T::ID));
+  auto found = reg_ptrs_.find(&T::ID);
+  if (found == reg_ptrs_.end()) {
+    return std::nullopt;
+  } else {
+    return std::distance(reg_ptrs_.begin(), found);
+  }
 }
 
 template <typename T>
-int get_id(T&& t)
+decltype(auto) get_fragment_id(T&& t)
 {
-  return get_id<T>();
+  return get_fragment_id<T>();
 }
 
 } // namespace synth
