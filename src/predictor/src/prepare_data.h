@@ -68,8 +68,9 @@ public:
   static constexpr int missing_ = -1;
 
 private:
-  constexpr auto prop_encoder() const {
-    return [this] (auto const& pn) {
+  constexpr auto prop_encoder() const
+  {
+    return [this](auto const& pn) {
       auto found = prop_names_.find(pn);
       return std::distance(prop_names_.begin(), found);
     };
@@ -185,8 +186,8 @@ struct formatter<::predict::example> {
   {
     using namespace fmt::literals;
 
-    auto in_entries = std::vector<std::string>{};
-    auto out_entries = std::vector<std::string>{};
+    auto in_entries = std::vector<std::string> {};
+    auto out_entries = std::vector<std::string> {};
 
     for (auto const& [k, v] : e.input()) {
       in_entries.push_back("{}={}"_format(k, v));

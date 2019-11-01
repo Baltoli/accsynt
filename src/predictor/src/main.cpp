@@ -19,32 +19,23 @@ using namespace props;
 
 namespace fs = std::filesystem;
 
-enum mode {
-  python
-};
+enum mode { python };
 
 static cl::list<std::string> InputFilenames(
     cl::Positional, cl::desc("<property sets>"), cl::OneOrMore);
 
-static cl::opt<std::string> OutputDirectory(
-    "output-dir",
-    cl::desc("Directory to output generated CSV files"),
-    cl::init("-"));
+static cl::opt<std::string> OutputDirectory("output-dir",
+    cl::desc("Directory to output generated CSV files"), cl::init("-"));
 
 static cl::alias OutputDirectoryA(
-    "o", cl::desc("Alias for output-dir"),
-    cl::aliasopt(OutputDirectory));
+    "o", cl::desc("Alias for output-dir"), cl::aliasopt(OutputDirectory));
 
-static cl::opt<mode> Mode(
-    cl::desc("Execution mode"),
-    cl::values(
-      clEnumVal(python, "Dump data for python script")
-    ),
-    cl::Required);
+static cl::opt<mode> Mode(cl::desc("Execution mode"),
+    cl::values(clEnumVal(python, "Dump data for python script")), cl::Required);
 
 int to_python()
 {
-  auto all_props = std::vector<property_set>{};
+  auto all_props = std::vector<property_set> {};
   for (auto file : InputFilenames) {
     all_props.push_back(property_set::load(file));
   }
@@ -57,12 +48,12 @@ int to_python()
   } else {
     auto out_dir = fs::path(OutputDirectory.getValue());
 
-    if(!fs::exists(out_dir)) {
+    if (!fs::exists(out_dir)) {
       fmt::print("{} does not exist\n", out_dir.string());
       return 1;
     }
 
-    if(!fs::is_directory(out_dir)) {
+    if (!fs::is_directory(out_dir)) {
       fmt::print("{} is not a directory\n", out_dir.string());
       return 1;
     }
@@ -75,7 +66,7 @@ int to_python()
 
     fmt::print(data_f, "{}\n", data.to_csv());
     fmt::print(names_f, "{}\n", data.name_map_csv());
-    
+
     std::fclose(data_f);
     std::fclose(names_f);
   }

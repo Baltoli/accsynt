@@ -16,10 +16,10 @@ namespace predict {
 
 std::vector<float> example::model_input() const
 {
-  auto ret = std::vector<float>{};
+  auto ret = std::vector<float> {};
 
-  for(auto const& k : model::input_keys()) {
-    if(input_.find(k) != input_.end()) {
+  for (auto const& k : model::input_keys()) {
+    if (input_.find(k) != input_.end()) {
       ret.push_back(static_cast<float>(input_.at(k)));
     } else {
       ret.push_back(static_cast<float>(dataset::missing_));
@@ -33,8 +33,8 @@ std::string dataset::to_csv() const
 {
   using namespace fmt::literals;
 
-  auto in_keys = std::set<std::string>{};
-  auto out_keys = std::set<std::string>{};
+  auto in_keys = std::set<std::string> {};
+  auto out_keys = std::set<std::string> {};
 
   // First pass to collect the full set of keys to use
   for (auto const& e : examples_) {
@@ -53,10 +53,10 @@ std::string dataset::to_csv() const
 
   // Then print each row using the collected keys
 
-  auto rows = std::vector<std::string>{};
+  auto rows = std::vector<std::string> {};
 
   for (auto const& e : examples_) {
-    auto row = std::vector<int>{};
+    auto row = std::vector<int> {};
 
     for (auto const& i_k : in_keys) {
       if (e.input().find(i_k) != e.input().end()) {
@@ -84,15 +84,15 @@ std::string dataset::name_map_csv() const
 {
   using namespace fmt::literals;
 
-  auto rows = std::vector<std::string>{"name,index"};
+  auto rows = std::vector<std::string> { "name,index" };
 
-  for(auto const& name : prop_names_) {
+  for (auto const& name : prop_names_) {
     rows.push_back("{},{}"_format(name, prop_encoder()(name)));
   }
 
   return "{}"_format(fmt::join(rows, "\n"));
 }
-  
+
 namespace detail {
 
 int encode(base_type bt)
