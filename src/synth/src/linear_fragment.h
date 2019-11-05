@@ -16,7 +16,8 @@ void swap(linear_fragment_base<use_data>&, linear_fragment_base<use_data>&);
 template <bool use_data>
 class linear_fragment_base : public fragment {
 public:
-  linear_fragment_base(std::vector<props::value> args);
+  explicit linear_fragment_base(std::vector<props::value> args);
+  linear_fragment_base();
 
   linear_fragment_base(linear_fragment_base<use_data> const&) = default;
   linear_fragment_base<use_data>& operator=(linear_fragment_base<use_data>&)
@@ -55,6 +56,12 @@ linear_fragment_base<use_data>::linear_fragment_base(
   if (!args.empty()) {
     throw std::invalid_argument("Linear fragments take no arguments");
   }
+}
+
+template <bool use_data>
+linear_fragment_base<use_data>::linear_fragment_base()
+    : linear_fragment_base(std::vector<props::value> {})
+{
 }
 
 template <bool use_data>

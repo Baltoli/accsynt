@@ -18,15 +18,15 @@ add_library(coresynth
   src/compile_context.cpp
   src/compile_metadata.cpp
   src/fragment.cpp
-  src/linear_fragment.cpp
-  src/fragment_registry.cpp
-  src/data_loop_fragment.cpp
-  src/generator_rules.cpp
   src/loop_fragment.cpp
+  src/linear_fragment.cpp
   src/string_loop_fragment.cpp
   src/regular_loop_fragment.cpp
   src/loop_to_n_fragment.cpp
   src/affine_fragment.cpp
+  src/data_loop_fragment.cpp
+  src/fragment_registry.cpp
+  src/generator_rules.cpp
   src/fragment_id.cpp)
 
 add_executable(synth
