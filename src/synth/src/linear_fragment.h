@@ -1,6 +1,7 @@
 #pragma once
 
 #include "fragment.h"
+#include "fragment_id.h"
 
 #include <llvm/IR/BasicBlock.h>
 
@@ -28,18 +29,22 @@ public:
   bool operator==(linear_fragment_base<use_data> const& other) const;
   bool operator!=(linear_fragment_base<use_data> const& other) const;
 
-  virtual bool equal_to(frag_ptr const& other) const override;
+  int get_id() const override;
 
-  virtual void splice(compile_context& ctx, llvm::BasicBlock* entry,
+  bool equal_to(frag_ptr const& other) const override;
+
+  void splice(compile_context& ctx, llvm::BasicBlock* entry,
       llvm::BasicBlock* exit) override;
-  virtual bool add_child(frag_ptr f, size_t idx) override;
+  bool add_child(frag_ptr f, size_t idx) override;
 
-  virtual std::string to_str(size_t indent = 0) override;
+  std::string to_str(size_t indent = 0) override;
 
-  virtual size_t count_holes() const override;
+  size_t count_holes() const override;
 
   friend void swap<use_data>(
       linear_fragment_base<use_data>& a, linear_fragment_base<use_data>& b);
+
+  static char ID;
 };
 
 template <bool use_data>
@@ -76,10 +81,16 @@ template <bool use_data>
 std::string linear_fragment_base<use_data>::to_str(size_t indent)
 {
   if constexpr (use_data) {
-    return fmt::format("{}[linear region]", support::indent{ indent });
+    return fmt::format("{}[linear region]", support::indent { indent });
   } else {
-    return fmt::format("{}[empty region]", support::indent{ indent });
+    return fmt::format("{}[empty region]", support::indent { indent });
   }
+}
+
+template <bool use_data>
+int linear_fragment_base<use_data>::get_id() const
+{
+  return get_fragment_id(*this);
 }
 
 /**
@@ -130,5 +141,8 @@ void swap(linear_fragment_base<use_data>& a, linear_fragment_base<use_data>& b)
 
 using linear_fragment = linear_fragment_base<true>;
 using empty_fragment = linear_fragment_base<false>;
+
+extern template char linear_fragment_base<true>::ID;
+extern template char linear_fragment_base<false>::ID;
 
 } // namespace synth
