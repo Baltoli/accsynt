@@ -118,6 +118,8 @@ public:
 
   static bool equal_non_null(frag_ptr const& a, frag_ptr const& b);
 
+  virtual int get_id() const = 0;
+
 protected:
   template <typename Func>
   static void choose(
