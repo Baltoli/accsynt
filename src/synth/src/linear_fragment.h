@@ -142,7 +142,10 @@ void swap(linear_fragment_base<use_data>& a, linear_fragment_base<use_data>& b)
 using linear_fragment = linear_fragment_base<true>;
 using empty_fragment = linear_fragment_base<false>;
 
-extern template char linear_fragment_base<true>::ID;
-extern template char linear_fragment_base<false>::ID;
+template <>
+char linear_fragment_base<true>::ID;
+
+template <>
+char linear_fragment_base<false>::ID;
 
 } // namespace synth

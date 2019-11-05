@@ -15,13 +15,17 @@ public:
   bool operator==(regular_loop_fragment const& other) const;
   bool operator!=(regular_loop_fragment const& other) const;
 
-  virtual bool equal_to(frag_ptr const& other) const override;
+  bool equal_to(frag_ptr const& other) const override;
 
-  virtual std::string to_str(size_t indent = 0) override;
-  virtual void splice(compile_context& ctx, llvm::BasicBlock* entry,
+  std::string to_str(size_t indent = 0) override;
+  void splice(compile_context& ctx, llvm::BasicBlock* entry,
       llvm::BasicBlock* exit) override;
 
+  int get_id() const override;
+
   friend void swap(regular_loop_fragment& a, regular_loop_fragment& b);
+
+  static char ID;
 
 private:
   llvm::Argument* get_size(compile_context&);
