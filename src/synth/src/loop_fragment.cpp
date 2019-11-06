@@ -35,9 +35,7 @@ loop_fragment::loop_fragment(std::vector<value> args, bool out)
 
 bool loop_fragment::add_child(frag_ptr f, size_t idx)
 {
-  auto children = children_ref(before_, body_, after_);
-
-  for (frag_ptr& ch : children) {
+  for (frag_ptr& ch : children_ref(before_, body_, after_)) {
     auto max = count_or_empty(ch);
     if (idx < max) {
       if (ch) {
