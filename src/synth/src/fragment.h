@@ -119,6 +119,7 @@ public:
   static bool equal_non_null(frag_ptr const& a, frag_ptr const& b);
 
   virtual int get_id() const = 0;
+  virtual std::vector<int> id_sequence() const { return {}; }
 
 protected:
   template <typename Func>
