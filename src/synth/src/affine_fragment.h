@@ -30,7 +30,6 @@ public:
   std::string to_str(size_t indent = 0) override;
 
   int get_id() const override;
-  std::vector<int> id_sequence() const override;
 
   size_t count_holes() const override;
 
