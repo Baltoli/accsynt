@@ -75,8 +75,8 @@ TEST_CASE("Can get IDs for all the fragment types")
   auto aff_f = make_val<affine_fragment>(args);
   all_ids.insert(aff_f->get_id());
 
-  auto data_f = make_val<data_loop_fragment>(
-      std::vector { props::value::with_param("x") }, nullptr, nullptr, nullptr);
+  auto data_f
+      = make_val<data_loop_fragment>(args, nullptr, nullptr, nullptr, false);
   all_ids.insert(data_f->get_id());
 
   REQUIRE(all_ids.size() == 7);
