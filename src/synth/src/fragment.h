@@ -143,6 +143,10 @@ protected:
   std::array<std::reference_wrapper<frag_ptr>, sizeof...(Children)>
   children_ref(Children&...) const;
 
+  template <typename... Children>
+  std::array<std::reference_wrapper<const frag_ptr>, sizeof...(Children)>
+  children_ref(Children const&...) const;
+
   /**
    * If the fragment pointed to is empty / nullptr, then return 1 - it
    * represents a hole. Otherwise return the number of empty holes in that
@@ -170,6 +174,14 @@ std::array<std::reference_wrapper<fragment::frag_ptr>, sizeof...(Children)>
 fragment::children_ref(Children&... chs) const
 {
   return { std::ref(chs)... };
+}
+
+template <typename... Children>
+std::array<std::reference_wrapper<const fragment::frag_ptr>,
+    sizeof...(Children)>
+fragment::children_ref(Children const&... chs) const
+{
+  return { std::cref(chs)... };
 }
 
 template <typename Iterator>
