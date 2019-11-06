@@ -6,32 +6,6 @@ using namespace props;
 
 namespace synth {
 
-data_loop_fragment::data_loop_fragment(
-    std::vector<value> args, frag_ptr before, frag_ptr body, frag_ptr after)
-    : fragment(args)
-    , before_(before)
-    , body_(body)
-    , after_(after)
-    , num_pointers_(args_.size())
-{
-  if (args_.empty()) {
-    throw std::invalid_argument("Data loop requires at least one argument");
-  }
-
-  auto all_params = std::all_of(args_.begin(), args_.end(),
-      [](auto arg) { return arg.value_type == value::type::parameter; });
-
-  if (!all_params) {
-    throw std::invalid_argument(
-        "Data loop arguments must all be parameter references");
-  }
-}
-
-data_loop_fragment::data_loop_fragment(std::vector<value> args)
-    : data_loop_fragment(args, nullptr, nullptr, nullptr)
-{
-}
-
 std::string data_loop_fragment::to_str(size_t ind)
 {
   using namespace fmt::literals;
@@ -128,34 +102,6 @@ void data_loop_fragment::splice(
   /* after_->splice(ctx, last_exit, exit); */
 }
 
-bool data_loop_fragment::add_child(frag_ptr f, size_t idx)
-{
-  auto children = children_ref(before_, body_, after_);
-
-  for (frag_ptr& ch : children) {
-    auto max = count_or_empty(ch);
-    if (idx < max) {
-      if (ch) {
-        ch->add_child(f, idx);
-      } else {
-        ch = f;
-      }
-
-      return true;
-    } else {
-      idx -= max;
-    }
-  }
-
-  throw std::invalid_argument("Too few holes in fragment");
-}
-
-size_t data_loop_fragment::count_holes() const
-{
-  return count_or_empty(before_) + count_or_empty(body_)
-      + count_or_empty(after_);
-}
-
 void swap(data_loop_fragment& a, data_loop_fragment& b)
 {
   using std::swap;
@@ -167,16 +113,6 @@ void swap(data_loop_fragment& a, data_loop_fragment& b)
 
 bool data_loop_fragment::operator==(data_loop_fragment const& other) const
 {
-  auto equal_non_null = [](auto const& a, auto const& b) {
-    if (!a && !b) {
-      return true;
-    } else if (!a || !b) {
-      return false;
-    } else {
-      return a->equal_to(b);
-    }
-  };
-
   return args_ == other.args_ && equal_non_null(before_, other.before_)
       && equal_non_null(body_, other.body_)
       && equal_non_null(after_, other.after_);
