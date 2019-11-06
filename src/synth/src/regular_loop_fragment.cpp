@@ -1,5 +1,7 @@
 #include "regular_loop_fragment.h"
 
+#include "fragment_id.h"
+
 #include <support/indent.h>
 
 #include <fmt/format.h>
@@ -16,7 +18,7 @@ std::string regular_loop_fragment::to_str(size_t ind)
 {
   using namespace fmt::literals;
 
-  auto ptr_names = std::vector<std::string>{};
+  auto ptr_names = std::vector<std::string> {};
   std::transform(args_.begin() + 1, args_.end(), std::back_inserter(ptr_names),
       [](auto val) { return val.param_val; });
 
@@ -28,8 +30,8 @@ std::string regular_loop_fragment::to_str(size_t ind)
 
   return fmt::format(shape,
       "name"_a = perform_output_ ? "outputLoop" : "regularLoop",
-      "ind1"_a = ::support::indent{ ind },
-      "ind2"_a = ::support::indent{ ind + 1 },
+      "ind1"_a = ::support::indent { ind },
+      "ind2"_a = ::support::indent { ind + 1 },
       "before"_a = string_or_empty(before_, ind),
       "body"_a = string_or_empty(body_, ind + 1),
       "after"_a = string_or_empty(after_, ind),
@@ -151,5 +153,10 @@ bool regular_loop_fragment::equal_to(frag_ptr const& other) const
 {
   return other->equal_as(*this);
 }
+
+int regular_loop_fragment::get_id() const { return get_fragment_id(*this); }
+
+char regular_loop_fragment::ID = 0;
+static register_fragment_id<regular_loop_fragment> X;
 
 } // namespace synth

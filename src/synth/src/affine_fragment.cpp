@@ -1,5 +1,7 @@
 #include "affine_fragment.h"
 
+#include "fragment_id.h"
+
 #include <support/indent.h>
 
 #include <fmt/format.h>
@@ -81,8 +83,10 @@ std::string affine_fragment::to_str(size_t indent)
 {after})";
 
   return fmt::format(shape, "after"_a = string_or_empty(after_, indent),
-      "ind"_a = ::support::indent{ indent }, "name"_a = args_.at(0).param_val);
+      "ind"_a = ::support::indent { indent }, "name"_a = args_.at(0).param_val);
 }
+
+int affine_fragment::get_id() const { return get_fragment_id(*this); }
 
 size_t affine_fragment::count_holes() const { return count_or_empty(after_); }
 
@@ -107,5 +111,8 @@ void swap(affine_fragment& a, affine_fragment& b)
   using std::swap;
   swap(a.after_, b.after_);
 }
+
+char affine_fragment::ID = 0;
+static register_fragment_id<affine_fragment> X;
 
 } // namespace synth
