@@ -21,6 +21,8 @@ using namespace props;
 
 namespace synth {
 
+std::vector<int> fragment::id_sequence() const { return { get_id() }; }
+
 fragment::frag_ptr fragment::sample(
     std::vector<fragment::frag_ptr> const& fragments, size_t num_frags)
 {

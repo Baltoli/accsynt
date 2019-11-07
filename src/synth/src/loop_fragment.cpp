@@ -35,9 +35,7 @@ loop_fragment::loop_fragment(std::vector<value> args, bool out)
 
 bool loop_fragment::add_child(frag_ptr f, size_t idx)
 {
-  auto children = children_ref(before_, body_, after_);
-
-  for (frag_ptr& ch : children) {
+  for (frag_ptr& ch : children_ref(before_, body_, after_)) {
     auto max = count_or_empty(ch);
     if (idx < max) {
       if (ch) {
@@ -59,6 +57,19 @@ size_t loop_fragment::count_holes() const
 {
   return count_or_empty(before_) + count_or_empty(body_)
       + count_or_empty(after_);
+}
+
+std::vector<int> loop_fragment::id_sequence() const
+{
+  auto ret = std::vector { get_id() };
+
+  for (frag_ptr const& f : children_ref(before_, body_, after_)) {
+    for (auto id : f->id_sequence()) {
+      ret.push_back(id);
+    }
+  }
+
+  return ret;
 }
 
 } // namespace synth

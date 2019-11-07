@@ -30,7 +30,7 @@ rule_synth::rule_synth(props::property_set ps, call_wrapper& ref)
 
   make_examples(generator_for(ps), NumExamples);
 
-  auto choices = std::vector<fragment::frag_ptr>{};
+  auto choices = std::vector<fragment::frag_ptr> {};
 
   if (NewRules) {
     ps = model::predict(ps);
@@ -44,19 +44,36 @@ rule_synth::rule_synth(props::property_set ps, call_wrapper& ref)
   }
 
   if (choices.empty()) {
-    choices.emplace_back(new linear_fragment{ {} });
+    choices.emplace_back(new linear_fragment { {} });
   }
 
-  auto max_frags = std::optional<size_t>{};
+  auto max_frags = std::optional<size_t> {};
   if (MaxFragments >= 0) {
     max_frags = MaxFragments;
   }
 
-  fragments_ = fragment::enumerate(choices, max_frags);
+  if (Sample == 0) {
+    fragments_ = fragment::enumerate(choices, max_frags);
+  } else {
+    for (auto i = 0; i < Sample; ++i) {
+      auto max = max_frags ? max_frags.value() : choices.size();
+      fragments_.insert(fragment::sample(choices, max));
+    }
+  }
 
   to_file_or_default(ControlOutputFile, [&](auto& os) {
     if (DumpControl) {
       for (auto const& frag : fragments_) {
+        if (ShowStructureCode) {
+          os << "STRUCTURE: ";
+          auto comma = "";
+          for (auto id : frag->id_sequence()) {
+            os << comma << id;
+            comma = ",";
+          }
+          os << '\n';
+        }
+
         os << "FRAGMENT {hash}:\n{frag}\n\n"_format(
             "hash"_a = nice_hash(frag), "frag"_a = frag->to_str(1));
       }
@@ -80,7 +97,7 @@ Function* rule_synth::candidate()
     current_fragment_ = fragments_.begin();
   }
 
-  auto ctx = compile_context{ mod_, properties_.type_signature,
+  auto ctx = compile_context { mod_, properties_.type_signature,
     accessors_from_rules(properties_) };
   auto& frag = *current_fragment_;
 
