@@ -1,5 +1,7 @@
 #include "prepare_data.h"
 
+#include <model/model.h>
+
 #include <fmt/format.h>
 
 #include <llvm/Support/CommandLine.h>
@@ -12,12 +14,27 @@ using namespace props;
 
 namespace predict {
 
+std::vector<float> example::model_input() const
+{
+  auto ret = std::vector<float> {};
+
+  for (auto const& k : model::input_keys()) {
+    if (input_.find(k) != input_.end()) {
+      ret.push_back(static_cast<float>(input_.at(k)));
+    } else {
+      ret.push_back(static_cast<float>(dataset::missing_));
+    }
+  }
+
+  return ret;
+}
+
 std::string dataset::to_csv() const
 {
   using namespace fmt::literals;
 
-  auto in_keys = std::set<std::string>{};
-  auto out_keys = std::set<std::string>{};
+  auto in_keys = std::set<std::string> {};
+  auto out_keys = std::set<std::string> {};
 
   // First pass to collect the full set of keys to use
   for (auto const& e : examples_) {
@@ -36,10 +53,10 @@ std::string dataset::to_csv() const
 
   // Then print each row using the collected keys
 
-  auto rows = std::vector<std::string>{};
+  auto rows = std::vector<std::string> {};
 
   for (auto const& e : examples_) {
-    auto row = std::vector<int>{};
+    auto row = std::vector<int> {};
 
     for (auto const& i_k : in_keys) {
       if (e.input().find(i_k) != e.input().end()) {
@@ -61,6 +78,19 @@ std::string dataset::to_csv() const
   }
 
   return "{}\n{}"_format(header, fmt::join(rows, "\n"));
+}
+
+std::string dataset::name_map_csv() const
+{
+  using namespace fmt::literals;
+
+  auto rows = std::vector<std::string> { "name,index" };
+
+  for (auto const& name : prop_names_) {
+    rows.push_back("{},{}"_format(name, prop_encoder()(name)));
+  }
+
+  return "{}"_format(fmt::join(rows, "\n"));
 }
 
 namespace detail {

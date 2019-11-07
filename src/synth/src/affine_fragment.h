@@ -21,17 +21,22 @@ public:
   bool operator==(affine_fragment const& other) const;
   bool operator!=(affine_fragment const& other) const;
 
-  virtual bool equal_to(frag_ptr const& other) const override;
+  bool equal_to(frag_ptr const& other) const override;
 
-  virtual void splice(compile_context& ctx, llvm::BasicBlock* entry,
+  void splice(compile_context& ctx, llvm::BasicBlock* entry,
       llvm::BasicBlock* exit) override;
-  virtual bool add_child(frag_ptr f, size_t idx) override;
+  bool add_child(frag_ptr f, size_t idx) override;
 
-  virtual std::string to_str(size_t indent = 0) override;
+  std::string to_str(size_t indent = 0) override;
 
-  virtual size_t count_holes() const override;
+  int get_id() const override;
+  std::vector<int> id_sequence() const override;
+
+  size_t count_holes() const override;
 
   friend void swap(affine_fragment& a, affine_fragment& b);
+
+  static char ID;
 
 protected:
   // Restrict this fragment to having things after it for simplicity - will help
@@ -55,11 +60,11 @@ llvm::Value* affine_fragment::create_affine(Builder& b,
 
   auto affine_len = std::min(indices.size(), constants.size() + 1);
 
-  auto c_shuf = std::vector<llvm::Value*>{};
+  auto c_shuf = std::vector<llvm::Value*> {};
   std::copy_if(
       constants.begin(), constants.end(), std::back_inserter(c_shuf), is_int);
 
-  auto i_shuf = std::vector<llvm::Value*>{};
+  auto i_shuf = std::vector<llvm::Value*> {};
   std::copy_if(
       indices.begin(), indices.end(), std::back_inserter(i_shuf), is_int);
 
@@ -67,7 +72,7 @@ llvm::Value* affine_fragment::create_affine(Builder& b,
   std::shuffle(i_shuf.begin(), i_shuf.end(), engine);
   std::shuffle(c_shuf.begin(), c_shuf.end(), engine);
 
-  auto summands = std::vector<llvm::Value*>{};
+  auto summands = std::vector<llvm::Value*> {};
 
   auto i_prod = i_shuf.begin();
   auto c_prod = c_shuf.begin();

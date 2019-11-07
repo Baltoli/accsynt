@@ -34,6 +34,8 @@ public:
   auto const& input() const { return input_; }
   auto const& output() const { return output_; }
 
+  std::vector<float> model_input() const;
+
 private:
   feature_map input_ = {};
   feature_map output_ = {};
@@ -59,13 +61,14 @@ public:
   explicit dataset(Container&& c);
 
   std::string to_csv() const;
+  std::string name_map_csv() const;
 
   auto const& examples() const { return examples_; }
 
-private:
   static constexpr int missing_ = -1;
 
-  constexpr auto prop_encoder()
+private:
+  constexpr auto prop_encoder() const
   {
     return [this](auto const& pn) {
       auto found = prop_names_.find(pn);
@@ -139,6 +142,9 @@ example::example(Func&& prop_enc, props::property_set const& ps)
       output_["out_num_outputs"]++;
     }
   }
+
+  output_["out_uses_size"] = output_["out_num_sizes"] != 0;
+  output_["out_uses_output"] = output_["out_num_outputs"] != 0;
 }
 
 template <typename Iterator>
@@ -180,8 +186,8 @@ struct formatter<::predict::example> {
   {
     using namespace fmt::literals;
 
-    auto in_entries = std::vector<std::string>{};
-    auto out_entries = std::vector<std::string>{};
+    auto in_entries = std::vector<std::string> {};
+    auto out_entries = std::vector<std::string> {};
 
     for (auto const& [k, v] : e.input()) {
       in_entries.push_back("{}={}"_format(k, v));

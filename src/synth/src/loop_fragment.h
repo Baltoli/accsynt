@@ -20,6 +20,8 @@ public:
   virtual bool add_child(frag_ptr f, size_t idx) override;
   virtual size_t count_holes() const override;
 
+  std::vector<int> id_sequence() const override;
+
 protected:
   fragment::frag_ptr before_;
   fragment::frag_ptr body_;

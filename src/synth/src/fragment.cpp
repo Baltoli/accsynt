@@ -21,6 +21,8 @@ using namespace props;
 
 namespace synth {
 
+std::vector<int> fragment::id_sequence() const { return { get_id() }; }
+
 fragment::frag_ptr fragment::sample(
     std::vector<fragment::frag_ptr> const& fragments, size_t num_frags)
 {
@@ -53,7 +55,7 @@ fragment::frag_ptr fragment::sample(
   // blocks)
   auto holes_remaining = solution->count_holes();
   for (auto i = 0u; i < holes_remaining; ++i) {
-    solution->add_child(fragment::frag_ptr{ new linear_fragment{ {} } }, 0);
+    solution->add_child(fragment::frag_ptr { new linear_fragment { {} } }, 0);
   }
 
   return solution;
@@ -71,7 +73,7 @@ fragment::frag_set fragment::enumerate(
     if (!max_size) {
       return enumerate_all(fragments, max_size);
     } else {
-      auto all = fragment::frag_set{};
+      auto all = fragment::frag_set {};
       for (auto i = 0u; i < max_size.value(); ++i) {
         auto deep = enumerate_all(fragments, i + 1);
         all.merge(std::move(deep));
@@ -80,17 +82,17 @@ fragment::frag_set fragment::enumerate(
     }
   }();
 
-  auto results = fragment::frag_set{};
+  auto results = fragment::frag_set {};
 
   for (auto const& cf : control) {
     auto holes = cf->count_holes();
-    auto vec = std::vector<fragment::frag_ptr>{};
+    auto vec = std::vector<fragment::frag_ptr> {};
 
     for (auto i = 0u; i < holes; ++i) {
       if (i < data_blocks) {
-        vec.emplace_back(new linear_fragment({}));
+        vec.emplace_back(new linear_fragment());
       } else {
-        vec.emplace_back(new empty_fragment({}));
+        vec.emplace_back(new empty_fragment());
       }
     }
 
@@ -120,12 +122,12 @@ fragment::frag_set fragment::enumerate_all(
     std::vector<fragment::frag_ptr> const& fragments,
     std::optional<size_t> max_size)
 {
-  auto ret = fragment::frag_set{};
+  auto ret = fragment::frag_set {};
   auto real_max
       = std::min(max_size.value_or(fragments.size()), fragments.size());
 
   ::support::choose(fragments.size(), real_max).for_each([&](auto idxs) {
-    auto perm = std::vector<fragment::frag_ptr>{};
+    auto perm = std::vector<fragment::frag_ptr> {};
     for (auto idx : idxs) {
       perm.push_back(fragments.at(idx));
     }
@@ -146,7 +148,7 @@ fragment::frag_set fragment::enumerate_permutation(
     return {};
   }
 
-  auto ret = fragment::frag_set{};
+  auto ret = fragment::frag_set {};
 
   auto begin = std::next(perm.begin());
   auto end = perm.end();
@@ -189,7 +191,7 @@ std::string fragment::string_or_empty(frag_ptr const& frag, size_t ind)
   if (frag) {
     return frag->to_str(ind);
   } else {
-    return fmt::format("{}[?]", ::support::indent{ ind });
+    return fmt::format("{}[?]", ::support::indent { ind });
   }
 }
 
@@ -216,5 +218,5 @@ bool fragment_equal::operator()(
 size_t std::hash<value_ptr<synth::fragment>>::operator()(
     value_ptr<synth::fragment> const& frag) const noexcept
 {
-  return std::hash<std::string>{}(frag->to_str());
+  return std::hash<std::string> {}(frag->to_str());
 }
