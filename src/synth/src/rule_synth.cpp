@@ -64,16 +64,18 @@ rule_synth::rule_synth(props::property_set ps, call_wrapper& ref)
   to_file_or_default(ControlOutputFile, [&](auto& os) {
     if (DumpControl) {
       for (auto const& frag : fragments_) {
-        os << "FRAGMENT {hash}:\n{frag}\n\n"_format(
-            "hash"_a = nice_hash(frag), "frag"_a = frag->to_str(1));
-
         if (ShowStructureCode) {
           os << "STRUCTURE: ";
+          auto comma = "";
           for (auto id : frag->id_sequence()) {
-            os << id << ',';
+            os << comma << id;
+            comma = ",";
           }
           os << '\n';
         }
+
+        os << "FRAGMENT {hash}:\n{frag}\n\n"_format(
+            "hash"_a = nice_hash(frag), "frag"_a = frag->to_str(1));
       }
     }
 

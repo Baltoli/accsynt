@@ -31,6 +31,7 @@ public:
   bool operator!=(linear_fragment_base<use_data> const& other) const;
 
   int get_id() const override;
+  std::vector<int> id_sequence() const override;
 
   bool equal_to(frag_ptr const& other) const override;
 
@@ -98,6 +99,12 @@ template <bool use_data>
 int linear_fragment_base<use_data>::get_id() const
 {
   return get_fragment_id(*this);
+}
+
+template <bool use_data>
+std::vector<int> linear_fragment_base<use_data>::id_sequence() const
+{
+  return {};
 }
 
 /**
