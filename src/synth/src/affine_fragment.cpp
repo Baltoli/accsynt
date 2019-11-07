@@ -88,6 +88,15 @@ std::string affine_fragment::to_str(size_t indent)
 
 int affine_fragment::get_id() const { return get_fragment_id(*this); }
 
+std::vector<int> affine_fragment::id_sequence() const
+{
+  auto ret = std::vector { get_id() };
+  for (auto id : after_->id_sequence()) {
+    ret.push_back(id);
+  }
+  return ret;
+}
+
 size_t affine_fragment::count_holes() const { return count_or_empty(after_); }
 
 bool affine_fragment::operator==(affine_fragment const& other) const
