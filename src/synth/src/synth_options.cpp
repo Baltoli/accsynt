@@ -41,3 +41,7 @@ cl::opt<int> NumExamples("examples",
 
 cl::alias NumExamplesA(
     "N", cl::desc("Alias for --examples"), cl::aliasopt(NumExamples));
+
+cl::opt<bool> ShowStructureCode("structure",
+    cl::desc("Show the structure code generated for this program"),
+    cl::init(false));
