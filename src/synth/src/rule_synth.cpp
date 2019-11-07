@@ -52,7 +52,14 @@ rule_synth::rule_synth(props::property_set ps, call_wrapper& ref)
     max_frags = MaxFragments;
   }
 
-  fragments_ = fragment::enumerate(choices, max_frags);
+  if (Sample == 0) {
+    fragments_ = fragment::enumerate(choices, max_frags);
+  } else {
+    for (auto i = 0; i < Sample; ++i) {
+      auto max = max_frags ? max_frags.value() : choices.size();
+      fragments_.insert(fragment::sample(choices, max));
+    }
+  }
 
   to_file_or_default(ControlOutputFile, [&](auto& os) {
     if (DumpControl) {

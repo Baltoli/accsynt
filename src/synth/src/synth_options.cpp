@@ -45,3 +45,7 @@ cl::alias NumExamplesA(
 cl::opt<bool> ShowStructureCode("structure",
     cl::desc("Show the structure code generated for this program"),
     cl::init(false));
+
+cl::opt<int> Sample("sample",
+    cl::desc("Sample a number of programs instead of enumerating them"),
+    cl::init(0));

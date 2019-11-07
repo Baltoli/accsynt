@@ -14,3 +14,4 @@ extern llvm::cl::opt<bool> DryRun;
 extern llvm::cl::opt<int> NumExamples;
 extern llvm::cl::alias NumExamplesA;
 extern llvm::cl::opt<bool> ShowStructureCode;
+extern llvm::cl::opt<int> Sample;
