@@ -74,7 +74,7 @@ TEST_CASE("files can be parsed")
 ;werjio
 
 
-int main(int s, float *d, char **argv)
+int main(int s, float *d)
 name 2.111, 0.000, 4, :string, s, d
 fjio
 wefjop
@@ -90,10 +90,6 @@ wefjop
   REQUIRE(ps.type_signature.parameters.at(1).type == data_type::floating);
   REQUIRE(ps.type_signature.parameters.at(1).name == "d");
   REQUIRE(ps.type_signature.parameters.at(1).pointer_depth == 1);
-
-  REQUIRE(ps.type_signature.parameters.at(2).type == data_type::character);
-  REQUIRE(ps.type_signature.parameters.at(2).name == "argv");
-  REQUIRE(ps.type_signature.parameters.at(2).pointer_depth == 2);
 
   REQUIRE(ps.properties.size() == 3);
 }
@@ -112,10 +108,6 @@ TEST_CASE("files can be loaded")
   REQUIRE(ps_a.type_signature.parameters.at(0).type == data_type::integer);
   REQUIRE(ps_a.type_signature.parameters.at(0).name == "argc");
   REQUIRE(ps_a.type_signature.parameters.at(0).pointer_depth == 0);
-
-  REQUIRE(ps_a.type_signature.parameters.at(1).type == data_type::character);
-  REQUIRE(ps_a.type_signature.parameters.at(1).name == "argv");
-  REQUIRE(ps_a.type_signature.parameters.at(1).pointer_depth == 2);
 
   REQUIRE(ps_a.properties.at(0).name == "property");
   REQUIRE(ps_a.properties.at(0).values.size() == 2);

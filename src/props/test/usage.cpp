@@ -11,7 +11,7 @@ TEST_CASE("can validate property sets")
   {
     auto str =
         R"(
-int main(int x, char c)
+int main(int x, float c)
 )";
 
     REQUIRE_NOTHROW(property_set::parse(str));
@@ -42,7 +42,7 @@ size :str, 0.2, 23, x, y
   {
     auto str =
         R"(
-int main(int x, char c, float *y)
+int main(int x, float c, float *y)
 size 3452.231, 3, x, nope
 )";
 
@@ -74,7 +74,7 @@ third
   {
     auto str =
         R"(
-void main(char x)
+void main(int x)
 size 34
 size 22
 other_name
@@ -147,15 +147,15 @@ TEST_CASE("can check for pointer acceptance")
   auto s1 = "void f()"_sig;
   REQUIRE(!s1.accepts_pointer());
 
-  auto s2 = "int g(int f, char c)"_sig;
+  auto s2 = "int g(int f)"_sig;
   REQUIRE(!s2.accepts_pointer());
 
-  auto s3 = "int g(float f, char *c)"_sig;
+  auto s3 = "int g(float f, int *c)"_sig;
   REQUIRE(s3.accepts_pointer());
 
-  auto s4 = "int g(float *f, char c)"_sig;
+  auto s4 = "int g(float *f, int c)"_sig;
   REQUIRE(s4.accepts_pointer());
 
-  auto s5 = "int g(float *f, int *d, char *c)"_sig;
+  auto s5 = "int g(float *f, int *d, float *c)"_sig;
   REQUIRE(s5.accepts_pointer());
 }
