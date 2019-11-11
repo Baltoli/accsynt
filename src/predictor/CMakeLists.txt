@@ -11,9 +11,7 @@ target_link_libraries(predict
   props
   CONAN_PKG::fmt)
 
-if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-  target_link_libraries(predict stdc++fs)
-endif()
+target_link_filesystem(predict)
 
 target_include_directories(predict PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

@@ -39,9 +39,7 @@ target_link_libraries(props_unit
   CONAN_PKG::fmt
   CONAN_PKG::Catch2)
 
-if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-  target_link_libraries(props_unit stdc++fs)
-endif()
+target_link_filesystem(props_unit)
 
 target_compile_options(props_unit
   PUBLIC -DRESOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/test/inputs")

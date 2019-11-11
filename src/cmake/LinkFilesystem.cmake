@@ -1,0 +1,5 @@
+macro(target_link_filesystem target)
+  if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+    target_link_libraries(${target} stdc++fs)
+  endif()
+endmacro()

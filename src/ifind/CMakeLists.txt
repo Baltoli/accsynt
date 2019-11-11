@@ -9,9 +9,7 @@ target_link_libraries(ifind
   CONAN_PKG::jsonformoderncpp
 )
 
-if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-  target_link_libraries(ifind stdc++fs)
-endif()
+target_link_filesystem(ifind)
 
 install(
   TARGETS ifind
