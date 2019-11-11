@@ -60,6 +60,10 @@ target_link_libraries(synth_unit
   coresynth
   CONAN_PKG::Catch2)
 
+if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+  target_link_libraries(synth_unit stdc++fs)
+endif()
+
 target_include_directories(synth_unit
   PRIVATE src)
 
