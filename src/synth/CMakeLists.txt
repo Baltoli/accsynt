@@ -60,6 +60,8 @@ target_link_libraries(synth_unit
   coresynth
   CONAN_PKG::Catch2)
 
+target_link_filesystem(synth_unit)
+
 target_include_directories(synth_unit
   PRIVATE src)
 
