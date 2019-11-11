@@ -120,22 +120,6 @@ define float @value() {
     REQUIRE(bit_cast<float>(ret) == Approx(1.4));
   }
 
-  SECTION("basic case for chars")
-  {
-    auto str = R"(
-define signext i8 @value() {
-  ret i8 64
-})";
-
-    PARSE_TEST_MODULE(mod, str);
-
-    auto wrap = call_wrapper("char value()"_sig, *mod, "value");
-    auto cb = wrap.get_builder();
-
-    auto ret = wrap.call(cb);
-    REQUIRE(bit_cast<char>(ret) == '@');
-  }
-
   SECTION("more complicated for ints")
   {
     auto str = R"(

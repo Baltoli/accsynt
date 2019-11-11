@@ -36,14 +36,6 @@ TEST_CASE("signatures can be parsed")
     REQUIRE(s3.parameters.at(0).name == "woo");
     REQUIRE(s3.parameters.at(0).type == data_type::integer);
     REQUIRE(s3.parameters.at(0).pointer_depth == 3);
-
-    auto s4 = signature::parse("char f(char *c)");
-    REQUIRE(s4.name == "f");
-    REQUIRE(s4.return_type);
-    REQUIRE(s4.return_type.value() == data_type::character);
-    REQUIRE(s4.parameters.at(0).name == "c");
-    REQUIRE(s4.parameters.at(0).type == data_type::character);
-    REQUIRE(s4.parameters.at(0).pointer_depth == 1);
   }
 
   SECTION("without valid signatures")
