@@ -42,10 +42,6 @@ TEST_CASE("can print signatures")
   auto str3 = "float woo(float *******x, int yooo)";
   auto sig3 = signature::parse(str3);
   REQUIRE_THAT(fmt::format("{}", sig3), Equals(str3));
-
-  auto str4 = "char er(char **c, int y, float ju)";
-  auto sig4 = signature::parse(str4);
-  REQUIRE_THAT(fmt::format("{}", sig4), Equals(str4));
 }
 
 TEST_CASE("can print values")
