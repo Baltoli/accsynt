@@ -10,14 +10,7 @@ using namespace pegtl;
 
 std::optional<data_type> data_type_from_string(std::string const& str)
 {
-  if (str == "char") {
-    // Hack to disable character type on the baseline implementation - due to
-    // ICSE not being accepted, we can use PACT as the published baseline
-    // performance to compare against. It does not have chars, and the simplest
-    // way to emulate this without a huge restructure / git-fu is to make them a
-    // parse error.
-    return std::nullopt;
-  } else if (str == "int") {
+  if (str == "int") {
     return data_type::integer;
   } else if (str == "float") {
     return data_type::floating;
@@ -39,7 +32,7 @@ struct property_action : nothing<Rule> {
 };
 
 struct type_name : sor<TAO_PEGTL_STRING("void"), TAO_PEGTL_STRING("int"),
-                       TAO_PEGTL_STRING("float"), TAO_PEGTL_STRING("char")> {
+                       TAO_PEGTL_STRING("float")> {
 };
 
 struct interface_name : identifier {
