@@ -1,4 +1,0 @@
-{
-  "signature": "float add(float x, float y)",
-  "library_path": "inputs/add.so"
-}

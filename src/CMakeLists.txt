@@ -54,14 +54,11 @@ llvm_map_components_to_libnames(llvm_libs
 include(GNUInstallDirs)
 enable_testing()
 
-add_subdirectory(ifind)
-add_subdirectory(interfind)
 add_subdirectory(passes)
 add_subdirectory(props)
 add_subdirectory(tools)
 add_subdirectory(synth)
 add_subdirectory(support)
-add_subdirectory(climber)
 add_subdirectory(predictor)
 
 option(BUILD_DOC "Build documentation" OFF)
