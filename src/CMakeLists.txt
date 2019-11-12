@@ -61,7 +61,6 @@ add_subdirectory(props)
 add_subdirectory(tools)
 add_subdirectory(synth)
 add_subdirectory(support)
-add_subdirectory(climber)
 add_subdirectory(predictor)
 
 option(BUILD_DOC "Build documentation" OFF)
