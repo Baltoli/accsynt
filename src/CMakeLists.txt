@@ -60,6 +60,7 @@ add_subdirectory(tools)
 add_subdirectory(synth)
 add_subdirectory(support)
 add_subdirectory(predictor)
+add_subdirectory(presyn)
 
 option(BUILD_DOC "Build documentation" OFF)
 find_package(Doxygen)
