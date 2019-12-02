@@ -1,9 +1,12 @@
-add_library(corepresyn INTERFACE)
+add_library(corepresyn
+  src/options.cpp)
 
 add_executable(presyn
   src/main.cpp)
 
 target_link_libraries(presyn
+  CONAN_PKG::fmt
+  ${llvm_libs}
   corepresyn)
 
 add_executable(presyn_unit
