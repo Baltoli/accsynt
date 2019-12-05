@@ -47,6 +47,9 @@ conan_cmake_run(CONANFILE "../conanfile.txt"
                 BUILD missing)
 
 find_package(LLVM 10 REQUIRED CONFIG)
+
+include(ClangTidy)
+
 include_directories(SYSTEM ${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
 
