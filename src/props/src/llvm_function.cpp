@@ -50,7 +50,7 @@ Type* param::llvm_type() const
 
 FunctionType* signature::function_type() const
 {
-  auto param_types = std::vector<Type*>{};
+  auto param_types = std::vector<Type*> {};
 
   std::transform(parameters.begin(), parameters.end(),
       std::back_inserter(param_types), [](auto p) { return p.llvm_type(); });
@@ -62,7 +62,8 @@ FunctionType* signature::function_type() const
 Function* signature::create_function(Module& mod) const
 {
   auto full_name = name;
-  auto fn_const = mod.getOrInsertFunction(full_name, function_type());
+  auto fn_const
+      = mod.getOrInsertFunction(full_name, function_type()).getCallee();
   if (!isa<Function>(fn_const)) {
     throw std::runtime_error("Bad: const not function");
   }
