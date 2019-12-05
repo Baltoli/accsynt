@@ -46,18 +46,36 @@ include_directories(SYSTEM ${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
 
 llvm_map_components_to_libnames(llvm_libs
-  support core irreader
-  asmprinter asmparser 
-  codegen desc info 
-  target mcjit interpreter 
-  passes transformutils IDLSolver)
+  mcjit
+  executionengine
+  option
+  irreader
+  asmparser
+  x86asmparser
+  x86codegen
+  asmprinter
+  codegen
+  target
+  transformutils
+  bitwriter
+  x86desc
+  bitreader
+  core
+  x86utils
+  x86info
+  support)
+# core bitwriter x86asmparser asmprinter target irreader mcjit transformutils support)
+#  x86asmprinter x86asmparser 
+#  x86codegen x86desc x86info 
+#  target mcjit interpreter 
+#  passes transformutils IDLSolver)
 
 include(GNUInstallDirs)
 enable_testing()
 
-add_subdirectory(passes)
+# add_subdirectory(passes)
 add_subdirectory(props)
-add_subdirectory(tools)
-add_subdirectory(synth)
+# add_subdirectory(tools)
+# add_subdirectory(synth)
 add_subdirectory(support)
-add_subdirectory(predictor)
+# add_subdirectory(predictor)
