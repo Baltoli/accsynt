@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 
-include(cmake/LinkFilesystem.cmake)
+set(CMAKE_MODULE_PATH 
+  ${CMAKE_MODULE_PATH}
+  "${CMAKE_SOURCE_DIR}/cmake/modules"
+)
+
+include(LinkFilesystem)
 
 find_program(CCACHE_PROGRAM ccache)
 if(CCACHE_PROGRAM)
