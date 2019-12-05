@@ -7,7 +7,12 @@ find_program(
 )
 
 set(CLANG_TIDY_CHECKS_LIST
-  "*"
+  "-*"
+  "bugprone-*"
+  "-bugprone-exception-escape"
+  "-bugprone-macro-parentheses"
+  "-bugprone-narrowing-conversions"
+  "-bugprone-sizeof-expression"
 )
 JOIN("${CLANG_TIDY_CHECKS_LIST}" "," CLANG_TIDY_CHECKS)
 

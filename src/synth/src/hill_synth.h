@@ -40,7 +40,7 @@ private:
   std::vector<fragment::frag_ptr> choices_;
 
   props::property_set properties_;
-  support::call_wrapper& reference_;
+  /* support::call_wrapper& reference_; */
 };
 
 } // namespace synth
