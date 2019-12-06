@@ -41,6 +41,41 @@ public:
    * behaviour is built up.
    */
   /* virtual program compile() = 0; */
+
+  /**
+   * Get a representation of this type of fragment as a string for
+   * pretty-printing.
+   */
+  virtual std::string to_string() const = 0;
+};
+
+/**
+ * An empty fragment will generate no behaviour, and acts as an identity under
+ * composition.
+ */
+class empty final : public fragment {
+public:
+  std::unique_ptr<fragment> compose(std::unique_ptr<fragment>&&) override;
+
+  std::string to_string() const override;
+};
+
+/**
+ * A linear fragment will produce a basic block of instructions (the number of
+ * which is specified by a parameter - i.e. linear(2) produces 2 instructions,
+ * and linear(0) would be equivalent to empty()). It acts as the identity for
+ * composition.
+ */
+class linear final : public fragment {
+public:
+  linear(int);
+
+  std::unique_ptr<fragment> compose(std::unique_ptr<fragment>&&) override;
+
+  std::string to_string() const override;
+
+private:
+  int instructions_;
 };
 
 } // namespace presyn

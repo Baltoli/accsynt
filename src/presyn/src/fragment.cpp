@@ -2,39 +2,31 @@
 
 namespace presyn {
 
-// Implementations for parameter types
+// Empty
 
-constant_int::constant_int(int v)
-    : value_(v)
+/**
+ * Composing anything with the empty fragment produces the original fragment
+ * again - it will be eliminated by any other fragment.
+ */
+std::unique_ptr<fragment> empty::compose(std::unique_ptr<fragment>&& other)
+{
+  return std::move(other);
+}
+
+std::string empty::to_string() const { return "empty()"; }
+
+// Linear
+
+linear::linear(int insts)
+    : instructions_(insts)
 {
 }
 
-llvm::Type* constant_int::type() const
+std::unique_ptr<fragment> linear::compose(std::unique_ptr<fragment>&& other)
 {
-  // TODO unimplemented
-  return nullptr;
+  return std::move(other);
 }
 
-llvm::Value* constant_int::get() const
-{
-  // TODO unimplemented
-  return nullptr;
-}
-
-named::named(llvm::Type* t, std::string n)
-    : type_(t)
-    , name_(n)
-{
-}
-
-llvm::Type* named::type() const { return type_; }
-
-llvm::Value* named::get() const
-{
-  // TODO unimplemented
-  return nullptr;
-}
-
-// Implementations for fragments
+std::string linear::to_string() const { return "linear()"; }
 
 } // namespace presyn
