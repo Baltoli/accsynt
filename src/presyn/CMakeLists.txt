@@ -2,6 +2,7 @@ add_library(corepresyn
   src/options.cpp)
 
 add_executable(presyn
+  src/parameter.cpp
   src/fragment.cpp
   src/fragment_parse.cpp
   src/main.cpp)
