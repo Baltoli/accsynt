@@ -4,6 +4,7 @@
 #include <llvm/IR/Value.h>
 
 #include <memory>
+#include <string>
 #include <string_view>
 
 namespace presyn {
@@ -71,6 +72,18 @@ public:
 
 private:
   int value_;
+};
+
+class named final : public parameter {
+public:
+  named(llvm::Type*, std::string);
+
+  llvm::Type* type() const override;
+  llvm::Value* get() const override;
+
+private:
+  llvm::Type* type_;
+  std::string name_;
 };
 
 } // namespace presyn
