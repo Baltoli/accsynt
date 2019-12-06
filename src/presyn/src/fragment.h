@@ -62,4 +62,15 @@ public:
 
 // Implementations
 
+class constant_int final : public parameter {
+public:
+  constant_int(int);
+
+  llvm::Type* type() const override;
+  llvm::Value* get() const override;
+
+private:
+  int value_;
+};
+
 } // namespace presyn
