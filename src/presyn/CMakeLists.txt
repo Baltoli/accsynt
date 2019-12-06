@@ -3,6 +3,7 @@ add_library(corepresyn
 
 add_executable(presyn
   src/fragment.cpp
+  src/fragment_parse.cpp
   src/main.cpp)
 
 target_link_libraries(corepresyn

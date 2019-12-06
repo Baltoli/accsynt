@@ -2,11 +2,7 @@
 
 namespace presyn {
 
-std::unique_ptr<fragment> fragment::parse(std::string_view)
-{
-  // TODO unimplemented
-  return nullptr;
-}
+// Implementations for parameter types
 
 constant_int::constant_int(int v)
     : value_(v)
@@ -38,5 +34,7 @@ llvm::Value* named::get() const
   // TODO unimplemented
   return nullptr;
 }
+
+// Implementations for fragments
 
 } // namespace presyn

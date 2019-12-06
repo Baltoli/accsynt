@@ -50,9 +50,15 @@ public:
    * internals of what they're being composed with (but can possibly in the
    * future make some kind of determinance about the behaviour of the other
    * fragment...).
+   *
+   * Because this gets ownership of the parameter, it means that (for example)
+   * an implementation could just return the original if it needs.
+   *
+   * Generally, the pattern that will be followed by implementations of this is
+   * that they store up fragments until compilation, when they'll use the
+   * exposed behaviour of their compositions to perform a compilation.
    */
-  virtual std::unique_ptr<fragment> compose(std::unique_ptr<fragment>&& other)
-      = 0;
+  virtual std::unique_ptr<fragment> compose(std::unique_ptr<fragment>&&) = 0;
 
   /**
    * Compilation logic not yet implemented until the core of the actual
