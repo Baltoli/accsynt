@@ -5,15 +5,18 @@
 
 namespace presyn {
 
-/*
- * Interfaces for the key types involved in creating a fragment from arguments
- * or a string.
- */
+// Interfaces
 
 class type {
 public:
 };
 
+/**
+ * The virtual behaviour of a parameter is to produce a correctly typed value -
+ * for instance, a parameter representing a function argument will produce a
+ * contextual hole, while one representing a constant would instead produce that
+ * constant.
+ */
 class parameter {
 public:
 };
@@ -46,5 +49,7 @@ public:
    */
   /* virtual program compile() = 0; */
 };
+
+// Implementations
 
 } // namespace presyn

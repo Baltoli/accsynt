@@ -5,9 +5,11 @@ add_executable(presyn
   src/fragment.cpp
   src/main.cpp)
 
-target_link_libraries(presyn
+target_link_libraries(corepresyn
   CONAN_PKG::fmt
-  ${llvm_libs}
+  ${llvm_libs})
+
+target_link_libraries(presyn
   corepresyn)
 
 add_executable(presyn_unit
