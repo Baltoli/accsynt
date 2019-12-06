@@ -1,15 +1,14 @@
 #pragma once
 
+#include <llvm/IR/Type.h>
+#include <llvm/IR/Value.h>
+
 #include <memory>
 #include <string_view>
 
 namespace presyn {
 
 // Interfaces
-
-class type {
-public:
-};
 
 /**
  * The virtual behaviour of a parameter is to produce a correctly typed value -
@@ -19,6 +18,17 @@ public:
  */
 class parameter {
 public:
+  /**
+   * Get the underlying LLVM type for this parameter.
+   */
+  virtual llvm::Type* type() const = 0;
+
+  /**
+   * Produce a value corresponding to this parameter - this could be a call to a
+   * function or an integer constant expression. The value can then be inserted
+   * into a program appropriately.
+   */
+  virtual llvm::Value* get() const = 0;
 };
 
 class fragment {
