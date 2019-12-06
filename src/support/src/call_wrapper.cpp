@@ -65,9 +65,7 @@ uint64_t call_wrapper::call(call_builder& build)
 
 size_t call_wrapper::marshalled_size(llvm::Type const* type) const
 {
-  if (type->isIntegerTy(32)) {
-    return 4;
-  } else if (type->isFloatTy()) {
+  if (type->isIntegerTy(32) || type->isFloatTy()) {
     return 4;
   } else if (type->isPointerTy()) {
     return 8;

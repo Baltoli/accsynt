@@ -42,9 +42,6 @@ public:
   gp_sampler(evaluator const&);
 
   void sample(int, props::property_set, compile_metadata&) const;
-
-private:
-  evaluator const& eval_;
 };
 
 } // namespace synth

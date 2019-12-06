@@ -12,7 +12,7 @@ using namespace llvm;
 
 TEST_CASE("can collect uses of values")
 {
-  auto mod = load_module(RESOURCE_DIR "deps.bc");
+  auto mod = load_module(RESOURCE_DIR "deps.ll");
   auto& fn = *mod->begin();
 
   VALUE(v2);
@@ -34,7 +34,7 @@ TEST_CASE("can collect uses of values")
 
 TEST_CASE("can collect dependencies of values")
 {
-  auto mod = load_module(RESOURCE_DIR "deps.bc");
+  auto mod = load_module(RESOURCE_DIR "deps.ll");
   auto& fn = *mod->begin();
 
   VALUE(arg0);
@@ -114,7 +114,7 @@ TEST_CASE("can collect dependencies of values")
 
 TEST_CASE("can topologically sort collections of values")
 {
-  auto mod = load_module(RESOURCE_DIR "deps.bc");
+  auto mod = load_module(RESOURCE_DIR "deps.ll");
   auto& fn = *mod->begin();
 
   VALUE(arg0);

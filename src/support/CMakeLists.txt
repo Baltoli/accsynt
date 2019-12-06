@@ -61,8 +61,14 @@ target_link_libraries(support_unit
   CONAN_PKG::fmt
   CONAN_PKG::Catch2)
 
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/test/inputs/deps.ll"
+  "${CMAKE_CURRENT_BINARY_DIR}/inputs/deps.ll"
+  COPYONLY
+)
+
 target_compile_options(support_unit
-  PUBLIC -DRESOURCE_DIR="${CMAKE_BINARY_DIR}/inputs/")
+  PUBLIC -DRESOURCE_DIR="${CMAKE_CURRENT_BINARY_DIR}/inputs/")
 
 add_test(NAME support_unit
          COMMAND $<TARGET_FILE:support_unit>)

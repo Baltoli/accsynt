@@ -53,7 +53,7 @@ TEST_CASE("Can extract the nth byte of values")
   }
 }
 
-#define u8ptr(v) reinterpret_cast<uint8_t const*>(&v)
+#define u8ptr(v) reinterpret_cast<uint8_t const*>(&(v))
 #define MAXV(T) (std::numeric_limits<T>::max())
 #define MINV(T) (std::numeric_limits<T>::min())
 #define ALLVS(T) random(MINV(T), MAXV(T))

@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 
-include(cmake/LinkFilesystem.cmake)
+set(CMAKE_MODULE_PATH 
+  ${CMAKE_MODULE_PATH}
+  "${CMAKE_SOURCE_DIR}/cmake/modules"
+)
+
+include(LinkFilesystem)
 
 find_program(CCACHE_PROGRAM ccache)
 if(CCACHE_PROGRAM)
@@ -41,15 +46,19 @@ conan_cmake_run(CONANFILE "../conanfile.txt"
                 BASIC_SETUP CMAKE_TARGETS
                 BUILD missing)
 
-find_package(LLVM 7 REQUIRED CONFIG)
+find_package(LLVM 9 REQUIRED CONFIG)
+
+include(ClangTidy)
+
 include_directories(SYSTEM ${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
+
 llvm_map_components_to_libnames(llvm_libs
-  support core irreader 
-  x86asmprinter x86asmparser 
-  x86codegen x86desc x86info 
-  target mcjit interpreter 
-  passes transformutils IDLSolver)
+  passes mcjit executionengine option irreader
+  asmparser x86asmparser x86codegen asmprinter
+  codegen target transformutils
+  bitwriter x86desc bitreader
+  core x86utils x86info support)
 
 include(GNUInstallDirs)
 enable_testing()
@@ -61,23 +70,3 @@ add_subdirectory(synth)
 add_subdirectory(support)
 add_subdirectory(predictor)
 add_subdirectory(presyn)
-
-option(BUILD_DOC "Build documentation" OFF)
-find_package(Doxygen)
-if(DOXYGEN_FOUND)
-  if(BUILD_DOC)
-    set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/../Doxyfile.in)
-    set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
-
-    configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
-    message("Doxygen build started")
-
-    add_custom_target(doc ALL
-      COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
-      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-      COMMENT "Generating API documentation with Doxygen"
-      VERBATIM)
-  endif()
-else (DOXYGEN_FOUND)
-  message("Doxygen need to be installed to generate the doxygen documentation")
-endif(DOXYGEN_FOUND)
