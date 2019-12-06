@@ -2,6 +2,7 @@ add_library(corepresyn
   src/options.cpp)
 
 add_executable(presyn
+  src/fragment.cpp
   src/main.cpp)
 
 target_link_libraries(presyn
@@ -10,6 +11,7 @@ target_link_libraries(presyn
   corepresyn)
 
 add_executable(presyn_unit
+  test/fragment.cpp
   test/main.cpp)
 
 target_link_libraries(presyn_unit
