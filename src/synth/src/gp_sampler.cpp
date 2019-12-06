@@ -11,10 +11,7 @@ using namespace llvm;
 
 namespace synth {
 
-gp_sampler::gp_sampler(evaluator const& e)
-    : eval_(e)
-{
-}
+gp_sampler::gp_sampler(evaluator const& e) {}
 
 void gp_sampler::sample(int n, property_set ps, compile_metadata& meta) const
 {

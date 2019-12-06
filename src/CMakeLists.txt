@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 
-include(cmake/LinkFilesystem.cmake)
+set(CMAKE_MODULE_PATH 
+  ${CMAKE_MODULE_PATH}
+  "${CMAKE_SOURCE_DIR}/cmake/modules"
+)
+
+include(LinkFilesystem)
 
 find_program(CCACHE_PROGRAM ccache)
 if(CCACHE_PROGRAM)
@@ -41,7 +46,10 @@ conan_cmake_run(CONANFILE "../conanfile.txt"
                 BASIC_SETUP CMAKE_TARGETS
                 BUILD missing)
 
-find_package(LLVM 10 REQUIRED CONFIG)
+find_package(LLVM 9 REQUIRED CONFIG)
+
+include(ClangTidy)
+
 include_directories(SYSTEM ${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
 

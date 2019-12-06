@@ -21,7 +21,6 @@ hill_synth::hill_synth(property_set ps, call_wrapper& ref)
     , eval_(make_examples(ps, ref))
     , choices_{}
     , properties_(ps)
-    , reference_(ref)
 {
   for (auto rule : rule_registry::all()) {
     auto matches = rule.match(ps);
