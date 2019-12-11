@@ -39,4 +39,21 @@ std::string linear::to_string() const
   return "linear({})"_format(instructions_);
 }
 
+// Seq
+
+seq::seq()
+    : first_(nullptr)
+    , second_(nullptr)
+{
+}
+
+std::unique_ptr<fragment> seq::compose(std::unique_ptr<fragment>&&)
+{
+  return nullptr;
+}
+
+bool seq::accepts() const { return false; }
+
+std::string seq::to_string() const { return "Seq()"; }
+
 } // namespace presyn

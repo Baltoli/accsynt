@@ -113,6 +113,13 @@ class linear final : public fragment {
 public:
   linear(int);
 
+  /**
+   * There's room for some semantics-based optimisations and algebraic
+   * properties here - by "crossing the 4th wall", if this is composed with
+   * another linear fragment you can merge them. It violates the strict
+   * compositionality idea but would reduce the size / complexity / compilation
+   * time.
+   */
   std::unique_ptr<fragment> compose(std::unique_ptr<fragment>&&) override;
 
   bool accepts() const override;
@@ -121,6 +128,36 @@ public:
 
 private:
   int instructions_;
+};
+
+/**
+ * A fragment that represents two fragments being executed in sequence one after
+ * the other.
+ *
+ * Composition is defined using acceptance - if the *first* element in the
+ * sequence accepts, then it receives the composition. If it does not and the
+ * second one does, similarly. If neither does, this fragment does not accept
+ * either.
+ *
+ * The acceptance-based composition is only used if this fragment is partially
+ * empty: i.e. it does not yet have an F or G as used above.
+ */
+class seq final : public fragment {
+public:
+  /**
+   * Sequence fragments aren't parameterised on any other
+   */
+  seq();
+
+  std::unique_ptr<fragment> compose(std::unique_ptr<fragment>&&) override;
+
+  bool accepts() const override;
+
+  std::string to_string() const override;
+
+private:
+  std::unique_ptr<fragment> first_;
+  std::unique_ptr<fragment> second_;
 };
 
 } // namespace presyn
