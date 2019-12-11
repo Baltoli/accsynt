@@ -37,6 +37,47 @@ public:
   virtual std::unique_ptr<fragment> compose(std::unique_ptr<fragment>&&) = 0;
 
   /**
+   * Any two fragments can be composed together, but the result may not actually
+   * use the second fragment. For example:
+   *
+   *  empty * F = empty, for all F
+   *
+   * Additionally, some fragments may have multiple child fragments. For
+   * example:
+   *
+   *  seq(F, G)
+   *
+   * In this example, we need to be able to define the semantics of composition
+   * properly. That is, which of these is the correct result?
+   *
+   *  seq(F, G) * H = seq(F * H, G)
+   *  seq(F, G) * H = seq(F, G * H)
+   *
+   * The way to define this is by allowing fragments to communicate when they
+   * will *use* the result of a composition:
+   *
+   *  accepts(empty) = false
+   *
+   * So then:
+   *
+   *  seq(F, G) * H = seq(F * H, G) if accepts(F)
+   *                = seq(F, G * H) if accepts(G)
+   *                = seq(F, G)     else
+   *
+   * The semantics of accepts can then be defined recursively:
+   *
+   *  accepts(seq(F, G)) = accepts(F) || accepts(G)
+   *
+   * We can see that this will respect the definition of composition given
+   * above: seq(F, G) only uses H in its compositions if it accepts. However,
+   * the composition is still well-defined in this case.
+   *
+   * This relationship between acceptance and composition should be respected by
+   * new fragment implementations.
+   */
+  virtual bool accepts() const = 0;
+
+  /**
    * Compilation logic not yet implemented until the core of the actual
    * behaviour is built up.
    */
