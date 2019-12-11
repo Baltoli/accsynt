@@ -1,5 +1,7 @@
 #include "fragment.h"
 
+#include <fmt/format.h>
+
 namespace presyn {
 
 // Empty
@@ -31,6 +33,10 @@ std::unique_ptr<fragment> linear::compose(std::unique_ptr<fragment>&& other)
 
 bool linear::accepts() const { return false; }
 
-std::string linear::to_string() const { return "linear()"; }
+std::string linear::to_string() const
+{
+  using namespace fmt::literals;
+  return "linear({})"_format(instructions_);
+}
 
 } // namespace presyn
