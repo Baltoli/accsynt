@@ -98,6 +98,8 @@ class empty final : public fragment {
 public:
   std::unique_ptr<fragment> compose(std::unique_ptr<fragment>&&) override;
 
+  bool accepts() const override;
+
   std::string to_string() const override;
 };
 
@@ -112,6 +114,8 @@ public:
   linear(int);
 
   std::unique_ptr<fragment> compose(std::unique_ptr<fragment>&&) override;
+
+  bool accepts() const override;
 
   std::string to_string() const override;
 

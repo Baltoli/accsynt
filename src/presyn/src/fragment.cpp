@@ -13,6 +13,8 @@ std::unique_ptr<fragment> empty::compose(std::unique_ptr<fragment>&& other)
   return std::move(other);
 }
 
+bool empty::accepts() const { return false; }
+
 std::string empty::to_string() const { return "empty()"; }
 
 // Linear
@@ -26,6 +28,8 @@ std::unique_ptr<fragment> linear::compose(std::unique_ptr<fragment>&& other)
 {
   return std::move(other);
 }
+
+bool linear::accepts() const { return false; }
 
 std::string linear::to_string() const { return "linear()"; }
 
