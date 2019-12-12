@@ -2,9 +2,12 @@
 
 #include "parameter.h"
 
+#include <support/traits.h>
+
 #include <memory>
 #include <string>
 #include <string_view>
+#include <type_traits>
 
 namespace presyn {
 
@@ -35,6 +38,16 @@ public:
    * exposed behaviour of their compositions to perform a compilation.
    */
   virtual std::unique_ptr<fragment> compose(std::unique_ptr<fragment>&&) = 0;
+
+  /**
+   * Because the core composition logic is defined virtually, we can use a
+   * templated base class method to define composition in cases where we don't
+   * have a UP already constructed.
+   */
+  template <typename Fragment>
+  std::enable_if_t<!support::is_unique_ptr_v<std::decay_t<Fragment>>,
+      std::unique_ptr<fragment>>
+  compose(Fragment&&);
 
   /**
    * Any two fragments can be composed together, but the result may not actually
@@ -166,5 +179,17 @@ private:
   std::unique_ptr<fragment> first_;
   std::unique_ptr<fragment> second_;
 };
+
+// Implementations
+
+template <typename Fragment>
+std::enable_if_t<!support::is_unique_ptr_v<std::decay_t<Fragment>>,
+    std::unique_ptr<fragment>>
+fragment::compose(Fragment&& other)
+{
+  // This perfectly forwards the supplied fragment and constructs a unique_ptr
+  // of the relevant derived type.
+  return compose(std::make_unique<Fragment>(std::forward<Fragment>(other)));
+}
 
 } // namespace presyn

@@ -9,6 +9,7 @@ add_executable(presyn
 
 target_link_libraries(corepresyn
   CONAN_PKG::fmt
+  support
   ${llvm_libs})
 
 target_link_libraries(presyn

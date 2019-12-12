@@ -54,13 +54,49 @@ seq::seq(std::unique_ptr<fragment>&& fst, std::unique_ptr<fragment>&& snd)
 
 std::unique_ptr<fragment> seq::compose(std::unique_ptr<fragment>&& other)
 {
-  auto ret = std::unique_ptr<fragment>(
-      new seq(std::move(first_), std::move(second_)));
+  auto ret
+      = std::unique_ptr<seq>(new seq(std::move(first_), std::move(second_)));
+
+  if (!ret->first_) {
+    ret->first_ = std::move(other);
+  } else if (!ret->second_) {
+    ret->second_ = std::move(other);
+  } else {
+    if (ret->first_->accepts()) {
+      ret->first_ = ret->first_->compose(std::move(other));
+    } else if (ret->second_->accepts()) {
+      ret->second_ = ret->second_->compose(std::move(other));
+    }
+  }
+
   return ret;
 }
 
-bool seq::accepts() const { return false; }
+bool seq::accepts() const
+{
+  return (!first_ || !second_ || first_->accepts() || second_->accepts());
+}
 
-std::string seq::to_string() const { return "Seq()"; }
+std::string seq::to_string() const
+{
+  using namespace fmt::literals;
+  using namespace std::literals::string_literals;
+
+  auto fst = [this] {
+    if (first_) {
+      return "{}"_format(first_->to_string());
+    }
+    return ""s;
+  }();
+
+  auto snd = [this] {
+    if (second_) {
+      return ", {}"_format(second_->to_string());
+    }
+    return ""s;
+  }();
+
+  return "Seq({}{})"_format(fst, snd);
+}
 
 } // namespace presyn
