@@ -96,6 +96,8 @@ public:
  */
 class empty final : public fragment {
 public:
+  empty() = default;
+
   std::unique_ptr<fragment> compose(std::unique_ptr<fragment>&&) override;
 
   bool accepts() const override;
@@ -145,7 +147,7 @@ private:
 class seq final : public fragment {
 public:
   /**
-   * Sequence fragments aren't parameterised on any other
+   * Sequence fragments aren't parameterised on any other data by default.
    */
   seq();
 
@@ -156,6 +158,11 @@ public:
   std::string to_string() const override;
 
 private:
+  /**
+   * Constructor responsible for moving from this.
+   */
+  seq(std::unique_ptr<fragment>&&, std::unique_ptr<fragment>&&);
+
   std::unique_ptr<fragment> first_;
   std::unique_ptr<fragment> second_;
 };

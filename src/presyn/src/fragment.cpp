@@ -42,14 +42,21 @@ std::string linear::to_string() const
 // Seq
 
 seq::seq()
-    : first_(nullptr)
-    , second_(nullptr)
+    : seq(nullptr, nullptr)
 {
 }
 
-std::unique_ptr<fragment> seq::compose(std::unique_ptr<fragment>&&)
+seq::seq(std::unique_ptr<fragment>&& fst, std::unique_ptr<fragment>&& snd)
+    : first_(std::move(fst))
+    , second_(std::move(snd))
 {
-  return nullptr;
+}
+
+std::unique_ptr<fragment> seq::compose(std::unique_ptr<fragment>&& other)
+{
+  auto ret = std::unique_ptr<fragment>(
+      new seq(std::move(first_), std::move(second_)));
+  return ret;
 }
 
 bool seq::accepts() const { return false; }
