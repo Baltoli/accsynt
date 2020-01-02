@@ -104,6 +104,12 @@ public:
    * pretty-printing.
    */
   virtual std::string to_string() const = 0;
+
+  /**
+   * Because this is an abstract base class, it needs a virtual destructor to
+   * make sure that derived classes are deleted correctly.
+   */
+  virtual ~fragment() = default;
 };
 
 /**
