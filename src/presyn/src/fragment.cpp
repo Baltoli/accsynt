@@ -1,5 +1,7 @@
 #include "fragment.h"
 
+#include <support/assert.h>
+
 #include <fmt/format.h>
 
 namespace presyn {
@@ -54,6 +56,8 @@ seq::seq(std::unique_ptr<fragment>&& fst, std::unique_ptr<fragment>&& snd)
 
 std::unique_ptr<fragment> seq::compose(std::unique_ptr<fragment>&& other)
 {
+  assertion(false);
+
   auto ret
       = std::unique_ptr<seq>(new seq(std::move(first_), std::move(second_)));
 
