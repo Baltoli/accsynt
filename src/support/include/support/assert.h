@@ -12,13 +12,15 @@ static constexpr bool debug = false;
 static constexpr bool debug = true;
 #endif
 
-template <typename... Args>
-void assert_impl(bool cond, char const* file, int line, Args... args)
+template <typename Cond, typename... Args>
+void assert_impl(
+    Cond&& cond, char const* check, char const* file, int line, Args... args)
 {
   if constexpr (detail::debug) {
-    if (!cond) {
+    if (!static_cast<bool>(cond)) {
       auto path = std::filesystem::path(file);
-      fmt::print("Assert: {}:{}\n", path.filename().string(), line);
+      fmt::print("Assertion {} failed ({}:{})\n", check,
+          path.filename().string(), line);
       if constexpr (sizeof...(args) > 0) {
         fmt::print("{}\n", fmt::format(args...));
       }
@@ -31,5 +33,5 @@ void assert_impl(bool cond, char const* file, int line, Args... args)
 
 #define assertion(c, ...)                                                      \
   do {                                                                         \
-    support::detail::assert_impl(c, __FILE__, __LINE__, __VA_ARGS__);          \
+    support::detail::assert_impl(c, #c, __FILE__, __LINE__, __VA_ARGS__);      \
   } while (false)
