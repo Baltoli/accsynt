@@ -37,7 +37,9 @@ public:
    * that they store up fragments until compilation, when they'll use the
    * exposed behaviour of their compositions to perform a compilation.
    */
-  virtual std::unique_ptr<fragment> compose(std::unique_ptr<fragment>&&) = 0;
+  [[nodiscard]] virtual std::unique_ptr<fragment> compose(
+      std::unique_ptr<fragment>&&)
+      = 0;
 
   /**
    * Because the core composition logic is defined virtually, we can use a
@@ -45,7 +47,8 @@ public:
    * have a UP already constructed.
    */
   template <typename Fragment>
-  std::enable_if_t<!support::is_unique_ptr_v<std::decay_t<Fragment>>,
+  [[nodiscard]] std::enable_if_t<
+      !support::is_unique_ptr_v<std::decay_t<Fragment>>,
       std::unique_ptr<fragment>>
   compose(Fragment&&);
 
@@ -111,7 +114,8 @@ class empty final : public fragment {
 public:
   empty() = default;
 
-  std::unique_ptr<fragment> compose(std::unique_ptr<fragment>&&) override;
+  [[nodiscard]] std::unique_ptr<fragment> compose(
+      std::unique_ptr<fragment>&&) override;
 
   bool accepts() const override;
 
@@ -135,7 +139,8 @@ public:
    * compositionality idea but would reduce the size / complexity / compilation
    * time.
    */
-  std::unique_ptr<fragment> compose(std::unique_ptr<fragment>&&) override;
+  [[nodiscard]] std::unique_ptr<fragment> compose(
+      std::unique_ptr<fragment>&&) override;
 
   bool accepts() const override;
 
@@ -164,7 +169,8 @@ public:
    */
   seq();
 
-  std::unique_ptr<fragment> compose(std::unique_ptr<fragment>&&) override;
+  [[nodiscard]] std::unique_ptr<fragment> compose(
+      std::unique_ptr<fragment>&&) override;
 
   bool accepts() const override;
 
@@ -183,7 +189,8 @@ private:
 // Implementations
 
 template <typename Fragment>
-std::enable_if_t<!support::is_unique_ptr_v<std::decay_t<Fragment>>,
+[[nodiscard]] std::enable_if_t<
+    !support::is_unique_ptr_v<std::decay_t<Fragment>>,
     std::unique_ptr<fragment>>
 fragment::compose(Fragment&& other)
 {
