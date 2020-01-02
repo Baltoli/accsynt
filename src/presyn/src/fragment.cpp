@@ -28,7 +28,7 @@ linear::linear(int insts)
 
 std::unique_ptr<fragment> linear::compose(std::unique_ptr<fragment>&& other)
 {
-  return std::move(other);
+  return std::make_unique<linear>(instructions_);
 }
 
 bool linear::accepts() const { return false; }
