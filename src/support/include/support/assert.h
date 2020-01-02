@@ -1,5 +1,7 @@
 #pragma once
 
+#include <support/colour.h>
+
 #include <fmt/format.h>
 
 #include <filesystem>
