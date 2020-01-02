@@ -13,10 +13,11 @@ int main(int argc, char** argv)
 
   std::unique_ptr<fragment> frag = std::make_unique<presyn::empty>();
 
-  /* frag = frag->compose(presyn::empty()); */
-  /* frag = frag->compose(presyn::empty()); */
+  frag = frag->compose(presyn::empty());
   frag = frag->compose(presyn::seq());
   frag = frag->compose(presyn::linear(6));
+  frag = frag->compose(presyn::linear(2));
+  frag = frag->compose(presyn::linear(4));
 
   fmt::print("{}\n", frag->to_string());
 }
