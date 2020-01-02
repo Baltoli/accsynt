@@ -96,7 +96,7 @@ std::string seq::to_string() const
     return ""s;
   }();
 
-  return "Seq({}{})"_format(fst, snd);
+  return "seq({}{})"_format(fst, snd);
 }
 
 } // namespace presyn
