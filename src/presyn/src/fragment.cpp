@@ -15,7 +15,7 @@ std::unique_ptr<fragment> empty::compose(std::unique_ptr<fragment>&& other)
   return std::move(other);
 }
 
-bool empty::accepts() const { return false; }
+bool empty::accepts() const { return true; }
 
 std::string empty::to_string() const { return "empty()"; }
 
