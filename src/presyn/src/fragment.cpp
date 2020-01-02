@@ -42,7 +42,7 @@ std::string linear::to_string() const
 // Seq
 
 seq::seq()
-    : seq(nullptr, nullptr)
+    : seq(std::make_unique<empty>(), std::make_unique<empty>())
 {
 }
 
