@@ -79,7 +79,6 @@ bool seq::accepts() const
 std::string seq::to_string() const
 {
   using namespace fmt::literals;
-  using namespace std::literals::string_literals;
 
   return "seq({}, {})"_format(first_->to_string(), second_->to_string());
 }
