@@ -1,6 +1,6 @@
 #pragma once
 
-#include <support/colour.h>
+#include <support/terminal.h>
 
 #include <fmt/format.h>
 
