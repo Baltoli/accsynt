@@ -56,21 +56,16 @@ seq::seq(std::unique_ptr<fragment>&& fst, std::unique_ptr<fragment>&& snd)
 
 std::unique_ptr<fragment> seq::compose(std::unique_ptr<fragment>&& other)
 {
-  assertion(false, "Format {}", 2);
+  assertion(first_, "Child fragments of seq should not be null");
+  assertion(second_, "Child fragments of seq should not be null");
 
   auto ret
       = std::unique_ptr<seq>(new seq(std::move(first_), std::move(second_)));
 
-  if (!ret->first_) {
-    ret->first_ = std::move(other);
-  } else if (!ret->second_) {
-    ret->second_ = std::move(other);
-  } else {
-    if (ret->first_->accepts()) {
-      ret->first_ = ret->first_->compose(std::move(other));
-    } else if (ret->second_->accepts()) {
-      ret->second_ = ret->second_->compose(std::move(other));
-    }
+  if (ret->first_->accepts()) {
+    ret->first_ = ret->first_->compose(std::move(other));
+  } else if (ret->second_->accepts()) {
+    ret->second_ = ret->second_->compose(std::move(other));
   }
 
   return ret;
