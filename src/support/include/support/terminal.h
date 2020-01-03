@@ -36,3 +36,19 @@ constexpr auto reset = detail::specifier<0>();
 constexpr auto bold = detail::specifier<1>();
 
 } // namespace support::terminal
+
+template <int... Cs>
+struct fmt::formatter<support::terminal::detail::specifier<Cs...>> {
+  template <typename ParseContext>
+  constexpr auto parse(ParseContext& ctx)
+  {
+    return ctx.begin();
+  }
+
+  template <typename FormatContext>
+  auto format(support::terminal::detail::specifier<Cs...> const& spec,
+      FormatContext& ctx)
+  {
+    return fmt::format_to(ctx.out(), "\033[{}m", fmt::join(spec.codes_, ";"));
+  }
+};
