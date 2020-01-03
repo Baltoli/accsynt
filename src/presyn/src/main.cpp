@@ -3,6 +3,8 @@
 
 #include <fmt/format.h>
 
+#include <support/terminal.h>
+
 using namespace llvm;
 using namespace presyn;
 
