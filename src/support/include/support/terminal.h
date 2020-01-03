@@ -32,8 +32,35 @@ struct specifier {
 
 } // namespace detail
 
-constexpr auto reset = detail::specifier<0>();
-constexpr auto bold = detail::specifier<1>();
+// Codes taken from
+// https://stackoverflow.com/a/33206814
+// (not a complete selection of features in this implementation)
+
+constexpr inline auto reset = detail::specifier<0>();
+constexpr inline auto bold = detail::specifier<1>();
+constexpr inline auto underline = detail::specifier<4>();
+constexpr inline auto reverse = detail::specifier<7>();
+constexpr inline auto strike = detail::specifier<9>();
+
+constexpr inline auto f_black = detail::specifier<30>();
+constexpr inline auto f_red = detail::specifier<31>();
+constexpr inline auto f_green = detail::specifier<32>();
+constexpr inline auto f_yellow = detail::specifier<33>();
+constexpr inline auto f_blue = detail::specifier<34>();
+constexpr inline auto f_pink = detail::specifier<35>();
+constexpr inline auto f_cyan = detail::specifier<36>();
+constexpr inline auto f_white = detail::specifier<37>();
+constexpr inline auto f_default = detail::specifier<39>();
+
+constexpr inline auto b_black = detail::specifier<40>();
+constexpr inline auto b_red = detail::specifier<41>();
+constexpr inline auto b_green = detail::specifier<42>();
+constexpr inline auto b_yellow = detail::specifier<43>();
+constexpr inline auto b_blue = detail::specifier<44>();
+constexpr inline auto b_pink = detail::specifier<45>();
+constexpr inline auto b_cyan = detail::specifier<46>();
+constexpr inline auto b_white = detail::specifier<47>();
+constexpr inline auto b_default = detail::specifier<49>();
 
 } // namespace support::terminal
 
