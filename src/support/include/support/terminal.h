@@ -1,8 +1,8 @@
 #pragma once
 
-#include <algorithm>
+#include <fmt/format.h>
+
 #include <array>
-#include <tuple>
 
 /**
  * This file implements a mechanism for printing terminal escape sequences that
@@ -14,27 +14,21 @@ namespace support::terminal {
 
 namespace detail {
 
-template <int... vals>
+template <int... Cs>
 struct specifier {
   constexpr explicit specifier()
-      : codes_ { vals... }
+      : codes_ { Cs... }
   {
   }
 
   template <int... OCs>
-  constexpr auto operator+(specifier<OCs...> other) const;
+  constexpr auto operator+(specifier<OCs...> other) const
+  {
+    return specifier<Cs..., OCs...>();
+  }
 
-  std::array<int, sizeof...(vals)> codes_;
+  std::array<int, sizeof...(Cs)> codes_;
 };
-
-// Combining specifiers and specifiers
-
-template <int... Cs>
-template <int... OCs>
-constexpr auto specifier<Cs...>::operator+(specifier<OCs...> other) const
-{
-  return specifier<Cs..., OCs...>();
-}
 
 } // namespace detail
 
