@@ -81,21 +81,7 @@ std::string seq::to_string() const
   using namespace fmt::literals;
   using namespace std::literals::string_literals;
 
-  auto fst = [this] {
-    if (first_) {
-      return "{}"_format(first_->to_string());
-    }
-    return ""s;
-  }();
-
-  auto snd = [this] {
-    if (second_) {
-      return ", {}"_format(second_->to_string());
-    }
-    return ""s;
-  }();
-
-  return "seq({}{})"_format(fst, snd);
+  return "seq({}, {})"_format(first_->to_string(), second_->to_string());
 }
 
 } // namespace presyn
