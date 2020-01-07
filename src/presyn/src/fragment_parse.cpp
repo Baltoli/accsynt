@@ -14,8 +14,6 @@ std::unique_ptr<fragment> fragment::parse(std::string_view str)
   tao::pre_tl::parse<must<grammar::fragment, eof>, grammar::fragment_action>(
       memory_input(str.begin(), str.end(), ""), state);
 
-  fmt::print("{}\n", state.name);
-
   return nullptr;
 }
 

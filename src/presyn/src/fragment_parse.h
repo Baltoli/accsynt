@@ -1,9 +1,12 @@
 #pragma once
-#include <fmt/format.h>
 
 // This header should only be included in the corresponding implementation file,
 // and the unit test file. If included elsewhere, namespace pollution is
 // possible.
+
+#include <support/assert.h>
+
+#include <fmt/format.h>
 
 #define TAO_PEGTL_NAMESPACE pre_tl
 #include <tao/pegtl.hpp>
@@ -102,6 +105,10 @@ struct child_arg_list :
   >
 {};
 
+struct fragment_end :
+  TAO_PEGTL_STRING("")
+{};
+
 struct fragment :
   seq<
     fragment_name,
@@ -112,7 +119,8 @@ struct fragment :
     star<space>,
     opt<
       child_arg_list
-    >
+    >,
+    fragment_end
   >
 {};
 
@@ -124,10 +132,15 @@ struct child_arg :
 
 using template_arg_state = std::variant<int, std::string>;
 
-struct fragment_state {
+struct fragment_parse {
   std::string name = "";
   std::vector<template_arg_state> template_args = {};
-  std::vector<fragment_state> child_args = {};
+  std::vector<fragment_parse> child_args = {};
+};
+
+struct fragment_state {
+  fragment_parse result;
+  std::vector<fragment_parse> stack = {};
 };
 
 template <>
@@ -135,7 +148,24 @@ struct fragment_action<fragment_name> {
   template <typename Input>
   static void apply(Input const& in, fragment_state& state)
   {
-    state.name = in.string();
+    state.stack.emplace_back();
+    state.stack.back().name = in.string();
+  }
+};
+
+template <>
+struct fragment_action<fragment_end> {
+  template <typename Input>
+  static void apply(Input const& in, fragment_state& state)
+  {
+    auto completed = state.stack.back();
+    state.stack.pop_back();
+
+    if (!state.stack.empty()) {
+      state.stack.back().child_args.push_back(completed);
+    }
+
+    state.result = completed;
   }
 };
 
@@ -144,7 +174,7 @@ struct fragment_action<constant_int> {
   template <typename Input>
   static void apply(Input const& in, fragment_state& state)
   {
-    state.template_args.emplace_back(std::stoi(in.string()));
+    unimplemented();
   }
 };
 
@@ -153,17 +183,7 @@ struct fragment_action<parameter_name> {
   template <typename Input>
   static void apply(Input const& in, fragment_state& state)
   {
-    state.template_args.emplace_back(in.string());
-  }
-};
-
-template <>
-struct fragment_action<child_arg> : change_states<fragment_state> {
-  template <typename Input>
-  static void success(
-      Input const& in, fragment_state& new_s, fragment_state& old_s)
-  {
-    old_s.child_args.push_back(new_s);
+    unimplemented();
   }
 };
 
