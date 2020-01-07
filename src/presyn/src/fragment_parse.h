@@ -15,10 +15,20 @@ namespace presyn::grammar {
 
 using namespace tao::pre_tl;
 
+/**
+ * The grammar is simple enough that we can make do with a single action, which
+ * will update a POD state representing the parsed data.
+ */
+template <typename Rule>
+struct fragment_action : nothing<Rule> {
+};
+
 // Grammars make such horrible template invocations that it's best to format
 // them ourselves
 
 // clang-format off
+
+// Grammars
 
 struct fragment_name : 
   sor<
@@ -117,6 +127,23 @@ struct fragment_state {
   std::string name;
   std::vector<template_arg_state> template_args;
   std::vector<fragment_state> child_args;
+};
+
+template <>
+struct fragment_action<fragment_name> {
+  template <typename Input>
+  static void apply(Input const& in, fragment_state& state)
+  {
+    state.name = in.string();
+  }
+};
+
+template <>
+struct fragment_action<child_arg> {
+  template <typename Input>
+  static void apply(Input const& in, fragment_state& state)
+  {
+  }
 };
 
 } // namespace presyn::grammar
