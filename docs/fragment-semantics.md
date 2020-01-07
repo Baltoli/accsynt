@@ -35,6 +35,8 @@ int ::= {integer constant}
 fragment ::= name '(' arg_list ')'
 
 arg ::= fragment | int
+
+arg_list ::= arg | arg ',' arg_list
 ```
 
 ### Implementation
