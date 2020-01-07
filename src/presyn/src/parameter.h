@@ -26,6 +26,12 @@ public:
    * into a program appropriately.
    */
   virtual llvm::Value* get() const = 0;
+
+  /**
+   * Print this parameter as a string. Used by the parent fragment to print
+   * 'template' argument lists.
+   */
+  virtual std::string to_string() const = 0;
 };
 
 /**
@@ -38,6 +44,8 @@ public:
 
   llvm::Type* type() const override;
   llvm::Value* get() const override;
+
+  std::string to_string() const override;
 
 private:
   int value_;
@@ -53,6 +61,8 @@ public:
 
   llvm::Type* type() const override;
   llvm::Value* get() const override;
+
+  std::string to_string() const override;
 
 private:
   llvm::Type* type_;

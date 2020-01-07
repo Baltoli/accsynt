@@ -6,6 +6,8 @@
 
 namespace presyn {
 
+using namespace fmt::literals;
+
 // Empty
 
 /**
@@ -23,22 +25,21 @@ std::string empty::to_string() const { return "empty()"; }
 
 // Linear
 
-linear::linear(int insts)
-    : instructions_(insts)
+linear::linear(std::unique_ptr<parameter>&& insts)
+    : instructions_(std::move(insts))
 {
 }
 
 std::unique_ptr<fragment> linear::compose(std::unique_ptr<fragment>&& other)
 {
-  return std::make_unique<linear>(instructions_);
+  return std::make_unique<linear>(std::move(instructions_));
 }
 
 bool linear::accepts() const { return false; }
 
 std::string linear::to_string() const
 {
-  using namespace fmt::literals;
-  return "linear({})"_format(instructions_);
+  return "linear({})"_format(instructions_->to_string());
 }
 
 // Seq
@@ -78,8 +79,6 @@ bool seq::accepts() const
 
 std::string seq::to_string() const
 {
-  using namespace fmt::literals;
-
   assertion(first_ && second_, "Child fragments of seq should not be null");
   return "seq({}, {})"_format(first_->to_string(), second_->to_string());
 }

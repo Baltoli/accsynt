@@ -136,7 +136,7 @@ public:
  */
 class linear final : public fragment {
 public:
-  linear(int);
+  linear(std::unique_ptr<parameter>&&);
 
   /**
    * There's room for some semantics-based optimisations and algebraic
@@ -153,7 +153,7 @@ public:
   std::string to_string() const override;
 
 private:
-  int instructions_;
+  std::unique_ptr<parameter> instructions_;
 };
 
 /**
