@@ -92,7 +92,6 @@ TEST_CASE("Can recognise individual template arguments")
   {
     MATCH_EXACT("2445");
     MATCH_EXACT("@cdfew_wefji");
-    MATCH_EXACT("");
     MATCH_EXACT("-32");
     MATCH_EXACT("@__fkj");
     MATCH_EXACT("@_ewjf_");
@@ -100,9 +99,36 @@ TEST_CASE("Can recognise individual template arguments")
 
   SECTION("Don't recognise wrong arguments")
   {
+    NOT_MATCH_EXACT("");
     NOT_MATCH_EXACT("seq()");
     NOT_MATCH_EXACT("empty");
     NOT_MATCH_EXACT("+32.2");
     NOT_MATCH_EXACT("<21>");
+  }
+}
+
+TEST_CASE("Can recognise template argument lists")
+{
+  using test_grammar = template_arg_list;
+
+  SECTION("Recognise correct lists")
+  {
+    MATCH_EXACT("<>");
+    MATCH_EXACT("<                  >");
+    MATCH_EXACT("<12>");
+    MATCH_EXACT("<@x, -123>");
+    MATCH_EXACT("< -5,       \n@x\n\n,+9148,\n\n\t@d__334_1_x>");
+  }
+
+  SECTION("Don't recognise wrong lists")
+  {
+    NOT_MATCH_EXACT("<,>");
+    NOT_MATCH_EXACT("<1,>");
+    NOT_MATCH_EXACT("<,@x>");
+    NOT_MATCH_EXACT("");
+    NOT_MATCH_EXACT("<1,12,@x");
+    NOT_MATCH_EXACT("1,12,@x>");
+    NOT_MATCH_EXACT("xyx>");
+    NOT_MATCH_EXACT("xyx, 123");
   }
 }

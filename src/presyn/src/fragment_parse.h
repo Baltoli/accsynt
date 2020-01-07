@@ -46,11 +46,24 @@ struct parameter_name :
 {};
 
 struct template_arg :
-  opt<
-    sor<
-      constant_int,
-      parameter_name
-    >
+  sor<
+    constant_int,
+    parameter_name
+  >
+{};
+
+struct template_arg_list :
+  seq<
+    one<'<'>,
+    pad_opt<
+      list<
+        template_arg,
+        one<','>,
+        space
+      >,
+      space
+    >,
+    one<'>'>
   >
 {};
 
