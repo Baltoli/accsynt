@@ -17,9 +17,10 @@ int main(int argc, char** argv)
 
   frag = frag->compose(presyn::empty());
   frag = frag->compose(presyn::seq());
-  frag = frag->compose(presyn::linear(6));
-  frag = frag->compose(presyn::linear(2));
-  frag = frag->compose(presyn::linear(4));
+  frag = frag->compose(
+      presyn::linear(std::make_unique<presyn::constant_int>(2)));
+  frag = frag->compose(
+      presyn::linear(std::make_unique<presyn::constant_int>(4)));
 
   fmt::print("{}\n", frag->to_string());
 }
