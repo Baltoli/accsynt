@@ -20,6 +20,7 @@ target_link_libraries(presyn
 
 add_executable(presyn_unit
   test/fragment.cpp
+  test/parsing.cpp
   test/main.cpp)
 
 target_link_libraries(presyn_unit

@@ -1,3 +1,4 @@
+#include "fragment_parse.h"
 #include "fragment.h"
 
 #include <support/assert.h>
