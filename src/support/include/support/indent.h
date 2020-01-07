@@ -22,7 +22,7 @@ struct formatter<support::indent> {
   template <typename FormatContext>
   auto format(const support::indent& ind, FormatContext& ctx)
   {
-    auto it = ctx.begin();
+    auto it = ctx.out();
     for (auto i = 0u; i < ind.depth; ++i) {
       it = format_to(it, "  ");
     }

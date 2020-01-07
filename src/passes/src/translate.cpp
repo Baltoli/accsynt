@@ -75,7 +75,7 @@ std::optional<std::string> base_constraint(Instruction const& I)
   using namespace fmt::literals;
 
   if (auto op = idl_opcode(I)) {
-    return "({{{result}}} is {op} instruction)"_format(
+    return fmt::format("({{{result}}} is {op} instruction)",
         "result"_a = get_name(I), "op"_a = op.value());
   }
 
@@ -115,7 +115,7 @@ std::string nth_arg_constraint(Instruction const& I, size_t n)
   auto& operand = *I.getOperand(n);
   auto atoms = const_constraints(operand);
 
-  atoms.push_back("({{{arg}}} is {nth} argument of {{{instr}}})"_format(
+  atoms.push_back(fmt::format("({{{arg}}} is {nth} argument of {{{instr}}})",
       "arg"_a = get_name(operand), "nth"_a = nth_of(n),
       "instr"_a = get_name(I)));
 
@@ -158,6 +158,7 @@ std::optional<std::string> constraint(Function const& F)
 
   return std::nullopt;
 }
+
 } // namespace convert::detail
 
 namespace convert {
@@ -167,11 +168,12 @@ std::optional<std::string> to_idl(Function const& F)
   using namespace fmt::literals;
 
   if (auto con = detail::constraint(F)) {
-    return "Constraint {name}\n{constraint}\nEnd"_format(
+    return fmt::format("Constraint {name}\n{constraint}\nEnd",
         "name"_a = detail::title_case(F.getName().str()),
         "constraint"_a = con.value());
   }
 
   return std::nullopt;
 }
+
 } // namespace convert
