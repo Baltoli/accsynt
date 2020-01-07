@@ -1,9 +1,15 @@
 #pragma once
 
+// This header should only be included in the corresponding implementation file,
+// and the unit test file. If included elsewhere, namespace pollution is
+// possible.
+
 #define TAO_PEGTL_NAMESPACE pre_tl
 #include <tao/pegtl.hpp>
 
 namespace presyn::grammar {
+
+using namespace tao::pre_tl;
 
 // Grammars make such horrible template invocations that it's best to format
 // them ourselves
@@ -11,7 +17,7 @@ namespace presyn::grammar {
 // clang-format off
 
 struct fragment_name : 
-  tao::pre_tl::sor<
+  sor<
     TAO_PEGTL_STRING("linear"),
     TAO_PEGTL_STRING("empty"), 
     TAO_PEGTL_STRING("seq")
@@ -19,23 +25,23 @@ struct fragment_name :
 {};
 
 struct constant_int : 
-  tao::pre_tl::seq<
-    tao::pre_tl::opt<
-      tao::pre_tl::sor<
-        tao::pre_tl::one<'+'>, 
-        tao::pre_tl::one<'-'>
+  seq<
+    opt<
+      sor<
+        one<'+'>, 
+        one<'-'>
       >
     >, 
-    tao::pre_tl::plus<
-      tao::pre_tl::digit
+    plus<
+      digit
     >
   >
 {};
 
 struct parameter_name :
-  tao::pre_tl::seq<
-    tao::pre_tl::one<'@'>,
-    tao::pre_tl::identifier
+  seq<
+    one<'@'>,
+    identifier
   >
 {};
 

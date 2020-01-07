@@ -2,7 +2,6 @@
 
 #include <catch2/catch.hpp>
 
-using namespace tao::pre_tl;
 using namespace presyn::grammar;
 
 #define MATCH_EXACT(str)                                                       \
