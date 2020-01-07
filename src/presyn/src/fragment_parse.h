@@ -1,4 +1,5 @@
 #pragma once
+#include <fmt/format.h>
 
 // This header should only be included in the corresponding implementation file,
 // and the unit test file. If included elsewhere, namespace pollution is
@@ -134,6 +135,7 @@ struct fragment_action<fragment_name> {
   template <typename Input>
   static void apply(Input const& in, fragment_state& state)
   {
+    fmt::print("Rooty tooty: {}\n", in.string());
     state.name = in.string();
   }
 };
