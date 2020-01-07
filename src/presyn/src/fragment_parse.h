@@ -140,12 +140,18 @@ struct fragment_action<fragment_name> {
   }
 };
 
-template <>
-struct fragment_action<child_arg> {
-  template <typename Input>
-  static void apply(Input const& in, fragment_state& state)
-  {
-  }
-};
+/* template <> */
+/* struct fragment_action<child_arg> : change_states<fragment_state> { */
+/*   template <typename Input> */
+/*   static void apply(Input const& in, fragment_state& state) */
+/*   { */
+/*   } */
+
+/*   template <typename Input> */
+/*   static void success( */
+/*       Input const& in, fragment_state& new_s, fragment_state& old) */
+/*   { */
+/*   } */
+/* }; */
 
 } // namespace presyn::grammar
