@@ -21,7 +21,7 @@ std::unique_ptr<fragment> empty::compose(std::unique_ptr<fragment>&& other)
 
 bool empty::accepts() const { return true; }
 
-std::string empty::to_string() const { return "empty()"; }
+std::string empty::to_string() const { return "empty"; }
 
 // Linear
 
@@ -39,7 +39,7 @@ bool linear::accepts() const { return false; }
 
 std::string linear::to_string() const
 {
-  return "linear({})"_format(instructions_->to_string());
+  return "linear<{}>"_format(instructions_->to_string());
 }
 
 // Seq
