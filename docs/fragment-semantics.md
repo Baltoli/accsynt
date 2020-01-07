@@ -32,11 +32,15 @@ name ::= 'linear' | 'empty' | 'seq'
 
 int ::= {integer constant}
 
-fragment ::= name '(' arg_list ')'
+name ::= '@' {identifier}
 
-arg ::= fragment | int
+fragment ::= name template_arg_list? child_arg_list?
 
-arg_list ::= arg | arg ',' arg_list
+template_arg ::= # | int | name
+template_arg_list ::= '<' (template_arg | template_arg ',' template_arg_list) '>'
+
+child_arg ::= fragment
+child_arg_list ::= '(' (child_arg | child_arg ',' child_arg_list) ')'
 ```
 
 ### Implementation
