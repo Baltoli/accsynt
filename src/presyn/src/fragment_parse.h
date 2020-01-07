@@ -125,9 +125,9 @@ struct child_arg :
 using template_arg_state = std::variant<int, std::string>;
 
 struct fragment_state {
-  std::string name;
-  std::vector<template_arg_state> template_args;
-  std::vector<fragment_state> child_args;
+  std::string name = "";
+  std::vector<template_arg_state> template_args = {};
+  std::vector<fragment_state> child_args = {};
 };
 
 template <>
@@ -135,23 +135,36 @@ struct fragment_action<fragment_name> {
   template <typename Input>
   static void apply(Input const& in, fragment_state& state)
   {
-    fmt::print("Rooty tooty: {}\n", in.string());
     state.name = in.string();
   }
 };
 
-/* template <> */
-/* struct fragment_action<child_arg> : change_states<fragment_state> { */
-/*   template <typename Input> */
-/*   static void apply(Input const& in, fragment_state& state) */
-/*   { */
-/*   } */
+template <>
+struct fragment_action<constant_int> {
+  template <typename Input>
+  static void apply(Input const& in, fragment_state& state)
+  {
+    state.template_args.emplace_back(std::stoi(in.string()));
+  }
+};
 
-/*   template <typename Input> */
-/*   static void success( */
-/*       Input const& in, fragment_state& new_s, fragment_state& old) */
-/*   { */
-/*   } */
-/* }; */
+template <>
+struct fragment_action<parameter_name> {
+  template <typename Input>
+  static void apply(Input const& in, fragment_state& state)
+  {
+    state.template_args.emplace_back(in.string());
+  }
+};
+
+template <>
+struct fragment_action<child_arg> : change_states<fragment_state> {
+  template <typename Input>
+  static void success(
+      Input const& in, fragment_state& new_s, fragment_state& old_s)
+  {
+    old_s.child_args.push_back(new_s);
+  }
+};
 
 } // namespace presyn::grammar
