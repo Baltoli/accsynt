@@ -6,6 +6,8 @@
 
 namespace presyn {
 
+using namespace fmt::literals;
+
 // Empty
 
 /**
@@ -37,7 +39,6 @@ bool linear::accepts() const { return false; }
 
 std::string linear::to_string() const
 {
-  using namespace fmt::literals;
   return "linear({})"_format(instructions_);
 }
 
@@ -78,8 +79,6 @@ bool seq::accepts() const
 
 std::string seq::to_string() const
 {
-  using namespace fmt::literals;
-
   assertion(first_ && second_, "Child fragments of seq should not be null");
   return "seq({}, {})"_format(first_->to_string(), second_->to_string());
 }
