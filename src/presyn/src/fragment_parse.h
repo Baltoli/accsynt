@@ -7,6 +7,10 @@
 #define TAO_PEGTL_NAMESPACE pre_tl
 #include <tao/pegtl.hpp>
 
+#include <string>
+#include <variant>
+#include <vector>
+
 namespace presyn::grammar {
 
 using namespace tao::pre_tl;
@@ -106,5 +110,13 @@ struct child_arg :
 {};
 
 // clang-format on
+
+/* using template_arg_state = std::variant<int, std::string>; */
+
+/* struct fragment_state { */
+/*   std::string name; */
+/*   std::vector<template_arg_state> template_args; */
+/*   std::vector<fragment_state> child_args; */
+/* }; */
 
 } // namespace presyn::grammar
