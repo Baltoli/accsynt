@@ -58,3 +58,29 @@ TEST_CASE("Can recognise constant integers")
     NOT_MATCH_EXACT("--1223");
   }
 }
+
+TEST_CASE("Can recognise parameter names")
+{
+  using test_grammar = parameter_name;
+
+  SECTION("Can correctly recognise parameter names")
+  {
+    MATCH_EXACT("@wefi");
+    MATCH_EXACT("@abc_123_");
+    MATCH_EXACT("@w12_23______AJIJI_");
+    MATCH_EXACT("@a");
+    MATCH_EXACT("@_bcusd");
+  }
+
+  SECTION("Doesn't match incorrect parameter names")
+  {
+    NOT_MATCH_EXACT("wefi");
+    NOT_MATCH_EXACT("abc_123_");
+    NOT_MATCH_EXACT("@12awd");
+    NOT_MATCH_EXACT("@fewji-fe");
+    NOT_MATCH_EXACT("@");
+    NOT_MATCH_EXACT("");
+    NOT_MATCH_EXACT("@(wef)");
+    NOT_MATCH_EXACT("@@f");
+  }
+}

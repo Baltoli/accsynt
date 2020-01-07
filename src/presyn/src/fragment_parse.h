@@ -32,6 +32,13 @@ struct constant_int :
   >
 {};
 
+struct parameter_name :
+  tao::pre_tl::seq<
+    tao::pre_tl::one<'@'>,
+    tao::pre_tl::identifier
+  >
+{};
+
 // clang-format on
 
 } // namespace presyn::grammar
