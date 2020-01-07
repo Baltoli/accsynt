@@ -45,6 +45,15 @@ struct parameter_name :
   >
 {};
 
+struct template_arg :
+  opt<
+    sor<
+      constant_int,
+      parameter_name
+    >
+  >
+{};
+
 // clang-format on
 
 } // namespace presyn::grammar

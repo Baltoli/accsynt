@@ -83,3 +83,26 @@ TEST_CASE("Can recognise parameter names")
     NOT_MATCH_EXACT("@@f");
   }
 }
+
+TEST_CASE("Can recognise individual template arguments")
+{
+  using test_grammar = template_arg;
+
+  SECTION("Recognise correct arguments")
+  {
+    MATCH_EXACT("2445");
+    MATCH_EXACT("@cdfew_wefji");
+    MATCH_EXACT("");
+    MATCH_EXACT("-32");
+    MATCH_EXACT("@__fkj");
+    MATCH_EXACT("@_ewjf_");
+  }
+
+  SECTION("Don't recognise wrong arguments")
+  {
+    NOT_MATCH_EXACT("seq()");
+    NOT_MATCH_EXACT("empty");
+    NOT_MATCH_EXACT("+32.2");
+    NOT_MATCH_EXACT("<21>");
+  }
+}
