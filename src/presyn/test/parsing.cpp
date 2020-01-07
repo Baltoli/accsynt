@@ -1,5 +1,7 @@
 #include "fragment_parse.h"
 
+#include <tao/pegtl/analyze.hpp>
+
 #include <catch2/catch.hpp>
 
 using namespace presyn::grammar;
@@ -166,4 +168,9 @@ TEST_CASE("Can recognise fragments")
     NOT_MATCH_EXACT("seq(empty)<linear>");
     NOT_MATCH_EXACT("seq(empty)<linear(2)>");
   }
+}
+
+TEST_CASE("The grammar doesn't have any issues")
+{
+  REQUIRE(analyze<fragment>() == 0);
 }
