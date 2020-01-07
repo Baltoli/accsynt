@@ -57,7 +57,7 @@ seq::seq(std::unique_ptr<fragment>&& fst, std::unique_ptr<fragment>&& snd)
 
 std::unique_ptr<fragment> seq::compose(std::unique_ptr<fragment>&& other)
 {
-  assertion(first_ && second_, "Child fragments of seq should not be null");
+  assumes(first_ && second_, "Child fragments of seq should not be null");
 
   auto ret
       = std::unique_ptr<seq>(new seq(std::move(first_), std::move(second_)));
