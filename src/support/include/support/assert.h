@@ -48,6 +48,18 @@ void assert_impl(Cond&& cond, char const* check, char const* type,
         __LINE__, __func__, __VA_ARGS__);                                      \
   } while (false)
 
+#define assumes(c, ...)                                                        \
+  do {                                                                         \
+    support::detail::assert_impl(c, #c, "Precondition violated: ", __FILE__,   \
+        __LINE__, __func__, __VA_ARGS__);                                      \
+  } while (false)
+
+#define ensures(c, ...)                                                        \
+  do {                                                                         \
+    support::detail::assert_impl(c, #c, "Postcondition violated: ", __FILE__,  \
+        __LINE__, __func__, __VA_ARGS__);                                      \
+  } while (false)
+
 #define unimplemented()                                                        \
   do {                                                                         \
     support::detail::assert_impl(false, "", "Unimplemented code reached",      \
