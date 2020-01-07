@@ -111,12 +111,12 @@ struct child_arg :
 
 // clang-format on
 
-/* using template_arg_state = std::variant<int, std::string>; */
+using template_arg_state = std::variant<int, std::string>;
 
-/* struct fragment_state { */
-/*   std::string name; */
-/*   std::vector<template_arg_state> template_args; */
-/*   std::vector<fragment_state> child_args; */
-/* }; */
+struct fragment_state {
+  std::string name;
+  std::vector<template_arg_state> template_args;
+  std::vector<fragment_state> child_args;
+};
 
 } // namespace presyn::grammar
