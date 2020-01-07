@@ -12,6 +12,8 @@ target_link_libraries(corepresyn
   support
   ${llvm_libs})
 
+target_link_filesystem(corepresyn)
+
 target_link_libraries(presyn
   corepresyn)
 
