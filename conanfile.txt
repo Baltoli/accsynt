@@ -1,6 +1,6 @@
 [requires]
 Catch2/2.8.0@catchorg/stable
-pegtl/2.7.0@taocpp/stable
+pegtl/2.8.1@taocpp/stable
 fmt/6.0.0@bincrafters/stable
 spdlog/1.1.0@bincrafters/stable
 jsonformoderncpp/3.5.0@vthiery/stable
