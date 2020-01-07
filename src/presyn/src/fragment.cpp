@@ -56,8 +56,7 @@ seq::seq(std::unique_ptr<fragment>&& fst, std::unique_ptr<fragment>&& snd)
 
 std::unique_ptr<fragment> seq::compose(std::unique_ptr<fragment>&& other)
 {
-  assertion(first_, "Child fragments of seq should not be null");
-  assertion(second_, "Child fragments of seq should not be null");
+  assertion(first_ && second_, "Child fragments of seq should not be null");
 
   auto ret
       = std::unique_ptr<seq>(new seq(std::move(first_), std::move(second_)));
@@ -73,13 +72,15 @@ std::unique_ptr<fragment> seq::compose(std::unique_ptr<fragment>&& other)
 
 bool seq::accepts() const
 {
-  return (!first_ || !second_ || first_->accepts() || second_->accepts());
+  assertion(first_ && second_, "Child fragments of seq should not be null");
+  return first_->accepts() || second_->accepts();
 }
 
 std::string seq::to_string() const
 {
   using namespace fmt::literals;
 
+  assertion(first_ && second_, "Child fragments of seq should not be null");
   return "seq({}, {})"_format(first_->to_string(), second_->to_string());
 }
 
