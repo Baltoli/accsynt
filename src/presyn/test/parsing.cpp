@@ -132,3 +132,38 @@ TEST_CASE("Can recognise template argument lists")
     NOT_MATCH_EXACT("xyx, 123");
   }
 }
+
+TEST_CASE("Can recognise fragments")
+{
+  using test_grammar = fragment;
+
+  SECTION("Recognise correct fragments")
+  {
+    MATCH_EXACT("empty");
+    MATCH_EXACT("empty()");
+    MATCH_EXACT("empty<>()");
+
+    MATCH_EXACT("linear<2>");
+    MATCH_EXACT("seq(seq(empty, empty), empty<@w, -12>)");
+    MATCH_EXACT("seq(seq, seq)");
+    MATCH_EXACT("seq(seq, seq, linear, empty<>, empty(empty))");
+
+    MATCH_EXACT("linear<1,\n2,\t\t3, 4, 5, 6, 7>(   linear\n)");
+  }
+
+  SECTION("Don't recognise wrong fragments")
+  {
+    NOT_MATCH_EXACT("wwoq");
+    NOT_MATCH_EXACT("woo()");
+    NOT_MATCH_EXACT("woefwjk<>()");
+
+    NOT_MATCH_EXACT("empty<)");
+    NOT_MATCH_EXACT("empty<>)");
+    NOT_MATCH_EXACT("empty<");
+    NOT_MATCH_EXACT("linear(");
+    NOT_MATCH_EXACT("seq(1)");
+    NOT_MATCH_EXACT("seq(empty)<2>");
+    NOT_MATCH_EXACT("seq(empty)<linear>");
+    NOT_MATCH_EXACT("seq(empty)<linear(2)>");
+  }
+}

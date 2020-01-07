@@ -52,19 +52,57 @@ struct template_arg :
   >
 {};
 
-struct template_arg_list :
+template <typename Left, typename Arg, typename Right>
+struct arg_list :
   seq<
-    one<'<'>,
+    Left,
     pad_opt<
       list<
-        template_arg,
+        Arg,
         one<','>,
         space
       >,
       space
     >,
+    Right
+  >
+{};
+
+struct template_arg_list :
+  arg_list<
+    one<'<'>,
+    template_arg,
     one<'>'>
   >
+{};
+
+// Forward declaration to break cycles in the following definitions
+struct child_arg;
+
+struct child_arg_list :
+  arg_list<
+    one<'('>,
+    child_arg,
+    one<')'>
+  >
+{};
+
+struct fragment :
+  seq<
+    fragment_name,
+    star<space>,
+    opt<
+      template_arg_list
+    >,
+    star<space>,
+    opt<
+      child_arg_list
+    >
+  >
+{};
+
+struct child_arg :
+  fragment
 {};
 
 // clang-format on
