@@ -18,6 +18,20 @@ struct fragment_name :
   > 
 {};
 
+struct constant_int : 
+  tao::pre_tl::seq<
+    tao::pre_tl::opt<
+      tao::pre_tl::sor<
+        tao::pre_tl::one<'+'>, 
+        tao::pre_tl::one<'-'>
+      >
+    >, 
+    tao::pre_tl::plus<
+      tao::pre_tl::digit
+    >
+  >
+{};
+
 // clang-format on
 
 } // namespace presyn::grammar
