@@ -19,3 +19,29 @@ will use consistently within Presyn and associated work.
 ## Composition
 
 ## Defined Fragments
+
+## Parsing and Printing
+
+This section sets out how fragments are to be parsed (c.f. printed) to a textual
+representation, so that interactivity can be implemented.
+
+An initial grammar for fragment textual specifications is as follows:
+
+```
+name ::= 'linear' | 'empty' | 'seq'
+
+int ::= {integer constant}
+
+fragment ::= name '(' arg_list ')'
+
+arg ::= fragment | int
+```
+
+### Implementation
+
+Based on my previous experience implementing parsers using PEGTL, I think the
+best thing to do here is to build a separate parse POD type that gets updated as
+the parser advances through the input. This type will know how to validate and
+dispatch to the various constructors of each fragment type (i.e. a big unwrapper
+in the parser that just checks the name and applies validation logic). Possibly
+some nicer expression will suggest itself once we start to build it.
