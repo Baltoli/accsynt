@@ -1,0 +1,10 @@
+name: CI Build
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: test
+      run:  echo 'hello, world'
