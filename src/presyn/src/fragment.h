@@ -121,7 +121,7 @@ protected:
   children_ref(Children&...);
 
   template <typename Derived, typename... Children>
-  static std::unique_ptr<fragment> compose_generic(
+  std::unique_ptr<fragment> compose_generic(
       std::unique_ptr<fragment>&&, Children&...);
 };
 
@@ -263,7 +263,11 @@ std::unique_ptr<fragment> fragment::compose_generic(
     }
   }
 
-  return std::unique_ptr<Derived>(new Derived(std::move(chs)...));
+  assertion(
+      dynamic_cast<Derived*>(this), "Generic composition being used badly");
+
+  return std::unique_ptr<Derived>(
+      new Derived(std::move(*(static_cast<Derived*>(this)))));
 }
 
 namespace literals {
