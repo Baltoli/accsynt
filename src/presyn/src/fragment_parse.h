@@ -155,8 +155,7 @@ struct fragment_action<fragment_name> {
 
 template <>
 struct fragment_action<fragment_end> {
-  template <typename Input>
-  static void apply(Input const& in, fragment_state& state)
+  static void apply0(fragment_state& state)
   {
     auto completed = state.stack.back();
     state.stack.pop_back();
