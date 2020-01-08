@@ -62,14 +62,7 @@ seq::seq(std::unique_ptr<fragment>&& fst, std::unique_ptr<fragment>&& snd)
 
 std::unique_ptr<fragment> seq::compose(std::unique_ptr<fragment>&& other)
 {
-  assumes(first_ && second_, "Child fragments of seq should not be null");
-
-  auto ret
-      = std::unique_ptr<seq>(new seq(std::move(first_), std::move(second_)));
-
-  child_compose(std::move(other), ret->first_, ret->second_);
-
-  return ret;
+  return compose_generic<seq>(std::move(other), first_, second_);
 }
 
 bool seq::accepts() const
@@ -98,14 +91,7 @@ loop::loop(std::unique_ptr<fragment>&& body)
 
 std::unique_ptr<fragment> loop::compose(std::unique_ptr<fragment>&& other)
 {
-  assumes(body_, "Child fragment should not be null");
-
-  auto ret = std::unique_ptr<loop>(new loop(std::move(body_)));
-  if (ret->body_->accepts()) {
-    ret->body_ = ret->body_->compose(std::move(other));
-  }
-
-  return ret;
+  return compose_generic<loop>(std::move(other), body_);
 }
 
 bool loop::accepts() const { return body_->accepts(); }

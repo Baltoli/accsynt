@@ -2,6 +2,7 @@
 
 #include "parameter.h"
 
+#include <support/assert.h>
 #include <support/traits.h>
 
 #include <array>
@@ -119,8 +120,9 @@ protected:
       sizeof...(Children)>
   children_ref(Children&...);
 
-  template <typename... Children>
-  static void child_compose(std::unique_ptr<fragment>&&, Children&...);
+  template <typename Derived, typename... Children>
+  static std::unique_ptr<fragment> compose_generic(
+      std::unique_ptr<fragment>&&, Children&...);
 };
 
 /**
@@ -184,6 +186,7 @@ private:
 class seq final : public fragment {
 public:
   seq();
+  seq(std::unique_ptr<fragment>&&, std::unique_ptr<fragment>&&);
 
   [[nodiscard]] std::unique_ptr<fragment> compose(
       std::unique_ptr<fragment>&&) override;
@@ -193,8 +196,6 @@ public:
   std::string to_string() const override;
 
 private:
-  seq(std::unique_ptr<fragment>&&, std::unique_ptr<fragment>&&);
-
   std::unique_ptr<fragment> first_;
   std::unique_ptr<fragment> second_;
 };
@@ -211,7 +212,9 @@ private:
  * responsibility to children.
  */
 class loop final : public fragment {
+public:
   loop();
+  loop(std::unique_ptr<fragment>&&);
 
   [[nodiscard]] std::unique_ptr<fragment> compose(
       std::unique_ptr<fragment>&&) override;
@@ -221,8 +224,6 @@ class loop final : public fragment {
   std::string to_string() const override;
 
 private:
-  loop(std::unique_ptr<fragment>&&);
-
   std::unique_ptr<fragment> body_;
 };
 
@@ -245,16 +246,22 @@ fragment::children_ref(Children&... chs)
   return { std::ref(chs)... };
 }
 
-template <typename... Children>
-void fragment::child_compose(
+template <typename Derived, typename... Children>
+std::unique_ptr<fragment> fragment::compose_generic(
     std::unique_ptr<fragment>&& other, Children&... chs)
 {
+  for (std::unique_ptr<fragment>& ch : children_ref(chs...)) {
+    assumes(ch, "Child fragment in generic composition should not be null");
+  }
+
   for (std::unique_ptr<fragment>& ch : children_ref(chs...)) {
     if (ch->accepts()) {
       ch = ch->compose(std::move(other));
       break;
     }
   }
+
+  return std::unique_ptr<Derived>(new Derived(std::move(chs)...));
 }
 
 namespace literals {
