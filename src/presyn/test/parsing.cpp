@@ -182,5 +182,13 @@ TEST_CASE("The grammar doesn't have any issues")
 
 TEST_CASE("Printing and parsing are inverses")
 {
-  auto frags = std::array{ "empty"_frag };
+  auto frags = std::array{ "empty"_frag, "linear<7>()"_frag, "seq<>()"_frag,
+    "seq(seq(), seq<>(empty))"_frag, "seq(linear<2>, seq(empty()))"_frag };
+
+  for (auto const& frag : frags) {
+    auto str = frag->to_string();
+    auto parsed = presyn::fragment::parse(str);
+
+    REQUIRE(str == parsed->to_string());
+  }
 }
