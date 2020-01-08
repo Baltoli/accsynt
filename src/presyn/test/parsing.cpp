@@ -1,10 +1,15 @@
 #include "fragment_parse.h"
 
+#include "fragment.h"
+
 #include <tao/pegtl/analyze.hpp>
 
 #include <catch2/catch.hpp>
 
+#include <array>
+
 using namespace presyn::grammar;
+using namespace presyn::literals;
 
 #define MATCH_EXACT(str)                                                       \
   do {                                                                         \
@@ -173,4 +178,9 @@ TEST_CASE("Can recognise fragments")
 TEST_CASE("The grammar doesn't have any issues")
 {
   REQUIRE(analyze<fragment>() == 0);
+}
+
+TEST_CASE("Printing and parsing are inverses")
+{
+  auto frags = std::array{ "empty"_frag };
 }

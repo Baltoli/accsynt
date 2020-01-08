@@ -1,10 +1,10 @@
 add_library(corepresyn
-  src/options.cpp)
-
-add_executable(presyn
   src/parameter.cpp
   src/fragment.cpp
   src/fragment_parse.cpp
+  src/options.cpp)
+
+add_executable(presyn
   src/main.cpp)
 
 target_link_libraries(corepresyn
