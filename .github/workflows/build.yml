@@ -10,7 +10,7 @@ jobs:
 
     - name: Install Conan
       run: |
-        sudo apt install conan
+        sudo pip install conan
 
     - name: Add Conan remotes
       run: |
