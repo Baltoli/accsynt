@@ -8,8 +8,7 @@ using namespace llvm;
 
 int main(int argc, char* argv[])
 {
-  InitializeAllTargets();
-  InitializeAllTargetMCs();
+  InitializeNativeTarget();
   InitializeNativeTargetAsmPrinter();
   InitializeNativeTargetAsmParser();
 
