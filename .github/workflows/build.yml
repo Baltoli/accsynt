@@ -8,6 +8,15 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
+    - name: Install Conan
+      run: |
+        sudo apt install conan
+
+    - name: Add Conan remotes
+      run: |
+        conan remote add value_ptr https://api.bintray.com/conan/baltoli/value_ptr
+        conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
+
     - name: Install LLVM
       run: |
         wget https://apt.llvm.org/llvm.sh
