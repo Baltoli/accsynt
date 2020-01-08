@@ -31,7 +31,7 @@ linear::linear(std::unique_ptr<parameter>&& insts)
 }
 
 linear::linear(int insts)
-    : instructions_(std::make_unique<constant_int>(insts))
+    : linear(std::make_unique<constant_int>(insts))
 {
 }
 
@@ -91,6 +91,33 @@ std::string loop::to_string() const
   assumes(body_, "Child fragment should not be null");
 
   return "loop({})"_format(body_->to_string());
+}
+
+// Delimiter loop
+
+delimiter_loop::delimiter_loop(std::unique_ptr<parameter>&& param)
+    : pointer_(std::move(param))
+{
+}
+
+delimiter_loop::delimiter_loop(std::string name)
+    : delimiter_loop(std::make_unique<named>(name))
+{
+}
+
+std::unique_ptr<fragment> delimiter_loop::compose(
+    std::unique_ptr<fragment>&& other)
+{
+  return compose_generic<delimiter_loop>(std::move(other), body_);
+}
+
+bool delimiter_loop::accepts() const { return body_->accepts(); }
+
+std::string delimiter_loop::to_string() const
+{
+  assumes(body_, "Child fragment should not be null");
+
+  return "delim_loop<{}>({})"_format(pointer_->to_string(), body_->to_string());
 }
 
 } // namespace presyn

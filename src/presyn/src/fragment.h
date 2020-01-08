@@ -225,6 +225,31 @@ private:
   std::unique_ptr<fragment> body_;
 };
 
+/**
+ * Represents a loop that breaks when the pointer parameter derefences to a
+ * particular value:
+ *
+ *   while(*ptr != ?) { body }
+ *
+ * Composition is as usually defined.
+ */
+class delimiter_loop final : public fragment {
+public:
+  delimiter_loop(std::string);
+  delimiter_loop(std::unique_ptr<parameter>&&);
+
+  [[nodiscard]] std::unique_ptr<fragment> compose(
+      std::unique_ptr<fragment>&&) override;
+
+  bool accepts() const override;
+
+  std::string to_string() const override;
+
+private:
+  std::unique_ptr<parameter> pointer_;
+  std::unique_ptr<fragment> body_;
+};
+
 // Implementations
 
 template <typename Fragment>

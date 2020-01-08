@@ -57,7 +57,7 @@ private:
  */
 class named final : public parameter {
 public:
-  named(llvm::Type*, std::string);
+  named(std::string);
 
   llvm::Type* type() const override;
   llvm::Value* get() const override;

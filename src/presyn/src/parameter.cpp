@@ -2,6 +2,8 @@
 
 #include <fmt/format.h>
 
+#include <support/assert.h>
+
 namespace presyn {
 
 using namespace fmt::literals;
@@ -13,35 +15,23 @@ constant_int::constant_int(int v)
 {
 }
 
-llvm::Type* constant_int::type() const
-{
-  // TODO unimplemented
-  return nullptr;
-}
+llvm::Type* constant_int::type() const { unimplemented(); }
 
-llvm::Value* constant_int::get() const
-{
-  // TODO unimplemented
-  return nullptr;
-}
+llvm::Value* constant_int::get() const { unimplemented(); }
 
 std::string constant_int::to_string() const { return "{}"_format(value_); }
 
 // Named parameters
 
-named::named(llvm::Type* t, std::string n)
-    : type_(t)
+named::named(std::string n)
+    : type_(nullptr)
     , name_(n)
 {
 }
 
-llvm::Type* named::type() const { return type_; }
+llvm::Type* named::type() const { unimplemented(); }
 
-llvm::Value* named::get() const
-{
-  // TODO unimplemented
-  return nullptr;
-}
+llvm::Value* named::get() const { unimplemented(); }
 
 std::string named::to_string() const { return "@{}"_format(name_); }
 
