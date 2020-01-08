@@ -67,11 +67,7 @@ std::unique_ptr<fragment> seq::compose(std::unique_ptr<fragment>&& other)
   auto ret
       = std::unique_ptr<seq>(new seq(std::move(first_), std::move(second_)));
 
-  if (ret->first_->accepts()) {
-    ret->first_ = ret->first_->compose(std::move(other));
-  } else if (ret->second_->accepts()) {
-    ret->second_ = ret->second_->compose(std::move(other));
-  }
+  child_compose(std::move(other), ret->first_, ret->second_);
 
   return ret;
 }

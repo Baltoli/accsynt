@@ -4,6 +4,8 @@
 
 #include <support/traits.h>
 
+#include <array>
+#include <functional>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -110,6 +112,15 @@ public:
    * make sure that derived classes are deleted correctly.
    */
   virtual ~fragment() = default;
+
+protected:
+  template <typename... Children>
+  static std::array<std::reference_wrapper<std::unique_ptr<fragment>>,
+      sizeof...(Children)>
+  children_ref(Children&...);
+
+  template <typename... Children>
+  static void child_compose(std::unique_ptr<fragment>&&, Children&...);
 };
 
 /**
@@ -223,9 +234,27 @@ template <typename Fragment>
     std::unique_ptr<fragment>>
 fragment::compose(Fragment&& other)
 {
-  // This perfectly forwards the supplied fragment and constructs a unique_ptr
-  // of the relevant derived type.
   return compose(std::make_unique<Fragment>(std::forward<Fragment>(other)));
+}
+
+template <typename... Children>
+std::array<std::reference_wrapper<std::unique_ptr<fragment>>,
+    sizeof...(Children)>
+fragment::children_ref(Children&... chs)
+{
+  return { std::ref(chs)... };
+}
+
+template <typename... Children>
+void fragment::child_compose(
+    std::unique_ptr<fragment>&& other, Children&... chs)
+{
+  for (std::unique_ptr<fragment>& ch : children_ref(chs...)) {
+    if (ch->accepts()) {
+      ch = ch->compose(std::move(other));
+      break;
+    }
+  }
 }
 
 namespace literals {
