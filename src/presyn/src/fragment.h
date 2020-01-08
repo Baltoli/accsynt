@@ -263,11 +263,10 @@ std::unique_ptr<fragment> fragment::compose_generic(
     }
   }
 
-  assertion(
-      dynamic_cast<Derived*>(this), "Generic composition being used badly");
+  assertion(dynamic_cast<Derived*>(this) != nullptr,
+      "Generic composition being used badly");
 
-  return std::unique_ptr<Derived>(
-      new Derived(std::move(*(static_cast<Derived*>(this)))));
+  return std::make_unique<Derived>(std::move(*(static_cast<Derived*>(this))));
 }
 
 namespace literals {
