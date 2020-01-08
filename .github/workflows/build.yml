@@ -8,6 +8,10 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
+    - name: Install GCC 8
+      run: |
+        sudo apt-get install gcc-8
+
     - name: Install Conan
       run: |
         sudo pip install conan
@@ -29,6 +33,8 @@ jobs:
         cd build
         cmake \
               -DCMAKE_BUILD_TYPE=Debug \
+              -DCMAKE_C_COMPILER=gcc-8 \
+              -DCMAKE_CXX_COMPILER=g++-8 \
               -DLLVM_DIR=`llvm-config-9 --cmakedir` \
               ../src
         make -j `nproc`
