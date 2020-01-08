@@ -8,6 +8,7 @@
 
 using namespace llvm;
 using namespace presyn;
+using namespace presyn::literals;
 
 int main(int argc, char** argv)
 {
@@ -35,4 +36,7 @@ int main(int argc, char** argv)
 
   auto f2 = fragment::parse(frag->to_string());
   fmt::print("{}\n", f2->to_string());
+
+  auto f3 = "seq(linear<2>, seq)"_frag;
+  fmt::print("{}\n", f3->to_string());
 }

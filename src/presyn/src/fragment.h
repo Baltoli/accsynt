@@ -204,4 +204,10 @@ fragment::compose(Fragment&& other)
   return compose(std::make_unique<Fragment>(std::forward<Fragment>(other)));
 }
 
+namespace literals {
+
+std::unique_ptr<fragment> operator""_frag(const char* str, size_t len);
+
+} // namespace literals
+
 } // namespace presyn

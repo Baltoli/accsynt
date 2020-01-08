@@ -80,4 +80,13 @@ std::unique_ptr<fragment> fragment::parse(std::string_view str)
   return build(state.result);
 }
 
+namespace literals {
+
+std::unique_ptr<fragment> operator""_frag(const char* str, size_t len)
+{
+  return fragment::parse(std::string_view(str, len));
+}
+
+} // namespace literals
+
 } // namespace presyn
