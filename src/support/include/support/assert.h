@@ -6,7 +6,9 @@
 
 #include <filesystem>
 
-namespace support::detail {
+namespace support {
+
+namespace detail {
 
 #ifdef NDEBUG
 static constexpr bool debug = false;
@@ -40,7 +42,17 @@ void assert_impl(Cond&& cond, char const* check, char const* type,
   }
 }
 
-} // namespace support::detail
+} // namespace detail
+
+template <typename Func>
+void in_debug(Func&& f)
+{
+  if constexpr (detail::debug) {
+    std::forward<Func>(f)();
+  }
+}
+
+} // namespace support
 
 #define assertion(c, ...)                                                      \
   do {                                                                         \

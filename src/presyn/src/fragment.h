@@ -250,9 +250,11 @@ template <typename Derived, typename... Children>
 std::unique_ptr<fragment> fragment::compose_generic(
     std::unique_ptr<fragment>&& other, Children&... chs)
 {
-  for (std::unique_ptr<fragment>& ch : children_ref(chs...)) {
-    assumes(ch, "Child fragment in generic composition should not be null");
-  }
+  support::in_debug([&] {
+    for (std::unique_ptr<fragment>& ch : children_ref(chs...)) {
+      assumes(ch, "Child fragment in generic composition should not be null");
+    }
+  });
 
   for (std::unique_ptr<fragment>& ch : children_ref(chs...)) {
     if (ch->accepts()) {
