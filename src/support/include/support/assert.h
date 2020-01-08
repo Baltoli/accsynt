@@ -24,7 +24,9 @@ void assert_impl(Cond&& cond, char const* check, char const* type,
   namespace term = support::terminal;
 
   if constexpr (detail::debug) {
-    if (!static_cast<bool>(cond)) {
+    auto result = std::forward<Cond>(cond)();
+
+    if (!result) {
       auto path = std::filesystem::path(file);
       fmt::print("{type}{bad}{check}{reset} at:\n"
                  "  {bold}{file}:{line} ({func}){reset}\n",
@@ -54,34 +56,37 @@ void in_debug(Func&& f)
 
 } // namespace support
 
+#define LAZY(x) [&] { return static_cast<bool>(x); }
+
 #define assertion(c, ...)                                                      \
   do {                                                                         \
-    support::detail::assert_impl(c, #c, "Assertion failure: ", __FILE__,       \
+    support::detail::assert_impl(LAZY(c), #c, "Assertion failure: ", __FILE__, \
         __LINE__, __func__, __VA_ARGS__);                                      \
   } while (false)
 
 #define assumes(c, ...)                                                        \
   do {                                                                         \
-    support::detail::assert_impl(c, #c, "Precondition violated: ", __FILE__,   \
-        __LINE__, __func__, __VA_ARGS__);                                      \
+    support::detail::assert_impl(LAZY(c), #c,                                  \
+        "Precondition violated: ", __FILE__, __LINE__, __func__, __VA_ARGS__); \
   } while (false)
 
 #define ensures(c, ...)                                                        \
   do {                                                                         \
-    support::detail::assert_impl(c, #c, "Postcondition violated: ", __FILE__,  \
-        __LINE__, __func__, __VA_ARGS__);                                      \
+    support::detail::assert_impl(LAZY(c), #c,                                  \
+        "Postcondition violated: ", __FILE__, __LINE__, __func__,              \
+        __VA_ARGS__);                                                          \
   } while (false)
 
 #define unimplemented()                                                        \
   do {                                                                         \
-    support::detail::assert_impl(false, "", "Unimplemented code reached",      \
-        __FILE__, __LINE__, __func__);                                         \
+    support::detail::assert_impl(LAZY(false), "",                              \
+        "Unimplemented code reached", __FILE__, __LINE__, __func__);           \
     __builtin_unreachable();                                                   \
   } while (false)
 
 #define invalid_state()                                                        \
   do {                                                                         \
-    support::detail::assert_impl(                                              \
-        false, "", "Invalid state reached", __FILE__, __LINE__, __func__);     \
+    support::detail::assert_impl(LAZY(false), "", "Invalid state reached",     \
+        __FILE__, __LINE__, __func__);                                         \
     __builtin_unreachable();                                                   \
   } while (false)
