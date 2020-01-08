@@ -6,6 +6,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v1
+
     - name: Install LLVM
       run: |
         wget https://apt.llvm.org/llvm.sh
