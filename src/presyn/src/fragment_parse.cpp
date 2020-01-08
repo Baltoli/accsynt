@@ -7,6 +7,8 @@ namespace presyn {
 
 using namespace tao::pre_tl;
 
+std::unique_ptr<fragment> build(grammar::fragment_parse const&);
+
 template <typename Frag>
 std::unique_ptr<fragment> build_for(grammar::fragment_parse const&);
 
@@ -22,19 +24,36 @@ std::unique_ptr<fragment> build_for<linear>(
 
   assertion(parse.child_args.empty(), "Linear takes no child arguments");
 
-  return nullptr;
+  return std::make_unique<linear>(std::get<int>(parse.template_args[0]));
 }
 
 template <>
 std::unique_ptr<fragment> build_for<empty>(grammar::fragment_parse const& parse)
 {
-  return nullptr;
+  assertion(parse.template_args.empty(), "Empty takes no template arguments");
+  assertion(parse.child_args.empty(), "Empty takes no child arguments");
+
+  return std::make_unique<empty>();
 }
 
 template <>
 std::unique_ptr<fragment> build_for<seq>(grammar::fragment_parse const& parse)
 {
-  return nullptr;
+  assertion(parse.template_args.empty(), "Seq takes no template arguments");
+  assertion(
+      parse.child_args.size() <= 2, "Seq takes at most 2 child arguments");
+
+  switch (parse.child_args.size()) {
+  case 0:
+    return std::make_unique<seq>();
+  case 1:
+    return std::make_unique<seq>(build(parse.child_args[0]));
+  case 2:
+    return std::make_unique<seq>(
+        build(parse.child_args[0]), build(parse.child_args[1]));
+  }
+
+  invalid_state();
 }
 
 std::unique_ptr<fragment> build(grammar::fragment_parse const& parse)

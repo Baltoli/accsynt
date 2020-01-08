@@ -25,9 +25,14 @@ int main(int argc, char** argv)
 
   /* fmt::print("{}\n", frag->to_string()); */
 
-  auto str = "linear<1>";
+  auto str
+      = "seq(seq(seq, seq(linear<2>, seq(linear<3>, linear<2>))), linear<2>)";
+
   auto frag = fragment::parse(str);
   assertion(frag != nullptr, "Fragment parse invalid");
 
   fmt::print("{}\n", frag->to_string());
+
+  auto f2 = fragment::parse(frag->to_string());
+  fmt::print("{}\n", f2->to_string());
 }

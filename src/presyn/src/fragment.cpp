@@ -30,6 +30,11 @@ linear::linear(std::unique_ptr<parameter>&& insts)
 {
 }
 
+linear::linear(int insts)
+    : instructions_(std::make_unique<constant_int>(insts))
+{
+}
+
 std::unique_ptr<fragment> linear::compose(std::unique_ptr<fragment>&& other)
 {
   return std::make_unique<linear>(std::move(instructions_));
@@ -46,6 +51,11 @@ std::string linear::to_string() const
 
 seq::seq()
     : seq(std::make_unique<empty>(), std::make_unique<empty>())
+{
+}
+
+seq::seq(std::unique_ptr<fragment>&& fst)
+    : seq(std::move(fst), std::make_unique<empty>())
 {
 }
 

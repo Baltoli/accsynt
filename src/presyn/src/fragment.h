@@ -138,12 +138,14 @@ class linear final : public fragment {
 public:
   linear(std::unique_ptr<parameter>&&);
 
+  linear(int);
+
   /**
    * There's room for some semantics-based optimisations and algebraic
    * properties here - by "crossing the 4th wall", if this is composed with
    * another linear fragment you can merge them. It violates the strict
-   * compositionality idea but would reduce the size / complexity / compilation
-   * time.
+   * compositionality idea but would reduce the size / complexity /
+   * compilation time.
    */
   [[nodiscard]] std::unique_ptr<fragment> compose(
       std::unique_ptr<fragment>&&) override;
@@ -171,9 +173,11 @@ private:
 class seq final : public fragment {
 public:
   /**
-   * Sequence fragments aren't parameterised on any other data by default.
+   * Sequences can be constructed with 0, 1 or 2 children initially.
    */
   seq();
+  seq(std::unique_ptr<fragment>&&);
+  seq(std::unique_ptr<fragment>&&, std::unique_ptr<fragment>&&);
 
   [[nodiscard]] std::unique_ptr<fragment> compose(
       std::unique_ptr<fragment>&&) override;
@@ -183,11 +187,6 @@ public:
   std::string to_string() const override;
 
 private:
-  /**
-   * Constructor responsible for moving from this.
-   */
-  seq(std::unique_ptr<fragment>&&, std::unique_ptr<fragment>&&);
-
   std::unique_ptr<fragment> first_;
   std::unique_ptr<fragment> second_;
 };
