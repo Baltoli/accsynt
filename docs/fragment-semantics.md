@@ -20,6 +20,12 @@ will use consistently within Presyn and associated work.
 
 ## Defined Fragments
 
+* **Linear**
+* **Empty**
+* **Sequence**
+
+* **Fixed Loop**
+
 ## Parsing and Printing
 
 This section sets out how fragments are to be parsed (c.f. printed) to a textual

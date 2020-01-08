@@ -88,4 +88,37 @@ std::string seq::to_string() const
   return "seq({}, {})"_format(first_->to_string(), second_->to_string());
 }
 
+// Loop
+
+loop::loop()
+    : loop(std::make_unique<empty>())
+{
+}
+
+loop::loop(std::unique_ptr<fragment>&& body)
+    : body_(std::move(body))
+{
+}
+
+std::unique_ptr<fragment> loop::compose(std::unique_ptr<fragment>&& other)
+{
+  assumes(body_, "Child fragment should not be null");
+
+  auto ret = std::unique_ptr<loop>(new loop(std::move(body_)));
+  if (ret->body_->accepts()) {
+    ret->body_ = ret->body_->compose(std::move(other));
+  }
+
+  return ret;
+}
+
+bool loop::accepts() const { return body_->accepts(); }
+
+std::string loop::to_string() const
+{
+  assumes(body_, "Child fragment should not be null");
+
+  return "loop({})"_format(body_->to_string());
+}
+
 } // namespace presyn

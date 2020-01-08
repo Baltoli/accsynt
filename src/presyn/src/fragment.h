@@ -188,6 +188,33 @@ private:
   std::unique_ptr<fragment> second_;
 };
 
+/**
+ * Represents a general while-loop:
+ *
+ *   while(cond) { body }
+ *
+ * Has only one child (the loop body), and is not parameterised on any
+ * contextual information.
+ *
+ * Composition is simple: accepts once for the loop body, then passes
+ * responsibility to children.
+ */
+class loop final : public fragment {
+  loop();
+
+  [[nodiscard]] std::unique_ptr<fragment> compose(
+      std::unique_ptr<fragment>&&) override;
+
+  bool accepts() const override;
+
+  std::string to_string() const override;
+
+private:
+  loop(std::unique_ptr<fragment>&&);
+
+  std::unique_ptr<fragment> body_;
+};
+
 // Implementations
 
 template <typename Fragment>
