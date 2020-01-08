@@ -2,8 +2,11 @@
 
 #include "parameter.h"
 
+#include <support/assert.h>
 #include <support/traits.h>
 
+#include <array>
+#include <functional>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -110,6 +113,16 @@ public:
    * make sure that derived classes are deleted correctly.
    */
   virtual ~fragment() = default;
+
+protected:
+  template <typename... Children>
+  static std::array<std::reference_wrapper<std::unique_ptr<fragment>>,
+      sizeof...(Children)>
+  children_ref(Children&...);
+
+  template <typename Derived, typename... Children>
+  static std::unique_ptr<fragment> compose_generic(
+      std::unique_ptr<fragment>&&, Children&...);
 };
 
 /**
@@ -173,6 +186,7 @@ private:
 class seq final : public fragment {
 public:
   seq();
+  seq(std::unique_ptr<fragment>&&, std::unique_ptr<fragment>&&);
 
   [[nodiscard]] std::unique_ptr<fragment> compose(
       std::unique_ptr<fragment>&&) override;
@@ -182,8 +196,6 @@ public:
   std::string to_string() const override;
 
 private:
-  seq(std::unique_ptr<fragment>&&, std::unique_ptr<fragment>&&);
-
   std::unique_ptr<fragment> first_;
   std::unique_ptr<fragment> second_;
 };
@@ -200,7 +212,9 @@ private:
  * responsibility to children.
  */
 class loop final : public fragment {
+public:
   loop();
+  loop(std::unique_ptr<fragment>&&);
 
   [[nodiscard]] std::unique_ptr<fragment> compose(
       std::unique_ptr<fragment>&&) override;
@@ -210,8 +224,6 @@ class loop final : public fragment {
   std::string to_string() const override;
 
 private:
-  loop(std::unique_ptr<fragment>&&);
-
   std::unique_ptr<fragment> body_;
 };
 
@@ -223,9 +235,33 @@ template <typename Fragment>
     std::unique_ptr<fragment>>
 fragment::compose(Fragment&& other)
 {
-  // This perfectly forwards the supplied fragment and constructs a unique_ptr
-  // of the relevant derived type.
   return compose(std::make_unique<Fragment>(std::forward<Fragment>(other)));
+}
+
+template <typename... Children>
+std::array<std::reference_wrapper<std::unique_ptr<fragment>>,
+    sizeof...(Children)>
+fragment::children_ref(Children&... chs)
+{
+  return { std::ref(chs)... };
+}
+
+template <typename Derived, typename... Children>
+std::unique_ptr<fragment> fragment::compose_generic(
+    std::unique_ptr<fragment>&& other, Children&... chs)
+{
+  for (std::unique_ptr<fragment>& ch : children_ref(chs...)) {
+    assumes(ch, "Child fragment in generic composition should not be null");
+  }
+
+  for (std::unique_ptr<fragment>& ch : children_ref(chs...)) {
+    if (ch->accepts()) {
+      ch = ch->compose(std::move(other));
+      break;
+    }
+  }
+
+  return std::unique_ptr<Derived>(new Derived(std::move(chs)...));
 }
 
 namespace literals {
