@@ -186,7 +186,6 @@ private:
 class seq final : public fragment {
 public:
   seq();
-  seq(std::unique_ptr<fragment>&&, std::unique_ptr<fragment>&&);
 
   [[nodiscard]] std::unique_ptr<fragment> compose(
       std::unique_ptr<fragment>&&) override;
@@ -214,7 +213,6 @@ private:
 class loop final : public fragment {
 public:
   loop();
-  loop(std::unique_ptr<fragment>&&);
 
   [[nodiscard]] std::unique_ptr<fragment> compose(
       std::unique_ptr<fragment>&&) override;

@@ -50,13 +50,8 @@ std::string linear::to_string() const
 // Seq
 
 seq::seq()
-    : seq(std::make_unique<empty>(), std::make_unique<empty>())
-{
-}
-
-seq::seq(std::unique_ptr<fragment>&& fst, std::unique_ptr<fragment>&& snd)
-    : first_(std::move(fst))
-    , second_(std::move(snd))
+    : first_(std::make_unique<empty>())
+    , second_(std::make_unique<empty>())
 {
 }
 
@@ -80,12 +75,7 @@ std::string seq::to_string() const
 // Loop
 
 loop::loop()
-    : loop(std::make_unique<empty>())
-{
-}
-
-loop::loop(std::unique_ptr<fragment>&& body)
-    : body_(std::move(body))
+    : body_(std::make_unique<empty>())
 {
 }
 
