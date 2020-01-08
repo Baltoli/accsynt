@@ -66,3 +66,10 @@ void assert_impl(Cond&& cond, char const* check, char const* type,
         __FILE__, __LINE__, __func__);                                         \
     __builtin_unreachable();                                                   \
   } while (false)
+
+#define invalid_state()                                                        \
+  do {                                                                         \
+    support::detail::assert_impl(                                              \
+        false, "", "Invalid state reached", __FILE__, __LINE__, __func__);     \
+    __builtin_unreachable();                                                   \
+  } while (false)
