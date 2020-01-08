@@ -38,3 +38,7 @@ jobs:
               -DLLVM_DIR=`llvm-config-9 --cmakedir` \
               ../src
         make -j `nproc`
+
+    - name: Test
+      working-directory: build
+      run: make test
