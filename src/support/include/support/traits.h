@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <memory>
 #include <type_traits>
 
 namespace support {
@@ -62,5 +63,16 @@ constexpr inline bool is_complete_v = is_complete<T>::value;
 
 template <template <typename...> class Template, typename... Ts>
 constexpr inline bool is_specialized_v = is_complete_v<Template<Ts...>>;
+
+template <typename T>
+struct is_unique_ptr : std::false_type {
+};
+
+template <typename T>
+struct is_unique_ptr<std::unique_ptr<T>> : std::true_type {
+};
+
+template <typename T>
+constexpr bool is_unique_ptr_v = is_unique_ptr<T>::value;
 
 } // namespace support
