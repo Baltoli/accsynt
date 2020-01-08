@@ -172,12 +172,7 @@ private:
  */
 class seq final : public fragment {
 public:
-  /**
-   * Sequences can be constructed with 0, 1 or 2 children initially.
-   */
   seq();
-  seq(std::unique_ptr<fragment>&&);
-  seq(std::unique_ptr<fragment>&&, std::unique_ptr<fragment>&&);
 
   [[nodiscard]] std::unique_ptr<fragment> compose(
       std::unique_ptr<fragment>&&) override;
@@ -187,6 +182,8 @@ public:
   std::string to_string() const override;
 
 private:
+  seq(std::unique_ptr<fragment>&&, std::unique_ptr<fragment>&&);
+
   std::unique_ptr<fragment> first_;
   std::unique_ptr<fragment> second_;
 };

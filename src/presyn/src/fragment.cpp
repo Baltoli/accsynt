@@ -54,11 +54,6 @@ seq::seq()
 {
 }
 
-seq::seq(std::unique_ptr<fragment>&& fst)
-    : seq(std::move(fst), std::make_unique<empty>())
-{
-}
-
 seq::seq(std::unique_ptr<fragment>&& fst, std::unique_ptr<fragment>&& snd)
     : first_(std::move(fst))
     , second_(std::move(snd))

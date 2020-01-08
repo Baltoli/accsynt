@@ -43,17 +43,12 @@ std::unique_ptr<fragment> build_for<seq>(grammar::fragment_parse const& parse)
   assertion(
       parse.child_args.size() <= 2, "Seq takes at most 2 child arguments");
 
-  switch (parse.child_args.size()) {
-  case 0:
-    return std::make_unique<seq>();
-  case 1:
-    return std::make_unique<seq>(build(parse.child_args[0]));
-  case 2:
-    return std::make_unique<seq>(
-        build(parse.child_args[0]), build(parse.child_args[1]));
+  std::unique_ptr<fragment> ret = std::make_unique<seq>();
+  for (auto const& c_arg : parse.child_args) {
+    ret = ret->compose(build(c_arg));
   }
 
-  invalid_state();
+  return ret;
 }
 
 std::unique_ptr<fragment> build(grammar::fragment_parse const& parse)
