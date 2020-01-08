@@ -6,7 +6,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: test
-      run:  pwd
-    - name: another
-      run:  g++ -v
+    - uses: actions/checkout@v1
+
+    - name: Install LLVM
+    - steps: |
+        wget https://apt.llvm.org/llvm.sh
+        chmod +x llvm.sh
+        sudo ./llvm.sh 9.0.0
