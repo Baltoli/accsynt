@@ -174,7 +174,7 @@ struct fragment_action<constant_int> {
   template <typename Input>
   static void apply(Input const& in, fragment_state& state)
   {
-    unimplemented();
+    state.stack.back().template_args.emplace_back(std::stoi(in.string()));
   }
 };
 
@@ -183,7 +183,7 @@ struct fragment_action<parameter_name> {
   template <typename Input>
   static void apply(Input const& in, fragment_state& state)
   {
-    unimplemented();
+    state.stack.back().template_args.emplace_back(in.string());
   }
 };
 

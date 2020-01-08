@@ -3,6 +3,7 @@
 
 #include <fmt/format.h>
 
+#include <support/assert.h>
 #include <support/terminal.h>
 
 using namespace llvm;
@@ -25,4 +26,7 @@ int main(int argc, char** argv)
   /* fmt::print("{}\n", frag->to_string()); */
 
   auto frag = fragment::parse("linear(empty, seq<4>(linear, empty))");
+  assertion(frag != nullptr, "Fragment parse invalid");
+
+  fmt::print("{}\n", frag->to_string());
 }

@@ -7,6 +7,11 @@ namespace presyn {
 
 using namespace tao::pre_tl;
 
+std::unique_ptr<fragment> build(grammar::fragment_parse const& parse)
+{
+  return nullptr;
+}
+
 std::unique_ptr<fragment> fragment::parse(std::string_view str)
 {
   auto state = grammar::fragment_state{};
@@ -14,7 +19,8 @@ std::unique_ptr<fragment> fragment::parse(std::string_view str)
   tao::pre_tl::parse<must<grammar::fragment, eof>, grammar::fragment_action>(
       memory_input(str.begin(), str.end(), ""), state);
 
-  return nullptr;
+  assert(state.stack.empty() && "Parsing did not finish with empty stack");
+  return build(state.result);
 }
 
 } // namespace presyn
