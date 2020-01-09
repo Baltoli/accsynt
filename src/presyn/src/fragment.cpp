@@ -172,4 +172,29 @@ std::string if_::to_string() const
   return "if_({})"_format(body_->to_string());
 }
 
+// If-else
+
+if_else::if_else()
+    : body_(std::make_unique<empty>())
+    , else_body_(std::make_unique<empty>())
+{
+}
+
+std::unique_ptr<fragment> if_else::compose(std::unique_ptr<fragment>&& other)
+{
+  return compose_generic<if_else>(std::move(other), body_, else_body_);
+}
+
+bool if_else::accepts() const
+{
+  return body_->accepts() || else_body_->accepts();
+}
+
+std::string if_else::to_string() const
+{
+  assumes(body_, "Child fragment should not be null");
+
+  return "if_else({}, {})"_format(body_->to_string(), else_body_->to_string());
+}
+
 } // namespace presyn
