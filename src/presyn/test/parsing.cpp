@@ -30,6 +30,13 @@ TEST_CASE("Can recognise fragment names")
     MATCH_EXACT("linear");
     MATCH_EXACT("empty");
     MATCH_EXACT("seq");
+    MATCH_EXACT("loop");
+    MATCH_EXACT("delim");
+    MATCH_EXACT("fixed");
+    MATCH_EXACT("if");
+    MATCH_EXACT("if_else");
+    MATCH_EXACT("affine");
+    MATCH_EXACT("index");
   }
 
   SECTION("Does not match incorrect names")
@@ -38,6 +45,11 @@ TEST_CASE("Can recognise fragment names")
     NOT_MATCH_EXACT("sequence");
     NOT_MATCH_EXACT("empty_fragment");
     NOT_MATCH_EXACT("");
+    NOT_MATCH_EXACT("for");
+    NOT_MATCH_EXACT("while");
+    NOT_MATCH_EXACT("until");
+    NOT_MATCH_EXACT("if-else");
+    NOT_MATCH_EXACT("else");
   }
 }
 
@@ -182,7 +194,7 @@ TEST_CASE("The grammar doesn't have any issues")
 
 TEST_CASE("Printing and parsing are inverses")
 {
-  auto frags = std::array{ "empty"_frag, "linear<7>()"_frag, "seq<>()"_frag,
+  auto frags = std::array { "empty"_frag, "linear<7>()"_frag, "seq<>()"_frag,
     "seq(seq(), seq<>(empty))"_frag, "seq(linear<2>, seq(empty()))"_frag };
 
   for (auto const& frag : frags) {

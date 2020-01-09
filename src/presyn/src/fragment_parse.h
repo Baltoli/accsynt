@@ -38,7 +38,14 @@ struct fragment_name :
   sor<
     TAO_PEGTL_STRING("linear"),
     TAO_PEGTL_STRING("empty"), 
-    TAO_PEGTL_STRING("seq")
+    TAO_PEGTL_STRING("seq"), 
+    TAO_PEGTL_STRING("loop"),
+    TAO_PEGTL_STRING("delim"),
+    TAO_PEGTL_STRING("fixed"),
+    TAO_PEGTL_STRING("if_else"),
+    TAO_PEGTL_STRING("if"),
+    TAO_PEGTL_STRING("affine"),
+    TAO_PEGTL_STRING("index")
   > 
 {};
 
