@@ -9,11 +9,12 @@ using namespace tao::pre_tl;
 
 std::unique_ptr<fragment> build(grammar::fragment_parse const&);
 
-template <typename Frag>
+template <typename Frag, typename... TArgs>
 std::unique_ptr<fragment>
-build_from_children(grammar::fragment_parse const& parse)
+build_from_children(grammar::fragment_parse const& parse, TArgs&&... targs)
 {
-  std::unique_ptr<fragment> ret = std::make_unique<Frag>();
+  std::unique_ptr<fragment> ret
+      = std::make_unique<Frag>(std::forward<TArgs>(targs)...);
   for (auto const& c_arg : parse.child_args) {
     ret = ret->compose(build(c_arg));
   }
@@ -67,7 +68,7 @@ std::unique_ptr<fragment> build_for<loop>(grammar::fragment_parse const& parse)
   assertion(
       parse.child_args.size() <= 1, "Loop takes at most 1 child argument");
 
-  return nullptr;
+  return build_from_children<loop>(parse);
 }
 
 std::unique_ptr<fragment> build(grammar::fragment_parse const& parse)
