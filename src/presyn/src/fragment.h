@@ -314,6 +314,29 @@ private:
   std::unique_ptr<fragment> else_body_;
 };
 
+/**
+ * Represents a let-binding of an affine index expression, parameterised on a
+ * pointer into which we perform the indexing. Has a fragment body, which is the
+ * context within which the index may be used:
+ *
+ *   let idx = {affine into ptr} in body
+ */
+class affine final : public fragment {
+  affine(std::string);
+  affine(std::unique_ptr<parameter>&&);
+
+  [[nodiscard]] std::unique_ptr<fragment> compose(
+      std::unique_ptr<fragment>&&) override;
+
+  bool accepts() const override;
+
+  std::string to_string() const override;
+
+private:
+  std::unique_ptr<parameter> pointer_;
+  std::unique_ptr<fragment> body_;
+};
+
 // Implementations
 
 template <typename Fragment>

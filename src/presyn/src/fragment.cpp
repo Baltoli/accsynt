@@ -197,4 +197,31 @@ std::string if_else::to_string() const
   return "if_else({}, {})"_format(body_->to_string(), else_body_->to_string());
 }
 
+// Affine
+
+affine::affine(std::unique_ptr<parameter>&& ptr)
+    : pointer_(std::move(ptr))
+    , body_(std::make_unique<empty>())
+{
+}
+
+affine::affine(std::string ptr_n)
+    : affine(std::make_unique<named>(ptr_n))
+{
+}
+
+std::unique_ptr<fragment> affine::compose(std::unique_ptr<fragment>&& other)
+{
+  return compose_generic<affine>(std::move(other), body_);
+}
+
+bool affine::accepts() const { return body_->accepts(); }
+
+std::string affine::to_string() const
+{
+  assumes(body_, "Child fragment should not be null");
+
+  return "affine<{}>({})"_format(pointer_->to_string(), body_->to_string());
+}
+
 } // namespace presyn
