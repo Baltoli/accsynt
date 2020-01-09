@@ -2,6 +2,8 @@ add_library(corepresyn
   src/parameter.cpp
   src/fragment.cpp
   src/fragment_parse.cpp
+  src/sketch.cpp
+  src/sketch_context.cpp
   src/options.cpp)
 
 add_executable(presyn
