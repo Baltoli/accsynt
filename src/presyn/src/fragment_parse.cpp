@@ -83,6 +83,7 @@ build_for<delimiter_loop>(grammar::fragment_parse const& parse)
   assertion(
       std::holds_alternative<std::string>(parse.template_args[0]),
       "Delim template arg must be a named parameter");
+
   return build_from_children<delimiter_loop>(
       parse, std::get<std::string>(parse.template_args[0]));
 }
