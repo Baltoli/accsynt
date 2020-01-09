@@ -6,6 +6,8 @@
 #include <support/assert.h>
 #include <support/traits.h>
 
+#include <fmt/format.h>
+
 #include <array>
 #include <functional>
 #include <memory>
@@ -413,3 +415,18 @@ std::unique_ptr<fragment> operator""_frag(const char* str, size_t len);
 } // namespace literals
 
 } // namespace presyn
+
+template <>
+struct fmt::formatter<presyn::fragment> {
+  template <typename ParseContext>
+  constexpr auto parse(ParseContext& ctx)
+  {
+    return ctx.begin();
+  }
+
+  template <typename FormatContext>
+  auto format(presyn::fragment const& frag, FormatContext& ctx)
+  {
+    return format_to(ctx.out(), "{}", frag.to_string());
+  }
+};

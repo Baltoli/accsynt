@@ -23,7 +23,7 @@ int main(int argc, char** argv)
   auto frag = "fixed<@x, 16>(seq(if(linear<0>), loop))"_frag;
   auto sig = "void func(float *x)"_sig;
 
-  fmt::print("{}\n", frag->to_string());
+  fmt::print("{}\n", *frag);
   fmt::print("{}\n", sig);
 
   auto sk = sketch(sig, *frag);
