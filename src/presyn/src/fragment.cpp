@@ -1,8 +1,15 @@
 #include "fragment.h"
 
 #include <support/assert.h>
+#include <support/thread_context.h>
 
 #include <fmt/format.h>
+
+#include <llvm/IR/BasicBlock.h>
+#include <llvm/IR/IRBuilder.h>
+
+using namespace support;
+using namespace llvm;
 
 namespace presyn {
 
@@ -21,9 +28,20 @@ std::unique_ptr<fragment> empty::compose(std::unique_ptr<fragment>&& other)
 
 bool empty::accepts() const { return true; }
 
-llvm::BasicBlock* empty::compile(sketch_context const&, llvm::BasicBlock*) const
+/**
+ * An empty fragment doesn't do anything when compiled - it just creates a new
+ * block with a jump to the exit, then returns that new block as the fragment
+ * entry.
+ */
+llvm::BasicBlock*
+empty::compile(sketch_context const&, llvm::BasicBlock* exit) const
 {
-  unimplemented();
+  auto frag_entry = BasicBlock::Create(
+      thread_context::get(), "empty", exit->getParent(), exit);
+
+  IRBuilder(frag_entry).CreateBr(exit);
+
+  return frag_entry;
 }
 
 std::string empty::to_string() const { return "empty"; }
