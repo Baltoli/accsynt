@@ -97,6 +97,7 @@ std::string loop::to_string() const
 
 delimiter_loop::delimiter_loop(std::unique_ptr<parameter>&& param)
     : pointer_(std::move(param))
+    , body_(std::make_unique<empty>())
 {
 }
 
@@ -126,6 +127,7 @@ fixed_loop::fixed_loop(
     std::unique_ptr<parameter>&& ptr, std::unique_ptr<parameter>&& sz)
     : pointer_(std::move(ptr))
     , size_(std::move(sz))
+    , body_(std::make_unique<empty>())
 {
 }
 
