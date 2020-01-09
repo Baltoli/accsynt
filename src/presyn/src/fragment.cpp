@@ -106,8 +106,8 @@ delimiter_loop::delimiter_loop(std::string name)
 {
 }
 
-std::unique_ptr<fragment> delimiter_loop::compose(
-    std::unique_ptr<fragment>&& other)
+std::unique_ptr<fragment>
+delimiter_loop::compose(std::unique_ptr<fragment>&& other)
 {
   return compose_generic<delimiter_loop>(std::move(other), body_);
 }
@@ -118,7 +118,7 @@ std::string delimiter_loop::to_string() const
 {
   assumes(body_, "Child fragment should not be null");
 
-  return "delim_loop<{}>({})"_format(pointer_->to_string(), body_->to_string());
+  return "delim<{}>({})"_format(pointer_->to_string(), body_->to_string());
 }
 
 // Fixed loop
@@ -147,7 +147,7 @@ std::string fixed_loop::to_string() const
 {
   assumes(body_, "Child fragment should not be null");
 
-  return "fixed_loop<{}, {}>({})"_format(
+  return "fixed<{}, {}>({})"_format(
       pointer_->to_string(), size_->to_string(), body_->to_string());
 }
 
@@ -169,7 +169,7 @@ std::string if_::to_string() const
 {
   assumes(body_, "Child fragment should not be null");
 
-  return "if_({})"_format(body_->to_string());
+  return "if({})"_format(body_->to_string());
 }
 
 // If-else

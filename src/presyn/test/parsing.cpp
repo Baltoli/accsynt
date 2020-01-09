@@ -30,6 +30,13 @@ TEST_CASE("Can recognise fragment names")
     MATCH_EXACT("linear");
     MATCH_EXACT("empty");
     MATCH_EXACT("seq");
+    MATCH_EXACT("loop");
+    MATCH_EXACT("delim");
+    MATCH_EXACT("fixed");
+    MATCH_EXACT("if");
+    MATCH_EXACT("if_else");
+    MATCH_EXACT("affine");
+    MATCH_EXACT("index");
   }
 
   SECTION("Does not match incorrect names")
@@ -38,6 +45,11 @@ TEST_CASE("Can recognise fragment names")
     NOT_MATCH_EXACT("sequence");
     NOT_MATCH_EXACT("empty_fragment");
     NOT_MATCH_EXACT("");
+    NOT_MATCH_EXACT("for");
+    NOT_MATCH_EXACT("while");
+    NOT_MATCH_EXACT("until");
+    NOT_MATCH_EXACT("if-else");
+    NOT_MATCH_EXACT("else");
   }
 }
 
@@ -156,6 +168,13 @@ TEST_CASE("Can recognise fragments")
     MATCH_EXACT("seq(seq, seq, linear, empty<>, empty(empty))");
 
     MATCH_EXACT("linear<1,\n2,\t\t3, 4, 5, 6, 7>(   linear\n)");
+
+    MATCH_EXACT("loop<@x,23>(loop, loop)");
+    MATCH_EXACT("delim(loop, fixed(delim))");
+    MATCH_EXACT("if(if(if(if(if(if<>())))))");
+    MATCH_EXACT("if(if(if(if_else, if_else, if_else<>(), if(if(if<>())))))");
+    MATCH_EXACT("affine<1, 1, 2, +3, -1>(affine)");
+    MATCH_EXACT("affine<1, 1, 2, +3, -1>(index, index(index<>))");
   }
 
   SECTION("Don't recognise wrong fragments")
@@ -172,6 +191,11 @@ TEST_CASE("Can recognise fragments")
     NOT_MATCH_EXACT("seq(empty)<2>");
     NOT_MATCH_EXACT("seq(empty)<linear>");
     NOT_MATCH_EXACT("seq(empty)<linear(2)>");
+    NOT_MATCH_EXACT("loop<loop>()");
+    NOT_MATCH_EXACT("if-else()");
+    NOT_MATCH_EXACT("if<--22>()");
+    NOT_MATCH_EXACT("indexed()");
+    NOT_MATCH_EXACT("affine_index<>");
   }
 }
 
@@ -182,8 +206,18 @@ TEST_CASE("The grammar doesn't have any issues")
 
 TEST_CASE("Printing and parsing are inverses")
 {
-  auto frags = std::array{ "empty"_frag, "linear<7>()"_frag, "seq<>()"_frag,
-    "seq(seq(), seq<>(empty))"_frag, "seq(linear<2>, seq(empty()))"_frag };
+  auto frags = std::array {"empty"_frag,
+                           "linear<7>()"_frag,
+                           "seq<>()"_frag,
+                           "seq(seq(), seq<>(empty))"_frag,
+                           "seq(linear<2>, seq(empty()))"_frag,
+                           "loop(seq(linear<7>, empty))"_frag,
+                           "delim<@x>(loop)"_frag,
+                           "fixed<@x, @N>(fixed<@y, 32>(empty))"_frag,
+                           "if(if(linear<2>))"_frag,
+                           "if_else(if, loop(fixed<@wef_w, 45>))"_frag,
+                           "affine<@ptr>(delim<@ptr>(if))"_frag,
+                           "index<@x>(affine<@y>(fixed<@p, @q>(loop)))"_frag};
 
   for (auto const& frag : frags) {
     auto str = frag->to_string();

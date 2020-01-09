@@ -38,7 +38,14 @@ struct fragment_name :
   sor<
     TAO_PEGTL_STRING("linear"),
     TAO_PEGTL_STRING("empty"), 
-    TAO_PEGTL_STRING("seq")
+    TAO_PEGTL_STRING("seq"), 
+    TAO_PEGTL_STRING("loop"),
+    TAO_PEGTL_STRING("delim"),
+    TAO_PEGTL_STRING("fixed"),
+    TAO_PEGTL_STRING("if_else"),
+    TAO_PEGTL_STRING("if"),
+    TAO_PEGTL_STRING("affine"),
+    TAO_PEGTL_STRING("index")
   > 
 {};
 
@@ -182,7 +189,10 @@ struct fragment_action<parameter_name> {
   template <typename Input>
   static void apply(Input const& in, fragment_state& state)
   {
-    state.stack.back().template_args.emplace_back(in.string());
+    // substring is so that the stored string is *without* the preceding @
+    // symbol, which is a lexical format detail and should not be stored
+    // alongside the actual name of the parameter.
+    state.stack.back().template_args.emplace_back(in.string().substr(1));
   }
 };
 

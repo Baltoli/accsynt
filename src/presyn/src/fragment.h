@@ -40,9 +40,8 @@ public:
    * that they store up fragments until compilation, when they'll use the
    * exposed behaviour of their compositions to perform a compilation.
    */
-  [[nodiscard]] virtual std::unique_ptr<fragment> compose(
-      std::unique_ptr<fragment>&&)
-      = 0;
+  [[nodiscard]] virtual std::unique_ptr<fragment>
+  compose(std::unique_ptr<fragment>&&) = 0;
 
   /**
    * Because the core composition logic is defined virtually, we can use a
@@ -116,13 +115,13 @@ public:
 
 protected:
   template <typename... Children>
-  static std::array<std::reference_wrapper<std::unique_ptr<fragment>>,
-      sizeof...(Children)>
+  static std::array<
+      std::reference_wrapper<std::unique_ptr<fragment>>, sizeof...(Children)>
   children_ref(Children&...);
 
   template <typename Derived, typename... Children>
-  std::unique_ptr<fragment> compose_generic(
-      std::unique_ptr<fragment>&&, Children&...);
+  std::unique_ptr<fragment>
+  compose_generic(std::unique_ptr<fragment>&&, Children&...);
 };
 
 /**
@@ -133,8 +132,8 @@ class empty final : public fragment {
 public:
   empty() = default;
 
-  [[nodiscard]] std::unique_ptr<fragment> compose(
-      std::unique_ptr<fragment>&&) override;
+  [[nodiscard]] std::unique_ptr<fragment>
+  compose(std::unique_ptr<fragment>&&) override;
 
   bool accepts() const override;
 
@@ -160,8 +159,8 @@ public:
    * compositionality idea but would reduce the size / complexity /
    * compilation time.
    */
-  [[nodiscard]] std::unique_ptr<fragment> compose(
-      std::unique_ptr<fragment>&&) override;
+  [[nodiscard]] std::unique_ptr<fragment>
+  compose(std::unique_ptr<fragment>&&) override;
 
   bool accepts() const override;
 
@@ -187,8 +186,8 @@ class seq final : public fragment {
 public:
   seq();
 
-  [[nodiscard]] std::unique_ptr<fragment> compose(
-      std::unique_ptr<fragment>&&) override;
+  [[nodiscard]] std::unique_ptr<fragment>
+  compose(std::unique_ptr<fragment>&&) override;
 
   bool accepts() const override;
 
@@ -214,8 +213,8 @@ class loop final : public fragment {
 public:
   loop();
 
-  [[nodiscard]] std::unique_ptr<fragment> compose(
-      std::unique_ptr<fragment>&&) override;
+  [[nodiscard]] std::unique_ptr<fragment>
+  compose(std::unique_ptr<fragment>&&) override;
 
   bool accepts() const override;
 
@@ -238,8 +237,8 @@ public:
   delimiter_loop(std::string);
   delimiter_loop(std::unique_ptr<parameter>&&);
 
-  [[nodiscard]] std::unique_ptr<fragment> compose(
-      std::unique_ptr<fragment>&&) override;
+  [[nodiscard]] std::unique_ptr<fragment>
+  compose(std::unique_ptr<fragment>&&) override;
 
   bool accepts() const override;
 
@@ -262,8 +261,8 @@ public:
   fixed_loop(std::string, std::string);
   fixed_loop(std::unique_ptr<parameter>&&, std::unique_ptr<parameter>&&);
 
-  [[nodiscard]] std::unique_ptr<fragment> compose(
-      std::unique_ptr<fragment>&&) override;
+  [[nodiscard]] std::unique_ptr<fragment>
+  compose(std::unique_ptr<fragment>&&) override;
 
   bool accepts() const override;
 
@@ -281,10 +280,11 @@ private:
  *   if(P) { body }
  */
 class if_ final : public fragment {
+public:
   if_();
 
-  [[nodiscard]] std::unique_ptr<fragment> compose(
-      std::unique_ptr<fragment>&&) override;
+  [[nodiscard]] std::unique_ptr<fragment>
+  compose(std::unique_ptr<fragment>&&) override;
 
   bool accepts() const override;
 
@@ -300,10 +300,11 @@ private:
  *   if(P) { body } else { else_body }
  */
 class if_else final : public fragment {
+public:
   if_else();
 
-  [[nodiscard]] std::unique_ptr<fragment> compose(
-      std::unique_ptr<fragment>&&) override;
+  [[nodiscard]] std::unique_ptr<fragment>
+  compose(std::unique_ptr<fragment>&&) override;
 
   bool accepts() const override;
 
@@ -322,11 +323,12 @@ private:
  *   let idx = {affine into ptr} in body
  */
 class affine final : public fragment {
+public:
   affine(std::string);
   affine(std::unique_ptr<parameter>&&);
 
-  [[nodiscard]] std::unique_ptr<fragment> compose(
-      std::unique_ptr<fragment>&&) override;
+  [[nodiscard]] std::unique_ptr<fragment>
+  compose(std::unique_ptr<fragment>&&) override;
 
   bool accepts() const override;
 
@@ -344,11 +346,12 @@ private:
  *   let idx = {idx into ptr} in body
  */
 class index final : public fragment {
+public:
   index(std::string);
   index(std::unique_ptr<parameter>&&);
 
-  [[nodiscard]] std::unique_ptr<fragment> compose(
-      std::unique_ptr<fragment>&&) override;
+  [[nodiscard]] std::unique_ptr<fragment>
+  compose(std::unique_ptr<fragment>&&) override;
 
   bool accepts() const override;
 
@@ -371,16 +374,16 @@ fragment::compose(Fragment&& other)
 }
 
 template <typename... Children>
-std::array<std::reference_wrapper<std::unique_ptr<fragment>>,
-    sizeof...(Children)>
+std::array<
+    std::reference_wrapper<std::unique_ptr<fragment>>, sizeof...(Children)>
 fragment::children_ref(Children&... chs)
 {
-  return { std::ref(chs)... };
+  return {std::ref(chs)...};
 }
 
 template <typename Derived, typename... Children>
-std::unique_ptr<fragment> fragment::compose_generic(
-    std::unique_ptr<fragment>&& other, Children&... chs)
+std::unique_ptr<fragment>
+fragment::compose_generic(std::unique_ptr<fragment>&& other, Children&... chs)
 {
   support::in_debug([&] {
     for (std::unique_ptr<fragment>& ch : children_ref(chs...)) {
@@ -395,7 +398,8 @@ std::unique_ptr<fragment> fragment::compose_generic(
     }
   }
 
-  assertion(dynamic_cast<Derived*>(this) != nullptr,
+  assertion(
+      dynamic_cast<Derived*>(this) != nullptr,
       "Generic composition being used badly");
 
   return std::make_unique<Derived>(std::move(*(static_cast<Derived*>(this))));
