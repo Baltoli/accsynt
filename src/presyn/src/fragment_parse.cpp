@@ -2,10 +2,22 @@
 #include "fragment.h"
 
 #include <support/assert.h>
+#include <support/visitor.h>
 
 namespace presyn {
 
 using namespace tao::pre_tl;
+
+std::unique_ptr<parameter> make_param(grammar::template_arg_state ta)
+{
+  using ret_t = std::unique_ptr<parameter>;
+
+  return std::visit(
+      support::visitor {
+          [](int i) -> ret_t { return std::make_unique<constant_int>(i); },
+          [](std::string s) -> ret_t { return std::make_unique<named>(s); }},
+      ta);
+}
 
 std::unique_ptr<fragment> build(grammar::fragment_parse const&);
 
@@ -14,7 +26,8 @@ std::unique_ptr<fragment>
 build_from_children(grammar::fragment_parse const& parse, TArgs&&... targs)
 {
   std::unique_ptr<fragment> ret
-      = std::make_unique<Frag>(std::forward<TArgs>(targs)...);
+      = std::make_unique<Frag>(make_param(parse.template_args[targs])...);
+
   for (auto const& c_arg : parse.child_args) {
     ret = ret->compose(build(c_arg));
   }
@@ -39,8 +52,7 @@ build_for<linear>(grammar::fragment_parse const& parse)
 
   assertion(parse.child_args.empty(), "Linear takes no child arguments");
 
-  return build_from_children<linear>(
-      parse, std::get<int>(parse.template_args[0]));
+  return build_from_children<linear>(parse, 0);
 }
 
 template <>
@@ -84,8 +96,7 @@ build_for<delimiter_loop>(grammar::fragment_parse const& parse)
       std::holds_alternative<std::string>(parse.template_args[0]),
       "Delim template arg must be a named parameter");
 
-  return build_from_children<delimiter_loop>(
-      parse, std::get<std::string>(parse.template_args[0]));
+  return build_from_children<delimiter_loop>(parse, 0);
 }
 
 std::unique_ptr<fragment> build(grammar::fragment_parse const& parse)
