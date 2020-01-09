@@ -5,10 +5,12 @@
 #include <fmt/format.h>
 
 #include <support/assert.h>
+#include <support/llvm_format.h>
 #include <support/terminal.h>
 
 #include <props/props.h>
 
+using namespace support;
 using namespace llvm;
 using namespace presyn;
 using namespace presyn::literals;
@@ -27,4 +29,6 @@ int main(int argc, char** argv)
   fmt::print("{}\n", sig);
 
   auto sk = sketch(sig, *frag);
+
+  fmt::print("\n{}", sk.module());
 }
