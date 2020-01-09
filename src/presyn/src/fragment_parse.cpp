@@ -39,7 +39,8 @@ build_for<linear>(grammar::fragment_parse const& parse)
 
   assertion(parse.child_args.empty(), "Linear takes no child arguments");
 
-  return std::make_unique<linear>(std::get<int>(parse.template_args[0]));
+  return build_from_children<linear>(
+      parse, std::get<int>(parse.template_args[0]));
 }
 
 template <>
@@ -48,7 +49,7 @@ std::unique_ptr<fragment> build_for<empty>(grammar::fragment_parse const& parse)
   assertion(parse.template_args.empty(), "Empty takes no template arguments");
   assertion(parse.child_args.empty(), "Empty takes no child arguments");
 
-  return std::make_unique<empty>();
+  return build_from_children<empty>(parse);
 }
 
 template <>
