@@ -337,6 +337,28 @@ private:
   std::unique_ptr<fragment> body_;
 };
 
+/**
+ * Similarly to affine, represents a let-binding of a general indexing
+ * expression into its pointer parameter:
+ *
+ *   let idx = {idx into ptr} in body
+ */
+class index final : public fragment {
+  index(std::string);
+  index(std::unique_ptr<parameter>&&);
+
+  [[nodiscard]] std::unique_ptr<fragment> compose(
+      std::unique_ptr<fragment>&&) override;
+
+  bool accepts() const override;
+
+  std::string to_string() const override;
+
+private:
+  std::unique_ptr<parameter> pointer_;
+  std::unique_ptr<fragment> body_;
+};
+
 // Implementations
 
 template <typename Fragment>

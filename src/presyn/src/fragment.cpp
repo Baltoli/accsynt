@@ -224,4 +224,31 @@ std::string affine::to_string() const
   return "affine<{}>({})"_format(pointer_->to_string(), body_->to_string());
 }
 
+// Index
+
+index::index(std::unique_ptr<parameter>&& ptr)
+    : pointer_(std::move(ptr))
+    , body_(std::make_unique<empty>())
+{
+}
+
+index::index(std::string ptr_n)
+    : index(std::make_unique<named>(ptr_n))
+{
+}
+
+std::unique_ptr<fragment> index::compose(std::unique_ptr<fragment>&& other)
+{
+  return compose_generic<index>(std::move(other), body_);
+}
+
+bool index::accepts() const { return body_->accepts(); }
+
+std::string index::to_string() const
+{
+  assumes(body_, "Child fragment should not be null");
+
+  return "index<{}>({})"_format(pointer_->to_string(), body_->to_string());
+}
+
 } // namespace presyn
