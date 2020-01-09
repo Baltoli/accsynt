@@ -140,6 +140,24 @@ build_for<if_else>(grammar::fragment_parse const& parse)
   return build_from_children<if_else>(parse);
 }
 
+template <>
+std::unique_ptr<fragment>
+build_for<affine>(grammar::fragment_parse const& parse)
+{
+  assertion(
+      parse.template_args.size() == 1,
+      "Affine requires exactly two template arguments");
+
+  assertion(
+      std::holds_alternative<std::string>(parse.template_args[0]),
+      "First affine template arg must be a named parameter");
+
+  assertion(
+      parse.child_args.size() <= 1, "Affine takes at most 1 child argument");
+
+  return build_from_children<affine>(parse, 0);
+}
+
 std::unique_ptr<fragment> build(grammar::fragment_parse const& parse)
 {
   if (parse.name == "linear") {
@@ -158,6 +176,8 @@ std::unique_ptr<fragment> build(grammar::fragment_parse const& parse)
     return build_for<if_>(parse);
   } else if (parse.name == "if_else") {
     return build_for<if_else>(parse);
+  } else if (parse.name == "affine") {
+    return build_for<affine>(parse);
   } else {
     invalid_state();
   }
