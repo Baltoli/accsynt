@@ -1,9 +1,11 @@
 #pragma once
 
-#include <string>
+#include <fmt/format.h>
 
 #include <llvm/IR/Type.h>
 #include <llvm/IR/Value.h>
+
+#include <string>
 
 namespace presyn {
 
@@ -72,3 +74,18 @@ private:
 };
 
 } // namespace presyn
+
+template <>
+struct fmt::formatter<presyn::parameter> {
+  template <typename ParseContext>
+  constexpr auto parse(ParseContext& ctx)
+  {
+    return ctx.begin();
+  }
+
+  template <typename FormatContext>
+  auto format(presyn::parameter const& p, FormatContext& ctx)
+  {
+    return format_to(ctx.out(), "{}", p.to_string());
+  }
+};

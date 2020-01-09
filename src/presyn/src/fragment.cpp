@@ -44,7 +44,7 @@ bool linear::accepts() const { return false; }
 
 std::string linear::to_string() const
 {
-  return "linear<{}>"_format(instructions_->to_string());
+  return fmt::format("linear<{}>", *instructions_);
 }
 
 // Seq
@@ -69,7 +69,7 @@ bool seq::accepts() const
 std::string seq::to_string() const
 {
   assertion(first_ && second_, "Child fragments of seq should not be null");
-  return "seq({}, {})"_format(first_->to_string(), second_->to_string());
+  return fmt::format("seq({}, {})", *first_, *second_);
 }
 
 // Loop
@@ -89,8 +89,7 @@ bool loop::accepts() const { return body_->accepts(); }
 std::string loop::to_string() const
 {
   assumes(body_, "Child fragment should not be null");
-
-  return "loop({})"_format(body_->to_string());
+  return fmt::format("loop({})", *body_);
 }
 
 // Delimiter loop
@@ -117,8 +116,7 @@ bool delimiter_loop::accepts() const { return body_->accepts(); }
 std::string delimiter_loop::to_string() const
 {
   assumes(body_, "Child fragment should not be null");
-
-  return "delim<{}>({})"_format(pointer_->to_string(), body_->to_string());
+  return fmt::format("delim<{}>({})", *pointer_, *body_);
 }
 
 // Fixed loop
@@ -146,9 +144,7 @@ bool fixed_loop::accepts() const { return body_->accepts(); }
 std::string fixed_loop::to_string() const
 {
   assumes(body_, "Child fragment should not be null");
-
-  return "fixed<{}, {}>({})"_format(
-      pointer_->to_string(), size_->to_string(), body_->to_string());
+  return fmt::format("fixed<{}, {}>({})", *pointer_, *size_, *body_);
 }
 
 // If
@@ -168,8 +164,7 @@ bool if_::accepts() const { return body_->accepts(); }
 std::string if_::to_string() const
 {
   assumes(body_, "Child fragment should not be null");
-
-  return "if({})"_format(body_->to_string());
+  return fmt::format("if({})", *body_);
 }
 
 // If-else
@@ -193,8 +188,7 @@ bool if_else::accepts() const
 std::string if_else::to_string() const
 {
   assumes(body_, "Child fragment should not be null");
-
-  return "if_else({}, {})"_format(body_->to_string(), else_body_->to_string());
+  return fmt::format("if_else({}, {})", *body_, *else_body_);
 }
 
 // Affine
@@ -220,8 +214,7 @@ bool affine::accepts() const { return body_->accepts(); }
 std::string affine::to_string() const
 {
   assumes(body_, "Child fragment should not be null");
-
-  return "affine<{}>({})"_format(pointer_->to_string(), body_->to_string());
+  return fmt::format("affine<{}>({})", *pointer_, *body_);
 }
 
 // Index
@@ -247,8 +240,7 @@ bool index::accepts() const { return body_->accepts(); }
 std::string index::to_string() const
 {
   assumes(body_, "Child fragment should not be null");
-
-  return "index<{}>({})"_format(pointer_->to_string(), body_->to_string());
+  return fmt::format("index<{}>({})", *pointer_, *body_);
 }
 
 } // namespace presyn
