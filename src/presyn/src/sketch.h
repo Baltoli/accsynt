@@ -4,6 +4,9 @@
 
 #include <props/props.h>
 
+#include <llvm/IR/Function.h>
+#include <llvm/IR/Module.h>
+
 namespace presyn {
 
 /**
@@ -21,8 +24,13 @@ namespace presyn {
 class sketch {
 public:
   sketch(props::signature sig, fragment const&);
+  sketch(props::signature sig, std::unique_ptr<fragment> const&);
+
+  llvm::Module& module();
+  llvm::Module const& module() const;
 
 private:
+  llvm::Module module_;
   sketch_context ctx_;
 };
 

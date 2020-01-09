@@ -1,42 +1,30 @@
 #include "fragment.h"
 #include "options.h"
+#include "sketch.h"
 
 #include <fmt/format.h>
 
 #include <support/assert.h>
 #include <support/terminal.h>
 
+#include <props/props.h>
+
 using namespace llvm;
 using namespace presyn;
 using namespace presyn::literals;
+using namespace props;
+using namespace props::literals;
 
 int main(int argc, char** argv)
 {
   cl::ParseCommandLineOptions(argc, argv);
   /* fmt::print("{}\n", opt::SigFile); */
 
-  /* std::unique_ptr<fragment> frag = std::make_unique<presyn::empty>(); */
-
-  /* frag = frag->compose(presyn::empty()); */
-  /* frag = frag->compose(presyn::seq()); */
-  /* frag = frag->compose( */
-  /*     presyn::linear(std::make_unique<presyn::constant_int>(2))); */
-  /* frag = frag->compose( */
-  /*     presyn::linear(std::make_unique<presyn::constant_int>(4))); */
-
-  /* fmt::print("{}\n", frag->to_string()); */
-
-  auto str
-      = "seq(seq(seq, seq(linear<2>, seq(linear<3>, linear<2>))), linear<2>)";
-
-  auto frag = fragment::parse(str);
-  assertion(frag != nullptr, "Fragment parse invalid");
+  auto frag = "fixed<@x, 16>(seq(if(linear<0>), loop))"_frag;
+  auto sig = "void func(float *x)"_sig;
 
   fmt::print("{}\n", frag->to_string());
+  fmt::print("{}\n", sig);
 
-  auto f2 = fragment::parse(frag->to_string());
-  fmt::print("{}\n", f2->to_string());
-
-  auto f3 = "seq(linear<2>, seq)"_frag;
-  fmt::print("{}\n", f3->to_string());
+  auto sk = sketch(sig, *frag);
 }
