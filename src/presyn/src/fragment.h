@@ -300,6 +300,7 @@ private:
  *   if(P) { body } else { else_body }
  */
 class if_else final : public fragment {
+public:
   if_else();
 
   [[nodiscard]] std::unique_ptr<fragment>
@@ -322,6 +323,7 @@ private:
  *   let idx = {affine into ptr} in body
  */
 class affine final : public fragment {
+public:
   affine(std::string);
   affine(std::unique_ptr<parameter>&&);
 
@@ -344,6 +346,7 @@ private:
  *   let idx = {idx into ptr} in body
  */
 class index final : public fragment {
+public:
   index(std::string);
   index(std::unique_ptr<parameter>&&);
 

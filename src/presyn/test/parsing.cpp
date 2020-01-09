@@ -214,7 +214,8 @@ TEST_CASE("Printing and parsing are inverses")
                            "loop(seq(linear<7>, empty))"_frag,
                            "delim<@x>(loop)"_frag,
                            "fixed<@x, @N>(fixed<@y, 32>(empty))"_frag,
-                           "if(if(linear<2>))"_frag};
+                           "if(if(linear<2>))"_frag,
+                           "if_else(if, loop(fixed<@wef_w, 45>))"_frag};
 
   for (auto const& frag : frags) {
     auto str = frag->to_string();

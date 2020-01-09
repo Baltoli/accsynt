@@ -129,6 +129,17 @@ std::unique_ptr<fragment> build_for<if_>(grammar::fragment_parse const& parse)
   return build_from_children<if_>(parse);
 }
 
+template <>
+std::unique_ptr<fragment>
+build_for<if_else>(grammar::fragment_parse const& parse)
+{
+  assertion(parse.template_args.empty(), "If-else takes no template arguments");
+  assertion(
+      parse.child_args.size() <= 2, "If-else takes at most 2 child argument");
+
+  return build_from_children<if_else>(parse);
+}
+
 std::unique_ptr<fragment> build(grammar::fragment_parse const& parse)
 {
   if (parse.name == "linear") {
@@ -145,6 +156,8 @@ std::unique_ptr<fragment> build(grammar::fragment_parse const& parse)
     return build_for<fixed_loop>(parse);
   } else if (parse.name == "if") {
     return build_for<if_>(parse);
+  } else if (parse.name == "if_else") {
+    return build_for<if_else>(parse);
   } else {
     invalid_state();
   }
