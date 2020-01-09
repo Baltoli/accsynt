@@ -1,6 +1,9 @@
 ﻿---
 BasedOnStyle: WebKit
 AccessModifierOffset: '-2'
+AlignAfterOpenBracket: AlwaysBreak
+AlignOperands: 'true'
+Cpp11BracedListStyle: 'true'
 AllowShortBlocksOnASingleLine: 'false'
 AllowShortCaseLabelsOnASingleLine: 'false'
 AllowShortFunctionsOnASingleLine: All
