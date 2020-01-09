@@ -147,7 +147,7 @@ std::string fixed_loop::to_string() const
 {
   assumes(body_, "Child fragment should not be null");
 
-  return "fixed_loop<{}, {}>({})"_format(
+  return "fixed<{}, {}>({})"_format(
       pointer_->to_string(), size_->to_string(), body_->to_string());
 }
 

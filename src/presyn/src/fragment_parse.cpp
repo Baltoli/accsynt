@@ -99,6 +99,21 @@ build_for<delimiter_loop>(grammar::fragment_parse const& parse)
   return build_from_children<delimiter_loop>(parse, 0);
 }
 
+template <>
+std::unique_ptr<fragment>
+build_for<fixed_loop>(grammar::fragment_parse const& parse)
+{
+  assertion(
+      parse.template_args.size() == 2,
+      "Fixed requires exactly two template arguments");
+
+  assertion(
+      std::holds_alternative<std::string>(parse.template_args[0]),
+      "First fixed template arg must be a named parameter");
+
+  return build_from_children<fixed_loop>(parse, 0, 1);
+}
+
 std::unique_ptr<fragment> build(grammar::fragment_parse const& parse)
 {
   if (parse.name == "linear") {
@@ -111,6 +126,8 @@ std::unique_ptr<fragment> build(grammar::fragment_parse const& parse)
     return build_for<loop>(parse);
   } else if (parse.name == "delim") {
     return build_for<delimiter_loop>(parse);
+  } else if (parse.name == "fixed") {
+    return build_for<fixed_loop>(parse);
   } else {
     invalid_state();
   }
