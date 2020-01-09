@@ -250,6 +250,31 @@ private:
   std::unique_ptr<fragment> body_;
 };
 
+/**
+ * Represents a loop to a fixed upper bound over a pointer ptr:
+ *
+ *   for(int i = 0; i < N; ++i) { body }
+ *
+ * Composition is defined as usual.
+ */
+class fixed_loop final : public fragment {
+public:
+  fixed_loop(std::string, std::string);
+  fixed_loop(std::unique_ptr<parameter>&&, std::unique_ptr<parameter>&&);
+
+  [[nodiscard]] std::unique_ptr<fragment> compose(
+      std::unique_ptr<fragment>&&) override;
+
+  bool accepts() const override;
+
+  std::string to_string() const override;
+
+private:
+  std::unique_ptr<parameter> pointer_;
+  std::unique_ptr<parameter> size_;
+  std::unique_ptr<fragment> body_;
+};
+
 // Implementations
 
 template <typename Fragment>

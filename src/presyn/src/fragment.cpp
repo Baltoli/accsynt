@@ -120,4 +120,33 @@ std::string delimiter_loop::to_string() const
   return "delim_loop<{}>({})"_format(pointer_->to_string(), body_->to_string());
 }
 
+// Fixed loop
+
+fixed_loop::fixed_loop(
+    std::unique_ptr<parameter>&& ptr, std::unique_ptr<parameter>&& sz)
+    : pointer_(std::move(ptr))
+    , size_(std::move(sz))
+{
+}
+
+fixed_loop::fixed_loop(std::string ptr_n, std::string sz_n)
+    : fixed_loop(std::make_unique<named>(ptr_n), std::make_unique<named>(sz_n))
+{
+}
+
+std::unique_ptr<fragment> fixed_loop::compose(std::unique_ptr<fragment>&& other)
+{
+  return compose_generic<fixed_loop>(std::move(other), body_);
+}
+
+bool fixed_loop::accepts() const { return body_->accepts(); }
+
+std::string fixed_loop::to_string() const
+{
+  assumes(body_, "Child fragment should not be null");
+
+  return "fixed_loop<{}, {}>({})"_format(
+      pointer_->to_string(), size_->to_string(), body_->to_string());
+}
+
 } // namespace presyn
