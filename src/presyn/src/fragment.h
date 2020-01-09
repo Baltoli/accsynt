@@ -275,6 +275,25 @@ private:
   std::unique_ptr<fragment> body_;
 };
 
+/**
+ * Represents a conditional statement with no else branch:
+ *
+ *   if(P) { body }
+ */
+class if_ final : public fragment {
+  if_();
+
+  [[nodiscard]] std::unique_ptr<fragment> compose(
+      std::unique_ptr<fragment>&&) override;
+
+  bool accepts() const override;
+
+  std::string to_string() const override;
+
+private:
+  std::unique_ptr<fragment> body_;
+};
+
 // Implementations
 
 template <typename Fragment>

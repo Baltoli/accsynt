@@ -151,4 +151,25 @@ std::string fixed_loop::to_string() const
       pointer_->to_string(), size_->to_string(), body_->to_string());
 }
 
+// If
+
+if_::if_()
+    : body_(std::make_unique<empty>())
+{
+}
+
+std::unique_ptr<fragment> if_::compose(std::unique_ptr<fragment>&& other)
+{
+  return compose_generic<if_>(std::move(other), body_);
+}
+
+bool if_::accepts() const { return body_->accepts(); }
+
+std::string if_::to_string() const
+{
+  assumes(body_, "Child fragment should not be null");
+
+  return "if_({})"_format(body_->to_string());
+}
+
 } // namespace presyn
