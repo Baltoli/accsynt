@@ -168,6 +168,13 @@ TEST_CASE("Can recognise fragments")
     MATCH_EXACT("seq(seq, seq, linear, empty<>, empty(empty))");
 
     MATCH_EXACT("linear<1,\n2,\t\t3, 4, 5, 6, 7>(   linear\n)");
+
+    MATCH_EXACT("loop<@x,23>(loop, loop)");
+    MATCH_EXACT("delim(loop, fixed(delim))");
+    MATCH_EXACT("if(if(if(if(if(if<>())))))");
+    MATCH_EXACT("if(if(if(if_else, if_else, if_else<>(), if(if(if<>())))))");
+    MATCH_EXACT("affine<1, 1, 2, +3, -1>(affine)");
+    MATCH_EXACT("affine<1, 1, 2, +3, -1>(index, index(index<>))");
   }
 
   SECTION("Don't recognise wrong fragments")
@@ -184,6 +191,11 @@ TEST_CASE("Can recognise fragments")
     NOT_MATCH_EXACT("seq(empty)<2>");
     NOT_MATCH_EXACT("seq(empty)<linear>");
     NOT_MATCH_EXACT("seq(empty)<linear(2)>");
+    NOT_MATCH_EXACT("loop<loop>()");
+    NOT_MATCH_EXACT("if-else()");
+    NOT_MATCH_EXACT("if<--22>()");
+    NOT_MATCH_EXACT("indexed()");
+    NOT_MATCH_EXACT("affine_index<>");
   }
 }
 
