@@ -96,6 +96,9 @@ build_for<delimiter_loop>(grammar::fragment_parse const& parse)
       std::holds_alternative<std::string>(parse.template_args[0]),
       "Delim template arg must be a named parameter");
 
+  assertion(
+      parse.child_args.size() <= 1, "Delim takes at most 1 child argument");
+
   return build_from_children<delimiter_loop>(parse, 0);
 }
 
@@ -111,7 +114,19 @@ build_for<fixed_loop>(grammar::fragment_parse const& parse)
       std::holds_alternative<std::string>(parse.template_args[0]),
       "First fixed template arg must be a named parameter");
 
+  assertion(
+      parse.child_args.size() <= 1, "Fixed takes at most 1 child argument");
+
   return build_from_children<fixed_loop>(parse, 0, 1);
+}
+
+template <>
+std::unique_ptr<fragment> build_for<if_>(grammar::fragment_parse const& parse)
+{
+  assertion(parse.template_args.empty(), "If takes no template arguments");
+  assertion(parse.child_args.size() <= 1, "If takes at most 1 child argument");
+
+  return build_from_children<if_>(parse);
 }
 
 std::unique_ptr<fragment> build(grammar::fragment_parse const& parse)
@@ -128,6 +143,8 @@ std::unique_ptr<fragment> build(grammar::fragment_parse const& parse)
     return build_for<delimiter_loop>(parse);
   } else if (parse.name == "fixed") {
     return build_for<fixed_loop>(parse);
+  } else if (parse.name == "if") {
+    return build_for<if_>(parse);
   } else {
     invalid_state();
   }

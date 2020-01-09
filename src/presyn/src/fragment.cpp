@@ -169,7 +169,7 @@ std::string if_::to_string() const
 {
   assumes(body_, "Child fragment should not be null");
 
-  return "if_({})"_format(body_->to_string());
+  return "if({})"_format(body_->to_string());
 }
 
 // If-else
