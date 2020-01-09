@@ -13,6 +13,7 @@ target_link_libraries(corepresyn
   CONAN_PKG::fmt
   CONAN_PKG::pegtl
   support
+  props
   ${llvm_libs})
 
 target_link_filesystem(corepresyn)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "parameter.h"
+#include "sketch_context.h"
 
 #include <support/assert.h>
 #include <support/traits.h>
