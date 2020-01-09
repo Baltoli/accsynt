@@ -21,6 +21,11 @@ std::unique_ptr<fragment> empty::compose(std::unique_ptr<fragment>&& other)
 
 bool empty::accepts() const { return true; }
 
+llvm::BasicBlock* empty::compile(sketch_context const&, llvm::BasicBlock*) const
+{
+  unimplemented();
+}
+
 std::string empty::to_string() const { return "empty"; }
 
 // Linear
@@ -41,6 +46,12 @@ std::unique_ptr<fragment> linear::compose(std::unique_ptr<fragment>&& other)
 }
 
 bool linear::accepts() const { return false; }
+
+llvm::BasicBlock*
+linear::compile(sketch_context const&, llvm::BasicBlock*) const
+{
+  unimplemented();
+}
 
 std::string linear::to_string() const
 {
@@ -66,6 +77,11 @@ bool seq::accepts() const
   return first_->accepts() || second_->accepts();
 }
 
+llvm::BasicBlock* seq::compile(sketch_context const&, llvm::BasicBlock*) const
+{
+  unimplemented();
+}
+
 std::string seq::to_string() const
 {
   assertion(first_ && second_, "Child fragments of seq should not be null");
@@ -85,6 +101,11 @@ std::unique_ptr<fragment> loop::compose(std::unique_ptr<fragment>&& other)
 }
 
 bool loop::accepts() const { return body_->accepts(); }
+
+llvm::BasicBlock* loop::compile(sketch_context const&, llvm::BasicBlock*) const
+{
+  unimplemented();
+}
 
 std::string loop::to_string() const
 {
@@ -112,6 +133,12 @@ delimiter_loop::compose(std::unique_ptr<fragment>&& other)
 }
 
 bool delimiter_loop::accepts() const { return body_->accepts(); }
+
+llvm::BasicBlock*
+delimiter_loop::compile(sketch_context const&, llvm::BasicBlock*) const
+{
+  unimplemented();
+}
 
 std::string delimiter_loop::to_string() const
 {
@@ -141,6 +168,12 @@ std::unique_ptr<fragment> fixed_loop::compose(std::unique_ptr<fragment>&& other)
 
 bool fixed_loop::accepts() const { return body_->accepts(); }
 
+llvm::BasicBlock*
+fixed_loop::compile(sketch_context const&, llvm::BasicBlock*) const
+{
+  unimplemented();
+}
+
 std::string fixed_loop::to_string() const
 {
   assumes(body_, "Child fragment should not be null");
@@ -160,6 +193,11 @@ std::unique_ptr<fragment> if_::compose(std::unique_ptr<fragment>&& other)
 }
 
 bool if_::accepts() const { return body_->accepts(); }
+
+llvm::BasicBlock* if_::compile(sketch_context const&, llvm::BasicBlock*) const
+{
+  unimplemented();
+}
 
 std::string if_::to_string() const
 {
@@ -183,6 +221,12 @@ std::unique_ptr<fragment> if_else::compose(std::unique_ptr<fragment>&& other)
 bool if_else::accepts() const
 {
   return body_->accepts() || else_body_->accepts();
+}
+
+llvm::BasicBlock*
+if_else::compile(sketch_context const&, llvm::BasicBlock*) const
+{
+  unimplemented();
 }
 
 std::string if_else::to_string() const
@@ -211,6 +255,12 @@ std::unique_ptr<fragment> affine::compose(std::unique_ptr<fragment>&& other)
 
 bool affine::accepts() const { return body_->accepts(); }
 
+llvm::BasicBlock*
+affine::compile(sketch_context const&, llvm::BasicBlock*) const
+{
+  unimplemented();
+}
+
 std::string affine::to_string() const
 {
   assumes(body_, "Child fragment should not be null");
@@ -236,6 +286,11 @@ std::unique_ptr<fragment> index::compose(std::unique_ptr<fragment>&& other)
 }
 
 bool index::accepts() const { return body_->accepts(); }
+
+llvm::BasicBlock* index::compile(sketch_context const&, llvm::BasicBlock*) const
+{
+  unimplemented();
+}
 
 std::string index::to_string() const
 {
