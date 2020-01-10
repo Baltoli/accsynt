@@ -22,7 +22,7 @@ int main(int argc, char** argv)
   cl::ParseCommandLineOptions(argc, argv);
   /* fmt::print("{}\n", opt::SigFile); */
 
-  auto frag = "seq(empty, linear<10>)"_frag;
+  auto frag = "seq(empty, seq(linear<10>, empty))"_frag;
   auto sig = "void func(float *x)"_sig;
 
   fmt::print("{}\n", *frag);

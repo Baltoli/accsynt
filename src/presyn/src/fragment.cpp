@@ -15,18 +15,47 @@ namespace presyn {
 
 using namespace fmt::literals;
 
-// Empty
+// Hole
 
 /**
- * Composing anything with the empty fragment produces the original fragment
- * again - it will be eliminated by any other fragment.
+ * Composing anything with the hole fragment produces an hole fragment.
  */
-std::unique_ptr<fragment> empty::compose(std::unique_ptr<fragment>&& other)
+std::unique_ptr<fragment> hole::compose(std::unique_ptr<fragment>&& other)
 {
   return std::move(other);
 }
 
-bool empty::accepts() const { return true; }
+bool hole::accepts() const { return true; }
+
+/**
+ * An hole fragment doesn't do anything when compiled - it just creates a new
+ * block with a jump to the exit, then returns that new block as the fragment
+ * entry.
+ */
+llvm::BasicBlock*
+hole::compile(sketch_context const&, llvm::BasicBlock* exit) const
+{
+  auto frag_entry = BasicBlock::Create(
+      thread_context::get(), "hole", exit->getParent(), exit);
+
+  IRBuilder(frag_entry).CreateBr(exit);
+
+  return frag_entry;
+}
+
+std::string hole::to_string() const { return "hole"; }
+
+// Empty
+
+/**
+ * Composing anything with the empty fragment produces an empty fragment.
+ */
+std::unique_ptr<fragment> empty::compose(std::unique_ptr<fragment>&& other)
+{
+  return std::make_unique<empty>();
+}
+
+bool empty::accepts() const { return false; }
 
 /**
  * An empty fragment doesn't do anything when compiled - it just creates a new
@@ -93,8 +122,8 @@ std::string linear::to_string() const
 // Seq
 
 seq::seq()
-    : first_(std::make_unique<empty>())
-    , second_(std::make_unique<empty>())
+    : first_(std::make_unique<hole>())
+    , second_(std::make_unique<hole>())
 {
 }
 
@@ -125,7 +154,7 @@ std::string seq::to_string() const
 // Loop
 
 loop::loop()
-    : body_(std::make_unique<empty>())
+    : body_(std::make_unique<hole>())
 {
 }
 
@@ -151,7 +180,7 @@ std::string loop::to_string() const
 
 delimiter_loop::delimiter_loop(std::unique_ptr<parameter>&& param)
     : pointer_(std::move(param))
-    , body_(std::make_unique<empty>())
+    , body_(std::make_unique<hole>())
 {
 }
 
@@ -186,7 +215,7 @@ fixed_loop::fixed_loop(
     std::unique_ptr<parameter>&& ptr, std::unique_ptr<parameter>&& sz)
     : pointer_(std::move(ptr))
     , size_(std::move(sz))
-    , body_(std::make_unique<empty>())
+    , body_(std::make_unique<hole>())
 {
 }
 
@@ -217,7 +246,7 @@ std::string fixed_loop::to_string() const
 // If
 
 if_::if_()
-    : body_(std::make_unique<empty>())
+    : body_(std::make_unique<hole>())
 {
 }
 
@@ -242,8 +271,8 @@ std::string if_::to_string() const
 // If-else
 
 if_else::if_else()
-    : body_(std::make_unique<empty>())
-    , else_body_(std::make_unique<empty>())
+    : body_(std::make_unique<hole>())
+    , else_body_(std::make_unique<hole>())
 {
 }
 
@@ -273,7 +302,7 @@ std::string if_else::to_string() const
 
 affine::affine(std::unique_ptr<parameter>&& ptr)
     : pointer_(std::move(ptr))
-    , body_(std::make_unique<empty>())
+    , body_(std::make_unique<hole>())
 {
 }
 
@@ -305,7 +334,7 @@ std::string affine::to_string() const
 
 index::index(std::unique_ptr<parameter>&& ptr)
     : pointer_(std::move(ptr))
-    , body_(std::make_unique<empty>())
+    , body_(std::make_unique<hole>())
 {
 }
 
