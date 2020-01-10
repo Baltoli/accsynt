@@ -146,8 +146,30 @@ protected:
 };
 
 /**
- * An empty fragment will generate no behaviour, and acts as an identity under
+ * A hole fragment generates no behaviour, and will accept any fragment for
  * composition.
+ */
+class hole final : public fragment {
+public:
+  hole() = default;
+
+  [[nodiscard]] std::unique_ptr<fragment>
+  compose(std::unique_ptr<fragment>&&) override;
+
+  bool accepts() const override;
+
+  [[nodiscard]] llvm::BasicBlock*
+  compile(sketch_context const&, llvm::BasicBlock*) const override;
+
+  std::string to_string() const override;
+};
+
+/**
+ * An empty fragment will generate no behaviour, and acts as an eliminator under
+ * composition.
+ *
+ * This is semantically different from a hole - empty acts as a placeholder to
+ * denote "no composition", while holes are the building blocks.
  */
 class empty final : public fragment {
 public:

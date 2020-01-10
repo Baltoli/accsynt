@@ -45,7 +45,8 @@ struct fragment_name :
     TAO_PEGTL_STRING("if_else"),
     TAO_PEGTL_STRING("if"),
     TAO_PEGTL_STRING("affine"),
-    TAO_PEGTL_STRING("index")
+    TAO_PEGTL_STRING("index"),
+    TAO_PEGTL_STRING("hole")
   > 
 {};
 
