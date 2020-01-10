@@ -1,4 +1,5 @@
 add_library(corepresyn
+  src/stub.cpp
   src/parameter.cpp
   src/fragment.cpp
   src/fragment_parse.cpp
