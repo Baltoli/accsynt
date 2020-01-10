@@ -6,6 +6,9 @@
 
 #include <llvm/IR/Function.h>
 #include <llvm/IR/Module.h>
+#include <llvm/IR/Type.h>
+
+#include <map>
 
 namespace presyn {
 
@@ -29,9 +32,15 @@ public:
   llvm::Module& module();
   llvm::Module const& module() const;
 
+  llvm::Function* stub_for(llvm::Type*);
+
 private:
+  llvm::Value* create_return_stub(llvm::BasicBlock*);
+
   llvm::Module module_;
   sketch_context ctx_;
+
+  std::map<llvm::Type*, llvm::Function*> stubs_;
 };
 
 } // namespace presyn
