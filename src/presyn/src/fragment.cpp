@@ -66,9 +66,23 @@ std::unique_ptr<fragment> linear::compose(std::unique_ptr<fragment>&& other)
 bool linear::accepts() const { return false; }
 
 llvm::BasicBlock*
-linear::compile(sketch_context const&, llvm::BasicBlock*) const
+linear::compile(sketch_context const&, llvm::BasicBlock* exit) const
 {
-  unimplemented();
+  auto frag_entry = BasicBlock::Create(
+      thread_context::get(), "linear", exit->getParent(), exit);
+
+  auto build = IRBuilder(frag_entry);
+
+  if (auto const_param = dynamic_cast<constant_int*>(instructions_.get())) {
+    for (int i = 0; i < const_param->value(); ++i) {
+      // TODO
+      // get untyped stub, insert a call
+    }
+  }
+
+  build.CreateBr(exit);
+
+  return frag_entry;
 }
 
 std::string linear::to_string() const
@@ -95,9 +109,11 @@ bool seq::accepts() const
   return first_->accepts() || second_->accepts();
 }
 
-llvm::BasicBlock* seq::compile(sketch_context const&, llvm::BasicBlock*) const
+llvm::BasicBlock*
+seq::compile(sketch_context const& ctx, llvm::BasicBlock* exit) const
 {
-  unimplemented();
+  auto second_entry = second_->compile(ctx, exit);
+  return first_->compile(ctx, second_entry);
 }
 
 std::string seq::to_string() const

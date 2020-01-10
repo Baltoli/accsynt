@@ -51,6 +51,8 @@ public:
 
   std::string to_string() const override;
 
+  int value() const { return value_; }
+
 private:
   int value_;
 };
