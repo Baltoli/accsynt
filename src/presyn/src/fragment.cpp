@@ -105,7 +105,7 @@ linear::compile(sketch_context const&, llvm::BasicBlock* exit) const
   if (auto const_param = dynamic_cast<constant_int*>(instructions_.get())) {
     for (int i = 0; i < const_param->value(); ++i) {
       // TODO
-      // get untyped stub, insert a call
+      // Create stub and make a call to it
     }
   }
 

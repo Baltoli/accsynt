@@ -41,6 +41,8 @@ Module& sketch::module() { return module_; }
 
 Module const& sketch::module() const { return module_; }
 
+llvm::Function* sketch::stub() { unimplemented(); }
+
 llvm::Function* sketch::stub_for(llvm::Type*) { unimplemented(); }
 
 llvm::Value* sketch::create_return_stub(llvm::BasicBlock* exit)

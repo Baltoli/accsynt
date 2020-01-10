@@ -32,6 +32,7 @@ public:
   llvm::Module& module();
   llvm::Module const& module() const;
 
+  llvm::Function* stub();
   llvm::Function* stub_for(llvm::Type*);
 
 private:
