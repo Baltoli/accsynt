@@ -26,6 +26,14 @@ class sketch_context {
 public:
   sketch_context(llvm::Module&, props::signature);
 
+  /**
+   * Creating a stub function essentially says "give me some value at synthesis
+   * time, the type of which I may not know already".
+   *
+   * A later phase (refinement / synthesis) will work out sensible concrete
+   * types for these stubs, then use them to synthesise actual programs by
+   * assigning actual values to the points where the stub exists.
+   */
   llvm::CallInst* stub();
   llvm::CallInst* stub(llvm::Type*);
 
@@ -34,6 +42,24 @@ public:
 
   llvm::CallInst* stub(std::string const&);
   llvm::CallInst* stub(llvm::Type*, std::string const&);
+
+  /**
+   * Creates an operation with the specified name - the exact semantics of the
+   * operation will be left up to the refinement phase of synthesis (i.e. they
+   * are just placeholders at this point).
+   *
+   * However, by attaching some standard meaning to them, we can simulate the
+   * parts of fragment compilation with known semantics ahead of time by giving
+   * them specified names (on functions that operate on particular types). These
+   * can then be "stamped out" by the refinement step at the time of actual
+   * synthesis.
+   *
+   * Each operation function will end up (much like stubs) being variadic, such
+   * that the correct implementations can be unified and stamped out at
+   * compilation.
+   */
+  llvm::CallInst*
+  operation(std::string const&, std::vector<llvm::Value*> const&);
 
 private:
   llvm::Constant* constant_name(std::string const&);
@@ -44,6 +70,7 @@ private:
 
   std::map<llvm::Type*, llvm::Function*> stubs_;
   std::map<std::string, llvm::Constant*> names_;
+  std::map<std::string, llvm::Function*> ops_;
 };
 
 } // namespace presyn
