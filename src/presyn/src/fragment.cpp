@@ -32,8 +32,7 @@ bool hole::accepts() const { return true; }
  * block with a jump to the exit, then returns that new block as the fragment
  * entry.
  */
-llvm::BasicBlock*
-hole::compile(sketch_context const&, llvm::BasicBlock* exit) const
+llvm::BasicBlock* hole::compile(sketch_context&, llvm::BasicBlock* exit) const
 {
   auto frag_entry = BasicBlock::Create(
       thread_context::get(), "hole", exit->getParent(), exit);
@@ -62,8 +61,7 @@ bool empty::accepts() const { return false; }
  * block with a jump to the exit, then returns that new block as the fragment
  * entry.
  */
-llvm::BasicBlock*
-empty::compile(sketch_context const&, llvm::BasicBlock* exit) const
+llvm::BasicBlock* empty::compile(sketch_context&, llvm::BasicBlock* exit) const
 {
   auto frag_entry = BasicBlock::Create(
       thread_context::get(), "empty", exit->getParent(), exit);
@@ -95,7 +93,7 @@ std::unique_ptr<fragment> linear::compose(std::unique_ptr<fragment>&& other)
 bool linear::accepts() const { return false; }
 
 llvm::BasicBlock*
-linear::compile(sketch_context const&, llvm::BasicBlock* exit) const
+linear::compile(sketch_context& ctx, llvm::BasicBlock* exit) const
 {
   auto frag_entry = BasicBlock::Create(
       thread_context::get(), "linear", exit->getParent(), exit);
@@ -104,8 +102,7 @@ linear::compile(sketch_context const&, llvm::BasicBlock* exit) const
 
   if (auto const_param = dynamic_cast<constant_int*>(instructions_.get())) {
     for (int i = 0; i < const_param->value(); ++i) {
-      // TODO
-      // Create stub and make a call to it
+      build.CreateCall(ctx.stub());
     }
   }
 
@@ -139,7 +136,7 @@ bool seq::accepts() const
 }
 
 llvm::BasicBlock*
-seq::compile(sketch_context const& ctx, llvm::BasicBlock* exit) const
+seq::compile(sketch_context& ctx, llvm::BasicBlock* exit) const
 {
   auto second_entry = second_->compile(ctx, exit);
   return first_->compile(ctx, second_entry);
@@ -165,7 +162,7 @@ std::unique_ptr<fragment> loop::compose(std::unique_ptr<fragment>&& other)
 
 bool loop::accepts() const { return body_->accepts(); }
 
-llvm::BasicBlock* loop::compile(sketch_context const&, llvm::BasicBlock*) const
+llvm::BasicBlock* loop::compile(sketch_context&, llvm::BasicBlock*) const
 {
   unimplemented();
 }
@@ -198,7 +195,7 @@ delimiter_loop::compose(std::unique_ptr<fragment>&& other)
 bool delimiter_loop::accepts() const { return body_->accepts(); }
 
 llvm::BasicBlock*
-delimiter_loop::compile(sketch_context const&, llvm::BasicBlock*) const
+delimiter_loop::compile(sketch_context&, llvm::BasicBlock*) const
 {
   unimplemented();
 }
@@ -231,8 +228,7 @@ std::unique_ptr<fragment> fixed_loop::compose(std::unique_ptr<fragment>&& other)
 
 bool fixed_loop::accepts() const { return body_->accepts(); }
 
-llvm::BasicBlock*
-fixed_loop::compile(sketch_context const&, llvm::BasicBlock*) const
+llvm::BasicBlock* fixed_loop::compile(sketch_context&, llvm::BasicBlock*) const
 {
   unimplemented();
 }
@@ -257,7 +253,7 @@ std::unique_ptr<fragment> if_::compose(std::unique_ptr<fragment>&& other)
 
 bool if_::accepts() const { return body_->accepts(); }
 
-llvm::BasicBlock* if_::compile(sketch_context const&, llvm::BasicBlock*) const
+llvm::BasicBlock* if_::compile(sketch_context&, llvm::BasicBlock*) const
 {
   unimplemented();
 }
@@ -286,8 +282,7 @@ bool if_else::accepts() const
   return body_->accepts() || else_body_->accepts();
 }
 
-llvm::BasicBlock*
-if_else::compile(sketch_context const&, llvm::BasicBlock*) const
+llvm::BasicBlock* if_else::compile(sketch_context&, llvm::BasicBlock*) const
 {
   unimplemented();
 }
@@ -318,8 +313,7 @@ std::unique_ptr<fragment> affine::compose(std::unique_ptr<fragment>&& other)
 
 bool affine::accepts() const { return body_->accepts(); }
 
-llvm::BasicBlock*
-affine::compile(sketch_context const&, llvm::BasicBlock*) const
+llvm::BasicBlock* affine::compile(sketch_context&, llvm::BasicBlock*) const
 {
   unimplemented();
 }
@@ -350,7 +344,7 @@ std::unique_ptr<fragment> index::compose(std::unique_ptr<fragment>&& other)
 
 bool index::accepts() const { return body_->accepts(); }
 
-llvm::BasicBlock* index::compile(sketch_context const&, llvm::BasicBlock*) const
+llvm::BasicBlock* index::compile(sketch_context&, llvm::BasicBlock*) const
 {
   unimplemented();
 }

@@ -114,7 +114,7 @@ public:
    * will compile such that its first fragment executes, then the second).
    */
   [[nodiscard]] virtual llvm::BasicBlock*
-  compile(sketch_context const&, llvm::BasicBlock*) const = 0;
+  compile(sketch_context&, llvm::BasicBlock*) const = 0;
 
   /**
    * Compilation logic not yet implemented until the core of the actual
@@ -159,7 +159,7 @@ public:
   bool accepts() const override;
 
   [[nodiscard]] llvm::BasicBlock*
-  compile(sketch_context const&, llvm::BasicBlock*) const override;
+  compile(sketch_context&, llvm::BasicBlock*) const override;
 
   std::string to_string() const override;
 };
@@ -181,7 +181,7 @@ public:
   bool accepts() const override;
 
   [[nodiscard]] llvm::BasicBlock*
-  compile(sketch_context const&, llvm::BasicBlock*) const override;
+  compile(sketch_context&, llvm::BasicBlock*) const override;
 
   std::string to_string() const override;
 };
@@ -211,7 +211,7 @@ public:
   bool accepts() const override;
 
   [[nodiscard]] llvm::BasicBlock*
-  compile(sketch_context const&, llvm::BasicBlock*) const override;
+  compile(sketch_context&, llvm::BasicBlock*) const override;
 
   std::string to_string() const override;
 
@@ -241,7 +241,7 @@ public:
   bool accepts() const override;
 
   [[nodiscard]] llvm::BasicBlock*
-  compile(sketch_context const&, llvm::BasicBlock*) const override;
+  compile(sketch_context&, llvm::BasicBlock*) const override;
 
   std::string to_string() const override;
 
@@ -271,7 +271,7 @@ public:
   bool accepts() const override;
 
   [[nodiscard]] llvm::BasicBlock*
-  compile(sketch_context const&, llvm::BasicBlock*) const override;
+  compile(sketch_context&, llvm::BasicBlock*) const override;
 
   std::string to_string() const override;
 
@@ -298,7 +298,7 @@ public:
   bool accepts() const override;
 
   [[nodiscard]] llvm::BasicBlock*
-  compile(sketch_context const&, llvm::BasicBlock*) const override;
+  compile(sketch_context&, llvm::BasicBlock*) const override;
 
   std::string to_string() const override;
 
@@ -325,7 +325,7 @@ public:
   bool accepts() const override;
 
   [[nodiscard]] llvm::BasicBlock*
-  compile(sketch_context const&, llvm::BasicBlock*) const override;
+  compile(sketch_context&, llvm::BasicBlock*) const override;
 
   std::string to_string() const override;
 
@@ -352,7 +352,7 @@ public:
   std::string to_string() const override;
 
   [[nodiscard]] llvm::BasicBlock*
-  compile(sketch_context const&, llvm::BasicBlock*) const override;
+  compile(sketch_context&, llvm::BasicBlock*) const override;
 
 private:
   std::unique_ptr<fragment> body_;
@@ -373,7 +373,7 @@ public:
   bool accepts() const override;
 
   [[nodiscard]] llvm::BasicBlock*
-  compile(sketch_context const&, llvm::BasicBlock*) const override;
+  compile(sketch_context&, llvm::BasicBlock*) const override;
 
   std::string to_string() const override;
 
@@ -400,7 +400,7 @@ public:
   bool accepts() const override;
 
   [[nodiscard]] llvm::BasicBlock*
-  compile(sketch_context const&, llvm::BasicBlock*) const override;
+  compile(sketch_context&, llvm::BasicBlock*) const override;
 
   std::string to_string() const override;
 
@@ -426,7 +426,7 @@ public:
   bool accepts() const override;
 
   [[nodiscard]] llvm::BasicBlock*
-  compile(sketch_context const&, llvm::BasicBlock*) const override;
+  compile(sketch_context&, llvm::BasicBlock*) const override;
 
   std::string to_string() const override;
 
