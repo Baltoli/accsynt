@@ -4,6 +4,9 @@
 
 #include <llvm/IR/Function.h>
 #include <llvm/IR/Module.h>
+#include <llvm/IR/Type.h>
+
+#include <map>
 
 namespace presyn {
 
@@ -21,11 +24,14 @@ public:
   sketch_context(llvm::Module&, props::signature);
 
   llvm::Function* stub();
-  llvm::Function* stub_for(llvm::Type*);
+  llvm::Function* stub(llvm::Type*);
 
 private:
   llvm::Module& module_;
   props::signature sig_;
+  llvm::Type* opaque_type_;
+
+  std::map<llvm::Type*, llvm::Function*> stubs_;
 };
 
 } // namespace presyn

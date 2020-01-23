@@ -50,7 +50,7 @@ llvm::Value* sketch::create_return_stub(llvm::BasicBlock* exit)
   if (ret_ty->isVoidTy()) {
     return build.CreateRetVoid();
   } else {
-    auto call = build.CreateCall(ctx_.stub_for(ret_ty));
+    auto call = build.CreateCall(ctx_.stub(ret_ty));
     return build.CreateRet(call);
   }
 }
