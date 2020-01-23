@@ -2,6 +2,9 @@
 
 #include <props/props.h>
 
+#include <llvm/IR/Function.h>
+#include <llvm/IR/Module.h>
+
 namespace presyn {
 
 /**
@@ -16,6 +19,9 @@ namespace presyn {
 class sketch_context {
 public:
   sketch_context(llvm::Module&, props::signature);
+
+  llvm::Function* stub();
+  llvm::Function* stub_for(llvm::Type*);
 
 private:
   llvm::Module& module_;
