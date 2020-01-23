@@ -8,6 +8,7 @@
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/Function.h>
+#include <llvm/IR/Instructions.h>
 
 using namespace support;
 using namespace llvm;
@@ -21,25 +22,28 @@ sketch_context::sketch_context(Module& mod, props::signature sig)
 {
 }
 
-llvm::Function* sketch_context::stub() { return stub(opaque_type_); }
+llvm::CallInst* sketch_context::stub() { return stub(opaque_type_); }
 
-llvm::Function* sketch_context::stub(llvm::Type* ty)
+llvm::CallInst* sketch_context::stub(llvm::Type* ty)
 {
+  auto func_type = FunctionType::get(ty, true);
+
   if (stubs_.find(ty) == stubs_.end()) {
-    auto func_type = FunctionType::get(ty, true);
     auto func = Function::Create(
-        func_type, GlobalValue::InternalLinkage, "stub", module_);
+        func_type, GlobalValue::InternalLinkage, "stub_func", module_);
 
     stubs_[ty] = func;
   }
 
-  return stubs_[ty];
+  return CallInst::Create(func_type, stubs_[ty], "stub");
 }
 
-llvm::Function* sketch_context::stub(std::string const& name)
+llvm::CallInst* sketch_context::stub(std::string const& name)
 {
   auto const_name = constant_name(name);
   auto func = stub();
+
+  unimplemented();
 }
 
 llvm::Constant* sketch_context::constant_name(std::string const& name)

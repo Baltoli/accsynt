@@ -25,9 +25,9 @@ class sketch_context {
 public:
   sketch_context(llvm::Module&, props::signature);
 
-  llvm::Function* stub();
-  llvm::Function* stub(llvm::Type*);
-  llvm::Function* stub(std::string const&);
+  llvm::CallInst* stub();
+  llvm::CallInst* stub(llvm::Type*);
+  llvm::CallInst* stub(std::string const&);
 
 private:
   llvm::Constant* constant_name(std::string const&);
