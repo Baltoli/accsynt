@@ -9,6 +9,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 namespace presyn {
 
@@ -27,7 +28,12 @@ public:
 
   llvm::CallInst* stub();
   llvm::CallInst* stub(llvm::Type*);
+
+  llvm::CallInst* stub(std::vector<llvm::Value*> const&);
+  llvm::CallInst* stub(llvm::Type*, std::vector<llvm::Value*> const&);
+
   llvm::CallInst* stub(std::string const&);
+  llvm::CallInst* stub(llvm::Type*, std::string const&);
 
 private:
   llvm::Constant* constant_name(std::string const&);

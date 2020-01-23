@@ -22,9 +22,15 @@ sketch_context::sketch_context(Module& mod, props::signature sig)
 {
 }
 
-llvm::CallInst* sketch_context::stub() { return stub(opaque_type_); }
+CallInst* sketch_context::stub() { return stub(opaque_type_); }
 
-llvm::CallInst* sketch_context::stub(llvm::Type* ty)
+CallInst* sketch_context::stub(llvm::Type* ty)
+{
+  return stub(ty, std::vector<llvm::Value*>{});
+}
+
+CallInst*
+sketch_context::stub(llvm::Type* ty, std::vector<llvm::Value*> const& args)
 {
   auto func_type = FunctionType::get(ty, true);
 
@@ -35,18 +41,21 @@ llvm::CallInst* sketch_context::stub(llvm::Type* ty)
     stubs_[ty] = func;
   }
 
-  return CallInst::Create(func_type, stubs_[ty], "stub");
+  return CallInst::Create(func_type, stubs_[ty], args, "stub");
 }
 
-llvm::CallInst* sketch_context::stub(std::string const& name)
+CallInst* sketch_context::stub(std::string const& name)
+{
+  return stub(opaque_type_, name);
+}
+
+CallInst* sketch_context::stub(llvm::Type* ty, std::string const& name)
 {
   auto const_name = constant_name(name);
-  auto func = stub();
-
-  unimplemented();
+  return stub(ty, {const_name});
 }
 
-llvm::Constant* sketch_context::constant_name(std::string const& name)
+Constant* sketch_context::constant_name(std::string const& name)
 {
   if (names_.find(name) == names_.end()) {
     auto char_ty = IntegerType::get(module_.getContext(), 8);
