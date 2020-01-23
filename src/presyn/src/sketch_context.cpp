@@ -36,7 +36,7 @@ sketch_context::stub(llvm::Type* ty, std::vector<llvm::Value*> const& args)
 
   if (stubs_.find(ty) == stubs_.end()) {
     auto func = Function::Create(
-        func_type, GlobalValue::InternalLinkage, "stub_func", module_);
+        func_type, GlobalValue::ExternalLinkage, "stub_func", module_);
 
     stubs_[ty] = func;
   }
