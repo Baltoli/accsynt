@@ -59,6 +59,9 @@ public:
    * compilation.
    */
   llvm::CallInst*
+  operation(std::string const&, llvm::Type*, std::vector<llvm::Value*> const&);
+
+  llvm::CallInst*
   operation(std::string const&, std::vector<llvm::Value*> const&);
 
 private:
@@ -70,7 +73,7 @@ private:
 
   std::map<llvm::Type*, llvm::Function*> stubs_;
   std::map<std::string, llvm::Constant*> names_;
-  std::map<std::string, llvm::Function*> ops_;
+  std::map<std::pair<std::string, llvm::Type*>, llvm::Function*> ops_;
 };
 
 } // namespace presyn

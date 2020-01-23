@@ -76,18 +76,24 @@ Constant* sketch_context::constant_name(std::string const& name)
 }
 
 llvm::CallInst* sketch_context::operation(
-    std::string const& name, std::vector<llvm::Value*> const& args)
+    std::string const& name, Type* ty, std::vector<llvm::Value*> const& args)
 {
-  auto func_type = FunctionType::get(opaque_type_, true);
+  auto func_type = FunctionType::get(ty, true);
 
-  if (ops_.find(name) == ops_.end()) {
+  if (ops_.find({name, ty}) == ops_.end()) {
     auto prefixed_name = fmt::format("__{}", name);
 
-    ops_[name] = Function::Create(
+    ops_[{name, ty}] = Function::Create(
         func_type, GlobalValue::ExternalLinkage, prefixed_name, module_);
   }
 
-  return CallInst::Create(func_type, ops_[name], args);
+  return CallInst::Create(func_type, ops_[{name, ty}], args);
+}
+
+llvm::CallInst* sketch_context::operation(
+    std::string const& name, std::vector<llvm::Value*> const& args)
+{
+  return operation(name, opaque_type_, args);
 }
 
 } // namespace presyn
