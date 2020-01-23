@@ -209,6 +209,17 @@ llvm::BasicBlock*
 delimiter_loop::compile(sketch_context&, llvm::BasicBlock*) const
 {
   unimplemented();
+  /* auto frag_entry = BasicBlock::Create( */
+  /*     thread_context::get(), "loop", exit->getParent(), exit); */
+
+  /* auto build = IRBuilder(frag_entry); */
+  /* auto cond = ctx.stub(build.getInt1Ty()); */
+  /* build.Insert(cond); */
+
+  /* auto body_entry = body_->compile(ctx, frag_entry); */
+  /* build.CreateCondBr(cond, body_entry, exit); */
+
+  /* return frag_entry; */
 }
 
 std::string delimiter_loop::to_string() const

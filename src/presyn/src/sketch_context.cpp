@@ -5,6 +5,8 @@
 #include <support/assert.h>
 #include <support/thread_context.h>
 
+#include <fmt/format.h>
+
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/Function.h>
@@ -18,7 +20,8 @@ namespace presyn {
 sketch_context::sketch_context(Module& mod, props::signature sig)
     : module_(mod)
     , sig_(sig)
-    , opaque_type_(StructType::create(thread_context::get(), "opaque"))
+    , opaque_type_(PointerType::getUnqual(
+          StructType::create(thread_context::get(), "opaque")))
 {
 }
 
@@ -70,6 +73,21 @@ Constant* sketch_context::constant_name(std::string const& name)
   }
 
   return names_[name];
+}
+
+llvm::CallInst* sketch_context::operation(
+    std::string const& name, std::vector<llvm::Value*> const& args)
+{
+  auto func_type = FunctionType::get(opaque_type_, true);
+
+  if (ops_.find(name) == ops_.end()) {
+    auto prefixed_name = fmt::format("__{}", name);
+
+    ops_[name] = Function::Create(
+        func_type, GlobalValue::ExternalLinkage, prefixed_name, module_);
+  }
+
+  return CallInst::Create(func_type, ops_[name], args);
 }
 
 } // namespace presyn
