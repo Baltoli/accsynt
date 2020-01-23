@@ -14,7 +14,7 @@ namespace presyn {
 
 sketch::sketch(props::signature sig, fragment const& frag)
     : module_("sketch", thread_context::get())
-    , ctx_(sig)
+    , ctx_(module_, sig)
     , stubs_{}
 {
   auto function = sig.create_function(module_);

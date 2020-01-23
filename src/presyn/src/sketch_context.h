@@ -15,9 +15,10 @@ namespace presyn {
  */
 class sketch_context {
 public:
-  sketch_context(props::signature);
+  sketch_context(llvm::Module&, props::signature);
 
 private:
+  llvm::Module& module_;
   props::signature sig_;
 };
 
