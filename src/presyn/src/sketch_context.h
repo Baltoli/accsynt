@@ -2,11 +2,13 @@
 
 #include <props/props.h>
 
+#include <llvm/IR/Constant.h>
 #include <llvm/IR/Function.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Type.h>
 
 #include <map>
+#include <string>
 
 namespace presyn {
 
@@ -25,13 +27,17 @@ public:
 
   llvm::Function* stub();
   llvm::Function* stub(llvm::Type*);
+  llvm::Function* stub(std::string const&);
 
 private:
+  llvm::Constant* constant_name(std::string const&);
+
   llvm::Module& module_;
   props::signature sig_;
   llvm::Type* opaque_type_;
 
   std::map<llvm::Type*, llvm::Function*> stubs_;
+  std::map<std::string, llvm::Constant*> names_;
 };
 
 } // namespace presyn

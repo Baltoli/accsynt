@@ -103,6 +103,7 @@ linear::compile(sketch_context& ctx, llvm::BasicBlock* exit) const
   if (auto const_param = dynamic_cast<constant_int*>(instructions_.get())) {
     for (int i = 0; i < const_param->value(); ++i) {
       build.CreateCall(ctx.stub());
+      /* build.CreateCall(ctx.stub("wf")); */
     }
   }
 
