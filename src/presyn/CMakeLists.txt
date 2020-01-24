@@ -1,5 +1,4 @@
 add_library(corepresyn
-  src/stub.cpp
   src/parameter.cpp
   src/fragment.cpp
   src/fragment_parse.cpp
@@ -9,6 +8,9 @@ add_library(corepresyn
 
 add_executable(presyn
   src/main.cpp)
+
+add_executable(presyn-repl
+  src/repl.cpp)
 
 target_link_libraries(corepresyn
   CONAN_PKG::fmt
@@ -20,6 +22,9 @@ target_link_libraries(corepresyn
 target_link_filesystem(corepresyn)
 
 target_link_libraries(presyn
+  corepresyn)
+
+target_link_libraries(presyn-repl
   corepresyn)
 
 add_executable(presyn_unit
