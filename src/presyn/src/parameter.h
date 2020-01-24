@@ -68,6 +68,7 @@ public:
   llvm::Type* type() const override;
   llvm::Value* get() const override;
 
+  std::string name() const { return name_; }
   std::string to_string() const override;
 
 private:

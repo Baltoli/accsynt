@@ -206,20 +206,34 @@ delimiter_loop::compose(std::unique_ptr<fragment>&& other)
 bool delimiter_loop::accepts() const { return body_->accepts(); }
 
 llvm::BasicBlock*
-delimiter_loop::compile(sketch_context&, llvm::BasicBlock*) const
+delimiter_loop::compile(sketch_context& ctx, llvm::BasicBlock* exit) const
 {
-  unimplemented();
-  /* auto frag_entry = BasicBlock::Create( */
-  /*     thread_context::get(), "loop", exit->getParent(), exit); */
+  auto header = BasicBlock::Create(
+      thread_context::get(), "delim.header", exit->getParent());
 
-  /* auto build = IRBuilder(frag_entry); */
-  /* auto cond = ctx.stub(build.getInt1Ty()); */
-  /* build.Insert(cond); */
+  auto entry = BasicBlock::Create(
+      thread_context::get(), "delim.entry", exit->getParent(), header);
 
-  /* auto body_entry = body_->compile(ctx, frag_entry); */
-  /* build.CreateCondBr(cond, body_entry, exit); */
+  auto build = IRBuilder(entry);
+  auto name = static_cast<named*>(pointer_.get())->name();
+  auto initial_ptr = build.Insert(ctx.stub(name), "delim.initial");
+  build.CreateBr(header);
 
-  /* return frag_entry; */
+  build.SetInsertPoint(header);
+  auto phi = build.CreatePHI(initial_ptr->getType(), 2, "delim.ptr");
+  phi->addIncoming(initial_ptr, entry);
+
+  auto value = build.Insert(ctx.operation("load", {phi}), "delim.value");
+  auto next_ptr = build.Insert(ctx.operation("inc", {phi}), "delim.next");
+  phi->addIncoming(next_ptr, header);
+
+  auto comp = build.Insert(ctx.stub(value->getType()), "delim.compare");
+  auto cond = build.Insert(
+      ctx.operation("eq", build.getInt1Ty(), {value, comp}), "delim.cond");
+
+  build.CreateCondBr(cond, exit, header);
+
+  return entry;
 }
 
 std::string delimiter_loop::to_string() const

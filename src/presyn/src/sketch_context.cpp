@@ -29,7 +29,7 @@ CallInst* sketch_context::stub() { return stub(opaque_type_); }
 
 CallInst* sketch_context::stub(llvm::Type* ty)
 {
-  return stub(ty, std::vector<llvm::Value*>{});
+  return stub(ty, std::vector<llvm::Value*> {});
 }
 
 CallInst*
@@ -39,7 +39,7 @@ sketch_context::stub(llvm::Type* ty, std::vector<llvm::Value*> const& args)
 
   if (stubs_.find(ty) == stubs_.end()) {
     auto func = Function::Create(
-        func_type, GlobalValue::ExternalLinkage, "stub_func", module_);
+        func_type, GlobalValue::ExternalLinkage, "stub", module_);
 
     stubs_[ty] = func;
   }
