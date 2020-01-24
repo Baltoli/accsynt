@@ -270,55 +270,54 @@ bool fixed_loop::accepts() const { return body_->accepts(); }
 llvm::BasicBlock*
 fixed_loop::compile(sketch_context& ctx, llvm::BasicBlock* exit) const
 {
-  unimplemented();
-  /* auto header = BasicBlock::Create( */
-  /*     thread_context::get(), "fixed.header", exit->getParent()); */
+  auto header = BasicBlock::Create(
+      thread_context::get(), "fixed.header", exit->getParent());
 
-  /* auto pre_header = BasicBlock::Create( */
-  /*     thread_context::get(), "fixed.pre-header", exit->getParent(), header);
-   */
+  auto pre_header = BasicBlock::Create(
+      thread_context::get(), "fixed.pre-header", exit->getParent(), header);
 
-  /* auto entry = BasicBlock::Create( */
-  /*     thread_context::get(), "fixed.entry", exit->getParent(), pre_header);
-   */
+  auto entry = BasicBlock::Create(
+      thread_context::get(), "fixed.entry", exit->getParent(), pre_header);
 
-  /* auto tail = BasicBlock::Create( */
-  /*     thread_context::get(), "fixed.tail", exit->getParent()); */
+  auto tail = BasicBlock::Create(
+      thread_context::get(), "fixed.tail", exit->getParent());
 
-  /* auto build = IRBuilder(entry); */
-  /* auto init_idx = build.getInt64(0); */
-  /* build.CreateBr(pre_header); */
+  auto build = IRBuilder(entry);
+  auto init_idx = build.getInt64(0);
+  build.CreateBr(pre_header);
 
-  /* Value* final_idx = nullptr; */
-  /* if (auto cst_ptr = dynamic_cast<constant_int*>(size_.get())) { */
-  /*   final_idx = build.getInt64(cst_ptr->value()); */
-  /* } else if (auto named_ptr = dynamic_cast<named*>(size_.get())) { */
-  /*   final_idx = build.Insert(ctx.stub(build.getInt64Ty(),
-   * named_ptr->name())); */
-  /* } */
-  /* assertion(final_idx != nullptr, "Should be able to get an index"); */
+  Value* final_idx = nullptr;
+  if (auto cst_ptr = dynamic_cast<constant_int*>(size_.get())) {
+    final_idx = build.getInt64(cst_ptr->value());
+  } else if (auto named_ptr = dynamic_cast<named*>(size_.get())) {
+    final_idx = build.Insert(
+        ctx.stub(build.getInt64Ty(), named_ptr->name()), "fixed.upper");
+  }
+  assertion(final_idx != nullptr, "Should be able to get an index");
 
-  /* build.SetInsertPoint(pre_header); */
-  /* auto idx = build.CreatePHI(init_idx->getType(), 2, "fixed.idx"); */
-  /* idx->addIncoming(init_idx, entry); */
-  /* auto cond = build.CreateICmpSLT(idx, final_idx); */
-  /* build.CreateCondBr(cond, header, exit); */
+  build.SetInsertPoint(pre_header);
+  auto idx = build.CreatePHI(init_idx->getType(), 2, "fixed.idx");
+  idx->addIncoming(init_idx, entry);
+  auto cond = build.CreateICmpSLT(idx, final_idx, "fixed.cond");
+  build.CreateCondBr(cond, header, exit);
 
-  /* build.SetInsertPoint(header); */
-  /* auto name = static_cast<named*>(pointer_.get())->name(); */
-  /* auto ptr = build.Insert(ctx.stub(name), "fixed.ptr"); */
-  /* build.Insert(ctx.operation("load", {ptr, idx}), "fixed.value"); */
+  build.SetInsertPoint(header);
+  for (auto const& param : pointers_) {
+    auto name = static_cast<named*>(param.get())->name();
+    auto ptr = build.Insert(ctx.stub(name), "fixed.ptr");
+    build.Insert(ctx.operation("load", {ptr, idx}), "fixed.value");
+  }
 
-  /* auto body_entry = body_->compile(ctx, tail); */
-  /* build.CreateBr(body_entry); */
+  auto body_entry = body_->compile(ctx, tail);
+  build.CreateBr(body_entry);
 
-  /* build.SetInsertPoint(tail); */
-  /* auto next_idx = build.CreateAdd(idx, build.getInt64(1), "fixed.next-idx");
-   */
-  /* idx->addIncoming(next_idx, tail); */
-  /* build.CreateBr(pre_header); */
+  build.SetInsertPoint(tail);
+  auto next_idx = build.CreateAdd(idx, build.getInt64(1), "fixed.next-idx");
 
-  /* return entry; */
+  idx->addIncoming(next_idx, tail);
+  build.CreateBr(pre_header);
+
+  return entry;
 }
 
 std::string fixed_loop::to_string() const
