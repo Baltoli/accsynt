@@ -113,24 +113,6 @@ build_for<delimiter_loop>(grammar::fragment_parse const& parse)
 
 template <>
 std::unique_ptr<fragment>
-build_for<fixed_loop>(grammar::fragment_parse const& parse)
-{
-  assertion(
-      parse.template_args.size() == 2,
-      "Fixed requires exactly two template arguments");
-
-  assertion(
-      std::holds_alternative<std::string>(parse.template_args[0]),
-      "First fixed template arg must be a named parameter");
-
-  assertion(
-      parse.child_args.size() <= 1, "Fixed takes at most 1 child argument");
-
-  return build_from_children<fixed_loop>(parse, 0, 1);
-}
-
-template <>
-std::unique_ptr<fragment>
 build_for<fixed_loop_new>(grammar::fragment_parse const& parse)
 {
   assertion(

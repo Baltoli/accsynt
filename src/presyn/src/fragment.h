@@ -314,27 +314,6 @@ private:
  *
  * Composition is defined as usual.
  */
-class fixed_loop final : public fragment {
-public:
-  fixed_loop(std::string, std::string);
-  fixed_loop(std::unique_ptr<parameter>&&, std::unique_ptr<parameter>&&);
-
-  [[nodiscard]] std::unique_ptr<fragment>
-  compose(std::unique_ptr<fragment>&&) override;
-
-  bool accepts() const override;
-
-  [[nodiscard]] llvm::BasicBlock*
-  compile(sketch_context&, llvm::BasicBlock*) const override;
-
-  std::string to_string() const override;
-
-private:
-  std::unique_ptr<parameter> pointer_;
-  std::unique_ptr<parameter> size_;
-  std::unique_ptr<fragment> body_;
-};
-
 class fixed_loop_new final : public fragment {
 public:
   fixed_loop_new(
