@@ -214,6 +214,9 @@ delimiter_loop::compile(sketch_context& ctx, llvm::BasicBlock* exit) const
   auto entry = BasicBlock::Create(
       thread_context::get(), "delim.entry", exit->getParent(), header);
 
+  auto tail = BasicBlock::Create(
+      thread_context::get(), "delim.tail", exit->getParent());
+
   auto build = IRBuilder(entry);
   auto name = static_cast<named*>(pointer_.get())->name();
   auto initial_ptr = build.Insert(ctx.stub(name), "delim.initial");
@@ -224,14 +227,17 @@ delimiter_loop::compile(sketch_context& ctx, llvm::BasicBlock* exit) const
   phi->addIncoming(initial_ptr, entry);
 
   auto value = build.Insert(ctx.operation("load", {phi}), "delim.value");
-  auto next_ptr = build.Insert(ctx.operation("inc", {phi}), "delim.next");
-  phi->addIncoming(next_ptr, header);
-
   auto comp = build.Insert(ctx.stub(value->getType()), "delim.compare");
   auto cond = build.Insert(
       ctx.operation("eq", build.getInt1Ty(), {value, comp}), "delim.cond");
 
-  build.CreateCondBr(cond, exit, header);
+  auto body_entry = body_->compile(ctx, tail);
+  build.CreateCondBr(cond, exit, body_entry);
+
+  build.SetInsertPoint(tail);
+  auto next_ptr = build.Insert(ctx.operation("inc", {phi}), "delim.next");
+  phi->addIncoming(next_ptr, tail);
+  build.CreateBr(header);
 
   return entry;
 }
