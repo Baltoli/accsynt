@@ -307,7 +307,7 @@ fixed_loop::compile(sketch_context& ctx, llvm::BasicBlock* exit) const
   build.SetInsertPoint(header);
   auto name = static_cast<named*>(pointer_.get())->name();
   auto ptr = build.Insert(ctx.stub(name), "fixed.ptr");
-  auto val = build.Insert(ctx.operation("load", {ptr, idx}), "fixed.value");
+  build.Insert(ctx.operation("load", {ptr, idx}), "fixed.value");
 
   auto body_entry = body_->compile(ctx, tail);
   build.CreateBr(body_entry);
@@ -340,9 +340,19 @@ std::unique_ptr<fragment> if_::compose(std::unique_ptr<fragment>&& other)
 
 bool if_::accepts() const { return body_->accepts(); }
 
-llvm::BasicBlock* if_::compile(sketch_context&, llvm::BasicBlock*) const
+llvm::BasicBlock*
+if_::compile(sketch_context& ctx, llvm::BasicBlock* exit) const
 {
-  unimplemented();
+  auto entry = BasicBlock::Create(
+      thread_context::get(), "if.entry", exit->getParent());
+
+  auto build = IRBuilder(entry);
+  auto body_entry = body_->compile(ctx, exit);
+
+  auto cond = build.Insert(ctx.stub(build.getInt1Ty()));
+  build.CreateCondBr(cond, body_entry, exit);
+
+  return entry;
 }
 
 std::string if_::to_string() const

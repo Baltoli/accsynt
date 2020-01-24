@@ -22,7 +22,7 @@ int main(int argc, char** argv)
   cl::ParseCommandLineOptions(argc, argv);
   /* fmt::print("{}\n", opt::SigFile); */
 
-  auto frag = "fixed<@x,22>(linear<3>)"_frag;
+  auto frag = "if(linear<2>)"_frag;
   auto sig = "void func(float *x)"_sig;
 
   fmt::print("{}\n", *frag);
