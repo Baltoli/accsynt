@@ -1,9 +1,14 @@
 #pragma once
 
 #include "parameter.h"
+#include "sketch_context.h"
 
 #include <support/assert.h>
 #include <support/traits.h>
+
+#include <fmt/format.h>
+
+#include <llvm/IR/BasicBlock.h>
 
 #include <array>
 #include <functional>
@@ -96,6 +101,22 @@ public:
   virtual bool accepts() const = 0;
 
   /**
+   * Fragments represent part of a function sketch. To instantiate a fragment
+   * into real code, the only knowledge required is the sketch context (for
+   * information such as parameter types), and the basic block to direct all
+   * control flow to when this fragment exits.
+   *
+   * Compilation is the primary mechanism by which the behaviour of fragments
+   * can be observed - generally, they're abstract black boxes.
+   *
+   * In most cases, compilation of fragments proceeds recursively into the child
+   * fragments according to the pre-defined semantics of that fragment (e.g. seq
+   * will compile such that its first fragment executes, then the second).
+   */
+  [[nodiscard]] virtual llvm::BasicBlock*
+  compile(sketch_context&, llvm::BasicBlock*) const = 0;
+
+  /**
    * Compilation logic not yet implemented until the core of the actual
    * behaviour is built up.
    */
@@ -125,8 +146,30 @@ protected:
 };
 
 /**
- * An empty fragment will generate no behaviour, and acts as an identity under
+ * A hole fragment generates no behaviour, and will accept any fragment for
  * composition.
+ */
+class hole final : public fragment {
+public:
+  hole() = default;
+
+  [[nodiscard]] std::unique_ptr<fragment>
+  compose(std::unique_ptr<fragment>&&) override;
+
+  bool accepts() const override;
+
+  [[nodiscard]] llvm::BasicBlock*
+  compile(sketch_context&, llvm::BasicBlock*) const override;
+
+  std::string to_string() const override;
+};
+
+/**
+ * An empty fragment will generate no behaviour, and acts as an eliminator under
+ * composition.
+ *
+ * This is semantically different from a hole - empty acts as a placeholder to
+ * denote "no composition", while holes are the building blocks.
  */
 class empty final : public fragment {
 public:
@@ -136,6 +179,9 @@ public:
   compose(std::unique_ptr<fragment>&&) override;
 
   bool accepts() const override;
+
+  [[nodiscard]] llvm::BasicBlock*
+  compile(sketch_context&, llvm::BasicBlock*) const override;
 
   std::string to_string() const override;
 };
@@ -164,6 +210,9 @@ public:
 
   bool accepts() const override;
 
+  [[nodiscard]] llvm::BasicBlock*
+  compile(sketch_context&, llvm::BasicBlock*) const override;
+
   std::string to_string() const override;
 
 private:
@@ -190,6 +239,9 @@ public:
   compose(std::unique_ptr<fragment>&&) override;
 
   bool accepts() const override;
+
+  [[nodiscard]] llvm::BasicBlock*
+  compile(sketch_context&, llvm::BasicBlock*) const override;
 
   std::string to_string() const override;
 
@@ -218,6 +270,9 @@ public:
 
   bool accepts() const override;
 
+  [[nodiscard]] llvm::BasicBlock*
+  compile(sketch_context&, llvm::BasicBlock*) const override;
+
   std::string to_string() const override;
 
 private:
@@ -241,6 +296,9 @@ public:
   compose(std::unique_ptr<fragment>&&) override;
 
   bool accepts() const override;
+
+  [[nodiscard]] llvm::BasicBlock*
+  compile(sketch_context&, llvm::BasicBlock*) const override;
 
   std::string to_string() const override;
 
@@ -266,6 +324,9 @@ public:
 
   bool accepts() const override;
 
+  [[nodiscard]] llvm::BasicBlock*
+  compile(sketch_context&, llvm::BasicBlock*) const override;
+
   std::string to_string() const override;
 
 private:
@@ -290,6 +351,9 @@ public:
 
   std::string to_string() const override;
 
+  [[nodiscard]] llvm::BasicBlock*
+  compile(sketch_context&, llvm::BasicBlock*) const override;
+
 private:
   std::unique_ptr<fragment> body_;
 };
@@ -307,6 +371,9 @@ public:
   compose(std::unique_ptr<fragment>&&) override;
 
   bool accepts() const override;
+
+  [[nodiscard]] llvm::BasicBlock*
+  compile(sketch_context&, llvm::BasicBlock*) const override;
 
   std::string to_string() const override;
 
@@ -332,6 +399,9 @@ public:
 
   bool accepts() const override;
 
+  [[nodiscard]] llvm::BasicBlock*
+  compile(sketch_context&, llvm::BasicBlock*) const override;
+
   std::string to_string() const override;
 
 private:
@@ -354,6 +424,9 @@ public:
   compose(std::unique_ptr<fragment>&&) override;
 
   bool accepts() const override;
+
+  [[nodiscard]] llvm::BasicBlock*
+  compile(sketch_context&, llvm::BasicBlock*) const override;
 
   std::string to_string() const override;
 
@@ -412,3 +485,18 @@ std::unique_ptr<fragment> operator""_frag(const char* str, size_t len);
 } // namespace literals
 
 } // namespace presyn
+
+template <>
+struct fmt::formatter<presyn::fragment> {
+  template <typename ParseContext>
+  constexpr auto parse(ParseContext& ctx)
+  {
+    return ctx.begin();
+  }
+
+  template <typename FormatContext>
+  auto format(presyn::fragment const& frag, FormatContext& ctx)
+  {
+    return format_to(ctx.out(), "{}", frag.to_string());
+  }
+};

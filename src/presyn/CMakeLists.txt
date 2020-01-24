@@ -1,7 +1,10 @@
 add_library(corepresyn
+  src/stub.cpp
   src/parameter.cpp
   src/fragment.cpp
   src/fragment_parse.cpp
+  src/sketch.cpp
+  src/sketch_context.cpp
   src/options.cpp)
 
 add_executable(presyn
@@ -11,6 +14,7 @@ target_link_libraries(corepresyn
   CONAN_PKG::fmt
   CONAN_PKG::pegtl
   support
+  props
   ${llvm_libs})
 
 target_link_filesystem(corepresyn)
@@ -21,6 +25,7 @@ target_link_libraries(presyn
 add_executable(presyn_unit
   test/fragment.cpp
   test/parsing.cpp
+  test/regression.cpp
   test/main.cpp)
 
 target_link_libraries(presyn_unit

@@ -13,7 +13,7 @@ std::unique_ptr<parameter> make_param(grammar::template_arg_state ta)
   using ret_t = std::unique_ptr<parameter>;
 
   return std::visit(
-      support::visitor {
+      support::visitor{
           [](int i) -> ret_t { return std::make_unique<constant_int>(i); },
           [](std::string s) -> ret_t { return std::make_unique<named>(s); }},
       ta);
@@ -53,6 +53,15 @@ build_for<linear>(grammar::fragment_parse const& parse)
   assertion(parse.child_args.empty(), "Linear takes no child arguments");
 
   return build_from_children<linear>(parse, 0);
+}
+
+template <>
+std::unique_ptr<fragment> build_for<hole>(grammar::fragment_parse const& parse)
+{
+  assertion(parse.template_args.empty(), "Hole takes no template arguments");
+  assertion(parse.child_args.empty(), "Hole takes no child arguments");
+
+  return build_from_children<hole>(parse);
 }
 
 template <>
@@ -177,7 +186,9 @@ std::unique_ptr<fragment> build_for<index>(grammar::fragment_parse const& parse)
 
 std::unique_ptr<fragment> build(grammar::fragment_parse const& parse)
 {
-  if (parse.name == "linear") {
+  if (parse.name == "hole") {
+    return build_for<hole>(parse);
+  } else if (parse.name == "linear") {
     return build_for<linear>(parse);
   } else if (parse.name == "empty") {
     return build_for<empty>(parse);
@@ -204,7 +215,7 @@ std::unique_ptr<fragment> build(grammar::fragment_parse const& parse)
 
 std::unique_ptr<fragment> fragment::parse(std::string_view str)
 {
-  auto state = grammar::fragment_state {};
+  auto state = grammar::fragment_state{};
 
   tao::pre_tl::parse<must<grammar::fragment, eof>, grammar::fragment_action>(
       memory_input(str.begin(), str.end(), ""), state);

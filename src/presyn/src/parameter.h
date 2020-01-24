@@ -1,9 +1,27 @@
 #pragma once
 
-#include <string>
+#include <fmt/format.h>
 
 #include <llvm/IR/Type.h>
 #include <llvm/IR/Value.h>
+
+#include <string>
+
+/**
+ * FIXME wrong abstractions when using these types
+ *
+ * Their get() methods should be able to take a sketch context, and initialise a
+ * value of the correct type *within that context* using the stub / named stub /
+ * operation methods.
+ *
+ * At the moment caller code is dynamically checking what type is held in a
+ * param*, which works but is definitely not the right way to go about doing
+ * things.
+ *
+ * The params probably don't need to be able to know their underlying type
+ * (because at the time they're being used, we have erased types to be reunified
+ * later in the process).
+ */
 
 namespace presyn {
 
@@ -49,6 +67,8 @@ public:
 
   std::string to_string() const override;
 
+  int value() const { return value_; }
+
 private:
   int value_;
 };
@@ -64,6 +84,7 @@ public:
   llvm::Type* type() const override;
   llvm::Value* get() const override;
 
+  std::string name() const { return name_; }
   std::string to_string() const override;
 
 private:
@@ -72,3 +93,18 @@ private:
 };
 
 } // namespace presyn
+
+template <>
+struct fmt::formatter<presyn::parameter> {
+  template <typename ParseContext>
+  constexpr auto parse(ParseContext& ctx)
+  {
+    return ctx.begin();
+  }
+
+  template <typename FormatContext>
+  auto format(presyn::parameter const& p, FormatContext& ctx)
+  {
+    return format_to(ctx.out(), "{}", p.to_string());
+  }
+};
