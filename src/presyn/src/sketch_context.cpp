@@ -1,7 +1,5 @@
 #include "sketch_context.h"
 
-#include "stub.h"
-
 #include <support/assert.h>
 #include <support/thread_context.h>
 
