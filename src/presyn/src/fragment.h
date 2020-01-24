@@ -314,9 +314,9 @@ private:
  *
  * Composition is defined as usual.
  */
-class fixed_loop_new final : public fragment {
+class fixed_loop final : public fragment {
 public:
-  fixed_loop_new(
+  fixed_loop(
       std::unique_ptr<parameter>&&, std::vector<std::unique_ptr<parameter>>&&);
 
   [[nodiscard]] std::unique_ptr<fragment>

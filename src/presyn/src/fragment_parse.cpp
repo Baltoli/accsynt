@@ -113,7 +113,7 @@ build_for<delimiter_loop>(grammar::fragment_parse const& parse)
 
 template <>
 std::unique_ptr<fragment>
-build_for<fixed_loop_new>(grammar::fragment_parse const& parse)
+build_for<fixed_loop>(grammar::fragment_parse const& parse)
 {
   assertion(
       parse.template_args.size() > 0, "Fixed requires at least one argument");
@@ -138,7 +138,7 @@ build_for<fixed_loop_new>(grammar::fragment_parse const& parse)
   }
 
   std::unique_ptr<fragment> ret
-      = std::make_unique<fixed_loop_new>(std::move(size), std::move(t_args));
+      = std::make_unique<fixed_loop>(std::move(size), std::move(t_args));
 
   for (auto const& c_arg : parse.child_args) {
     ret = ret->compose(build(c_arg));
@@ -217,7 +217,7 @@ std::unique_ptr<fragment> build(grammar::fragment_parse const& parse)
   } else if (parse.name == "delim") {
     return build_for<delimiter_loop>(parse);
   } else if (parse.name == "fixed") {
-    return build_for<fixed_loop_new>(parse);
+    return build_for<fixed_loop>(parse);
   } else if (parse.name == "if") {
     return build_for<if_>(parse);
   } else if (parse.name == "if_else") {

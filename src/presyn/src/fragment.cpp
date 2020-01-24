@@ -251,7 +251,7 @@ std::string delimiter_loop::to_string() const
 
 // Fixed loop
 
-fixed_loop_new::fixed_loop_new(
+fixed_loop::fixed_loop(
     std::unique_ptr<parameter>&& sz,
     std::vector<std::unique_ptr<parameter>>&& ptrs)
     : size_(std::move(sz))
@@ -260,16 +260,15 @@ fixed_loop_new::fixed_loop_new(
 {
 }
 
-std::unique_ptr<fragment>
-fixed_loop_new::compose(std::unique_ptr<fragment>&& other)
+std::unique_ptr<fragment> fixed_loop::compose(std::unique_ptr<fragment>&& other)
 {
-  return compose_generic<fixed_loop_new>(std::move(other), body_);
+  return compose_generic<fixed_loop>(std::move(other), body_);
 }
 
-bool fixed_loop_new::accepts() const { return body_->accepts(); }
+bool fixed_loop::accepts() const { return body_->accepts(); }
 
 llvm::BasicBlock*
-fixed_loop_new::compile(sketch_context& ctx, llvm::BasicBlock* exit) const
+fixed_loop::compile(sketch_context& ctx, llvm::BasicBlock* exit) const
 {
   unimplemented();
   /* auto header = BasicBlock::Create( */
@@ -322,7 +321,7 @@ fixed_loop_new::compile(sketch_context& ctx, llvm::BasicBlock* exit) const
   /* return entry; */
 }
 
-std::string fixed_loop_new::to_string() const
+std::string fixed_loop::to_string() const
 {
   assumes(body_, "Child fragment should not be null");
   if (pointers_.empty()) {
