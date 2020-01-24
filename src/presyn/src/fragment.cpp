@@ -264,9 +264,29 @@ std::unique_ptr<fragment> fixed_loop::compose(std::unique_ptr<fragment>&& other)
 
 bool fixed_loop::accepts() const { return body_->accepts(); }
 
-llvm::BasicBlock* fixed_loop::compile(sketch_context&, llvm::BasicBlock*) const
+llvm::BasicBlock*
+fixed_loop::compile(sketch_context& ctx, llvm::BasicBlock* exit) const
 {
-  unimplemented();
+  auto header = BasicBlock::Create(
+      thread_context::get(), "fixed.header", exit->getParent());
+
+  auto entry = BasicBlock::Create(
+      thread_context::get(), "fixed.entry", exit->getParent(), header);
+
+  auto build = IRBuilder(entry);
+  auto init_idx = build.getInt64(0);
+
+  Value* final_idx = nullptr;
+
+  if (auto cst_ptr = dynamic_cast<constant_int*>(size_.get())) {
+    final_idx = build.getInt64(cst_ptr->value());
+  } else if (auto named_ptr = dynamic_cast<named*>(size_.get())) {
+    final_idx = build.Insert(ctx.stub(build.getInt64Ty(), named_ptr->name()));
+  }
+
+  assertion(final_idx != nullptr, "Should be able to get an index");
+
+  return entry;
 }
 
 std::string fixed_loop::to_string() const

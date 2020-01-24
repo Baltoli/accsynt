@@ -7,6 +7,22 @@
 
 #include <string>
 
+/**
+ * FIXME wrong abstractions when using these types
+ *
+ * Their get() methods should be able to take a sketch context, and initialise a
+ * value of the correct type *within that context* using the stub / named stub /
+ * operation methods.
+ *
+ * At the moment caller code is dynamically checking what type is held in a
+ * param*, which works but is definitely not the right way to go about doing
+ * things.
+ *
+ * The params probably don't need to be able to know their underlying type
+ * (because at the time they're being used, we have erased types to be reunified
+ * later in the process).
+ */
+
 namespace presyn {
 
 /**
