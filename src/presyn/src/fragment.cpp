@@ -226,7 +226,8 @@ delimiter_loop::compile(sketch_context& ctx, llvm::BasicBlock* exit) const
   auto phi = build.CreatePHI(initial_ptr->getType(), 2, "delim.ptr");
   phi->addIncoming(initial_ptr, entry);
 
-  auto value = build.Insert(ctx.operation("load", {phi}), "delim.value");
+  auto value = build.Insert(
+      ctx.operation("load", {phi, build.getInt64(0)}), "delim.value");
   auto comp = build.Insert(ctx.stub(value->getType()), "delim.compare");
   auto cond = build.Insert(
       ctx.operation("eq", build.getInt1Ty(), {value, comp}), "delim.cond");
@@ -276,21 +277,45 @@ fixed_loop::compile(sketch_context& ctx, llvm::BasicBlock* exit) const
   auto header = BasicBlock::Create(
       thread_context::get(), "fixed.header", exit->getParent());
 
+  auto pre_header = BasicBlock::Create(
+      thread_context::get(), "fixed.pre-header", exit->getParent(), header);
+
   auto entry = BasicBlock::Create(
-      thread_context::get(), "fixed.entry", exit->getParent(), header);
+      thread_context::get(), "fixed.entry", exit->getParent(), pre_header);
+
+  auto tail = BasicBlock::Create(
+      thread_context::get(), "fixed.tail", exit->getParent());
 
   auto build = IRBuilder(entry);
   auto init_idx = build.getInt64(0);
+  build.CreateBr(pre_header);
 
   Value* final_idx = nullptr;
-
   if (auto cst_ptr = dynamic_cast<constant_int*>(size_.get())) {
     final_idx = build.getInt64(cst_ptr->value());
   } else if (auto named_ptr = dynamic_cast<named*>(size_.get())) {
     final_idx = build.Insert(ctx.stub(build.getInt64Ty(), named_ptr->name()));
   }
-
   assertion(final_idx != nullptr, "Should be able to get an index");
+
+  build.SetInsertPoint(pre_header);
+  auto idx = build.CreatePHI(init_idx->getType(), 2, "fixed.idx");
+  idx->addIncoming(init_idx, entry);
+  auto cond = build.CreateICmpSLT(idx, final_idx);
+  build.CreateCondBr(cond, header, exit);
+
+  build.SetInsertPoint(header);
+  auto name = static_cast<named*>(pointer_.get())->name();
+  auto ptr = build.Insert(ctx.stub(name), "fixed.ptr");
+  auto val = build.Insert(ctx.operation("load", {ptr, idx}), "fixed.value");
+
+  auto body_entry = body_->compile(ctx, tail);
+  build.CreateBr(body_entry);
+
+  build.SetInsertPoint(tail);
+  auto next_idx = build.CreateAdd(idx, build.getInt64(1), "fixed.next-idx");
+  idx->addIncoming(next_idx, tail);
+  build.CreateBr(pre_header);
 
   return entry;
 }
