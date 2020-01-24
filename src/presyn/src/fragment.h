@@ -335,6 +335,27 @@ private:
   std::unique_ptr<fragment> body_;
 };
 
+class fixed_loop_new final : public fragment {
+public:
+  fixed_loop_new(
+      std::unique_ptr<parameter>&&, std::vector<std::unique_ptr<parameter>>&&);
+
+  [[nodiscard]] std::unique_ptr<fragment>
+  compose(std::unique_ptr<fragment>&&) override;
+
+  bool accepts() const override;
+
+  [[nodiscard]] llvm::BasicBlock*
+  compile(sketch_context&, llvm::BasicBlock*) const override;
+
+  std::string to_string() const override;
+
+private:
+  std::unique_ptr<parameter> size_;
+  std::vector<std::unique_ptr<parameter>> pointers_;
+  std::unique_ptr<fragment> body_;
+};
+
 /**
  * Represents a conditional statement with no else branch:
  *
