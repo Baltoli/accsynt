@@ -13,7 +13,7 @@ std::unique_ptr<parameter> make_param(grammar::template_arg_state ta)
   using ret_t = std::unique_ptr<parameter>;
 
   return std::visit(
-      support::visitor{
+      support::visitor {
           [](int i) -> ret_t { return std::make_unique<constant_int>(i); },
           [](std::string s) -> ret_t { return std::make_unique<named>(s); }},
       ta);
@@ -130,6 +130,42 @@ build_for<fixed_loop>(grammar::fragment_parse const& parse)
 }
 
 template <>
+std::unique_ptr<fragment>
+build_for<fixed_loop_new>(grammar::fragment_parse const& parse)
+{
+  assertion(
+      parse.template_args.size() > 0, "Fixed requires at least one argument");
+
+  assertion(
+      parse.child_args.size() <= 1, "Fixed takes at most 1 child argument");
+
+  for (int i = 1; i < parse.template_args.size(); ++i) {
+    assertion(
+        std::holds_alternative<std::string>(parse.template_args[i]),
+        "Pointer arguments to fixed loop must be named");
+  }
+
+  auto size = std::unique_ptr<parameter>();
+  auto t_args = std::vector<std::unique_ptr<parameter>> {};
+  for (auto const& t_arg : parse.template_args) {
+    if (!size) {
+      size = make_param(t_arg);
+    } else {
+      t_args.emplace_back(make_param(t_arg));
+    }
+  }
+
+  std::unique_ptr<fragment> ret
+      = std::make_unique<fixed_loop_new>(std::move(size), std::move(t_args));
+
+  for (auto const& c_arg : parse.child_args) {
+    ret = ret->compose(build(c_arg));
+  }
+
+  return ret;
+}
+
+template <>
 std::unique_ptr<fragment> build_for<if_>(grammar::fragment_parse const& parse)
 {
   assertion(parse.template_args.empty(), "If takes no template arguments");
@@ -199,7 +235,7 @@ std::unique_ptr<fragment> build(grammar::fragment_parse const& parse)
   } else if (parse.name == "delim") {
     return build_for<delimiter_loop>(parse);
   } else if (parse.name == "fixed") {
-    return build_for<fixed_loop>(parse);
+    return build_for<fixed_loop_new>(parse);
   } else if (parse.name == "if") {
     return build_for<if_>(parse);
   } else if (parse.name == "if_else") {
@@ -215,7 +251,7 @@ std::unique_ptr<fragment> build(grammar::fragment_parse const& parse)
 
 std::unique_ptr<fragment> fragment::parse(std::string_view str)
 {
-  auto state = grammar::fragment_state{};
+  auto state = grammar::fragment_state {};
 
   tao::pre_tl::parse<must<grammar::fragment, eof>, grammar::fragment_action>(
       memory_input(str.begin(), str.end(), ""), state);
