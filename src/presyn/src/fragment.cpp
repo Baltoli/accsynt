@@ -435,9 +435,9 @@ affine::compile(sketch_context& ctx, llvm::BasicBlock* exit) const
   auto name = static_cast<named*>(pointer_.get())->name();
   auto ptr = build.Insert(ctx.stub(name), "affine.ptr");
 
-  auto value = build.Insert(ctx.operation("load", {ptr, idx}), "affine.value");
-  build.CreateBr(exit);
+  build.Insert(ctx.operation("load", {ptr, idx}), "affine.value");
 
+  build.CreateBr(body_->compile(ctx, exit));
   return entry;
 }
 
@@ -481,9 +481,9 @@ index::compile(sketch_context& ctx, llvm::BasicBlock* exit) const
   auto name = static_cast<named*>(pointer_.get())->name();
   auto ptr = build.Insert(ctx.stub(name), "index.ptr");
 
-  auto value = build.Insert(ctx.operation("load", {ptr, idx}), "index.value");
-  build.CreateBr(exit);
+  build.Insert(ctx.operation("load", {ptr, idx}), "index.value");
 
+  build.CreateBr(body_->compile(ctx, exit));
   return entry;
 }
 

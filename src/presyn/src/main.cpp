@@ -22,7 +22,7 @@ int main(int argc, char** argv)
   cl::ParseCommandLineOptions(argc, argv);
   /* fmt::print("{}\n", opt::SigFile); */
 
-  auto frag = "affine<@x>(linear<2>)"_frag;
+  auto frag = "affine<@x>(index<@abc_123_def>())"_frag;
   auto sig = "void func(float *x)"_sig;
 
   fmt::print("{}\n", *frag);
