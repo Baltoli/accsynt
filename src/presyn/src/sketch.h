@@ -1,5 +1,6 @@
 #pragma once
 
+#include "candidate.h"
 #include "fragment.h"
 
 #include <props/props.h>
