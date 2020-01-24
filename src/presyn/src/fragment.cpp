@@ -421,9 +421,24 @@ std::unique_ptr<fragment> affine::compose(std::unique_ptr<fragment>&& other)
 
 bool affine::accepts() const { return body_->accepts(); }
 
-llvm::BasicBlock* affine::compile(sketch_context&, llvm::BasicBlock*) const
+llvm::BasicBlock*
+affine::compile(sketch_context& ctx, llvm::BasicBlock* exit) const
 {
-  unimplemented();
+  auto entry = BasicBlock::Create(
+      thread_context::get(), "affine.entry", exit->getParent(), exit);
+
+  auto build = IRBuilder(entry);
+
+  auto idx = build.Insert(
+      ctx.operation("affine", build.getInt64Ty(), {}), "affine.idx");
+
+  auto name = static_cast<named*>(pointer_.get())->name();
+  auto ptr = build.Insert(ctx.stub(name), "affine.ptr");
+
+  auto value = build.Insert(ctx.operation("load", {ptr, idx}), "affine.value");
+  build.CreateBr(exit);
+
+  return entry;
 }
 
 std::string affine::to_string() const
@@ -452,9 +467,24 @@ std::unique_ptr<fragment> index::compose(std::unique_ptr<fragment>&& other)
 
 bool index::accepts() const { return body_->accepts(); }
 
-llvm::BasicBlock* index::compile(sketch_context&, llvm::BasicBlock*) const
+llvm::BasicBlock*
+index::compile(sketch_context& ctx, llvm::BasicBlock* exit) const
 {
-  unimplemented();
+  auto entry = BasicBlock::Create(
+      thread_context::get(), "index.entry", exit->getParent(), exit);
+
+  auto build = IRBuilder(entry);
+
+  auto idx = build.Insert(
+      ctx.operation("index", build.getInt64Ty(), {}), "index.idx");
+
+  auto name = static_cast<named*>(pointer_.get())->name();
+  auto ptr = build.Insert(ctx.stub(name), "index.ptr");
+
+  auto value = build.Insert(ctx.operation("load", {ptr, idx}), "index.value");
+  build.CreateBr(exit);
+
+  return entry;
 }
 
 std::string index::to_string() const
