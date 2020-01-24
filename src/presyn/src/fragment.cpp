@@ -252,15 +252,11 @@ std::string delimiter_loop::to_string() const
 // Fixed loop
 
 fixed_loop::fixed_loop(
-    std::unique_ptr<parameter>&& ptr, std::unique_ptr<parameter>&& sz)
-    : pointer_(std::move(ptr))
-    , size_(std::move(sz))
+    std::unique_ptr<parameter>&& sz,
+    std::vector<std::unique_ptr<parameter>>&& ptrs)
+    : size_(std::move(sz))
+    , pointers_(std::move(ptrs))
     , body_(std::make_unique<hole>())
-{
-}
-
-fixed_loop::fixed_loop(std::string ptr_n, std::string sz_n)
-    : fixed_loop(std::make_unique<named>(ptr_n), std::make_unique<named>(sz_n))
 {
 }
 
@@ -294,26 +290,30 @@ fixed_loop::compile(sketch_context& ctx, llvm::BasicBlock* exit) const
   if (auto cst_ptr = dynamic_cast<constant_int*>(size_.get())) {
     final_idx = build.getInt64(cst_ptr->value());
   } else if (auto named_ptr = dynamic_cast<named*>(size_.get())) {
-    final_idx = build.Insert(ctx.stub(build.getInt64Ty(), named_ptr->name()));
+    final_idx = build.Insert(
+        ctx.stub(build.getInt64Ty(), named_ptr->name()), "fixed.upper");
   }
   assertion(final_idx != nullptr, "Should be able to get an index");
 
   build.SetInsertPoint(pre_header);
   auto idx = build.CreatePHI(init_idx->getType(), 2, "fixed.idx");
   idx->addIncoming(init_idx, entry);
-  auto cond = build.CreateICmpSLT(idx, final_idx);
+  auto cond = build.CreateICmpSLT(idx, final_idx, "fixed.cond");
   build.CreateCondBr(cond, header, exit);
 
   build.SetInsertPoint(header);
-  auto name = static_cast<named*>(pointer_.get())->name();
-  auto ptr = build.Insert(ctx.stub(name), "fixed.ptr");
-  build.Insert(ctx.operation("load", {ptr, idx}), "fixed.value");
+  for (auto const& param : pointers_) {
+    auto name = static_cast<named*>(param.get())->name();
+    auto ptr = build.Insert(ctx.stub(name), "fixed.ptr");
+    build.Insert(ctx.operation("load", {ptr, idx}), "fixed.value");
+  }
 
   auto body_entry = body_->compile(ctx, tail);
   build.CreateBr(body_entry);
 
   build.SetInsertPoint(tail);
   auto next_idx = build.CreateAdd(idx, build.getInt64(1), "fixed.next-idx");
+
   idx->addIncoming(next_idx, tail);
   build.CreateBr(pre_header);
 
@@ -323,7 +323,16 @@ fixed_loop::compile(sketch_context& ctx, llvm::BasicBlock* exit) const
 std::string fixed_loop::to_string() const
 {
   assumes(body_, "Child fragment should not be null");
-  return fmt::format("fixed<{}, {}>({})", *pointer_, *size_, *body_);
+  if (pointers_.empty()) {
+    return fmt::format("fixed<{}>({})", *size_, *body_);
+  } else {
+    auto strs = std::vector<std::string> {};
+    for (auto const& ptr : pointers_) {
+      strs.push_back(fmt::format("{}", *ptr));
+    }
+    return fmt::format(
+        "fixed<{}, {}>({})", *size_, fmt::join(strs, ", "), *body_);
+  }
 }
 
 // If

@@ -316,8 +316,8 @@ private:
  */
 class fixed_loop final : public fragment {
 public:
-  fixed_loop(std::string, std::string);
-  fixed_loop(std::unique_ptr<parameter>&&, std::unique_ptr<parameter>&&);
+  fixed_loop(
+      std::unique_ptr<parameter>&&, std::vector<std::unique_ptr<parameter>>&&);
 
   [[nodiscard]] std::unique_ptr<fragment>
   compose(std::unique_ptr<fragment>&&) override;
@@ -330,8 +330,8 @@ public:
   std::string to_string() const override;
 
 private:
-  std::unique_ptr<parameter> pointer_;
   std::unique_ptr<parameter> size_;
+  std::vector<std::unique_ptr<parameter>> pointers_;
   std::unique_ptr<fragment> body_;
 };
 
