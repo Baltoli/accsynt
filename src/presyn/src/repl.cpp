@@ -1,3 +1,4 @@
+#include "candidate.h"
 #include "fragment.h"
 #include "sketch.h"
 
@@ -33,4 +34,6 @@ int main()
 
   auto sk = sketch(sig, *current_frag);
   fmt::print("\n{}", sk.module());
+
+  auto cand = std::move(sk).reify();
 }

@@ -41,6 +41,8 @@ Module& sketch::module() { return *module_; }
 
 Module const& sketch::module() const { return *module_; }
 
+candidate sketch::reify() && { return candidate(std::move(module_)); }
+
 llvm::Value* sketch::create_return_stub(llvm::BasicBlock* exit)
 {
   auto build = IRBuilder(exit);

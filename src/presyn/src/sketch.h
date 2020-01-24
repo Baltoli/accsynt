@@ -33,6 +33,16 @@ public:
   llvm::Module& module();
   llvm::Module const& module() const;
 
+  /**
+   * Make a candidate out of this sketch.
+   *
+   * This will transfer ownership of the underlying module to the created
+   * candidate so that it can properly interface with the JIT. If you need
+   * another sketch the same as this one, recreate it from the same parameters -
+   * sketch construction is deterministic.
+   */
+  candidate reify() &&;
+
 private:
   llvm::Value* create_return_stub(llvm::BasicBlock*);
 
