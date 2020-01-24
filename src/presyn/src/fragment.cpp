@@ -349,7 +349,7 @@ if_::compile(sketch_context& ctx, llvm::BasicBlock* exit) const
   auto build = IRBuilder(entry);
   auto body_entry = body_->compile(ctx, exit);
 
-  auto cond = build.Insert(ctx.stub(build.getInt1Ty()));
+  auto cond = build.Insert(ctx.stub(build.getInt1Ty()), "if.cond");
   build.CreateCondBr(cond, body_entry, exit);
 
   return entry;
@@ -379,9 +379,20 @@ bool if_else::accepts() const
   return body_->accepts() || else_body_->accepts();
 }
 
-llvm::BasicBlock* if_else::compile(sketch_context&, llvm::BasicBlock*) const
+llvm::BasicBlock*
+if_else::compile(sketch_context& ctx, llvm::BasicBlock* exit) const
 {
-  unimplemented();
+  auto entry = BasicBlock::Create(
+      thread_context::get(), "if-else.entry", exit->getParent());
+
+  auto build = IRBuilder(entry);
+  auto body_entry = body_->compile(ctx, exit);
+  auto else_entry = else_body_->compile(ctx, exit);
+
+  auto cond = build.Insert(ctx.stub(build.getInt1Ty()), "if-else.cond");
+  build.CreateCondBr(cond, body_entry, else_entry);
+
+  return entry;
 }
 
 std::string if_else::to_string() const
