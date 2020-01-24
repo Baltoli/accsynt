@@ -36,7 +36,7 @@ public:
 private:
   llvm::Value* create_return_stub(llvm::BasicBlock*);
 
-  llvm::Module module_;
+  std::unique_ptr<llvm::Module> module_;
   sketch_context ctx_;
 
   std::map<llvm::Type*, llvm::Function*> stubs_;

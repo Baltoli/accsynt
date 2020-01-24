@@ -13,11 +13,11 @@ using namespace llvm;
 namespace presyn {
 
 sketch::sketch(props::signature sig, fragment const& frag)
-    : module_("sketch", thread_context::get())
-    , ctx_(module_, sig)
-    , stubs_{}
+    : module_(std::make_unique<Module>("sketch", thread_context::get()))
+    , ctx_(module(), sig)
+    , stubs_ {}
 {
-  auto function = sig.create_function(module_);
+  auto function = sig.create_function(module());
 
   auto entry
       = BasicBlock::Create(thread_context::get(), "sketch.entry", function);
@@ -37,9 +37,9 @@ sketch::sketch(props::signature sig, std::unique_ptr<fragment> const& frag)
 {
 }
 
-Module& sketch::module() { return module_; }
+Module& sketch::module() { return *module_; }
 
-Module const& sketch::module() const { return module_; }
+Module const& sketch::module() const { return *module_; }
 
 llvm::Value* sketch::create_return_stub(llvm::BasicBlock* exit)
 {
