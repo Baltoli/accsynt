@@ -18,6 +18,9 @@ public:
 
   llvm::Function& function() const;
 
+  llvm::Module& module();
+  llvm::Module const& module() const;
+
 private:
   void resolve_names();
   void choose_values();

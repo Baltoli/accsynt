@@ -33,7 +33,6 @@ int main()
   fmt::print("; sig  = {}\n", sig);
 
   auto sk = sketch(sig, *current_frag);
-  fmt::print("\n{}", sk.module());
 
   auto cand = std::move(sk).reify();
   if (cand.is_valid()) {
@@ -41,4 +40,6 @@ int main()
   } else {
     fmt::print("; Invalid candidate - no execution\n");
   }
+
+  fmt::print("\n{}", cand.module());
 }

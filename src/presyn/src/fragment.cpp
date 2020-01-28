@@ -284,7 +284,6 @@ fixed_loop::compile(sketch_context& ctx, llvm::BasicBlock* exit) const
 
   auto build = IRBuilder(entry);
   auto init_idx = build.getInt64(0);
-  build.CreateBr(pre_header);
 
   Value* final_idx = nullptr;
   if (auto cst_ptr = dynamic_cast<constant_int*>(size_.get())) {
@@ -294,6 +293,8 @@ fixed_loop::compile(sketch_context& ctx, llvm::BasicBlock* exit) const
         ctx.stub(build.getInt64Ty(), named_ptr->name()), "fixed.upper");
   }
   assertion(final_idx != nullptr, "Should be able to get an index");
+
+  build.CreateBr(pre_header);
 
   build.SetInsertPoint(pre_header);
   auto idx = build.CreatePHI(init_idx->getType(), 2, "fixed.idx");

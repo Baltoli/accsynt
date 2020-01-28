@@ -6,6 +6,7 @@
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/Function.h>
+#include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/InstVisitor.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Module.h>
@@ -90,6 +91,9 @@ Function& candidate::function() const
   return *func;
 }
 
+Module& candidate::module() { return *module_; }
+Module const& candidate::module() const { return *module_; }
+
 void candidate::resolve_names()
 {
   // The process for resolving stubbed-out names in the generated sketch is as
@@ -121,6 +125,16 @@ void candidate::resolve_names()
 
   for (auto [stub, val] : replacements) {
     auto conv = converter(val->getType(), stub->getType());
+
+    auto build = IRBuilder(stub);
+    auto call = build.CreateCall(conv, {val}, stub->getName());
+
+    if (call->getType() == stub->getType()) {
+      stub->replaceAllUsesWith(call);
+      stub->eraseFromParent();
+    } else {
+      // TODO: think about how to implement this case efficiently
+    }
   }
 }
 
@@ -192,8 +206,6 @@ llvm::Function* candidate::converter(llvm::Type* from, llvm::Type* to)
         func_ty, GlobalValue::ExternalLinkage, "id", *module_);
 
     auto bb = BasicBlock::Create(module_->getContext(), "entry", func);
-
-    func->dump();
 
     converters_[{from, to}] = func;
   }
