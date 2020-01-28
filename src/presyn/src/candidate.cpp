@@ -3,6 +3,7 @@
 #include <support/assert.h>
 
 #include <llvm/IR/Function.h>
+#include <llvm/IR/InstVisitor.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Module.h>
 
@@ -10,12 +11,68 @@
 
 using namespace llvm;
 
+namespace {
+
+// Generic stub visitor
+
+template <typename Func>
+class stub_visitor : public InstVisitor<stub_visitor<Func>> {
+public:
+  stub_visitor(Func&&);
+
+  void visitCallInst(CallInst const&) const;
+
+private:
+  Func action_;
+};
+
+template <typename Func>
+stub_visitor<Func>::stub_visitor(Func&& f)
+    : action_(std::forward<Func>(f))
+{
+}
+
+template <typename Func>
+void stub_visitor<Func>::visitCallInst(CallInst const& inst) const
+{
+  action_(inst);
+}
+
+// Validation visitor
+
+class is_valid_visitor : public InstVisitor<is_valid_visitor> {
+public:
+  is_valid_visitor() = default;
+
+  bool valid() const;
+
+  void visitCallInst(CallInst const&);
+
+private:
+  bool valid_ = true;
+};
+
+bool is_valid_visitor::valid() const { return valid_; }
+
+void is_valid_visitor::visitCallInst(CallInst const& ci)
+{
+  auto fn = ci.getCalledFunction();
+  if (fn->isDeclaration()) {
+    valid_ = false;
+  }
+}
+
+} // namespace
+
 namespace presyn {
 
 candidate::candidate(props::signature sig, std::unique_ptr<Module>&& mod)
     : signature_(sig)
     , module_(std::move(mod))
 {
+  resolve_names();
+  choose_values();
+  resolve_operators();
 }
 
 Function* candidate::function() const
@@ -23,28 +80,50 @@ Function* candidate::function() const
   return module_->getFunction(signature_.name);
 }
 
+void candidate::resolve_names()
+{
+  // The process for resolving stubbed-out names in the generated sketch is as
+  // follows:
+  //  - for all the call insts in the function, look at their name and argument
+  //    list.
+  //  - if they have a name like 'stub', and their only argument is a constant
+  //    character array, then de-materialize it to a string and look up the
+  //    param with that name in the sig.
+  //  - delete the stub, and replace it with the named argument
+  //
+  //  For all these things we need an instvisitor really - will save writing all
+  //  the loops over and over.
+}
+
+void candidate::choose_values()
+{
+  // After resolving the named stubs in the function, the next step in the
+  // candidate construction process is to select values for all the stubs in the
+  // program.
+  //
+  // Worth noting that this will involve some kind of non-determinism (as random
+  // choices will have to be made), so it's probably worth considering from the
+  // beginning how to get it to be controllable. For a given sketch, the set of
+  // available decisions will always be the same, so we can try to record which
+  // ones are made so that branches / near misses / introspection are possible.
+}
+
+void candidate::resolve_operators()
+{
+  // After values are chosen for the stubbed out values in the function, the
+  // operators can be resolved - this step will involve some thought about the
+  // types of the values being used (as by now we'll know the types).
+}
+
 bool candidate::is_valid() const
 {
-  auto func = function();
-
-  if (func) {
-    // For the function to be valid, all of its basic blocks must contain no
-    // instructions that are call instructions to functions without definitions.
-    return std::all_of(func->begin(), func->end(), [](auto const& bb) {
-      return std::none_of(bb.begin(), bb.end(), [](auto const& inst) {
-        if (auto ci = dyn_cast<CallInst>(&inst)) {
-          auto fn = ci->getCalledFunction();
-          if (fn->isDeclaration()) {
-            return true;
-          }
-        }
-
-        return false;
-      });
-    });
+  if (auto func = function()) {
+    auto vis = is_valid_visitor();
+    vis.visit(*func);
+    return vis.valid();
+  } else {
+    return false;
   }
-
-  return false;
 }
 
 } // namespace presyn

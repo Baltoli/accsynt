@@ -17,6 +17,10 @@ public:
   llvm::Function* function() const;
 
 private:
+  void resolve_names();
+  void choose_values();
+  void resolve_operators();
+
   props::signature signature_;
   std::unique_ptr<llvm::Module> module_;
 };
