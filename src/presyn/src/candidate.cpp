@@ -199,7 +199,7 @@ llvm::Function* candidate::converter(llvm::Type* from, llvm::Type* to)
   if (converters_.find({from, to}) == converters_.end()) {
     auto func_ty = FunctionType::get(to, {from}, false);
     auto func = Function::Create(
-        func_ty, GlobalValue::ExternalLinkage, "id", *module_);
+        func_ty, GlobalValue::InternalLinkage, "id", *module_);
 
     auto bb = BasicBlock::Create(module_->getContext(), "entry", func);
     auto build = IRBuilder(bb);
