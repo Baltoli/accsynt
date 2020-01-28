@@ -6,6 +6,7 @@ add_library(corepresyn
   src/sketch_context.cpp
   src/candidate.cpp
   src/candidate_operations.cpp
+  src/candidate_visitors.cpp
   src/options.cpp)
 
 add_executable(presyn

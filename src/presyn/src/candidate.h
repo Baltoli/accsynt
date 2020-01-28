@@ -1,5 +1,7 @@
 #pragma once
 
+#include "candidate_visitors.h"
+
 #include <props/props.h>
 
 #include <llvm/IR/Module.h>

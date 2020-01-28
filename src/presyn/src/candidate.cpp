@@ -17,63 +17,6 @@
 
 using namespace llvm;
 
-namespace {
-
-// Generic stub visitor
-
-template <typename Func>
-class stub_visitor : public InstVisitor<stub_visitor<Func>> {
-public:
-  stub_visitor(Func&&);
-
-  void visitCallInst(CallInst&) const;
-
-private:
-  Func action_;
-};
-
-template <typename Func>
-stub_visitor<Func>::stub_visitor(Func&& f)
-    : action_(std::forward<Func>(f))
-{
-}
-
-template <typename Func>
-void stub_visitor<Func>::visitCallInst(CallInst& inst) const
-{
-  auto fn = inst.getCalledFunction();
-  auto name = fn->getName();
-  if (name.startswith("stub")) {
-    action_(inst);
-  }
-}
-
-// Validation visitor
-
-class is_valid_visitor : public InstVisitor<is_valid_visitor> {
-public:
-  is_valid_visitor() = default;
-
-  bool valid() const;
-
-  void visitCallInst(CallInst const&);
-
-private:
-  bool valid_ = true;
-};
-
-bool is_valid_visitor::valid() const { return valid_; }
-
-void is_valid_visitor::visitCallInst(CallInst const& ci)
-{
-  auto fn = ci.getCalledFunction();
-  if (fn->isDeclaration()) {
-    valid_ = false;
-  }
-}
-
-} // namespace
-
 namespace presyn {
 
 candidate::candidate(props::signature sig, std::unique_ptr<Module>&& mod)
