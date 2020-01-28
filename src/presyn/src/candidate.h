@@ -10,6 +10,8 @@ class candidate {
 public:
   candidate(std::unique_ptr<llvm::Module>&&);
 
+  bool is_valid() const;
+
 private:
   std::unique_ptr<llvm::Module> module_;
 };

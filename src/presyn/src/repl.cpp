@@ -36,4 +36,9 @@ int main()
   fmt::print("\n{}", sk.module());
 
   auto cand = std::move(sk).reify();
+  if (cand.is_valid()) {
+    fmt::print("Valid reified candidate - can proceed to execution\n");
+  } else {
+    fmt::print("Invalid candidate - no execution\n");
+  }
 }
