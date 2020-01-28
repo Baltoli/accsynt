@@ -14,6 +14,8 @@ public:
 
   bool is_valid() const;
 
+  llvm::Function* function() const;
+
 private:
   props::signature signature_;
   std::unique_ptr<llvm::Module> module_;
