@@ -202,6 +202,30 @@ llvm::Function* candidate::converter(llvm::Type* from, llvm::Type* to)
         func_ty, GlobalValue::ExternalLinkage, "id", *module_);
 
     auto bb = BasicBlock::Create(module_->getContext(), "entry", func);
+    auto build = IRBuilder(bb);
+
+    llvm::Value* ret_val = func->arg_begin();
+
+    assertion(
+        to->isPointerTy() == from->isPointerTy(),
+        "Can't convert between pointer and non-pointer");
+
+    if (from != to) {
+      if (to->isPointerTy()) {
+        ret_val = build.CreatePointerCast(ret_val, to);
+      } else if (from->isIntegerTy() && to->isIntegerTy()) {
+        auto from_int = cast<IntegerType>(from);
+        auto to_int = cast<IntegerType>(to);
+
+        if (from_int->getBitWidth() < to_int->getBitWidth()) {
+          ret_val = build.CreateSExt(ret_val, to);
+        } else {
+          ret_val = build.CreateTruncOrBitCast(ret_val, to);
+        }
+      }
+    }
+
+    build.CreateRet(ret_val);
 
     converters_[{from, to}] = func;
   }
