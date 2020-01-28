@@ -116,6 +116,10 @@ void candidate::resolve_names()
       replacements[&ci] = arg;
     }
   }).visit(function());
+
+  for (auto [stub, val] : replacements) {
+    auto conv = converter(stub->getType(), val->getType());
+  }
 }
 
 void candidate::choose_values()
@@ -164,6 +168,11 @@ std::optional<std::string> candidate::arg_name(llvm::Value* arg) const
   }
 
   return std::nullopt;
+}
+
+llvm::Function* candidate::converter(llvm::Type* from, llvm::Type* to)
+{
+  unimplemented();
 }
 
 } // namespace presyn
