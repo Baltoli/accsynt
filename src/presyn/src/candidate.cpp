@@ -3,6 +3,7 @@
 #include <support/assert.h>
 #include <support/narrow_cast.h>
 
+#include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/Function.h>
 #include <llvm/IR/InstVisitor.h>
 #include <llvm/IR/Instructions.h>
@@ -118,7 +119,7 @@ void candidate::resolve_names()
   }).visit(function());
 
   for (auto [stub, val] : replacements) {
-    auto conv = converter(stub->getType(), val->getType());
+    auto conv = converter(val->getType(), stub->getType());
   }
 }
 
@@ -172,7 +173,21 @@ std::optional<std::string> candidate::arg_name(llvm::Value* arg) const
 
 llvm::Function* candidate::converter(llvm::Type* from, llvm::Type* to)
 {
-  unimplemented();
+  // TODO: if the from type is an opaque struct type, then handle it differently
+  // by just getting the to->to identity function as we never knew the intended
+  // type in the first place.
+
+  if (converters_.find({from, to}) == converters_.end()) {
+    auto func_ty = FunctionType::get(to, {from}, false);
+    auto func = Function::Create(
+        func_ty, GlobalValue::ExternalLinkage, "id", *module_);
+
+    func->dump();
+
+    converters_[{from, to}] = func;
+  }
+
+  return converters_.at({from, to});
 }
 
 } // namespace presyn
