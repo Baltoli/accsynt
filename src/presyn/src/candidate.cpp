@@ -22,7 +22,7 @@ class stub_visitor : public InstVisitor<stub_visitor<Func>> {
 public:
   stub_visitor(Func&&);
 
-  void visitCallInst(CallInst const&) const;
+  void visitCallInst(CallInst&) const;
 
 private:
   Func action_;
@@ -35,7 +35,7 @@ stub_visitor<Func>::stub_visitor(Func&& f)
 }
 
 template <typename Func>
-void stub_visitor<Func>::visitCallInst(CallInst const& inst) const
+void stub_visitor<Func>::visitCallInst(CallInst& inst) const
 {
   auto fn = inst.getCalledFunction();
   auto name = fn->getName();
@@ -104,7 +104,7 @@ void candidate::resolve_names()
 
   auto replacements = std::map<CallInst*, Value*> {};
 
-  stub_visitor([&, this](auto const& ci) {
+  stub_visitor([&, this](auto& ci) {
     if (ci.arg_size() != 1) {
       return;
     }
@@ -112,7 +112,8 @@ void candidate::resolve_names()
     if (auto name = arg_name(ci.getArgOperand(0))) {
       auto idx = signature_.param_index(*name);
       auto arg = function().arg_begin() + idx;
-      arg->dump();
+
+      replacements[&ci] = arg;
     }
   }).visit(function());
 }
