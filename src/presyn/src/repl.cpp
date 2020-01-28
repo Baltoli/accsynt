@@ -29,8 +29,8 @@ int main()
   std::getline(std::cin, sig_line);
   auto sig = props::signature::parse(sig_line);
 
-  fmt::print("% frag = {}\n", *current_frag);
-  fmt::print("% sig  = {}\n", sig);
+  fmt::print("; frag = {}\n", *current_frag);
+  fmt::print("; sig  = {}\n", sig);
 
   auto sk = sketch(sig, *current_frag);
   fmt::print("\n{}", sk.module());
