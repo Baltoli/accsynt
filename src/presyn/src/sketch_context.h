@@ -26,6 +26,8 @@ class sketch_context {
 public:
   sketch_context(llvm::Module&, props::signature);
 
+  props::signature signature() const { return sig_; }
+
   /**
    * Creating a stub function essentially says "give me some value at synthesis
    * time, the type of which I may not know already".

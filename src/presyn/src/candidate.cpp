@@ -10,8 +10,9 @@ using namespace llvm;
 
 namespace presyn {
 
-candidate::candidate(std::unique_ptr<Module>&& mod)
-    : module_(std::move(mod))
+candidate::candidate(props::signature sig, std::unique_ptr<Module>&& mod)
+    : signature_(sig)
+    , module_(std::move(mod))
 {
 }
 
