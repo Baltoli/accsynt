@@ -145,7 +145,7 @@ bool candidate::is_valid() const
 
 std::optional<std::string> candidate::arg_name(llvm::Value*) const
 {
-  return "fkopefw";
+  return {};
 }
 
 } // namespace presyn
