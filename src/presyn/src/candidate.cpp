@@ -13,6 +13,7 @@
 
 #include <algorithm>
 #include <map>
+#include <set>
 
 using namespace llvm;
 
@@ -129,12 +130,7 @@ void candidate::resolve_names()
     auto build = IRBuilder(stub);
     auto call = build.CreateCall(conv, {val}, stub->getName());
 
-    if (call->getType() == stub->getType()) {
-      stub->replaceAllUsesWith(call);
-      stub->eraseFromParent();
-    } else {
-      // TODO: think about how to implement this case efficiently
-    }
+    safe_rauw(stub, call);
   }
 }
 
@@ -211,6 +207,39 @@ llvm::Function* candidate::converter(llvm::Type* from, llvm::Type* to)
   }
 
   return converters_.at({from, to});
+}
+
+void candidate::safe_rauw(CallInst* stub, Value* call)
+{
+  auto replacements = std::map<CallInst*, Value*> {};
+
+  if (call->getType() == stub->getType()) {
+    stub->replaceAllUsesWith(call);
+  } else {
+    // Different types so we need to recreate every stub call that *uses* the
+    // result of this one separately.
+
+    for (auto user : stub->users()) {
+      assertion(isa<CallInst>(user), "Users of stub calls must be calls");
+      auto user_call = cast<CallInst>(user);
+
+      auto new_args = std::vector<Value*> {};
+      for (auto& arg : user_call->args()) {
+        new_args.push_back(arg == stub ? call : arg);
+      }
+
+      auto new_call = IRBuilder(stub).CreateCall(
+          user_call->getCalledFunction(), new_args, stub->getName());
+
+      replacements[user_call] = new_call;
+    }
+  }
+
+  for (auto [st, ca] : replacements) {
+    safe_rauw(st, ca);
+  }
+
+  stub->eraseFromParent();
 }
 
 } // namespace presyn

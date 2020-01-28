@@ -43,6 +43,16 @@ private:
   llvm::Function* converter(llvm::Type*, llvm::Type*);
   std::map<std::pair<llvm::Type*, llvm::Type*>, llvm::Function*> converters_
       = {};
+
+  // A wrapper around LLVM RAUW that will handle changing types in the
+  // instructions we're changing.
+  //
+  // We need this because RAUW (sensibly) doesn't allow you to change the type
+  // of an operand - in our limited domain, we know that the calls to stub
+  // declarations are variadic and we don't care about the types. Additionally,
+  // we know that this is the only context in which our opaque stub type will
+  // appear, so we're free to just change the type.
+  void safe_rauw(llvm::CallInst*, llvm::Value*);
 };
 
 } // namespace presyn
