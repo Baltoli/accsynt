@@ -1,3 +1,4 @@
+#include "candidate.h"
 #include "fragment.h"
 #include "sketch.h"
 
@@ -28,9 +29,17 @@ int main()
   std::getline(std::cin, sig_line);
   auto sig = props::signature::parse(sig_line);
 
-  fmt::print("% frag = {}\n", *current_frag);
-  fmt::print("% sig  = {}\n", sig);
+  fmt::print("; frag = {}\n", *current_frag);
+  fmt::print("; sig  = {}\n", sig);
 
   auto sk = sketch(sig, *current_frag);
-  fmt::print("\n{}", sk.module());
+
+  auto cand = std::move(sk).reify();
+  if (cand.is_valid()) {
+    fmt::print("; Valid reified candidate - can proceed to execution\n");
+  } else {
+    fmt::print("; Invalid candidate - no execution\n");
+  }
+
+  fmt::print("\n{}", cand.module());
 }
