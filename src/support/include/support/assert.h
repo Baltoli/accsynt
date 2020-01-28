@@ -10,6 +10,8 @@ namespace support {
 
 namespace detail {
 
+inline constexpr void assert_fail() {}
+
 #ifdef NDEBUG
 static constexpr bool debug = false;
 #else
@@ -28,6 +30,8 @@ void assert_impl(
     auto result = std::forward<Cond>(cond)();
 
     if (!result) {
+      assert_fail();
+
       auto path = std::filesystem::path(file);
       fmt::print(
           "{type}{bad}{check}{reset} at:\n"

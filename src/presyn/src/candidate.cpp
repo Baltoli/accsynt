@@ -88,6 +88,7 @@ void candidate::resolve_names()
 {
   auto func = function();
   assertion(func != nullptr, "Must have correctly named candidate function");
+  assertion(false, "");
 
   // The process for resolving stubbed-out names in the generated sketch is as
   // follows:
