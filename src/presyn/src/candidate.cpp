@@ -143,8 +143,17 @@ bool candidate::is_valid() const
   return vis.valid();
 }
 
-std::optional<std::string> candidate::arg_name(llvm::Value*) const
+std::optional<std::string> candidate::arg_name(llvm::Value* arg) const
 {
+  if (auto const_val = dyn_cast<ConstantDataArray>(arg)) {
+    auto arr_t = const_val->getType();
+    for (auto i = 0; i < arr_t->getNumElements(); ++i) {
+      auto elt = const_val->getAggregateElement(i);
+      if (elt->getType()->isIntegerTy(8)) {
+      }
+    }
+  }
+
   return {};
 }
 
