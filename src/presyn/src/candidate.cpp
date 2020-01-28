@@ -35,7 +35,11 @@ stub_visitor<Func>::stub_visitor(Func&& f)
 template <typename Func>
 void stub_visitor<Func>::visitCallInst(CallInst const& inst) const
 {
-  action_(inst);
+  auto fn = inst.getCalledFunction();
+  auto name = fn->getName();
+  if (name.startswith("stub")) {
+    action_(inst);
+  }
 }
 
 // Validation visitor
@@ -82,6 +86,9 @@ Function* candidate::function() const
 
 void candidate::resolve_names()
 {
+  auto func = function();
+  assertion(func != nullptr, "Must have correctly named candidate function");
+
   // The process for resolving stubbed-out names in the generated sketch is as
   // follows:
   //  - for all the call insts in the function, look at their name and argument
@@ -93,6 +100,11 @@ void candidate::resolve_names()
   //
   //  For all these things we need an instvisitor really - will save writing all
   //  the loops over and over.
+
+  stub_visitor([](auto const& ci) {
+    ;
+    ;
+  }).visit(*func);
 }
 
 void candidate::choose_values()
@@ -117,13 +129,12 @@ void candidate::resolve_operators()
 
 bool candidate::is_valid() const
 {
-  if (auto func = function()) {
-    auto vis = is_valid_visitor();
-    vis.visit(*func);
-    return vis.valid();
-  } else {
-    return false;
-  }
+  auto func = function();
+  assertion(func != nullptr, "Must have correctly named candidate function");
+
+  auto vis = is_valid_visitor();
+  vis.visit(*func);
+  return vis.valid();
 }
 
 } // namespace presyn
