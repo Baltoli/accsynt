@@ -3,6 +3,7 @@
 #include <support/assert.h>
 #include <support/narrow_cast.h>
 
+#include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/Function.h>
 #include <llvm/IR/InstVisitor.h>
@@ -173,14 +174,24 @@ std::optional<std::string> candidate::arg_name(llvm::Value* arg) const
 
 llvm::Function* candidate::converter(llvm::Type* from, llvm::Type* to)
 {
-  // TODO: if the from type is an opaque struct type, then handle it differently
-  // by just getting the to->to identity function as we never knew the intended
-  // type in the first place.
+  // This allows us to get rid of the opaque struct type where usages of it
+  // remain in the code - if any of these stubs try to produce an opaque struct
+  // type, then we assume that the resulting type is precisely what it's being
+  // converted from.
+  if (auto ptr_to = dyn_cast<PointerType>(to)) {
+    if (auto elt_st = dyn_cast<StructType>(ptr_to->getElementType())) {
+      if (elt_st->isOpaque()) {
+        to = from;
+      }
+    }
+  }
 
   if (converters_.find({from, to}) == converters_.end()) {
     auto func_ty = FunctionType::get(to, {from}, false);
     auto func = Function::Create(
         func_ty, GlobalValue::ExternalLinkage, "id", *module_);
+
+    auto bb = BasicBlock::Create(module_->getContext(), "entry", func);
 
     func->dump();
 
