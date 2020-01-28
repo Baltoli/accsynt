@@ -8,6 +8,7 @@
 #include <llvm/IR/Module.h>
 
 #include <algorithm>
+#include <map>
 
 using namespace llvm;
 
@@ -79,16 +80,15 @@ candidate::candidate(props::signature sig, std::unique_ptr<Module>&& mod)
   resolve_operators();
 }
 
-Function* candidate::function() const
+Function& candidate::function() const
 {
-  return module_->getFunction(signature_.name);
+  auto func = module_->getFunction(signature_.name);
+  assertion(func != nullptr, "Must have correctly named candidate function");
+  return *func;
 }
 
 void candidate::resolve_names()
 {
-  auto func = function();
-  assertion(func != nullptr, "Must have correctly named candidate function");
-
   // The process for resolving stubbed-out names in the generated sketch is as
   // follows:
   //  - for all the call insts in the function, look at their name and argument
@@ -101,10 +101,19 @@ void candidate::resolve_names()
   //  For all these things we need an instvisitor really - will save writing all
   //  the loops over and over.
 
-  stub_visitor([](auto const& ci) {
-    ;
-    ;
-  }).visit(*func);
+  auto replacements = std::map<CallInst*, Value*> {};
+
+  stub_visitor([&, this](auto const& ci) {
+    if (ci.arg_size() != 1) {
+      return;
+    }
+
+    if (auto name = arg_name(ci.getArgOperand(0))) {
+      auto idx = signature_.param_index(*name);
+      auto arg = function().arg_begin() + idx;
+      arg->dump();
+    }
+  }).visit(function());
 }
 
 void candidate::choose_values()
@@ -129,12 +138,14 @@ void candidate::resolve_operators()
 
 bool candidate::is_valid() const
 {
-  auto func = function();
-  assertion(func != nullptr, "Must have correctly named candidate function");
-
   auto vis = is_valid_visitor();
-  vis.visit(*func);
+  vis.visit(function());
   return vis.valid();
+}
+
+std::optional<std::string> candidate::arg_name(llvm::Value*) const
+{
+  return "fkopefw";
 }
 
 } // namespace presyn

@@ -5,6 +5,7 @@
 #include <llvm/IR/Module.h>
 
 #include <memory>
+#include <optional>
 
 namespace presyn {
 
@@ -14,12 +15,14 @@ public:
 
   bool is_valid() const;
 
-  llvm::Function* function() const;
+  llvm::Function& function() const;
 
 private:
   void resolve_names();
   void choose_values();
   void resolve_operators();
+
+  std::optional<std::string> arg_name(llvm::Value*) const;
 
   props::signature signature_;
   std::unique_ptr<llvm::Module> module_;
