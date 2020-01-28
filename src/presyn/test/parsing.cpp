@@ -213,9 +213,9 @@ TEST_CASE("Printing and parsing are inverses")
                            "seq(linear<2>, seq(empty()))"_frag,
                            "loop(seq(linear<7>, empty))"_frag,
                            "delim<@x>(loop)"_frag,
-                           "fixed<@x, @N>(fixed<@y, 32>(empty))"_frag,
+                           "fixed<@x, @N>(fixed<32, @y>(empty))"_frag,
                            "if(if(linear<2>))"_frag,
-                           "if_else(if, loop(fixed<@wef_w, 45>))"_frag,
+                           "if_else(if, loop(fixed<45, @wef_w>))"_frag,
                            "affine<@ptr>(delim<@ptr>(if))"_frag,
                            "index<@x>(affine<@y>(fixed<@p, @q>(loop)))"_frag};
 
