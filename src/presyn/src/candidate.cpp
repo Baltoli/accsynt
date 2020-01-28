@@ -95,6 +95,11 @@ void candidate::resolve_operators()
   // After values are chosen for the stubbed out values in the function, the
   // operators can be resolved - this step will involve some thought about the
   // types of the values being used (as by now we'll know the types).
+
+  stub_visitor([&](auto& ci) {
+    if (ci.getName().startswith("__")) {
+    }
+  }).visit(function());
 }
 
 bool candidate::is_valid() const

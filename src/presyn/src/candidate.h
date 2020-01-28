@@ -55,6 +55,8 @@ private:
   // we know that this is the only context in which our opaque stub type will
   // appear, so we're free to just change the type.
   void safe_rauw(llvm::CallInst*, llvm::Value*);
+
+  // Operators defined by special functions in sketches
 };
 
 } // namespace presyn
