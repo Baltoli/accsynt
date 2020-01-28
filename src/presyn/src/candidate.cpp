@@ -1,6 +1,7 @@
 #include "candidate.h"
 
 #include <support/assert.h>
+#include <support/narrow_cast.h>
 
 #include <llvm/IR/Function.h>
 #include <llvm/IR/InstVisitor.h>
@@ -147,14 +148,21 @@ std::optional<std::string> candidate::arg_name(llvm::Value* arg) const
 {
   if (auto const_val = dyn_cast<ConstantDataArray>(arg)) {
     auto arr_t = const_val->getType();
-    for (auto i = 0; i < arr_t->getNumElements(); ++i) {
-      auto elt = const_val->getAggregateElement(i);
-      if (elt->getType()->isIntegerTy(8)) {
+    if (arr_t->getElementType()->isIntegerTy(8)) {
+      auto str = std::vector<char> {};
+
+      for (auto i = 0; i < arr_t->getNumElements(); ++i) {
+        auto elt = const_val->getAggregateElement(i);
+        auto chr = ::support::narrow_cast<char>(
+            elt->getUniqueInteger().getSExtValue());
+        str.push_back(chr);
       }
+
+      return std::string(str.begin(), str.end());
     }
   }
 
-  return {};
+  return std::nullopt;
 }
 
 } // namespace presyn
