@@ -193,9 +193,9 @@ llvm::Function* candidate::converter(llvm::Type* from, llvm::Type* to)
   return converters_.at({from, to});
 }
 
-void candidate::safe_rauw(CallInst* stub, Value* call)
+void candidate::safe_rauw(Instruction* stub, Value* call)
 {
-  auto replacements = std::map<CallInst*, Value*> {};
+  auto replacements = std::map<Instruction*, Value*> {};
 
   if (call->getType() == stub->getType()) {
     stub->replaceAllUsesWith(call);
