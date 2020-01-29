@@ -99,12 +99,8 @@ void candidate::resolve_operators()
   auto replacements = std::map<CallInst*, Value*> {};
 
   operator_visitor([&, this](auto& ci) {
-    assertion(
-        ci.arg_size() == 2, "Fix me: expecting two operands, got {}",
-        ci.arg_size());
-
-    if (auto op = create_operation(
-            ci.getName(), ci.arg_begin()[0], ci.arg_begin()[1])) {
+    if (auto op = create_operation(ci)) {
+      replacements[&ci] = op;
     }
   }).visit(function());
 

@@ -62,7 +62,7 @@ private:
   //
   // Because types are not yet known when these operations are created by sketch
   // compilation, we represent them as named stub functions.
-  llvm::Value* create_operation(llvm::StringRef, llvm::Value*, llvm::Value*);
+  llvm::Value* create_operation(llvm::CallInst&);
 };
 
 } // namespace presyn
