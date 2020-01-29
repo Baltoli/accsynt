@@ -36,6 +36,24 @@ Value* candidate::create_operation(CallInst& ci)
     return load;
   }
 
+  if (name == "index") {
+    // TODO: work out how to implement
+    unimplemented();
+  }
+
+  if (name == "affine") {
+    // TODO: work out how to implement
+    unimplemented();
+  }
+
+  if (name == "eq") {
+    unimplemented();
+  }
+
+  if (name == "inc") {
+    unimplemented();
+  }
+
   return nullptr;
 }
 
