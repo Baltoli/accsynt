@@ -204,18 +204,25 @@ void candidate::safe_rauw(CallInst* stub, Value* call)
     // result of this one separately.
 
     for (auto user : stub->users()) {
-      assertion(isa<CallInst>(user), "Users of stub calls must be calls");
-      auto user_call = cast<CallInst>(user);
+      assertion(
+          isa<CallInst>(user) || isa<PHINode>(user),
+          "Users of stub calls must be calls or PHIs");
 
-      auto new_args = std::vector<Value*> {};
-      for (auto& arg : user_call->args()) {
-        new_args.push_back(arg == stub ? call : arg);
+      if (auto user_call = dyn_cast<CallInst>(user)) {
+        auto new_args = std::vector<Value*> {};
+        for (auto& arg : user_call->args()) {
+          new_args.push_back(arg == stub ? call : arg);
+        }
+
+        auto new_call = IRBuilder(stub).CreateCall(
+            user_call->getCalledFunction(), new_args, stub->getName());
+
+        replacements[user_call] = new_call;
+      } else if (auto user_phi = dyn_cast<PHINode>(user)) {
+        unimplemented();
+      } else {
+        invalid_state();
       }
-
-      auto new_call = IRBuilder(stub).CreateCall(
-          user_call->getCalledFunction(), new_args, stub->getName());
-
-      replacements[user_call] = new_call;
     }
   }
 
