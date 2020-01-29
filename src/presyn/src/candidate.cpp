@@ -218,8 +218,21 @@ void candidate::safe_rauw(CallInst* stub, Value* call)
             user_call->getCalledFunction(), new_args, stub->getName());
 
         replacements[user_call] = new_call;
+
       } else if (auto user_phi = dyn_cast<PHINode>(user)) {
-        unimplemented();
+        auto new_phi = IRBuilder(stub).CreatePHI(
+            call->getType(), user_phi->getNumIncomingValues(),
+            user_phi->getName());
+
+        for (auto& val : user_phi->incoming_values()) {
+          // assert this is a call ? edge cases
+          auto incoming_call = cast<CallInst>(val);
+          auto typed_call = update_type(incoming_call, call->getType());
+
+          replacements[incoming_call] = typed_call;
+        }
+
+        // how to now RAUW a phi node???
       } else {
         invalid_state();
       }
@@ -231,6 +244,12 @@ void candidate::safe_rauw(CallInst* stub, Value* call)
   }
 
   stub->eraseFromParent();
+}
+
+CallInst* candidate::update_type(CallInst* stub, Type* type)
+{
+  unimplemented();
+  ;
 }
 
 } // namespace presyn

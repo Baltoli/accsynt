@@ -56,6 +56,10 @@ private:
   // appear, so we're free to just change the type.
   void safe_rauw(llvm::CallInst*, llvm::Value*);
 
+  // This is responsible for creating a new stubbed call with an updated type
+  // (but not for replacing the uses - delegate that back to safe_rauw.
+  llvm::CallInst* update_type(llvm::CallInst*, llvm::Type*);
+
   // Operators defined by special functions in sketches - these are things that
   // we know the abstract semantics for ahead of time (e.g. that a value should
   // be a load at a particular offset into a known pointer).
