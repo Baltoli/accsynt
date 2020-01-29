@@ -56,7 +56,13 @@ private:
   // appear, so we're free to just change the type.
   void safe_rauw(llvm::CallInst*, llvm::Value*);
 
-  // Operators defined by special functions in sketches
+  // Operators defined by special functions in sketches - these are things that
+  // we know the abstract semantics for ahead of time (e.g. that a value should
+  // be a load at a particular offset into a known pointer).
+  //
+  // Because types are not yet known when these operations are created by sketch
+  // compilation, we represent them as named stub functions.
+  llvm::Value* create_operation(llvm::StringRef, llvm::Value*, llvm::Value*);
 };
 
 } // namespace presyn

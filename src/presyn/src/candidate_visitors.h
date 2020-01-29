@@ -34,6 +34,35 @@ void stub_visitor<Func>::visitCallInst(llvm::CallInst& inst) const
   }
 }
 
+// Operator visitor
+
+template <typename Func>
+class operator_visitor : public llvm::InstVisitor<operator_visitor<Func>> {
+public:
+  operator_visitor(Func&&);
+
+  void visitCallInst(llvm::CallInst&) const;
+
+private:
+  Func action_;
+};
+
+template <typename Func>
+operator_visitor<Func>::operator_visitor(Func&& f)
+    : action_(std::forward<Func>(f))
+{
+}
+
+template <typename Func>
+void operator_visitor<Func>::visitCallInst(llvm::CallInst& inst) const
+{
+  auto fn = inst.getCalledFunction();
+  auto name = fn->getName();
+  if (name.startswith("__")) {
+    action_(inst);
+  }
+}
+
 // Validation visitor
 
 class is_valid_visitor : public llvm::InstVisitor<is_valid_visitor> {

@@ -96,10 +96,26 @@ void candidate::resolve_operators()
   // operators can be resolved - this step will involve some thought about the
   // types of the values being used (as by now we'll know the types).
 
-  stub_visitor([&](auto& ci) {
-    if (ci.getName().startswith("__")) {
+  auto replacements = std::map<CallInst*, Value*> {};
+
+  operator_visitor([&, this](auto& ci) {
+    assertion(
+        ci.arg_size() == 2, "Fix me: expecting two operands, got {}",
+        ci.arg_size());
+
+    if (auto op = create_operation(
+            ci.getName(), ci.arg_begin()[0], ci.arg_begin()[1])) {
     }
   }).visit(function());
+
+  for (auto [stub, val] : replacements) {
+    auto conv = converter(val->getType(), stub->getType());
+
+    auto build = IRBuilder(stub);
+    auto call = build.CreateCall(conv, {val}, stub->getName());
+
+    safe_rauw(stub, call);
+  }
 }
 
 bool candidate::is_valid() const
