@@ -24,6 +24,7 @@ add_compile_options(
   -Wno-error=unused-function 
   -Wno-error=unused-variable
   -Wno-error=sign-compare
+  -Wno-maybe-uninitialized
 )
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")

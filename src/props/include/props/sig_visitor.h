@@ -12,11 +12,12 @@ namespace props {
 struct any_ptr_st {
 };
 
-constexpr inline any_ptr_st any_ptr = any_ptr_st{};
+constexpr inline any_ptr_st any_ptr = any_ptr_st {};
 
 template <typename F>
 class on {
-  static_assert(std::is_invocable_v<F, param const&> || std::is_invocable_v<F>,
+  static_assert(
+      std::is_invocable_v<F, param const&> || std::is_invocable_v<F>,
       "Visitor function must be invocable with param or no args");
 
   static constexpr bool pass_param = std::is_invocable_v<F, param const&>;

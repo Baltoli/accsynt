@@ -1,5 +1,7 @@
 #include "prepare_data.h"
 
+#include <support/filesystem.h>
+
 #include <props/props.h>
 
 #include <fmt/format.h>
@@ -8,7 +10,6 @@
 #include <llvm/Support/raw_ostream.h>
 
 #include <cstdio>
-#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -17,20 +18,22 @@ using namespace llvm;
 using namespace predict;
 using namespace props;
 
-namespace fs = std::filesystem;
+namespace fs = filesystem;
 
 enum mode { python };
 
-static cl::list<std::string> InputFilenames(
-    cl::Positional, cl::desc("<property sets>"), cl::OneOrMore);
+static cl::list<std::string>
+    InputFilenames(cl::Positional, cl::desc("<property sets>"), cl::OneOrMore);
 
-static cl::opt<std::string> OutputDirectory("output-dir",
-    cl::desc("Directory to output generated CSV files"), cl::init("-"));
+static cl::opt<std::string> OutputDirectory(
+    "output-dir", cl::desc("Directory to output generated CSV files"),
+    cl::init("-"));
 
 static cl::alias OutputDirectoryA(
     "o", cl::desc("Alias for output-dir"), cl::aliasopt(OutputDirectory));
 
-static cl::opt<mode> Mode(cl::desc("Execution mode"),
+static cl::opt<mode> Mode(
+    cl::desc("Execution mode"),
     cl::values(clEnumVal(python, "Dump data for python script")), cl::Required);
 
 int to_python()
