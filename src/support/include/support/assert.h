@@ -1,10 +1,9 @@
 #pragma once
 
+#include <support/filesystem.h>
 #include <support/terminal.h>
 
 #include <fmt/format.h>
-
-#include <filesystem>
 
 namespace support {
 
@@ -32,7 +31,7 @@ void assert_impl(
     if (!result) {
       assert_fail();
 
-      auto path = std::filesystem::path(file);
+      auto path = filesystem::path(file);
       fmt::print(
           "{type}{bad}{check}{reset} at:\n"
           "  {bold}{file}:{line} ({func}){reset}\n",
