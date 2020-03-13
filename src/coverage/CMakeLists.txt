@@ -8,9 +8,11 @@ target_include_directories(coverage PUBLIC
 
 target_link_libraries(coverage
   ${llvm_libs}
+  support
   CONAN_PKG::fmt)
 
 add_executable(coverage_unit
+  test/wrapper.cpp
   test/main.cpp)
 
 target_link_libraries(coverage_unit
