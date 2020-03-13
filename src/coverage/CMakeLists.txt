@@ -1,5 +1,5 @@
 add_library(coverage
-  src/options.cpp)
+  src/wrapper.cpp)
 
 target_include_directories(coverage PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
