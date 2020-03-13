@@ -3,6 +3,7 @@
 #include <support/call_builder.h>
 #include <support/call_wrapper.h>
 
+#include <llvm/IR/Instructions.h>
 #include <llvm/IR/Value.h>
 
 #include <map>
@@ -49,7 +50,9 @@ private:
   bool instrumented_ = false;
   void instrument();
 
-  std::map<llvm::Value*, int> value_ids_ = {};
+  void handle_branch_event(int id, bool value);
+
+  std::map<llvm::BranchInst*, int> branch_ids_ = {};
   std::map<int, detail::branch_visits> visits_ = {};
 };
 

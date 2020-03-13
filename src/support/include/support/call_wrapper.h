@@ -78,6 +78,7 @@ public:
 
 protected:
   llvm::Function* implementation() { return impl_; }
+  std::unique_ptr<llvm::ExecutionEngine>& engine() { return engine_; }
 
 private:
   /**
