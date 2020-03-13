@@ -6,6 +6,10 @@ target_include_directories(coverage PUBLIC
     $<INSTALL_INTERFACE:include>
     PRIVATE src)
 
+target_link_libraries(coverage
+  ${llvm_libs}
+  CONAN_PKG::fmt)
+
 add_executable(coverage_unit
   test/main.cpp)
 
