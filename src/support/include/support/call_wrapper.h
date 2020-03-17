@@ -51,8 +51,9 @@ public:
    * Construct a wrapper for a symbol contained in a dynamic library. The name
    * is looked up using dlsym and registered with the execution engine.
    */
-  call_wrapper(props::signature sig, llvm::Module const& mod,
-      std::string const& name, dynamic_library const& dl);
+  call_wrapper(
+      props::signature sig, llvm::Module const& mod, std::string const& name,
+      dynamic_library const& dl);
 
   /**
    * Construct a wrapper for an arbitrary function pointer. The function pointer
@@ -60,8 +61,9 @@ public:
    * would be.
    */
   template <typename FPtr>
-  call_wrapper(props::signature sig, llvm::Module const& mod,
-      std::string const& name, FPtr ptr);
+  call_wrapper(
+      props::signature sig, llvm::Module const& mod, std::string const& name,
+      FPtr ptr);
 
   /**
    * Construct a call builder with the correct type signature for this wrapper.
@@ -73,6 +75,10 @@ public:
    * function's return value.
    */
   uint64_t call(call_builder& builder);
+
+protected:
+  llvm::Function* implementation() { return impl_; }
+  std::unique_ptr<llvm::ExecutionEngine> const& engine() { return engine_; }
 
 private:
   /**
@@ -97,8 +103,8 @@ private:
   /**
    * Build the marshalling and call logic for a function.
    */
-  llvm::Function* build_wrapper_function(
-      llvm::Module& mod, llvm::Function* fn) const;
+  llvm::Function*
+  build_wrapper_function(llvm::Module& mod, llvm::Function* fn) const;
 
   props::signature signature_;
   llvm::Function* impl_;
@@ -107,8 +113,9 @@ private:
 };
 
 template <typename FPtr>
-call_wrapper::call_wrapper(props::signature sig, llvm::Module const& mod,
-    std::string const& name, FPtr ptr)
+call_wrapper::call_wrapper(
+    props::signature sig, llvm::Module const& mod, std::string const& name,
+    FPtr ptr)
     : call_wrapper(sig, mod, name)
 {
   engine_->addGlobalMapping(impl_, (void*)ptr);
