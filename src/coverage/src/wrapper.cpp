@@ -131,6 +131,10 @@ size_t wrapper::covered_conditions() const
 
 double wrapper::coverage() const
 {
+  if (!instrumented_) {
+    return 0;
+  }
+
   return static_cast<double>(covered_conditions())
          / static_cast<double>(total_conditions());
 }

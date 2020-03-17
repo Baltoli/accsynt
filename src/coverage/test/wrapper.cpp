@@ -6,6 +6,8 @@
 
 #include <catch2/catch.hpp>
 
+#include <random>
+
 using namespace props::literals;
 
 auto count_negs = R"(
@@ -112,5 +114,41 @@ TEST_CASE("Can correctly record coverage stats")
     REQUIRE(wrap.call(b) == 3);
     REQUIRE(wrap.coverage() == 1.0);
     b.reset();
+  }
+}
+
+std::vector<float> random_input()
+{
+  auto rd = std::random_device {};
+  auto gen = std::mt19937(rd());
+  auto len = std::uniform_int_distribution(0, 32)(gen);
+  auto dist = std::uniform_real_distribution<float>(-1, 1);
+
+  auto ret = std::vector<float> {};
+  for (auto i = 0; i < len; ++i) {
+    ret.push_back(dist(gen));
+  }
+
+  return ret;
+}
+
+TEST_CASE("Coverage is monotonic")
+{
+  PARSE_TEST_MODULE(mod, count_negs);
+
+  auto wrap = coverage::wrapper(
+      "int count_negs(int n, float *xs)"_sig, *mod, "count_negs");
+
+  auto b = wrap.get_builder();
+
+  for (auto i = 0; i < 64; ++i) {
+    auto cov = wrap.coverage();
+
+    auto in = random_input();
+    b.add(static_cast<int>(in.size()), in);
+    wrap.call(b);
+    b.reset();
+
+    REQUIRE(cov <= wrap.coverage());
   }
 }
