@@ -64,6 +64,7 @@ llvm_map_components_to_libnames(llvm_libs
 include(GNUInstallDirs)
 enable_testing()
 
+add_subdirectory(coverage)
 add_subdirectory(passes)
 add_subdirectory(props)
 add_subdirectory(tools)
