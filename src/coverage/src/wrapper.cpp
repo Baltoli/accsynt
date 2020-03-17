@@ -4,6 +4,7 @@
 
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/GlobalVariable.h>
+#include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/InstVisitor.h>
 
 namespace {
@@ -16,15 +17,25 @@ void handle_branch_event_trampoline(int id, bool val, char* inst)
 
 class instrument_visitor : public llvm::InstVisitor<instrument_visitor> {
 public:
-  instrument_visitor(std::map<llvm::BranchInst*, int>& ids)
+  instrument_visitor(
+      std::map<llvm::BranchInst*, int>& ids, llvm::Value* inst,
+      llvm::Function* tram)
       : next_id_(0)
       , ids_(ids)
+      , instance_ptr_(inst)
+      , trampoline_(tram)
   {
   }
 
   void visitBranchInst(llvm::BranchInst& inst)
   {
+    auto build = llvm::IRBuilder<>(&inst);
+
     if (inst.isConditional()) {
+      build.CreateCall(
+          trampoline_,
+          {build.getInt32(next_id_), inst.getCondition(), instance_ptr_});
+
       ids_[&inst] = next_id_;
       ++next_id_;
     }
@@ -33,6 +44,9 @@ public:
 private:
   int next_id_;
   std::map<llvm::BranchInst*, int>& ids_;
+
+  llvm::Value* instance_ptr_;
+  llvm::Function* trampoline_;
 };
 
 } // namespace
@@ -62,10 +76,10 @@ void wrapper::instrument()
 
   // Add pointer back to this instance of the wrapper class so that we can call
   // the trampoline properly.
-  instance_ptr_ = new llvm::GlobalVariable(
-      *mod, p_i8_t, true, llvm::GlobalValue::ExternalLinkage, nullptr,
+  auto instance_ptr = new llvm::GlobalVariable(
+      *mod, i8_t, true, llvm::GlobalValue::ExternalLinkage, nullptr,
       "instance");
-  engine()->addGlobalMapping(instance_ptr_, (void*)this);
+  engine()->addGlobalMapping(instance_ptr, (void*)this);
 
   // Create another global mapping for the trampoline function. The visitor then
   // receives this external function as its callback to insert.
@@ -79,7 +93,7 @@ void wrapper::instrument()
       trampoline_t, llvm::GlobalValue::ExternalLinkage, "trampoline", *mod);
   engine()->addGlobalMapping(func, (void*)handle_branch_event_trampoline);
 
-  instrument_visitor(branch_ids_).visit(implementation());
+  instrument_visitor(branch_ids_, instance_ptr, func).visit(implementation());
 
   for (auto [branch, id] : branch_ids_) {
     visits_[id] = detail::branch_visits::None;

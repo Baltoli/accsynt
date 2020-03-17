@@ -58,8 +58,6 @@ private:
 
   std::map<llvm::BranchInst*, int> branch_ids_ = {};
   std::map<int, detail::branch_visits> visits_ = {};
-
-  llvm::GlobalVariable* instance_ptr_ = nullptr;
 };
 
 } // namespace coverage
