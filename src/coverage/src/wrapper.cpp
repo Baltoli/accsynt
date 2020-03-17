@@ -100,7 +100,12 @@ void wrapper::instrument()
   instrumented_ = true;
 }
 
-void wrapper::handle_branch_event(int id, bool value) {}
+void wrapper::handle_branch_event(int id, bool value)
+{
+  visits_[id] = detail::branch_visits(
+      visits_[id]
+      | (value ? detail::branch_visits::True : detail::branch_visits::False));
+}
 
 size_t wrapper::total_conditions() const { return 0; }
 size_t wrapper::covered_conditions() const { return 0; }
