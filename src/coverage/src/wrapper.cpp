@@ -59,8 +59,6 @@ uint64_t wrapper::call(support::call_builder& builder)
     instrument();
   }
 
-  llvm::errs() << *implementation()->getParent() << '\n';
-
   return support::call_wrapper::call(builder);
 }
 
