@@ -1,5 +1,5 @@
 add_library(coverage
-  src/options.cpp)
+  src/wrapper.cpp)
 
 target_include_directories(coverage PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -12,6 +12,7 @@ target_link_libraries(coverage
   CONAN_PKG::fmt)
 
 add_executable(coverage_unit
+  test/wrapper.cpp
   test/main.cpp)
 
 target_link_libraries(coverage_unit
