@@ -46,14 +46,20 @@ public:
    */
   double coverage() const;
 
+  /**
+   * Handler to be called back into from instrumented code - calls to it should
+   * never be made outside of generated / JIT-compiled LLVM code.
+   */
+  void handle_branch_event(int id, bool value);
+
 private:
   bool instrumented_ = false;
   void instrument();
 
-  void handle_branch_event(int id, bool value);
-
   std::map<llvm::BranchInst*, int> branch_ids_ = {};
   std::map<int, detail::branch_visits> visits_ = {};
+
+  llvm::GlobalVariable* instance_ptr_ = nullptr;
 };
 
 } // namespace coverage

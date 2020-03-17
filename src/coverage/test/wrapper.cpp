@@ -58,7 +58,7 @@ TEST_CASE("Can get builders and make calls to wrappers")
       "int count_negs(int n, float *xs)"_sig, *mod, "count_negs");
 
   auto b = wrap.get_builder();
-  b.add(4, std::vector<float>{1, -1, 2, -2});
+  b.add(4, std::vector<float> {1, -1, 2, -2});
 
   REQUIRE(wrap.call(b) == 2);
 }

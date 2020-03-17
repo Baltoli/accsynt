@@ -3,9 +3,16 @@
 #include <support/thread_context.h>
 
 #include <llvm/IR/DerivedTypes.h>
+#include <llvm/IR/GlobalVariable.h>
 #include <llvm/IR/InstVisitor.h>
 
 namespace {
+
+void handle_branch_event_trampoline(int id, bool val, char* inst)
+{
+  auto wrapper = reinterpret_cast<coverage::wrapper*>(inst);
+  wrapper->handle_branch_event(id, val);
+}
 
 class instrument_visitor : public llvm::InstVisitor<instrument_visitor> {
 public:
@@ -38,12 +45,24 @@ uint64_t wrapper::call(support::call_builder& builder)
     instrument();
   }
 
+  llvm::errs() << *implementation()->getParent() << '\n';
+
   return support::call_wrapper::call(builder);
 }
 
 void wrapper::instrument()
 {
+  using namespace std::placeholders;
+
   auto& ctx = support::thread_context::get();
+
+  auto i8_t = llvm::IntegerType::get(ctx, 8);
+  auto p_i8_t = llvm::PointerType::getUnqual(i8_t);
+
+  instance_ptr_ = new llvm::GlobalVariable(
+      *implementation()->getParent(), p_i8_t, true,
+      llvm::GlobalValue::ExternalLinkage, nullptr, "instance");
+  engine()->addGlobalMapping(instance_ptr_, (void*)this);
 
   instrument_visitor(branch_ids_).visit(implementation());
 
