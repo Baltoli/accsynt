@@ -7,6 +7,8 @@
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/InstVisitor.h>
 
+#include <numeric>
+
 namespace {
 
 void handle_branch_event_trampoline(int id, bool val, char* inst)
@@ -107,8 +109,30 @@ void wrapper::handle_branch_event(int id, bool value)
       | (value ? detail::branch_visits::True : detail::branch_visits::False));
 }
 
-size_t wrapper::total_conditions() const { return 0; }
-size_t wrapper::covered_conditions() const { return 0; }
-double wrapper::coverage() const { return 0.0; }
+size_t wrapper::total_conditions() const { return branch_ids_.size() * 2; }
+
+size_t wrapper::covered_conditions() const
+{
+  return std::accumulate(
+      branch_ids_.begin(), branch_ids_.end(), 0, [this](auto acc, auto p) {
+        auto val = visits_.at(p.second);
+
+        if (val == detail::branch_visits::None) {
+          return acc;
+        } else if (
+            val == detail::branch_visits::True
+            || val == detail::branch_visits::False) {
+          return acc + 1;
+        } else {
+          return acc + 2;
+        }
+      });
+}
+
+double wrapper::coverage() const
+{
+  return static_cast<double>(covered_conditions())
+         / static_cast<double>(total_conditions());
+}
 
 } // namespace coverage
