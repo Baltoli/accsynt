@@ -240,4 +240,17 @@ TEST_CASE("Can create data types from LLVM types")
   SECTION("Others") {}
 }
 
-TEST_CASE("Can create signatures from LLVM function types") {}
+TEST_CASE("Can create signatures from LLVM function types")
+{
+  auto& ctx = thread_context::get();
+  auto void_ty = Type::getVoidTy(ctx);
+  auto bool_ty = Type::getInt1Ty(ctx);
+  auto char_ty = Type::getInt8Ty(ctx);
+  auto int_ty = Type::getInt32Ty(ctx);
+  auto float_ty = Type::getFloatTy(ctx);
+
+  SECTION("Simple function type")
+  {
+    auto func_ty = FunctionType::get(void_ty, {}, false);
+  }
+}

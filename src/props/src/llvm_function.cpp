@@ -106,6 +106,10 @@ std::optional<data_type> data_type::from_llvm(llvm::Type* ty)
   return std::nullopt;
 }
 
-signature signature::from_llvm(FunctionType* ty) { return {}; }
+signature signature::from_llvm(FunctionType* ty)
+{
+  auto sig = signature {};
+  return sig;
+}
 
 } // namespace props
