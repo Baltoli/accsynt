@@ -2,10 +2,13 @@
 
 #include <coverage/coverage.h>
 
+#include <support/argument_generator.h>
 #include <support/load_module.h>
 
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/Support/raw_ostream.h>
+
+#include <fmt/format.h>
 
 using namespace llvm;
 
@@ -24,7 +27,10 @@ try {
   }
 
   auto wrapper = coverage::wrapper(*mod, FunctionName);
-} catch (std::runtime_error e) {
+
+  for (auto i = 0; i < NumInputs; ++i) {
+  }
+} catch (std::runtime_error& e) {
   llvm::errs() << "Error creating coverage JIT wrapper:  ";
   llvm::errs() << e.what() << '\n';
   std::exit(2);
