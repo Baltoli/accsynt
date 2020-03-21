@@ -6,13 +6,29 @@
 #include <llvm/Support/MemoryBuffer.h>
 #include <llvm/Support/SourceMgr.h>
 
+#include <iostream>
+#include <sstream>
+#include <string>
+
 using namespace llvm;
 
 namespace support {
 
+std::unique_ptr<Module> parse_module()
+{
+  std::stringstream ss;
+  std::string line;
+
+  while (std::getline(std::cin, line)) {
+    ss << line << '\n';
+  }
+
+  return parse_module(ss.str());
+}
+
 std::unique_ptr<Module> parse_module(std::string const& str)
 {
-  auto sm = SMDiagnostic{};
+  auto sm = SMDiagnostic {};
   auto buf = MemoryBuffer::getMemBuffer(str);
   auto mod = parseIR(*buf, sm, thread_context::get());
 
@@ -28,7 +44,7 @@ std::unique_ptr<Module> parse_module(std::string const& str)
 std::unique_ptr<Module> load_module(std::string const& path)
 {
   auto& ctx = thread_context::get();
-  auto err = SMDiagnostic{};
+  auto err = SMDiagnostic {};
 
   auto mod = parseIRFile(path, err, ctx, true, "");
   if (!mod) {
@@ -38,4 +54,15 @@ std::unique_ptr<Module> load_module(std::string const& path)
 
   return mod;
 }
+
+std::unique_ptr<Module>
+load_or_parse_module(std::string const& path, std::string const& parse)
+{
+  if (path == parse) {
+    return parse_module();
+  } else {
+    return load_module(path);
+  }
+}
+
 } // namespace support
