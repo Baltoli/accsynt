@@ -15,7 +15,7 @@ TEST_CASE("can get LLVM types from parameters")
 {
   SECTION("for integer values")
   {
-    auto p = param{ "any_name", base_type::integer, 0 };
+    auto p = param {"any_name", base_type::integer, 0};
     auto t = p.llvm_type();
 
     REQUIRE(t->isIntegerTy(32));
@@ -23,7 +23,7 @@ TEST_CASE("can get LLVM types from parameters")
 
   SECTION("for character values")
   {
-    auto p = param{ "name", base_type::character, 0 };
+    auto p = param {"name", base_type::character, 0};
     auto t = p.llvm_type();
 
     REQUIRE(t->isIntegerTy(8));
@@ -31,7 +31,7 @@ TEST_CASE("can get LLVM types from parameters")
 
   SECTION("for boolean values")
   {
-    auto p = param{ "fwe", base_type::boolean, 0 };
+    auto p = param {"fwe", base_type::boolean, 0};
     auto t = p.llvm_type();
 
     REQUIRE(t->isIntegerTy(1));
@@ -39,7 +39,7 @@ TEST_CASE("can get LLVM types from parameters")
 
   SECTION("for floating values")
   {
-    auto p = param{ "name", base_type::floating, 0 };
+    auto p = param {"name", base_type::floating, 0};
     auto t = p.llvm_type();
 
     REQUIRE(t->isFloatTy());
@@ -47,7 +47,7 @@ TEST_CASE("can get LLVM types from parameters")
 
   SECTION("for integer pointers")
   {
-    auto p = param{ "woo", base_type::integer, 1 };
+    auto p = param {"woo", base_type::integer, 1};
     auto t = p.llvm_type();
 
     REQUIRE(t->isPointerTy());
@@ -58,7 +58,7 @@ TEST_CASE("can get LLVM types from parameters")
 
   SECTION("for character pointers")
   {
-    auto p = param{ "niwefj", base_type::character, 1 };
+    auto p = param {"niwefj", base_type::character, 1};
     auto t = p.llvm_type();
 
     REQUIRE(t->isPointerTy());
@@ -69,7 +69,7 @@ TEST_CASE("can get LLVM types from parameters")
 
   SECTION("for boolean pointers")
   {
-    auto p = param{ "efji", base_type::boolean, 2 };
+    auto p = param {"efji", base_type::boolean, 2};
     auto t = p.llvm_type();
 
     REQUIRE(t->isPointerTy());
@@ -83,7 +83,7 @@ TEST_CASE("can get LLVM types from parameters")
 
   SECTION("for floating pointers")
   {
-    auto p = param{ "rwe", base_type::floating, 2 };
+    auto p = param {"rwe", base_type::floating, 2};
     auto t = p.llvm_type();
 
     REQUIRE(t->isPointerTy());
@@ -177,3 +177,5 @@ TEST_CASE("can create functions from signatures")
   auto p3_t = cast<PointerType>(p3)->getElementType();
   REQUIRE(p3_t->isIntegerTy(1));
 }
+
+TEST_CASE("Can create signatures from LLVM function types") {}

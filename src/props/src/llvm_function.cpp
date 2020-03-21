@@ -52,8 +52,9 @@ FunctionType* signature::function_type() const
 {
   auto param_types = std::vector<Type*> {};
 
-  std::transform(parameters.begin(), parameters.end(),
-      std::back_inserter(param_types), [](auto p) { return p.llvm_type(); });
+  std::transform(
+      parameters.begin(), parameters.end(), std::back_inserter(param_types),
+      [](auto p) { return p.llvm_type(); });
 
   return FunctionType::get(
       base_llvm_return_type(return_type), param_types, false);
@@ -76,4 +77,7 @@ Function* signature::create_function(Module& mod) const
 
   return fn;
 }
+
+signature signature::from_llvm_type(FunctionType* ty) { return {}; }
+
 } // namespace props

@@ -75,6 +75,8 @@ struct signature {
 
   static signature parse(std::string_view str);
 
+  static signature from_llvm_type(llvm::FunctionType*);
+
   template <typename Input>
   void success(Input const& in, property_set& parent);
 
