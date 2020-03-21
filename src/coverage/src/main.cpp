@@ -10,6 +10,7 @@
 
 #include <fmt/format.h>
 
+using namespace support;
 using namespace llvm;
 
 int main(int argc, char** argv)
@@ -20,15 +21,26 @@ try {
 
   cl::ParseCommandLineOptions(argc, argv);
 
-  auto mod = ::support::load_or_parse_module(InputFile);
+  auto mod = load_or_parse_module(InputFile);
   if (!mod) {
     errs() << "Couldn't load or parse module: " << InputFile << '\n';
     return 1;
   }
 
   auto wrapper = coverage::wrapper(*mod, FunctionName);
+  auto gen = uniform_generator();
+
+  fmt::print("{},{},{}\n", "inputs", "covered", "total");
 
   for (auto i = 0; i < NumInputs; ++i) {
+    auto build = wrapper.get_builder();
+    gen.gen_args(build);
+
+    wrapper.call(build);
+
+    fmt::print(
+        "{},{},{}\n", i + 1, wrapper.covered_conditions(),
+        wrapper.total_conditions());
   }
 } catch (std::runtime_error& e) {
   llvm::errs() << "Error creating coverage JIT wrapper:  ";
