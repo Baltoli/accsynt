@@ -11,6 +11,13 @@ target_link_libraries(coverage
   support
   CONAN_PKG::fmt)
 
+add_executable(input-cov
+  src/options.cpp
+  src/main.cpp)
+
+target_link_libraries(input-cov
+  coverage)
+
 add_executable(coverage_unit
   test/wrapper.cpp
   test/main.cpp)
