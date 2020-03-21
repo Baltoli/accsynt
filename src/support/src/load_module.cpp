@@ -6,11 +6,25 @@
 #include <llvm/Support/MemoryBuffer.h>
 #include <llvm/Support/SourceMgr.h>
 
+#include <iostream>
+#include <sstream>
+#include <string>
+
 using namespace llvm;
 
 namespace support {
 
-std::unique_ptr<Module> parse_module() { return nullptr; }
+std::unique_ptr<Module> parse_module()
+{
+  std::stringstream ss;
+  std::string line;
+
+  while (std::getline(std::cin, line)) {
+    ss << line << '\n';
+  }
+
+  return parse_module(ss.str());
+}
 
 std::unique_ptr<Module> parse_module(std::string const& str)
 {
@@ -44,7 +58,11 @@ std::unique_ptr<Module> load_module(std::string const& path)
 std::unique_ptr<Module>
 load_or_parse_module(std::string const& path, std::string const& parse)
 {
-  return nullptr;
+  if (path == parse) {
+    return parse_module();
+  } else {
+    return load_module(path);
+  }
 }
 
 } // namespace support

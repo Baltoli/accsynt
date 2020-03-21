@@ -4,6 +4,17 @@
 
 #include <support/load_module.h>
 
+#include <llvm/Support/raw_ostream.h>
+
 using namespace llvm;
 
-int main(int argc, char** argv) { cl::ParseCommandLineOptions(argc, argv); }
+int main(int argc, char** argv)
+{
+  cl::ParseCommandLineOptions(argc, argv);
+
+  auto mod = ::support::load_or_parse_module(InputFile);
+  if (!mod) {
+    errs() << "Couldn't load or parse module: " << InputFile << '\n';
+    return 1;
+  }
+}
