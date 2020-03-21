@@ -3,6 +3,7 @@
 
 #include <catch2/catch.hpp>
 
+#include <llvm/IR/DerivedTypes.h>
 #include <llvm/Support/raw_ostream.h>
 
 using namespace props;
@@ -15,7 +16,7 @@ TEST_CASE("can get LLVM types from parameters")
 {
   SECTION("for integer values")
   {
-    auto p = param{ "any_name", base_type::integer, 0 };
+    auto p = param {"any_name", base_type::integer, 0};
     auto t = p.llvm_type();
 
     REQUIRE(t->isIntegerTy(32));
@@ -23,7 +24,7 @@ TEST_CASE("can get LLVM types from parameters")
 
   SECTION("for character values")
   {
-    auto p = param{ "name", base_type::character, 0 };
+    auto p = param {"name", base_type::character, 0};
     auto t = p.llvm_type();
 
     REQUIRE(t->isIntegerTy(8));
@@ -31,7 +32,7 @@ TEST_CASE("can get LLVM types from parameters")
 
   SECTION("for boolean values")
   {
-    auto p = param{ "fwe", base_type::boolean, 0 };
+    auto p = param {"fwe", base_type::boolean, 0};
     auto t = p.llvm_type();
 
     REQUIRE(t->isIntegerTy(1));
@@ -39,7 +40,7 @@ TEST_CASE("can get LLVM types from parameters")
 
   SECTION("for floating values")
   {
-    auto p = param{ "name", base_type::floating, 0 };
+    auto p = param {"name", base_type::floating, 0};
     auto t = p.llvm_type();
 
     REQUIRE(t->isFloatTy());
@@ -47,7 +48,7 @@ TEST_CASE("can get LLVM types from parameters")
 
   SECTION("for integer pointers")
   {
-    auto p = param{ "woo", base_type::integer, 1 };
+    auto p = param {"woo", base_type::integer, 1};
     auto t = p.llvm_type();
 
     REQUIRE(t->isPointerTy());
@@ -58,7 +59,7 @@ TEST_CASE("can get LLVM types from parameters")
 
   SECTION("for character pointers")
   {
-    auto p = param{ "niwefj", base_type::character, 1 };
+    auto p = param {"niwefj", base_type::character, 1};
     auto t = p.llvm_type();
 
     REQUIRE(t->isPointerTy());
@@ -69,7 +70,7 @@ TEST_CASE("can get LLVM types from parameters")
 
   SECTION("for boolean pointers")
   {
-    auto p = param{ "efji", base_type::boolean, 2 };
+    auto p = param {"efji", base_type::boolean, 2};
     auto t = p.llvm_type();
 
     REQUIRE(t->isPointerTy());
@@ -83,7 +84,7 @@ TEST_CASE("can get LLVM types from parameters")
 
   SECTION("for floating pointers")
   {
-    auto p = param{ "rwe", base_type::floating, 2 };
+    auto p = param {"rwe", base_type::floating, 2};
     auto t = p.llvm_type();
 
     REQUIRE(t->isPointerTy());
@@ -176,4 +177,143 @@ TEST_CASE("can create functions from signatures")
 
   auto p3_t = cast<PointerType>(p3)->getElementType();
   REQUIRE(p3_t->isIntegerTy(1));
+}
+
+TEST_CASE("Can create data types from LLVM types")
+{
+  auto& ctx = thread_context::get();
+
+  SECTION("Booleans")
+  {
+    auto ty = Type::getInt1Ty(ctx);
+    auto dt = data_type::from_llvm(ty);
+
+    REQUIRE(dt);
+    REQUIRE(*dt == data_type {base_type::boolean, 0});
+  }
+
+  SECTION("Chars")
+  {
+    auto ty = Type::getInt8Ty(ctx);
+    auto dt = data_type::from_llvm(ty);
+
+    REQUIRE(dt);
+    REQUIRE(*dt == data_type {base_type::character, 0});
+  }
+
+  SECTION("Ints")
+  {
+    auto ty = Type::getInt32Ty(ctx);
+    auto dt = data_type::from_llvm(ty);
+
+    REQUIRE(dt);
+    REQUIRE(*dt == data_type {base_type::integer, 0});
+  }
+
+  SECTION("Floats")
+  {
+    auto ty = Type::getFloatTy(ctx);
+    auto dt = data_type::from_llvm(ty);
+
+    REQUIRE(dt);
+    REQUIRE(*dt == data_type {base_type::floating, 0});
+  }
+
+  SECTION("Pointers")
+  {
+    auto t1 = Type::getFloatPtrTy(ctx);
+    auto d1 = data_type::from_llvm(t1);
+    REQUIRE(d1);
+    REQUIRE(*d1 == data_type {base_type::floating, 1});
+
+    auto t2 = Type::getInt32PtrTy(ctx);
+    auto d2 = data_type::from_llvm(t2);
+    REQUIRE(d2);
+    REQUIRE(*d2 == data_type {base_type::integer, 1});
+
+    auto t3 = Type::getInt8PtrTy(ctx)->getPointerTo()->getPointerTo();
+    auto d3 = data_type::from_llvm(t3);
+    REQUIRE(d3);
+    REQUIRE(*d3 == data_type {base_type::character, 3});
+  }
+
+  SECTION("Others") {}
+}
+
+TEST_CASE("Can create signatures from LLVM function types")
+{
+  auto& ctx = thread_context::get();
+  auto void_ty = Type::getVoidTy(ctx);
+  auto bool_ty = Type::getInt1Ty(ctx);
+  auto char_ty = Type::getInt8Ty(ctx);
+  auto int_ty = Type::getInt32Ty(ctx);
+  auto float_ty = Type::getFloatTy(ctx);
+
+  SECTION("Simple function type")
+  {
+    auto func_ty = FunctionType::get(void_ty, {}, false);
+    auto sig = signature::from_llvm(func_ty);
+
+    REQUIRE(sig);
+    REQUIRE(sig->parameters.empty());
+  }
+
+  SECTION("With parameters")
+  {
+    auto func_ty = FunctionType::get(void_ty, {int_ty, float_ty}, false);
+    auto sig = signature::from_llvm(func_ty);
+
+    REQUIRE(sig);
+    REQUIRE(sig->parameters.size() == 2);
+
+    REQUIRE(sig->parameters[0].type == base_type::integer);
+    REQUIRE(sig->parameters[0].pointer_depth == 0);
+    REQUIRE(sig->parameters[1].type == base_type::floating);
+    REQUIRE(sig->parameters[1].pointer_depth == 0);
+  }
+
+  SECTION("With return type")
+  {
+    auto func_ty = FunctionType::get(int_ty, {char_ty->getPointerTo()}, false);
+    auto sig = signature::from_llvm(func_ty, "woo");
+
+    REQUIRE(sig);
+    REQUIRE(sig->name == "woo");
+    REQUIRE(sig->parameters.size() == 1);
+
+    REQUIRE(sig->return_type);
+    REQUIRE(sig->return_type->base == base_type::integer);
+    REQUIRE(sig->return_type->pointers == 0);
+
+    REQUIRE(sig->parameters[0].type == base_type::character);
+    REQUIRE(sig->parameters[0].pointer_depth == 1);
+  }
+
+  SECTION("More complex")
+  {
+    auto func_ty = FunctionType::get(
+        float_ty->getPointerTo(),
+        {bool_ty->getPointerTo()->getPointerTo(), int_ty,
+         float_ty->getPointerTo()},
+        false);
+
+    auto sig = signature::from_llvm(func_ty, "two");
+
+    REQUIRE(sig);
+    REQUIRE(sig->name == "two");
+    REQUIRE(sig->parameters.size() == 3);
+
+    REQUIRE(sig->return_type);
+    REQUIRE(sig->return_type->base == base_type::floating);
+    REQUIRE(sig->return_type->pointers == 1);
+
+    REQUIRE(sig->parameters[0].type == base_type::boolean);
+    REQUIRE(sig->parameters[0].pointer_depth == 2);
+
+    REQUIRE(sig->parameters[1].type == base_type::integer);
+    REQUIRE(sig->parameters[1].pointer_depth == 0);
+
+    REQUIRE(sig->parameters[2].type == base_type::floating);
+    REQUIRE(sig->parameters[2].pointer_depth == 1);
+  }
 }
