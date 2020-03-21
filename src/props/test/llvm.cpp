@@ -252,5 +252,66 @@ TEST_CASE("Can create signatures from LLVM function types")
   SECTION("Simple function type")
   {
     auto func_ty = FunctionType::get(void_ty, {}, false);
+    auto sig = signature::from_llvm(func_ty);
+
+    REQUIRE(sig);
+    REQUIRE(sig->parameters.empty());
+  }
+
+  SECTION("With parameters")
+  {
+    auto func_ty = FunctionType::get(void_ty, {int_ty, float_ty}, false);
+    auto sig = signature::from_llvm(func_ty);
+
+    REQUIRE(sig);
+    REQUIRE(sig->parameters.size() == 2);
+
+    REQUIRE(sig->parameters[0].type == base_type::integer);
+    REQUIRE(sig->parameters[0].pointer_depth == 0);
+    REQUIRE(sig->parameters[1].type == base_type::floating);
+    REQUIRE(sig->parameters[1].pointer_depth == 0);
+  }
+
+  SECTION("With return type")
+  {
+    auto func_ty = FunctionType::get(int_ty, {char_ty->getPointerTo()}, false);
+    auto sig = signature::from_llvm(func_ty);
+
+    REQUIRE(sig);
+    REQUIRE(sig->parameters.size() == 1);
+
+    REQUIRE(sig->return_type);
+    REQUIRE(sig->return_type->base == base_type::integer);
+    REQUIRE(sig->return_type->pointers == 0);
+
+    REQUIRE(sig->parameters[0].type == base_type::character);
+    REQUIRE(sig->parameters[0].pointer_depth == 1);
+  }
+
+  SECTION("More complex")
+  {
+    auto func_ty = FunctionType::get(
+        float_ty->getPointerTo(),
+        {bool_ty->getPointerTo()->getPointerTo(), int_ty,
+         float_ty->getPointerTo()},
+        false);
+
+    auto sig = signature::from_llvm(func_ty);
+
+    REQUIRE(sig);
+    REQUIRE(sig->parameters.size() == 3);
+
+    REQUIRE(sig->return_type);
+    REQUIRE(sig->return_type->base == base_type::floating);
+    REQUIRE(sig->return_type->pointers == 1);
+
+    REQUIRE(sig->parameters[0].type == base_type::boolean);
+    REQUIRE(sig->parameters[0].pointer_depth == 2);
+
+    REQUIRE(sig->parameters[1].type == base_type::integer);
+    REQUIRE(sig->parameters[1].pointer_depth == 0);
+
+    REQUIRE(sig->parameters[2].type == base_type::floating);
+    REQUIRE(sig->parameters[2].pointer_depth == 1);
   }
 }

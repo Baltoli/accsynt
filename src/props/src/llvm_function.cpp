@@ -1,5 +1,8 @@
 #include <props/props.h>
+
 #include <support/thread_context.h>
+
+#include <fmt/format.h>
 
 using namespace support;
 using namespace llvm;
@@ -106,9 +109,29 @@ std::optional<data_type> data_type::from_llvm(llvm::Type* ty)
   return std::nullopt;
 }
 
-signature signature::from_llvm(FunctionType* ty)
+std::optional<signature> signature::from_llvm(FunctionType* ty)
 {
   auto sig = signature {};
+  sig.name = "f";
+
+  if (auto ret_ty = data_type::from_llvm(ty->getReturnType())) {
+    sig.return_type = *ret_ty;
+  } else {
+    sig.return_type = std::nullopt;
+  }
+
+  auto param_count = 0;
+  for (auto arg_ty : ty->params()) {
+    if (auto arg_dt = data_type::from_llvm(arg_ty)) {
+      auto name = fmt::format("p{}", param_count++);
+
+      sig.parameters.push_back(
+          param {name, arg_dt->base, static_cast<int>(arg_dt->pointers)});
+    } else {
+      return std::nullopt;
+    }
+  }
+
   return sig;
 }
 
