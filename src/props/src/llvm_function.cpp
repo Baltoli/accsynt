@@ -1,5 +1,8 @@
 #include <props/props.h>
+
 #include <support/thread_context.h>
+
+#include <fmt/format.h>
 
 using namespace support;
 using namespace llvm;
@@ -52,8 +55,9 @@ FunctionType* signature::function_type() const
 {
   auto param_types = std::vector<Type*> {};
 
-  std::transform(parameters.begin(), parameters.end(),
-      std::back_inserter(param_types), [](auto p) { return p.llvm_type(); });
+  std::transform(
+      parameters.begin(), parameters.end(), std::back_inserter(param_types),
+      [](auto p) { return p.llvm_type(); });
 
   return FunctionType::get(
       base_llvm_return_type(return_type), param_types, false);
@@ -76,4 +80,60 @@ Function* signature::create_function(Module& mod) const
 
   return fn;
 }
+
+std::optional<data_type> data_type::from_llvm(llvm::Type* ty)
+{
+  if (ty->isFloatTy()) {
+    return data_type {base_type::floating, 0};
+  } else if (ty->isIntegerTy(1)) {
+    return data_type {base_type::boolean, 0};
+  } else if (ty->isIntegerTy(8)) {
+    return data_type {base_type::character, 0};
+  } else if (ty->isIntegerTy(32)) {
+    return data_type {base_type::integer, 0};
+  } else if (ty->isPointerTy()) {
+    auto depth = 1u;
+    auto ptr_ty = dyn_cast<PointerType>(ty);
+    auto elt_ty = ptr_ty->getElementType();
+
+    while (elt_ty->isPointerTy()) {
+      ++depth;
+      elt_ty = dyn_cast<PointerType>(elt_ty)->getElementType();
+    }
+
+    if (auto maybe_elt = data_type::from_llvm(elt_ty)) {
+      return data_type {maybe_elt->base, depth};
+    }
+  }
+
+  return std::nullopt;
+}
+
+std::optional<signature>
+signature::from_llvm(FunctionType* ty, std::string name)
+{
+  auto sig = signature {};
+  sig.name = name.empty() ? "f" : name;
+
+  if (auto ret_ty = data_type::from_llvm(ty->getReturnType())) {
+    sig.return_type = *ret_ty;
+  } else {
+    sig.return_type = std::nullopt;
+  }
+
+  auto param_count = 0;
+  for (auto arg_ty : ty->params()) {
+    if (auto arg_dt = data_type::from_llvm(arg_ty)) {
+      auto name = fmt::format("p{}", param_count++);
+
+      sig.parameters.push_back(
+          param {name, arg_dt->base, static_cast<int>(arg_dt->pointers)});
+    } else {
+      return std::nullopt;
+    }
+  }
+
+  return sig;
+}
+
 } // namespace props
