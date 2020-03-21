@@ -10,9 +10,11 @@ using namespace llvm;
 
 namespace support {
 
+std::unique_ptr<Module> parse_module() { return nullptr; }
+
 std::unique_ptr<Module> parse_module(std::string const& str)
 {
-  auto sm = SMDiagnostic{};
+  auto sm = SMDiagnostic {};
   auto buf = MemoryBuffer::getMemBuffer(str);
   auto mod = parseIR(*buf, sm, thread_context::get());
 
@@ -28,7 +30,7 @@ std::unique_ptr<Module> parse_module(std::string const& str)
 std::unique_ptr<Module> load_module(std::string const& path)
 {
   auto& ctx = thread_context::get();
-  auto err = SMDiagnostic{};
+  auto err = SMDiagnostic {};
 
   auto mod = parseIRFile(path, err, ctx, true, "");
   if (!mod) {
@@ -38,4 +40,11 @@ std::unique_ptr<Module> load_module(std::string const& path)
 
   return mod;
 }
+
+std::unique_ptr<Module>
+load_or_parse_module(std::string const& path, std::string const& parse)
+{
+  return nullptr;
+}
+
 } // namespace support
