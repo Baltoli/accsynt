@@ -109,10 +109,11 @@ std::optional<data_type> data_type::from_llvm(llvm::Type* ty)
   return std::nullopt;
 }
 
-std::optional<signature> signature::from_llvm(FunctionType* ty)
+std::optional<signature>
+signature::from_llvm(FunctionType* ty, std::string name)
 {
   auto sig = signature {};
-  sig.name = "f";
+  sig.name = name.empty() ? "f" : name;
 
   if (auto ret_ty = data_type::from_llvm(ty->getReturnType())) {
     sig.return_type = *ret_ty;

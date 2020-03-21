@@ -275,9 +275,10 @@ TEST_CASE("Can create signatures from LLVM function types")
   SECTION("With return type")
   {
     auto func_ty = FunctionType::get(int_ty, {char_ty->getPointerTo()}, false);
-    auto sig = signature::from_llvm(func_ty);
+    auto sig = signature::from_llvm(func_ty, "woo");
 
     REQUIRE(sig);
+    REQUIRE(sig->name == "woo");
     REQUIRE(sig->parameters.size() == 1);
 
     REQUIRE(sig->return_type);
@@ -296,9 +297,10 @@ TEST_CASE("Can create signatures from LLVM function types")
          float_ty->getPointerTo()},
         false);
 
-    auto sig = signature::from_llvm(func_ty);
+    auto sig = signature::from_llvm(func_ty, "two");
 
     REQUIRE(sig);
+    REQUIRE(sig->name == "two");
     REQUIRE(sig->parameters.size() == 3);
 
     REQUIRE(sig->return_type);
