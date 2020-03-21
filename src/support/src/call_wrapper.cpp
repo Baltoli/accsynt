@@ -12,6 +12,25 @@ using namespace llvm;
 
 namespace support {
 
+namespace {
+
+signature get_sig(Module const& mod, std::string const& name)
+{
+  auto func = mod.getFunction(name);
+  if (!func) {
+    throw std::runtime_error("No such function");
+  }
+
+  auto sig = signature::from_llvm(func->getFunctionType(), name);
+  if (!sig) {
+    throw std::runtime_error("Invalid LLVM type signature for JIT call");
+  }
+
+  return *sig;
+}
+
+} // namespace
+
 call_wrapper::call_wrapper(
     signature sig, llvm::Module const& mod, std::string const& name)
     : signature_(sig)
@@ -25,12 +44,12 @@ call_wrapper::call_wrapper(
 
   wrapper_ = build_wrapper_function(*mod_copy, impl_);
 
-  auto topts = TargetOptions{};
+  auto topts = TargetOptions {};
   std::string err;
 
   verifyModule(*mod_copy, &llvm::errs());
 
-  auto eb = llvm::EngineBuilder{ std::move(mod_copy) };
+  auto eb = llvm::EngineBuilder {std::move(mod_copy)};
   eb.setErrorStr(&err);
   eb.setEngineKind(EngineKind::JIT);
   eb.setTargetOptions(topts);
@@ -41,8 +60,14 @@ call_wrapper::call_wrapper(
   }
 }
 
-call_wrapper::call_wrapper(signature sig, llvm::Module const& mod,
-    std::string const& name, dynamic_library const& dl)
+call_wrapper::call_wrapper(Module const& mod, std::string const& name)
+    : call_wrapper(get_sig(mod, name), mod, name)
+{
+}
+
+call_wrapper::call_wrapper(
+    signature sig, llvm::Module const& mod, std::string const& name,
+    dynamic_library const& dl)
     : call_wrapper(sig, mod, name)
 {
   auto sym = dl.raw_symbol(name);
@@ -82,7 +107,7 @@ Function* call_wrapper::build_wrapper_function(Module& mod, Function* fn) const
   auto rt = IntegerType::get(ctx, 64);
   auto byte_t = IntegerType::get(ctx, 8);
   auto ptr_t = byte_t->getPointerTo();
-  auto fn_ty = FunctionType::get(rt, { ptr_t }, false);
+  auto fn_ty = FunctionType::get(rt, {ptr_t}, false);
 
   auto new_fn
       = Function::Create(fn_ty, GlobalValue::ExternalLinkage, name, &mod);
@@ -92,7 +117,7 @@ Function* call_wrapper::build_wrapper_function(Module& mod, Function* fn) const
   size_t offset = 0;
   auto arg_data = new_fn->arg_begin();
 
-  auto call_args = std::vector<Value*>{};
+  auto call_args = std::vector<Value*> {};
 
   for (auto it = fn->arg_begin(); it != fn->arg_end(); ++it) {
     auto arg_type = it->getType();

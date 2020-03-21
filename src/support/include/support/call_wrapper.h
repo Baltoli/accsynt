@@ -41,6 +41,14 @@ namespace support {
 class call_wrapper {
 public:
   /**
+   * Construct a wrapper for an existing function by inferring the type
+   * signature from the function's LLVM type.
+   *
+   * If the function type is incorrect, this will throw an exception.
+   */
+  call_wrapper(llvm::Module const& mod, std::string const& name);
+
+  /**
    * Construct a wrapper for an existing function contained in a module. The
    * function is looked up by name in the module.
    */
