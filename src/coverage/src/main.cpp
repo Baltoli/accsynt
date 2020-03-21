@@ -17,4 +17,10 @@ int main(int argc, char** argv)
     errs() << "Couldn't load or parse module: " << InputFile << '\n';
     return 1;
   }
+
+  auto func = mod->getFunction(FunctionName);
+  if (!func) {
+    errs() << "Error looking up function " << FunctionName << " in module\n";
+    return 2;
+  }
 }

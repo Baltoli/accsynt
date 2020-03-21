@@ -7,3 +7,6 @@ cl::opt<std::string>
 
 cl::alias
     InputFileA("i", cl::desc("Alias for input-file"), cl::aliasopt(InputFile));
+
+cl::opt<std::string>
+    FunctionName(cl::Positional, cl::desc("Function to test"), cl::Required);
