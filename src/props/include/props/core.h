@@ -46,6 +46,8 @@ struct data_type {
 
   bool operator==(data_type const& other) const;
   bool operator!=(data_type const& other) const;
+
+  static std::optional<data_type> from_llvm(llvm::Type*);
 };
 
 struct param {
@@ -74,6 +76,9 @@ struct signature {
   llvm::Function* create_function(llvm::Module& mod) const;
 
   static signature parse(std::string_view str);
+
+  static std::optional<signature>
+  from_llvm(llvm::FunctionType*, std::string name = "");
 
   template <typename Input>
   void success(Input const& in, property_set& parent);
