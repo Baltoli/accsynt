@@ -3,6 +3,7 @@
 
 #include <catch2/catch.hpp>
 
+#include <llvm/IR/DerivedTypes.h>
 #include <llvm/Support/raw_ostream.h>
 
 using namespace props;
@@ -176,6 +177,67 @@ TEST_CASE("can create functions from signatures")
 
   auto p3_t = cast<PointerType>(p3)->getElementType();
   REQUIRE(p3_t->isIntegerTy(1));
+}
+
+TEST_CASE("Can create data types from LLVM types")
+{
+  auto& ctx = thread_context::get();
+
+  SECTION("Booleans")
+  {
+    auto ty = Type::getInt1Ty(ctx);
+    auto dt = data_type::from_llvm(ty);
+
+    REQUIRE(dt);
+    REQUIRE(*dt == data_type {base_type::boolean, 0});
+  }
+
+  SECTION("Chars")
+  {
+    auto ty = Type::getInt8Ty(ctx);
+    auto dt = data_type::from_llvm(ty);
+
+    REQUIRE(dt);
+    REQUIRE(*dt == data_type {base_type::character, 0});
+  }
+
+  SECTION("Ints")
+  {
+    auto ty = Type::getInt32Ty(ctx);
+    auto dt = data_type::from_llvm(ty);
+
+    REQUIRE(dt);
+    REQUIRE(*dt == data_type {base_type::integer, 0});
+  }
+
+  SECTION("Floats")
+  {
+    auto ty = Type::getFloatTy(ctx);
+    auto dt = data_type::from_llvm(ty);
+
+    REQUIRE(dt);
+    REQUIRE(*dt == data_type {base_type::floating, 0});
+  }
+
+  SECTION("Pointers")
+  {
+    auto t1 = Type::getFloatPtrTy(ctx);
+    auto d1 = data_type::from_llvm(t1);
+    REQUIRE(d1);
+    REQUIRE(*d1 == data_type {base_type::floating, 1});
+
+    auto t2 = Type::getInt32PtrTy(ctx);
+    auto d2 = data_type::from_llvm(t2);
+    REQUIRE(d2);
+    REQUIRE(*d2 == data_type {base_type::integer, 1});
+
+    auto t3 = Type::getInt8PtrTy(ctx)->getPointerTo()->getPointerTo();
+    auto d3 = data_type::from_llvm(t3);
+    REQUIRE(d3);
+    REQUIRE(*d3 == data_type {base_type::character, 3});
+  }
+
+  SECTION("Others") {}
 }
 
 TEST_CASE("Can create signatures from LLVM function types") {}
