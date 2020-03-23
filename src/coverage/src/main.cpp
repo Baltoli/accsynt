@@ -75,10 +75,12 @@ try {
 
     wrapper.call(build);
 
-    fmt::print(
-        "{name},{iter},{cover},{total}\n", "name"_a = wrapper.name(),
-        "iter"_a = i + 1, "cover"_a = wrapper.covered_conditions(),
-        "total"_a = wrapper.total_conditions());
+    if (!Single || i == NumInputs - 1) {
+      fmt::print(
+          "{name},{iter},{cover},{total}\n", "name"_a = wrapper.name(),
+          "iter"_a = i + 1, "cover"_a = wrapper.covered_conditions(),
+          "total"_a = wrapper.total_conditions());
+    }
   }
 } catch (std::runtime_error& e) {
   llvm::errs() << "Error creating coverage JIT wrapper:  ";
