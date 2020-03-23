@@ -13,6 +13,39 @@
 using namespace support;
 using namespace llvm;
 
+Function* get_single_function(Module& mod)
+{
+  Function* ret_func = nullptr;
+
+  for (auto& func : mod) {
+    if (!func.isDeclaration()) {
+      if (ret_func == nullptr) {
+        // If this is the only defined function we've seen so far, keep track
+        ret_func = &func;
+      } else {
+        // If this and another function are both definitions, then there's no
+        // unambiguous candidate.
+        return nullptr;
+      }
+    }
+  }
+
+  return ret_func;
+}
+
+coverage::wrapper get_wrapper(Module& mod)
+{
+  if (FunctionName == "-") {
+    if (auto func = get_single_function(mod)) {
+      return coverage::wrapper(*func);
+    } else {
+      throw std::runtime_error("Function selection ambiguous");
+    }
+  }
+
+  return coverage::wrapper(mod, FunctionName);
+}
+
 int main(int argc, char** argv)
 try {
   InitializeNativeTarget();
@@ -27,7 +60,7 @@ try {
     return 1;
   }
 
-  auto wrapper = coverage::wrapper(*mod, FunctionName);
+  auto wrapper = get_wrapper(*mod);
   auto gen = uniform_generator();
 
   fmt::print("{},{},{}\n", "inputs", "covered", "total");
