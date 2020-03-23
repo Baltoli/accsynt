@@ -20,3 +20,7 @@ cl::opt<int> NumInputs(
 
 cl::alias
     NumInputsA("n", cl::desc("Alias for num-inputs"), cl::aliasopt(NumInputs));
+
+cl::opt<bool> Header(
+    "header", cl::desc("Print a header for this individual run"),
+    cl::init(false));

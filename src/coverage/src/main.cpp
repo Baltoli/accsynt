@@ -65,7 +65,9 @@ try {
   auto wrapper = get_wrapper(*mod);
   auto gen = uniform_generator();
 
-  fmt::print("{},{},{},{}\n", "name", "inputs", "covered", "total");
+  if (Header) {
+    fmt::print("{},{},{},{}\n", "name", "inputs", "covered", "total");
+  }
 
   for (auto i = 0; i < NumInputs; ++i) {
     auto build = wrapper.get_builder();
