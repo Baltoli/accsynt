@@ -156,4 +156,7 @@ Function* call_wrapper::build_wrapper_function(Module& mod, Function* fn) const
 
   return new_fn;
 }
+
+std::string call_wrapper::name() const { return implementation()->getName(); }
+
 } // namespace support

@@ -48,6 +48,8 @@ coverage::wrapper get_wrapper(Module& mod)
 
 int main(int argc, char** argv)
 try {
+  using namespace fmt::literals;
+
   InitializeNativeTarget();
   LLVMInitializeNativeAsmPrinter();
   LLVMInitializeNativeAsmParser();
@@ -63,7 +65,7 @@ try {
   auto wrapper = get_wrapper(*mod);
   auto gen = uniform_generator();
 
-  fmt::print("{},{},{}\n", "inputs", "covered", "total");
+  fmt::print("{},{},{},{}\n", "name", "inputs", "covered", "total");
 
   for (auto i = 0; i < NumInputs; ++i) {
     auto build = wrapper.get_builder();
@@ -72,8 +74,9 @@ try {
     wrapper.call(build);
 
     fmt::print(
-        "{},{},{}\n", i + 1, wrapper.covered_conditions(),
-        wrapper.total_conditions());
+        "{name},{iter},{cover},{total}\n", "name"_a = wrapper.name(),
+        "iter"_a = i + 1, "cover"_a = wrapper.covered_conditions(),
+        "total"_a = wrapper.total_conditions());
   }
 } catch (std::runtime_error& e) {
   llvm::errs() << "Error creating coverage JIT wrapper:  ";
