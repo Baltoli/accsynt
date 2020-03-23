@@ -17,6 +17,7 @@ add_library(support
   src/argument_generator.cpp
   src/string.cpp
   src/similarity.cpp
+  src/timeout.cpp
   src/thread_context.cpp)
 
 target_link_libraries(support
