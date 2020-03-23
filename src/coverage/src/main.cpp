@@ -13,13 +13,27 @@
 using namespace support;
 using namespace llvm;
 
-Function* get_single_function(Module const& mod)
+Function* get_single_function(Module& mod)
 {
   Function* ret_func = nullptr;
+
+  for (auto& func : mod) {
+    if (!func.isDeclaration()) {
+      if (ret_func == nullptr) {
+        // If this is the only defined function we've seen so far, keep track
+        ret_func = &func;
+      } else {
+        // If this and another function are both definitions, then there's no
+        // unambiguous candidate.
+        return nullptr;
+      }
+    }
+  }
+
   return ret_func;
 }
 
-coverage::wrapper get_wrapper(Module const& mod)
+coverage::wrapper get_wrapper(Module& mod)
 {
   if (FunctionName == "-") {
     if (auto func = get_single_function(mod)) {
