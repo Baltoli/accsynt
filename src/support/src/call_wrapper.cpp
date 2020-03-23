@@ -65,6 +65,11 @@ call_wrapper::call_wrapper(Module const& mod, std::string const& name)
 {
 }
 
+call_wrapper::call_wrapper(Function const& func)
+    : call_wrapper(*func.getParent(), func.getName())
+{
+}
+
 call_wrapper::call_wrapper(
     signature sig, llvm::Module const& mod, std::string const& name,
     dynamic_library const& dl)
