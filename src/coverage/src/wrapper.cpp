@@ -55,15 +55,6 @@ private:
 
 namespace coverage {
 
-uint64_t wrapper::call(support::call_builder& builder)
-{
-  if (!instrumented_) {
-    instrument();
-  }
-
-  return support::call_wrapper::call(builder);
-}
-
 void wrapper::instrument()
 {
   using namespace std::placeholders;
@@ -98,8 +89,6 @@ void wrapper::instrument()
   for (auto [branch, id] : branch_ids_) {
     visits_[id] = detail::branch_visits::None;
   }
-
-  instrumented_ = true;
 }
 
 void wrapper::handle_branch_event(int id, bool value)
@@ -131,8 +120,8 @@ size_t wrapper::covered_conditions() const
 
 double wrapper::coverage() const
 {
-  if (!instrumented_) {
-    return 0;
+  if (total_conditions() == 0) {
+    return 1.0;
   }
 
   return static_cast<double>(covered_conditions())

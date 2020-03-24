@@ -22,14 +22,8 @@ public:
   explicit wrapper(Args&&... args)
       : support::call_wrapper(std::forward<Args>(args)...)
   {
+    instrument();
   }
-
-  /**
-   * Shadow the base class call method, ensuring when we call through this
-   * implementation that we have already instrumented the function with branch
-   * checks.
-   */
-  uint64_t call(support::call_builder& builder);
 
   /**
    * The number of distinct branch conditions in the function being examined.
@@ -57,7 +51,6 @@ public:
   void handle_branch_event(int id, bool value);
 
 private:
-  bool instrumented_ = false;
   void instrument();
 
   std::map<llvm::BranchInst*, int> branch_ids_ = {};
