@@ -18,7 +18,11 @@ enum branch_visits { None = 0x0, True = 0x1, False = 0x2, All = 0x3 };
 
 class wrapper : public support::call_wrapper {
 public:
-  using support::call_wrapper::call_wrapper;
+  template <typename... Args>
+  explicit wrapper(Args&&... args)
+      : support::call_wrapper(std::forward<Args>(args)...)
+  {
+  }
 
   /**
    * Shadow the base class call method, ensuring when we call through this
