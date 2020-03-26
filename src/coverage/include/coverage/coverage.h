@@ -50,6 +50,24 @@ public:
    */
   void handle_branch_event(int id, bool value);
 
+  /**
+   * Add additional instrumentation code to the function that allows it to be
+   * interrupted when an external flag is changed.
+   *
+   * The primary motivation for this feature is to allow for timeouts to be
+   * enforced by a timer on another thread.
+   *
+   * To implement the interrupt signal:
+   *  - Add an additional exit block to the function that returns a dummy (zero)
+   *    constant of the appropriate type.
+   *  - Create an externally-mapped pointer-to-bool using the supplied address.
+   *  - For every basic block, create an auxiliary block.
+   *  - Move the original terminator into the auxiliary block.
+   *  - At the end of the original block, test the external bool pointer and
+   *    make a conditional branch to either the exit block or the auxiliary one.
+   */
+  void enable_interrupts(bool*);
+
 private:
   void instrument();
 
