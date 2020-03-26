@@ -4,11 +4,14 @@
 
 #include <support/argument_generator.h>
 #include <support/load_module.h>
+#include <support/timeout.h>
 
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/Support/raw_ostream.h>
 
 #include <fmt/format.h>
+
+#include <chrono>
 
 using namespace support;
 using namespace llvm;
@@ -49,6 +52,7 @@ coverage::wrapper get_wrapper(Module& mod)
 int main(int argc, char** argv)
 try {
   using namespace fmt::literals;
+  using namespace std::chrono_literals;
 
   InitializeNativeTarget();
   LLVMInitializeNativeAsmPrinter();
@@ -69,17 +73,29 @@ try {
     fmt::print("{},{},{},{}\n", "name", "inputs", "covered", "total");
   }
 
+  bool signal = false;
+  wrapper.enable_interrupts(&signal);
+
+  // Need to change this loop to record the number of valid inputs actually
+  // generated - for now just timeout and fail if not valid.
   for (auto i = 0; i < NumInputs; ++i) {
+    signal = false;
+
     auto build = wrapper.get_builder();
     gen.gen_args(build);
 
-    wrapper.call(build);
+    timeout(
+        2s, [&] { wrapper.call(build); }, [&] { signal = true; });
 
-    if (!Single || i == NumInputs - 1) {
-      fmt::print(
-          "{name},{iter},{cover},{total}\n", "name"_a = wrapper.name(),
-          "iter"_a = i + 1, "cover"_a = wrapper.covered_conditions(),
-          "total"_a = wrapper.total_conditions());
+    if (signal) {
+      fmt::print("{name} timeout\n", "name"_a = wrapper.name());
+    } else {
+      if (!Single || i == NumInputs - 1) {
+        fmt::print(
+            "{name},{iter},{cover},{total}\n", "name"_a = wrapper.name(),
+            "iter"_a = i + 1, "cover"_a = wrapper.covered_conditions(),
+            "total"_a = wrapper.total_conditions());
+      }
     }
   }
 } catch (std::runtime_error& e) {

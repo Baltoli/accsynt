@@ -91,6 +91,8 @@ void wrapper::instrument()
   }
 }
 
+void wrapper::enable_interrupts(bool* signal_ptr) {}
+
 void wrapper::handle_branch_event(int id, bool value)
 {
   visits_[id] = detail::branch_visits(
