@@ -57,8 +57,6 @@ namespace coverage {
 
 void wrapper::instrument()
 {
-  using namespace std::placeholders;
-
   auto& ctx = support::thread_context::get();
   auto mod = implementation()->getParent();
 
@@ -91,7 +89,47 @@ void wrapper::instrument()
   }
 }
 
-void wrapper::enable_interrupts(bool* signal_ptr) {}
+void wrapper::enable_interrupts(bool* signal_ptr)
+{
+  auto& ctx = support::thread_context::get();
+  auto mod = implementation()->getParent();
+
+  auto bool_t = llvm::IntegerType::get(ctx, 1);
+
+  // Add the pointer mapping for the termination signal
+  auto signal = new llvm::GlobalVariable(
+      *mod, bool_t, true, llvm::GlobalValue::ExternalLinkage, nullptr,
+      "signal");
+  engine()->addGlobalMapping(signal, (void*)signal_ptr);
+
+  auto bb_work = std::vector<llvm::BasicBlock*> {};
+  for (auto& bb : *implementation()) {
+    bb_work.push_back(&bb);
+  }
+
+  // Create the dummy-exit basic block for interrupted executions
+  auto exit_block
+      = llvm::BasicBlock::Create(ctx, "interrupt-exit", implementation());
+  auto build = llvm::IRBuilder<>(exit_block);
+
+  auto ret_ty = implementation()->getFunctionType()->getReturnType();
+  if (ret_ty->isVoidTy()) {
+    build.CreateRetVoid();
+  } else {
+    auto ret_val = llvm::Constant::getNullValue(ret_ty);
+    build.CreateRet(ret_val);
+  }
+
+  for (auto bb : bb_work) {
+    auto aux_bb = llvm::BasicBlock::Create(
+        ctx, bb->getName() + ".aux", implementation());
+    auto term = bb->getTerminator();
+
+    term->moveBefore(*aux_bb, aux_bb->begin());
+  }
+
+  llvm::errs() << *mod << '\n';
+}
 
 void wrapper::handle_branch_event(int id, bool value)
 {
