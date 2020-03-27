@@ -120,12 +120,27 @@ void wrapper::enable_interrupts(bool* signal_ptr)
     build.CreateRet(ret_val);
   }
 
+  auto phi_map = std::map<llvm::BasicBlock*, llvm::BasicBlock*> {};
   for (auto bb : bb_work) {
     auto aux_bb = llvm::BasicBlock::Create(
         ctx, bb->getName() + ".aux", implementation());
-    auto term = bb->getTerminator();
 
+    auto term = bb->getTerminator();
     term->moveBefore(*aux_bb, aux_bb->begin());
+
+    build.SetInsertPoint(bb, bb->end());
+    auto load = build.CreateLoad(signal);
+    load->setVolatile(true);
+
+    build.CreateCondBr(load, exit_block, aux_bb);
+
+    phi_map[bb] = aux_bb;
+  }
+
+  for (auto& bb : *implementation()) {
+    for (auto [old, aux] : phi_map) {
+      bb.replacePhiUsesWith(old, aux);
+    }
   }
 
   llvm::errs() << *mod << '\n';
