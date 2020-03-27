@@ -112,6 +112,8 @@ void wrapper::enable_interrupts(bool* signal_ptr)
       = llvm::BasicBlock::Create(ctx, "interrupt-exit", implementation());
   auto build = llvm::IRBuilder<>(exit_block);
 
+  // Return a null constant from the exit block - the actual value should never
+  // be used.
   auto ret_ty = implementation()->getFunctionType()->getReturnType();
   if (ret_ty->isVoidTy()) {
     build.CreateRetVoid();
@@ -120,6 +122,9 @@ void wrapper::enable_interrupts(bool* signal_ptr)
     build.CreateRet(ret_val);
   }
 
+  // Create the new branching logic (the load needs to be volatile to prevent
+  // the optimizer from hoisting it). PHI nodes are updated to make sure that
+  // they come from the auxiliary block.
   auto phi_map = std::map<llvm::BasicBlock*, llvm::BasicBlock*> {};
   for (auto bb : bb_work) {
     auto aux_bb = llvm::BasicBlock::Create(
@@ -142,8 +147,6 @@ void wrapper::enable_interrupts(bool* signal_ptr)
       bb.replacePhiUsesWith(old, aux);
     }
   }
-
-  llvm::errs() << *mod << '\n';
 }
 
 void wrapper::handle_branch_event(int id, bool value)
