@@ -73,29 +73,17 @@ try {
     fmt::print("{},{},{},{}\n", "name", "inputs", "covered", "total");
   }
 
-  bool signal = false;
-  wrapper.enable_interrupts(&signal);
-
-  // Need to change this loop to record the number of valid inputs actually
-  // generated - for now just timeout and fail if not valid.
   for (auto i = 0; i < NumInputs; ++i) {
-    signal = false;
-
     auto build = wrapper.get_builder();
     gen.gen_args(build);
 
-    timeout(
-        2s, [&] { wrapper.call(build); }, [&] { signal = true; });
+    wrapper.call(build);
 
-    if (signal) {
-      fmt::print("{name} timeout\n", "name"_a = wrapper.name());
-    } else {
-      if (!Single || i == NumInputs - 1) {
-        fmt::print(
-            "{name},{iter},{cover},{total}\n", "name"_a = wrapper.name(),
-            "iter"_a = i + 1, "cover"_a = wrapper.covered_conditions(),
-            "total"_a = wrapper.total_conditions());
-      }
+    if (!Single || i == NumInputs - 1) {
+      fmt::print(
+          "{name},{iter},{cover},{total}\n", "name"_a = wrapper.name(),
+          "iter"_a = i + 1, "cover"_a = wrapper.covered_conditions(),
+          "total"_a = wrapper.total_conditions());
     }
   }
 } catch (std::runtime_error& e) {
