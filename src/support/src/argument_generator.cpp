@@ -53,7 +53,7 @@ void uniform_generator::seed(std::random_device::result_type seed)
 template <>
 int uniform_generator::gen_single<int>()
 {
-  return std::uniform_int_distribution<int>(0, size_ - 1)(engine_);
+  return std::uniform_int_distribution<int>(-4, size_ - 1)(engine_);
 }
 
 template <>
