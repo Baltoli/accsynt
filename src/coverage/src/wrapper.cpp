@@ -55,19 +55,8 @@ private:
 
 namespace coverage {
 
-uint64_t wrapper::call(support::call_builder& builder)
-{
-  if (!instrumented_) {
-    instrument();
-  }
-
-  return support::call_wrapper::call(builder);
-}
-
 void wrapper::instrument()
 {
-  using namespace std::placeholders;
-
   auto& ctx = support::thread_context::get();
   auto mod = implementation()->getParent();
 
@@ -98,8 +87,66 @@ void wrapper::instrument()
   for (auto [branch, id] : branch_ids_) {
     visits_[id] = detail::branch_visits::None;
   }
+}
 
-  instrumented_ = true;
+void wrapper::enable_interrupts(bool* signal_ptr)
+{
+  auto& ctx = support::thread_context::get();
+  auto mod = implementation()->getParent();
+
+  auto bool_t = llvm::IntegerType::get(ctx, 1);
+
+  // Add the pointer mapping for the termination signal
+  auto signal = new llvm::GlobalVariable(
+      *mod, bool_t, true, llvm::GlobalValue::ExternalLinkage, nullptr,
+      "signal");
+  engine()->addGlobalMapping(signal, (void*)signal_ptr);
+
+  auto bb_work = std::vector<llvm::BasicBlock*> {};
+  for (auto& bb : *implementation()) {
+    bb_work.push_back(&bb);
+  }
+
+  // Create the dummy-exit basic block for interrupted executions
+  auto exit_block
+      = llvm::BasicBlock::Create(ctx, "interrupt-exit", implementation());
+  auto build = llvm::IRBuilder<>(exit_block);
+
+  // Return a null constant from the exit block - the actual value should never
+  // be used.
+  auto ret_ty = implementation()->getFunctionType()->getReturnType();
+  if (ret_ty->isVoidTy()) {
+    build.CreateRetVoid();
+  } else {
+    auto ret_val = llvm::Constant::getNullValue(ret_ty);
+    build.CreateRet(ret_val);
+  }
+
+  // Create the new branching logic (the load needs to be volatile to prevent
+  // the optimizer from hoisting it). PHI nodes are updated to make sure that
+  // they come from the auxiliary block.
+  auto phi_map = std::map<llvm::BasicBlock*, llvm::BasicBlock*> {};
+  for (auto bb : bb_work) {
+    auto aux_bb = llvm::BasicBlock::Create(
+        ctx, bb->getName() + ".aux", implementation());
+
+    auto term = bb->getTerminator();
+    term->moveBefore(*aux_bb, aux_bb->begin());
+
+    build.SetInsertPoint(bb, bb->end());
+    auto load = build.CreateLoad(signal);
+    load->setVolatile(true);
+
+    build.CreateCondBr(load, exit_block, aux_bb);
+
+    phi_map[bb] = aux_bb;
+  }
+
+  for (auto& bb : *implementation()) {
+    for (auto [old, aux] : phi_map) {
+      bb.replacePhiUsesWith(old, aux);
+    }
+  }
 }
 
 void wrapper::handle_branch_event(int id, bool value)
@@ -131,8 +178,8 @@ size_t wrapper::covered_conditions() const
 
 double wrapper::coverage() const
 {
-  if (!instrumented_) {
-    return 0;
+  if (total_conditions() == 0) {
+    return 1.0;
   }
 
   return static_cast<double>(covered_conditions())

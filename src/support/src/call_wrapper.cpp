@@ -65,6 +65,11 @@ call_wrapper::call_wrapper(Module const& mod, std::string const& name)
 {
 }
 
+call_wrapper::call_wrapper(Function const& func)
+    : call_wrapper(*func.getParent(), func.getName())
+{
+}
+
 call_wrapper::call_wrapper(
     signature sig, llvm::Module const& mod, std::string const& name,
     dynamic_library const& dl)
@@ -151,4 +156,7 @@ Function* call_wrapper::build_wrapper_function(Module& mod, Function* fn) const
 
   return new_fn;
 }
+
+std::string call_wrapper::name() const { return implementation()->getName(); }
+
 } // namespace support

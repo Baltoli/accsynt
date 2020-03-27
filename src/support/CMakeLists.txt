@@ -52,6 +52,7 @@ add_executable(support_unit
   test/similarity.cpp
   test/string.cpp
   test/hash.cpp
+  test/timeout.cpp
   test/utility.cpp
   test/main.cpp)
 

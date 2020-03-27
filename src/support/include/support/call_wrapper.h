@@ -41,6 +41,12 @@ namespace support {
 class call_wrapper {
 public:
   /**
+   * Construct a wrapper for a function by passing the function directly - the
+   * parent module and name can be obtained unambiguously from the function.
+   */
+  call_wrapper(llvm::Function const& func);
+
+  /**
    * Construct a wrapper for an existing function by inferring the type
    * signature from the function's LLVM type.
    *
@@ -84,9 +90,19 @@ public:
    */
   uint64_t call(call_builder& builder);
 
+  /**
+   * Get the name of the underlying function implementation (if it's not already
+   * known, for example if the wrapper was constructed by inferring a candidate
+   * function whose name is not known).
+   */
+  std::string name() const;
+
 protected:
-  llvm::Function* implementation() { return impl_; }
-  std::unique_ptr<llvm::ExecutionEngine> const& engine() { return engine_; }
+  llvm::Function* implementation() const { return impl_; }
+  std::unique_ptr<llvm::ExecutionEngine> const& engine() const
+  {
+    return engine_;
+  }
 
 private:
   /**

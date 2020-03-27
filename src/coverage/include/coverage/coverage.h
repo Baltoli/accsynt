@@ -18,14 +18,12 @@ enum branch_visits { None = 0x0, True = 0x1, False = 0x2, All = 0x3 };
 
 class wrapper : public support::call_wrapper {
 public:
-  using support::call_wrapper::call_wrapper;
-
-  /**
-   * Shadow the base class call method, ensuring when we call through this
-   * implementation that we have already instrumented the function with branch
-   * checks.
-   */
-  uint64_t call(support::call_builder& builder);
+  template <typename... Args>
+  explicit wrapper(Args&&... args)
+      : support::call_wrapper(std::forward<Args>(args)...)
+  {
+    instrument();
+  }
 
   /**
    * The number of distinct branch conditions in the function being examined.
@@ -52,8 +50,25 @@ public:
    */
   void handle_branch_event(int id, bool value);
 
+  /**
+   * Add additional instrumentation code to the function that allows it to be
+   * interrupted when an external flag is changed.
+   *
+   * The primary motivation for this feature is to allow for timeouts to be
+   * enforced by a timer on another thread.
+   *
+   * To implement the interrupt signal:
+   *  - Add an additional exit block to the function that returns a dummy (zero)
+   *    constant of the appropriate type.
+   *  - Create an externally-mapped pointer-to-bool using the supplied address.
+   *  - For every basic block, create an auxiliary block.
+   *  - Move the original terminator into the auxiliary block.
+   *  - At the end of the original block, test the external bool pointer and
+   *    make a conditional branch to either the exit block or the auxiliary one.
+   */
+  void enable_interrupts(bool*);
+
 private:
-  bool instrumented_ = false;
   void instrument();
 
   std::map<llvm::BranchInst*, int> branch_ids_ = {};

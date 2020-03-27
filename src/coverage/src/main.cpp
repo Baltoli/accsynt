@@ -4,17 +4,56 @@
 
 #include <support/argument_generator.h>
 #include <support/load_module.h>
+#include <support/timeout.h>
 
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/Support/raw_ostream.h>
 
 #include <fmt/format.h>
 
+#include <chrono>
+
 using namespace support;
 using namespace llvm;
 
+Function* get_single_function(Module& mod)
+{
+  Function* ret_func = nullptr;
+
+  for (auto& func : mod) {
+    if (!func.isDeclaration()) {
+      if (ret_func == nullptr) {
+        // If this is the only defined function we've seen so far, keep track
+        ret_func = &func;
+      } else {
+        // If this and another function are both definitions, then there's no
+        // unambiguous candidate.
+        return nullptr;
+      }
+    }
+  }
+
+  return ret_func;
+}
+
+coverage::wrapper get_wrapper(Module& mod)
+{
+  if (FunctionName == "-") {
+    if (auto func = get_single_function(mod)) {
+      return coverage::wrapper(*func);
+    } else {
+      throw std::runtime_error("Function selection ambiguous");
+    }
+  }
+
+  return coverage::wrapper(mod, FunctionName);
+}
+
 int main(int argc, char** argv)
 try {
+  using namespace fmt::literals;
+  using namespace std::chrono_literals;
+
   InitializeNativeTarget();
   LLVMInitializeNativeAsmPrinter();
   LLVMInitializeNativeAsmParser();
@@ -27,20 +66,37 @@ try {
     return 1;
   }
 
-  auto wrapper = coverage::wrapper(*mod, FunctionName);
+  auto wrapper = get_wrapper(*mod);
   auto gen = uniform_generator();
 
-  fmt::print("{},{},{}\n", "inputs", "covered", "total");
+  if (Header) {
+    fmt::print("{},{},{},{}\n", "name", "inputs", "covered", "total");
+  }
 
+  bool signal = false;
+  wrapper.enable_interrupts(&signal);
+
+  // Need to change this loop to record the number of valid inputs actually
+  // generated - for now just timeout and fail if not valid.
   for (auto i = 0; i < NumInputs; ++i) {
+    signal = false;
+
     auto build = wrapper.get_builder();
     gen.gen_args(build);
 
-    wrapper.call(build);
+    timeout(
+        2s, [&] { wrapper.call(build); }, [&] { signal = true; });
 
-    fmt::print(
-        "{},{},{}\n", i + 1, wrapper.covered_conditions(),
-        wrapper.total_conditions());
+    if (signal) {
+      fmt::print("{name} timeout\n", "name"_a = wrapper.name());
+    } else {
+      if (!Single || i == NumInputs - 1) {
+        fmt::print(
+            "{name},{iter},{cover},{total}\n", "name"_a = wrapper.name(),
+            "iter"_a = i + 1, "cover"_a = wrapper.covered_conditions(),
+            "total"_a = wrapper.total_conditions());
+      }
+    }
   }
 } catch (std::runtime_error& e) {
   llvm::errs() << "Error creating coverage JIT wrapper:  ";
