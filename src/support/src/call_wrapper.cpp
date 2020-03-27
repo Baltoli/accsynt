@@ -1,3 +1,4 @@
+#include <support/assert.h>
 #include <support/call_wrapper.h>
 #include <support/llvm_cloning.h>
 #include <support/thread_context.h>
@@ -95,13 +96,15 @@ uint64_t call_wrapper::call(call_builder& build)
 
 size_t call_wrapper::marshalled_size(llvm::Type const* type) const
 {
-  if (type->isIntegerTy(32) || type->isFloatTy()) {
+  if (type->isFloatTy()) {
     return 4;
+  } else if (auto int_ty = dyn_cast<IntegerType>(type)) {
+    return int_ty->getBitWidth() / 8;
   } else if (type->isPointerTy()) {
     return 8;
-  } else {
-    return 0;
   }
+
+  invalid_state();
 }
 
 Function* call_wrapper::build_wrapper_function(Module& mod, Function* fn) const
