@@ -35,7 +35,7 @@ jobs:
               -DCMAKE_BUILD_TYPE=Debug \
               -DCMAKE_C_COMPILER=gcc-8 \
               -DCMAKE_CXX_COMPILER=g++-8 \
-              -DLLVM_DIR=`llvm-config-9 --cmakedir` \
+              -DLLVM_DIR=`llvm-config-10 --cmakedir` \
               ../src
         make -j `nproc`
 
