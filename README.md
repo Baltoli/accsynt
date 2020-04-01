@@ -16,13 +16,13 @@ Build prerequisites:
 The build instructions in this section assume an environment variable
 `$BUILD_ROOT` that points to where you want to build LLVM and AccSynt.
 
-### LLVM 9
+### LLVM 10
 
 ```
 cd $BUILD_ROOT
 git clone git@github.com:llvm/llvm-project
 cd llvm-project
-git checkout llvmorg-9.0.1
+git checkout llvmorg-10.0.0
 mkdir build
 cd build
 cmake \

@@ -162,6 +162,8 @@ llvm::Value* call_wrapper::make_return(Builder& B, llvm::Value* ret) const
   auto* to_extend = ret;
   if (ret->getType()->isFloatTy()) {
     to_extend = B.CreateBitCast(ret, B.getInt32Ty());
+  } else if (ret->getType()->isPointerTy()) {
+    to_extend = B.CreatePtrToInt(ret, B.getInt64Ty());
   }
 
   auto* return_val = B.CreateZExt(to_extend, B.getInt64Ty());
