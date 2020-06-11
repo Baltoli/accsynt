@@ -4,6 +4,7 @@
 
 #include <fmt/format.h>
 
+#include <llvm/IR/Module.h>
 #include <llvm/IR/Value.h>
 #include <llvm/Support/raw_ostream.h>
 
@@ -29,8 +30,9 @@ struct fmt::formatter<llvm::Module> {
   }
 };
 
-template <>
-struct fmt::formatter<llvm::Value> {
+template <typename Val>
+struct fmt::formatter<
+    Val, std::enable_if_t<std::is_base_of_v<llvm::Value, Val>, char>> {
   template <typename ParseContext>
   constexpr auto parse(ParseContext& ctx)
   {
@@ -38,7 +40,7 @@ struct fmt::formatter<llvm::Value> {
   }
 
   template <typename FormatContext>
-  auto format(llvm::Value const& v, FormatContext& ctx)
+  auto format(Val const& v, FormatContext& ctx)
   {
     auto str = std::string {};
     auto os = llvm::raw_string_ostream(str);
