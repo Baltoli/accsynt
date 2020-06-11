@@ -1,3 +1,4 @@
+#include "candidate.h"
 #include "fragment.h"
 #include "options.h"
 #include "sketch.h"
@@ -29,6 +30,5 @@ int main(int argc, char** argv)
   fmt::print("{}\n", sig);
 
   auto sk = sketch(sig, *frag);
-
   fmt::print("\n{}", sk.module());
 }

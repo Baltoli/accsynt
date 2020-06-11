@@ -1,4 +1,5 @@
 #include "candidate.h"
+#include "sketch.h"
 
 #include <support/assert.h>
 #include <support/narrow_cast.h>
@@ -17,64 +18,12 @@
 
 using namespace llvm;
 
-namespace {
-
-// Generic stub visitor
-
-template <typename Func>
-class stub_visitor : public InstVisitor<stub_visitor<Func>> {
-public:
-  stub_visitor(Func&&);
-
-  void visitCallInst(CallInst&) const;
-
-private:
-  Func action_;
-};
-
-template <typename Func>
-stub_visitor<Func>::stub_visitor(Func&& f)
-    : action_(std::forward<Func>(f))
-{
-}
-
-template <typename Func>
-void stub_visitor<Func>::visitCallInst(CallInst& inst) const
-{
-  auto fn = inst.getCalledFunction();
-  auto name = fn->getName();
-  if (name.startswith("stub")) {
-    action_(inst);
-  }
-}
-
-// Validation visitor
-
-class is_valid_visitor : public InstVisitor<is_valid_visitor> {
-public:
-  is_valid_visitor() = default;
-
-  bool valid() const;
-
-  void visitCallInst(CallInst const&);
-
-private:
-  bool valid_ = true;
-};
-
-bool is_valid_visitor::valid() const { return valid_; }
-
-void is_valid_visitor::visitCallInst(CallInst const& ci)
-{
-  auto fn = ci.getCalledFunction();
-  if (fn->isDeclaration()) {
-    valid_ = false;
-  }
-}
-
-} // namespace
-
 namespace presyn {
+
+candidate::candidate(sketch&& sk)
+    : candidate(sk.ctx_.signature(), std::move(sk.module_))
+{
+}
 
 candidate::candidate(props::signature sig, std::unique_ptr<Module>&& mod)
     : signature_(sig)
@@ -152,6 +101,23 @@ void candidate::resolve_operators()
   // After values are chosen for the stubbed out values in the function, the
   // operators can be resolved - this step will involve some thought about the
   // types of the values being used (as by now we'll know the types).
+
+  auto replacements = std::map<CallInst*, Value*> {};
+
+  operator_visitor([&, this](auto& ci) {
+    if (auto op = create_operation(ci)) {
+      replacements[&ci] = op;
+    }
+  }).visit(function());
+
+  for (auto [stub, val] : replacements) {
+    auto conv = converter(val->getType(), stub->getType());
+
+    auto build = IRBuilder(stub);
+    auto call = build.CreateCall(conv, {val}, stub->getName());
+
+    safe_rauw(stub, call);
+  }
 }
 
 bool candidate::is_valid() const
@@ -233,9 +199,9 @@ llvm::Function* candidate::converter(llvm::Type* from, llvm::Type* to)
   return converters_.at({from, to});
 }
 
-void candidate::safe_rauw(CallInst* stub, Value* call)
+void candidate::safe_rauw(Instruction* stub, Value* call)
 {
-  auto replacements = std::map<CallInst*, Value*> {};
+  auto replacements = std::map<Instruction*, Value*> {};
 
   if (call->getType() == stub->getType()) {
     stub->replaceAllUsesWith(call);
@@ -244,18 +210,38 @@ void candidate::safe_rauw(CallInst* stub, Value* call)
     // result of this one separately.
 
     for (auto user : stub->users()) {
-      assertion(isa<CallInst>(user), "Users of stub calls must be calls");
-      auto user_call = cast<CallInst>(user);
+      assertion(
+          isa<CallInst>(user) || isa<PHINode>(user),
+          "Users of stub calls must be calls or PHIs");
 
-      auto new_args = std::vector<Value*> {};
-      for (auto& arg : user_call->args()) {
-        new_args.push_back(arg == stub ? call : arg);
+      if (auto user_call = dyn_cast<CallInst>(user)) {
+        auto new_args = std::vector<Value*> {};
+        for (auto& arg : user_call->args()) {
+          new_args.push_back(arg == stub ? call : arg);
+        }
+
+        auto new_call = IRBuilder(stub).CreateCall(
+            user_call->getCalledFunction(), new_args, stub->getName());
+
+        replacements[user_call] = new_call;
+
+      } else if (auto user_phi = dyn_cast<PHINode>(user)) {
+        auto new_phi = IRBuilder(stub).CreatePHI(
+            call->getType(), user_phi->getNumIncomingValues(),
+            user_phi->getName());
+
+        for (auto& val : user_phi->incoming_values()) {
+          // assert this is a call ? edge cases
+          auto incoming_call = cast<CallInst>(val);
+          auto typed_call = update_type(incoming_call, call->getType());
+
+          replacements[incoming_call] = typed_call;
+        }
+
+        // how to now RAUW a phi node???
+      } else {
+        invalid_state();
       }
-
-      auto new_call = IRBuilder(stub).CreateCall(
-          user_call->getCalledFunction(), new_args, stub->getName());
-
-      replacements[user_call] = new_call;
     }
   }
 
@@ -264,6 +250,12 @@ void candidate::safe_rauw(CallInst* stub, Value* call)
   }
 
   stub->eraseFromParent();
+}
+
+CallInst* candidate::update_type(CallInst* stub, Type* type)
+{
+  unimplemented();
+  ;
 }
 
 } // namespace presyn

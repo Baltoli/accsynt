@@ -5,6 +5,8 @@ add_library(corepresyn
   src/sketch.cpp
   src/sketch_context.cpp
   src/candidate.cpp
+  src/candidate_operations.cpp
+  src/candidate_visitors.cpp
   src/options.cpp)
 
 add_executable(presyn
@@ -26,6 +28,7 @@ target_link_libraries(presyn
   corepresyn)
 
 target_link_libraries(presyn-repl
+  CONAN_PKG::readline
   corepresyn)
 
 add_executable(presyn_unit

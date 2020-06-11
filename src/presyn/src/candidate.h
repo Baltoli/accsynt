@@ -1,5 +1,7 @@
 #pragma once
 
+#include "candidate_visitors.h"
+
 #include <props/props.h>
 
 #include <llvm/IR/Module.h>
@@ -10,8 +12,11 @@
 
 namespace presyn {
 
+class sketch;
+
 class candidate {
 public:
+  candidate(sketch&&);
   candidate(props::signature, std::unique_ptr<llvm::Module>&&);
 
   bool is_valid() const;
@@ -52,7 +57,19 @@ private:
   // declarations are variadic and we don't care about the types. Additionally,
   // we know that this is the only context in which our opaque stub type will
   // appear, so we're free to just change the type.
-  void safe_rauw(llvm::CallInst*, llvm::Value*);
+  void safe_rauw(llvm::Instruction*, llvm::Value*);
+
+  // This is responsible for creating a new stubbed call with an updated type
+  // (but not for replacing the uses - delegate that back to safe_rauw.
+  llvm::CallInst* update_type(llvm::CallInst*, llvm::Type*);
+
+  // Operators defined by special functions in sketches - these are things that
+  // we know the abstract semantics for ahead of time (e.g. that a value should
+  // be a load at a particular offset into a known pointer).
+  //
+  // Because types are not yet known when these operations are created by sketch
+  // compilation, we represent them as named stub functions.
+  llvm::Value* create_operation(llvm::CallInst&);
 };
 
 } // namespace presyn

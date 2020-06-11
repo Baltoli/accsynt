@@ -41,11 +41,6 @@ Module& sketch::module() { return *module_; }
 
 Module const& sketch::module() const { return *module_; }
 
-candidate sketch::reify() &&
-{
-  return candidate(ctx_.signature(), std::move(module_));
-}
-
 llvm::Value* sketch::create_return_stub(llvm::BasicBlock* exit)
 {
   auto build = IRBuilder(exit);
@@ -55,7 +50,7 @@ llvm::Value* sketch::create_return_stub(llvm::BasicBlock* exit)
   if (ret_ty->isVoidTy()) {
     return build.CreateRetVoid();
   } else {
-    auto call = build.CreateCall(ctx_.stub(ret_ty));
+    auto call = build.Insert(ctx_.stub(ret_ty));
     return build.CreateRet(call);
   }
 }

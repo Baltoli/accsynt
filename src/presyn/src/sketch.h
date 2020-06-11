@@ -26,6 +26,8 @@ namespace presyn {
  * connects the fragment code to the rest of the function.
  */
 class sketch {
+  friend class candidate;
+
 public:
   sketch(props::signature sig, fragment const&);
   sketch(props::signature sig, std::unique_ptr<fragment> const&);
@@ -33,21 +35,13 @@ public:
   llvm::Module& module();
   llvm::Module const& module() const;
 
-  /**
-   * Make a candidate out of this sketch.
-   *
-   * This will transfer ownership of the underlying module to the created
-   * candidate so that it can properly interface with the JIT. If you need
-   * another sketch the same as this one, recreate it from the same parameters -
-   * sketch construction is deterministic.
-   */
-  candidate reify() &&;
+protected:
+  // Allow these members to be accessed by the candidate constructor
+  std::unique_ptr<llvm::Module> module_;
+  sketch_context ctx_;
 
 private:
   llvm::Value* create_return_stub(llvm::BasicBlock*);
-
-  std::unique_ptr<llvm::Module> module_;
-  sketch_context ctx_;
 
   std::map<llvm::Type*, llvm::Function*> stubs_;
 };
