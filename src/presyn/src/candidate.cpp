@@ -22,16 +22,10 @@ using namespace llvm;
 namespace presyn {
 
 candidate::candidate(sketch&& sk, std::unique_ptr<filler> fill)
-    : candidate(sk.ctx_.signature(), std::move(sk.module_), std::move(fill))
-{
-}
-
-candidate::candidate(
-    props::signature sig, std::unique_ptr<Module>&& mod,
-    std::unique_ptr<filler> fill)
     : filler_(std::move(fill))
-    , signature_(sig)
-    , module_(std::move(mod))
+    , signature_(sk.ctx_.signature())
+    , module_(std::move(sk.module_))
+    , hole_type_(sk.ctx_.opaque_type())
 {
   filler_->set_candidate(*this);
 
@@ -39,6 +33,8 @@ candidate::candidate(
   choose_values();
   resolve_operators();
 }
+
+Type* candidate::hole_type() const { return hole_type_; }
 
 Function& candidate::function() const
 {

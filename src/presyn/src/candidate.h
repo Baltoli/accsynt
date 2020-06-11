@@ -18,11 +18,10 @@ class sketch;
 class candidate {
 public:
   candidate(sketch&&, std::unique_ptr<filler>);
-  candidate(
-      props::signature, std::unique_ptr<llvm::Module>&&,
-      std::unique_ptr<filler>);
 
   bool is_valid() const;
+
+  llvm::Type* hole_type() const;
 
   llvm::Function& function() const;
 
@@ -77,6 +76,10 @@ private:
   // Because types are not yet known when these operations are created by sketch
   // compilation, we represent them as named stub functions.
   llvm::Value* create_operation(llvm::CallInst&);
+
+  // The canonical type for holes in this candidate. We always get this on
+  // construction from the sketch context.
+  llvm::Type* hole_type_;
 };
 
 } // namespace presyn

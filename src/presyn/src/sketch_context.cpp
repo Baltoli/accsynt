@@ -94,4 +94,6 @@ llvm::CallInst* sketch_context::operation(
   return operation(name, opaque_type_, args);
 }
 
+llvm::Type* sketch_context::opaque_type() const { return opaque_type_; }
+
 } // namespace presyn
