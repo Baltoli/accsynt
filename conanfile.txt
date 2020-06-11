@@ -6,6 +6,7 @@ spdlog/1.1.0@bincrafters/stable
 jsonformoderncpp/3.5.0@vthiery/stable
 value-ptr/0.4@baltoli/stable
 frozen/20181020@bincrafters/stable
+readline/7.0@bincrafters/stable
 
 [generators]
 cmake
