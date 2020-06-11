@@ -34,7 +34,7 @@ int main()
 
   auto sk = sketch(sig, *current_frag);
 
-  auto cand = std::move(sk).reify();
+  auto cand = candidate(std::move(sk));
   if (cand.is_valid()) {
     fmt::print("; Valid reified candidate - can proceed to execution\n");
   } else {

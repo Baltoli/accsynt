@@ -12,8 +12,11 @@
 
 namespace presyn {
 
+class sketch;
+
 class candidate {
 public:
+  candidate(sketch&&);
   candidate(props::signature, std::unique_ptr<llvm::Module>&&);
 
   bool is_valid() const;

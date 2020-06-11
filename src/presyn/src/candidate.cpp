@@ -1,4 +1,5 @@
 #include "candidate.h"
+#include "sketch.h"
 
 #include <support/assert.h>
 #include <support/narrow_cast.h>
@@ -18,6 +19,11 @@
 using namespace llvm;
 
 namespace presyn {
+
+candidate::candidate(sketch&& sk)
+    : candidate(sk.ctx_.signature(), std::move(sk.module_))
+{
+}
 
 candidate::candidate(props::signature sig, std::unique_ptr<Module>&& mod)
     : signature_(sig)
