@@ -21,4 +21,16 @@ protected:
   virtual llvm::Value* fill(llvm::Value*) = 0;
 };
 
+/**
+ * Intentionally stupid filler implementation to test the interface - it always
+ * fills holes with the constant value 0 for the same type as the hole.
+ */
+class zero_filler : public filler {
+public:
+  zero_filler() = default;
+
+protected:
+  llvm::Value* fill(llvm::Value*) override;
+};
+
 } // namespace presyn
