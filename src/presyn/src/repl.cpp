@@ -16,18 +16,29 @@ int main()
 {
   std::unique_ptr<fragment> current_frag = std::make_unique<hole>();
 
-  for (std::string line; std::getline(std::cin, line);) {
-    if (line == "compile") {
+  std::string line;
+
+  fmt::print(" sig> ");
+  std::getline(std::cin, line);
+  auto sig = props::signature::parse(line);
+
+  while (true) {
+    fmt::print("frag> ");
+
+    // Break out of the REPL if we get ^D
+    if (!std::getline(std::cin, line)) {
+      fmt::print("\n");
       break;
     }
 
-    auto frag = fragment::parse(line);
-    current_frag = current_frag->compose(std::move(frag));
+    // ...or if we get garbage input.
+    // could make this stricter if we like
+    if (auto frag = fragment::parse(line)) {
+      current_frag = current_frag->compose(std::move(frag));
+    } else {
+      break;
+    }
   }
-
-  std::string sig_line;
-  std::getline(std::cin, sig_line);
-  auto sig = props::signature::parse(sig_line);
 
   fmt::print("; frag = {}\n", *current_frag);
   fmt::print("; sig  = {}\n", sig);

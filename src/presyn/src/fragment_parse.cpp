@@ -235,11 +235,15 @@ std::unique_ptr<fragment> fragment::parse(std::string_view str)
 {
   auto state = grammar::fragment_state {};
 
-  tao::pre_tl::parse<must<grammar::fragment, eof>, grammar::fragment_action>(
-      memory_input(str.begin(), str.end(), ""), state);
+  try {
+    tao::pre_tl::parse<must<grammar::fragment, eof>, grammar::fragment_action>(
+        memory_input(str.begin(), str.end(), ""), state);
 
-  assert(state.stack.empty() && "Parsing did not finish with empty stack");
-  return build(state.result);
+    assert(state.stack.empty() && "Parsing did not finish with empty stack");
+    return build(state.result);
+  } catch (tao::pre_tl::parse_error) {
+    return nullptr;
+  }
 }
 
 namespace literals {
