@@ -8,28 +8,43 @@
 
 #include <fmt/format.h>
 
+#include <readline/history.h>
 #include <readline/readline.h>
 
 #include <iostream>
 
 using namespace presyn;
 
+std::string get_line(std::string const& prompt)
+{
+  char* buf = readline(prompt.c_str());
+
+  if (!buf) {
+    return "";
+  }
+
+  auto str = std::string(buf);
+  free(buf);
+
+  if (str.size() > 0) {
+    add_history(str.c_str());
+  }
+
+  return str;
+}
+
 int main()
 {
   std::unique_ptr<fragment> current_frag = std::make_unique<hole>();
 
-  std::string line;
-
-  fmt::print(" sig> ");
-  std::getline(std::cin, line);
-  auto sig = props::signature::parse(line);
+  auto sig_line = get_line(" sig> ");
+  auto sig = props::signature::parse(sig_line);
 
   while (true) {
-    fmt::print("frag> ");
+    auto line = get_line("frag> ");
 
-    // Break out of the REPL if we get ^D
-    if (!std::getline(std::cin, line)) {
-      fmt::print("\n");
+    // Break out of the REPL if we get ^D or an empty input
+    if (line.empty()) {
       break;
     }
 
