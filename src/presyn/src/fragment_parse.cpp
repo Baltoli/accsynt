@@ -241,7 +241,7 @@ std::unique_ptr<fragment> fragment::parse(std::string_view str)
 
     assert(state.stack.empty() && "Parsing did not finish with empty stack");
     return build(state.result);
-  } catch (tao::pre_tl::parse_error) {
+  } catch (tao::pre_tl::parse_error const&) {
     return nullptr;
   }
 }
