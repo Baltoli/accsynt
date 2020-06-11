@@ -19,7 +19,13 @@ public:
   virtual ~filler() = default;
 
 protected:
+  void set_candidate(candidate&);
+  candidate& get_candidate();
+
   virtual llvm::Value* fill(llvm::CallInst*) = 0;
+
+private:
+  candidate* candidate_ = nullptr;
 };
 
 /**
