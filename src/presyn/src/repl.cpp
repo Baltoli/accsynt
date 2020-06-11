@@ -8,6 +8,8 @@
 
 #include <fmt/format.h>
 
+#include <readline/readline.h>
+
 #include <iostream>
 
 using namespace presyn;

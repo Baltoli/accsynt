@@ -28,6 +28,7 @@ target_link_libraries(presyn
   corepresyn)
 
 target_link_libraries(presyn-repl
+  CONAN_PKG::readline
   corepresyn)
 
 add_executable(presyn_unit
