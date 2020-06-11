@@ -1,4 +1,5 @@
 #include "candidate.h"
+#include "filler.h"
 #include "fragment.h"
 #include "sketch.h"
 
@@ -62,7 +63,7 @@ int main()
 
   auto sk = sketch(sig, *current_frag);
 
-  auto cand = candidate(std::move(sk));
+  auto cand = candidate(std::move(sk), std::make_unique<zero_filler>());
   if (cand.is_valid()) {
     fmt::print("; Valid reified candidate - can proceed to execution\n");
   } else {

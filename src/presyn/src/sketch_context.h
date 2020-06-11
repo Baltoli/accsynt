@@ -66,6 +66,8 @@ public:
   llvm::CallInst*
   operation(std::string const&, std::vector<llvm::Value*> const&);
 
+  llvm::Type* opaque_type() const;
+
 private:
   llvm::Constant* constant_name(std::string const&);
 

@@ -1,4 +1,5 @@
 #include "candidate.h"
+#include "filler.h"
 #include "sketch.h"
 
 #include <support/assert.h>
@@ -20,19 +21,20 @@ using namespace llvm;
 
 namespace presyn {
 
-candidate::candidate(sketch&& sk)
-    : candidate(sk.ctx_.signature(), std::move(sk.module_))
+candidate::candidate(sketch&& sk, std::unique_ptr<filler> fill)
+    : filler_(std::move(fill))
+    , signature_(sk.ctx_.signature())
+    , module_(std::move(sk.module_))
+    , hole_type_(sk.ctx_.opaque_type())
 {
-}
+  filler_->set_candidate(*this);
 
-candidate::candidate(props::signature sig, std::unique_ptr<Module>&& mod)
-    : signature_(sig)
-    , module_(std::move(mod))
-{
   resolve_names();
   choose_values();
   resolve_operators();
 }
+
+Type* candidate::hole_type() const { return hole_type_; }
 
 Function& candidate::function() const
 {
@@ -89,11 +91,27 @@ void candidate::choose_values()
   // candidate construction process is to select values for all the stubs in the
   // program.
   //
-  // Worth noting that this will involve some kind of non-determinism (as random
-  // choices will have to be made), so it's probably worth considering from the
-  // beginning how to get it to be controllable. For a given sketch, the set of
-  // available decisions will always be the same, so we can try to record which
-  // ones are made so that branches / near misses / introspection are possible.
+  // We can't run this as a typical visitor pattern because we need to update
+  // the IR after each replacement; we will need to update dependencies between
+  // things when they get updated.
+  //
+  // This process is delegated to the filler object passed in at construction.
+
+  auto holes = std::vector<CallInst*> {};
+
+  stub_visitor([&holes](auto& ci) { holes.push_back(&ci); }).visit(function());
+
+  for (auto hole : holes) {
+    auto new_val = filler_->fill(hole);
+    assertion(new_val != nullptr, "Filler returned a broken value");
+
+    auto conv = converter(new_val->getType(), hole->getType());
+
+    auto build = IRBuilder(hole);
+    auto call = build.CreateCall(conv, {new_val}, hole->getName());
+
+    safe_rauw(hole, call);
+  }
 }
 
 void candidate::resolve_operators()

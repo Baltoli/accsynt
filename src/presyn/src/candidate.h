@@ -1,6 +1,7 @@
 #pragma once
 
 #include "candidate_visitors.h"
+#include "filler.h"
 
 #include <props/props.h>
 
@@ -16,10 +17,11 @@ class sketch;
 
 class candidate {
 public:
-  candidate(sketch&&);
-  candidate(props::signature, std::unique_ptr<llvm::Module>&&);
+  candidate(sketch&&, std::unique_ptr<filler>);
 
   bool is_valid() const;
+
+  llvm::Type* hole_type() const;
 
   llvm::Function& function() const;
 
@@ -32,6 +34,10 @@ private:
   void resolve_operators();
 
   std::optional<std::string> arg_name(llvm::Value*) const;
+
+  // The object we're delegating to for hole value selection (i.e. filling the
+  // holes in).
+  std::unique_ptr<filler> filler_;
 
   props::signature signature_;
   std::unique_ptr<llvm::Module> module_;
@@ -70,6 +76,10 @@ private:
   // Because types are not yet known when these operations are created by sketch
   // compilation, we represent them as named stub functions.
   llvm::Value* create_operation(llvm::CallInst&);
+
+  // The canonical type for holes in this candidate. We always get this on
+  // construction from the sketch context.
+  llvm::Type* hole_type_;
 };
 
 } // namespace presyn
