@@ -33,6 +33,8 @@ candidate::candidate(
     , signature_(sig)
     , module_(std::move(mod))
 {
+  filler_->set_candidate(*this);
+
   resolve_names();
   choose_values();
   resolve_operators();
