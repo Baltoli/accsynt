@@ -1,6 +1,7 @@
 #pragma once
 
 #include "candidate_visitors.h"
+#include "filler.h"
 
 #include <props/props.h>
 
@@ -16,8 +17,10 @@ class sketch;
 
 class candidate {
 public:
-  candidate(sketch&&);
-  candidate(props::signature, std::unique_ptr<llvm::Module>&&);
+  candidate(sketch&&, std::unique_ptr<filler>);
+  candidate(
+      props::signature, std::unique_ptr<llvm::Module>&&,
+      std::unique_ptr<filler>);
 
   bool is_valid() const;
 

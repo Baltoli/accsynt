@@ -1,10 +1,10 @@
 #pragma once
 
-#include "candidate.h"
-
 #include <llvm/IR/Value.h>
 
 namespace presyn {
+
+class candidate;
 
 /**
  * Interface that represents something capable of choosing values for a

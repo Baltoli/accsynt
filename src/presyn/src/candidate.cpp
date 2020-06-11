@@ -1,4 +1,5 @@
 #include "candidate.h"
+#include "filler.h"
 #include "sketch.h"
 
 #include <support/assert.h>
@@ -20,12 +21,14 @@ using namespace llvm;
 
 namespace presyn {
 
-candidate::candidate(sketch&& sk)
-    : candidate(sk.ctx_.signature(), std::move(sk.module_))
+candidate::candidate(sketch&& sk, std::unique_ptr<filler> fill)
+    : candidate(sk.ctx_.signature(), std::move(sk.module_), std::move(fill))
 {
 }
 
-candidate::candidate(props::signature sig, std::unique_ptr<Module>&& mod)
+candidate::candidate(
+    props::signature sig, std::unique_ptr<Module>&& mod,
+    std::unique_ptr<filler> fill)
     : signature_(sig)
     , module_(std::move(mod))
 {
