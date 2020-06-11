@@ -36,6 +36,10 @@ private:
 
   std::optional<std::string> arg_name(llvm::Value*) const;
 
+  // The object we're delegating to for hole value selection (i.e. filling the
+  // holes in).
+  std::unique_ptr<filler> filler_;
+
   props::signature signature_;
   std::unique_ptr<llvm::Module> module_;
 

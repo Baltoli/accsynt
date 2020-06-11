@@ -29,7 +29,8 @@ candidate::candidate(sketch&& sk, std::unique_ptr<filler> fill)
 candidate::candidate(
     props::signature sig, std::unique_ptr<Module>&& mod,
     std::unique_ptr<filler> fill)
-    : signature_(sig)
+    : filler_(std::move(fill))
+    , signature_(sig)
     , module_(std::move(mod))
 {
   resolve_names();
