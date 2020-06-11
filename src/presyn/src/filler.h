@@ -1,5 +1,6 @@
 #pragma once
 
+#include <llvm/IR/Instructions.h>
 #include <llvm/IR/Value.h>
 
 namespace presyn {
@@ -18,7 +19,7 @@ public:
   virtual ~filler() = default;
 
 protected:
-  virtual llvm::Value* fill(llvm::Value*) = 0;
+  virtual llvm::Value* fill(llvm::CallInst*) = 0;
 };
 
 /**
@@ -30,7 +31,7 @@ public:
   zero_filler() = default;
 
 protected:
-  llvm::Value* fill(llvm::Value*) override;
+  llvm::Value* fill(llvm::CallInst*) override;
 };
 
 } // namespace presyn

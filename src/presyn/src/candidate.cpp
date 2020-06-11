@@ -93,11 +93,20 @@ void candidate::choose_values()
   // candidate construction process is to select values for all the stubs in the
   // program.
   //
-  // Worth noting that this will involve some kind of non-determinism (as random
-  // choices will have to be made), so it's probably worth considering from the
-  // beginning how to get it to be controllable. For a given sketch, the set of
-  // available decisions will always be the same, so we can try to record which
-  // ones are made so that branches / near misses / introspection are possible.
+  // We can't run this as a typical visitor pattern because we need to update
+  // the IR after each replacement; we will need to update dependencies between
+  // things when they get updated.
+  //
+  // This process is delegated to the filler object passed in at construction.
+
+  auto holes = std::vector<CallInst*> {};
+
+  stub_visitor([&holes](auto& ci) { holes.push_back(&ci); }).visit(function());
+
+  for (auto hole : holes) {
+    auto new_val = filler_->fill(hole);
+    assertion(new_val != nullptr, "New value broken");
+  }
 }
 
 void candidate::resolve_operators()
