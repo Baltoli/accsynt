@@ -105,7 +105,14 @@ void candidate::choose_values()
 
   for (auto hole : holes) {
     auto new_val = filler_->fill(hole);
-    assertion(new_val != nullptr, "New value broken");
+    assertion(new_val != nullptr, "Filler returned a broken value");
+
+    auto conv = converter(new_val->getType(), hole->getType());
+
+    auto build = IRBuilder(hole);
+    auto call = build.CreateCall(conv, {new_val}, hole->getName());
+
+    safe_rauw(hole, call);
   }
 }
 
