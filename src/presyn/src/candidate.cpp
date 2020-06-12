@@ -87,6 +87,8 @@ void candidate::resolve_names()
 
 void candidate::choose_values()
 {
+  // TODO: this needs to fill holes in *dominance* order
+
   // After resolving the named stubs in the function, the next step in the
   // candidate construction process is to select values for all the stubs in the
   // program.
