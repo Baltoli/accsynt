@@ -1,6 +1,7 @@
 #pragma once
 
 #include <support/filesystem.h>
+#include <support/llvm_format.h>
 #include <support/terminal.h>
 
 #include <fmt/format.h>
@@ -9,7 +10,7 @@ namespace support {
 
 namespace detail {
 
-inline constexpr void assert_fail() {}
+inline constexpr void assert_fail() { }
 
 #ifdef NDEBUG
 static constexpr bool debug = false;
@@ -20,7 +21,7 @@ static constexpr bool debug = true;
 template <typename Cond, typename... Args>
 void assert_impl(
     Cond&& cond, char const* check, char const* type, char const* file,
-    int line, char const* func, Args... args)
+    int line, char const* func, Args&&... args)
 {
   using namespace fmt::literals;
   namespace term = support::terminal;
@@ -41,7 +42,7 @@ void assert_impl(
           "func"_a = func);
 
       if constexpr (sizeof...(args) > 0) {
-        fmt::print("\n{}\n", fmt::format(args...));
+        fmt::print("\n{}\n", fmt::format(std::forward<Args>(args)...));
       }
 
       std::exit(1);

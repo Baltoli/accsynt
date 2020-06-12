@@ -8,6 +8,7 @@ add_library(corepresyn
   src/candidate_operations.cpp
   src/candidate_visitors.cpp
   src/filler.cpp
+  src/random_filler.cpp
   src/options.cpp)
 
 add_executable(presyn
