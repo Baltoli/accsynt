@@ -103,14 +103,19 @@ void candidate::choose_values()
 
   for (auto hole : holes) {
     auto new_val = filler_->fill(hole);
-    assertion(new_val != nullptr, "Filler returned a broken value");
 
-    auto conv = converter(new_val->getType(), hole->getType());
+    if (new_val) {
+      // The filler returned a valid value
+      auto conv = converter(new_val->getType(), hole->getType());
 
-    auto build = IRBuilder(hole);
-    auto call = build.CreateCall(conv, {new_val}, hole->getName());
+      auto build = IRBuilder(hole);
+      auto call = build.CreateCall(conv, {new_val}, hole->getName());
 
-    safe_rauw(hole, call);
+      safe_rauw(hole, call);
+    } else {
+      // No possible value returned by the filler - just delete the hole.
+      hole->eraseFromParent();
+    }
   }
 }
 
