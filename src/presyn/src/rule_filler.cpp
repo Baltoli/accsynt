@@ -43,6 +43,11 @@ namespace presyn {
  *     * Constants
  *   * Establish which rules from a collection match the pooled values
  *   * Choose a rule randomly and apply it to produce a value.
+ *
+ * The collection mechanism is the right abstraction based on this - it should
+ * be possible to come up with a rule-based sampling engine based on smaller
+ * pools, as long as for holes with known type we include a constant value in
+ * the pool (to make sure that something gets filled in).
  */
 Value* rule_filler::fill(CallInst* hole) { return nullptr; }
 
