@@ -1,8 +1,10 @@
 #include "rule_filler.h"
 
 #include "constants.h"
+#include "rules.h"
 
 #include <support/assert.h>
+#include <support/tuple.h>
 
 #include <algorithm>
 
@@ -76,9 +78,11 @@ Value* rule_filler::fill(CallInst* hole)
 
   if (choices.empty()) {
     return nullptr;
-  } else {
-    return choices[0];
   }
+
+  ::support::for_each(all_rules(), [](auto const& rule) { unimplemented(); });
+
+  return choices[0];
 }
 
 std::vector<Value*> rule_filler::collect_local(CallInst* hole) const
