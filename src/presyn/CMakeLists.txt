@@ -10,6 +10,7 @@ add_library(corepresyn
   src/filler.cpp
   src/random_filler.cpp
   src/rule_filler.cpp
+  src/constants.cpp
   src/options.cpp)
 
 add_executable(presyn
