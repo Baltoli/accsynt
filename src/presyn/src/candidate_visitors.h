@@ -19,8 +19,6 @@ public:
 
   void visit(llvm::Function& f);
 
-  /* void visitCallInst(llvm::CallInst&) const; */
-
 private:
   Func action_;
 };
