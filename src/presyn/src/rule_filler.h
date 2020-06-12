@@ -18,6 +18,9 @@ private:
   // basic block).
   std::vector<llvm::Value*> collect_local(llvm::CallInst*) const;
 
+  // Collect interesting constants that might appear in a filled hole.
+  std::vector<llvm::Value*> collect_constants(llvm::CallInst*) const;
+
   // The number of values to collect for rule matching - a bigger pool size
   // means less emphasis on locality, and a greater likelihood of far-reaching
   // dependencies.

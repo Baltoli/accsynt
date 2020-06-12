@@ -1,5 +1,7 @@
 #include "rule_filler.h"
 
+#include "constants.h"
+
 #include <support/assert.h>
 
 #include <algorithm>
@@ -55,8 +57,27 @@ namespace presyn {
  */
 Value* rule_filler::fill(CallInst* hole)
 {
-  auto locals = collect_local(hole);
-  return nullptr;
+  auto choices = std::vector<llvm::Value*> {};
+
+  auto collect_from = [&choices, this](auto const& src) {
+    for (auto it = src.begin(); it != src.end() && choices.size() < pool_size_;
+         ++it) {
+      choices.push_back(*it);
+    }
+  };
+
+  collect_from(collect_local(hole));
+  collect_from(collect_constants(hole));
+
+  if (!has_unknown_type(hole)) {
+    choices.push_back(collect_constants(hole)[0]);
+  }
+
+  if (choices.empty()) {
+    return nullptr;
+  } else {
+    return choices[0];
+  }
 }
 
 std::vector<Value*> rule_filler::collect_local(CallInst* hole) const
@@ -75,6 +96,15 @@ std::vector<Value*> rule_filler::collect_local(CallInst* hole) const
 
   std::reverse(ret.begin(), ret.end());
   return ret;
+}
+
+std::vector<Value*> rule_filler::collect_constants(CallInst* hole) const
+{
+  if (has_unknown_type(hole)) {
+    return {};
+  } else {
+    return small_constants(hole->getType());
+  }
 }
 
 } // namespace presyn
