@@ -2,6 +2,9 @@
 
 #include "filler.h"
 
+#include <llvm/IR/Dominators.h>
+
+#include <map>
 #include <vector>
 
 namespace presyn {
@@ -15,6 +18,8 @@ protected:
 
 private:
   std::vector<llvm::Value*> live_values(llvm::CallInst*) const;
+
+  llvm::DominatorTree tree_for(llvm::CallInst*) const;
 };
 
 } // namespace presyn

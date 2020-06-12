@@ -18,9 +18,30 @@ Value* random_filler::fill(CallInst* hole)
   return nullptr;
 }
 
-std::vector<llvm::Value*> random_filler::live_values(llvm::CallInst* hole) const
+std::vector<Value*> random_filler::live_values(CallInst* hole) const
 {
-  return {};
+  auto tree = tree_for(hole);
+  auto func = hole->getFunction();
+
+  auto ret = std::vector<Value*> {};
+
+  for (auto& bb : *func) {
+    for (auto& inst : bb) {
+      if (tree.dominates(&inst, hole)) {
+        ret.push_back(&inst);
+      }
+    }
+  }
+
+  return ret;
+}
+
+DominatorTree random_filler::tree_for(CallInst* hole) const
+{
+  auto func = hole->getFunction();
+  assertion(func != nullptr, "Hole does not have a function: {}", *hole);
+
+  return DominatorTree(*func);
 }
 
 } // namespace presyn
