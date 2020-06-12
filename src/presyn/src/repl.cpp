@@ -1,6 +1,6 @@
 #include "candidate.h"
 #include "fragment.h"
-#include "random_filler.h"
+#include "rule_filler.h"
 #include "sketch.h"
 
 #include <props/props.h>
@@ -63,7 +63,7 @@ int main()
 
   auto sk = sketch(sig, *current_frag);
 
-  auto cand = candidate(std::move(sk), std::make_unique<random_filler>());
+  auto cand = candidate(std::move(sk), std::make_unique<rule_filler>());
   if (cand.is_valid()) {
     fmt::print("; Valid reified candidate - can proceed to execution\n");
   } else {
