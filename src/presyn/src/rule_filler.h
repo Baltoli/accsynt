@@ -18,6 +18,9 @@ private:
   // basic block).
   std::vector<llvm::Value*> collect_local(llvm::CallInst*) const;
 
+  // Collect function parameters
+  std::vector<llvm::Value*> collect_params(llvm::CallInst*) const;
+
   // Collect interesting constants that might appear in a filled hole.
   std::vector<llvm::Value*> collect_constants(llvm::CallInst*) const;
 

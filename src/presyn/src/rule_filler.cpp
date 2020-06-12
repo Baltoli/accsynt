@@ -67,6 +67,7 @@ Value* rule_filler::fill(CallInst* hole)
   };
 
   collect_from(collect_local(hole));
+  collect_from(collect_params(hole));
   collect_from(collect_constants(hole));
 
   if (!has_unknown_type(hole)) {
@@ -95,6 +96,18 @@ std::vector<Value*> rule_filler::collect_local(CallInst* hole) const
   }
 
   std::reverse(ret.begin(), ret.end());
+  return ret;
+}
+
+std::vector<Value*> rule_filler::collect_params(CallInst* hole) const
+{
+  auto ret = std::vector<Value*> {};
+  auto func = hole->getFunction();
+
+  for (auto& arg : func->args()) {
+    ret.push_back(&arg);
+  }
+
   return ret;
 }
 
