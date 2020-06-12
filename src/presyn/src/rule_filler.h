@@ -2,6 +2,8 @@
 
 #include "filler.h"
 
+#include <vector>
+
 namespace presyn {
 
 class rule_filler : public filler {
@@ -11,10 +13,15 @@ public:
 protected:
   llvm::Value* fill(llvm::CallInst*) override;
 
+private:
+  // Collect local values walking backwards from this hole (only in the same
+  // basic block).
+  std::vector<llvm::Value*> collect_local(llvm::CallInst*) const;
+
   // The number of values to collect for rule matching - a bigger pool size
   // means less emphasis on locality, and a greater likelihood of far-reaching
   // dependencies.
-  int pool_size_ = 5;
+  size_t pool_size_ = 5;
 };
 
 } // namespace presyn

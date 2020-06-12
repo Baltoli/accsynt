@@ -1,5 +1,9 @@
 #include "rule_filler.h"
 
+#include <support/assert.h>
+
+#include <algorithm>
+
 using namespace llvm;
 
 namespace presyn {
@@ -49,6 +53,28 @@ namespace presyn {
  * pools, as long as for holes with known type we include a constant value in
  * the pool (to make sure that something gets filled in).
  */
-Value* rule_filler::fill(CallInst* hole) { return nullptr; }
+Value* rule_filler::fill(CallInst* hole)
+{
+  auto locals = collect_local(hole);
+  return nullptr;
+}
+
+std::vector<Value*> rule_filler::collect_local(CallInst* hole) const
+{
+  auto ret = std::vector<Value*> {};
+
+  for (auto& inst : *hole->getParent()) {
+    if (&inst == hole) {
+      break;
+    }
+
+    if (!inst.getType()->isVoidTy()) {
+      ret.push_back(&inst);
+    }
+  }
+
+  std::reverse(ret.begin(), ret.end());
+  return ret;
+}
 
 } // namespace presyn
