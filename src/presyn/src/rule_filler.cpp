@@ -4,10 +4,12 @@
 #include "rules.h"
 
 #include <support/assert.h>
+#include <support/random.h>
 #include <support/tuple.h>
 
 #include <algorithm>
 
+using namespace support;
 using namespace llvm;
 
 namespace presyn {
@@ -59,7 +61,10 @@ namespace presyn {
  */
 Value* rule_filler::fill(CallInst* hole)
 {
+  using ::support::for_each;
+
   auto choices = std::vector<llvm::Value*> {};
+  auto generated = std::vector<llvm::Value*> {};
 
   auto collect_from = [&choices, this](auto const& src) {
     for (auto it = src.begin(); it != src.end() && choices.size() < pool_size_;
@@ -80,9 +85,21 @@ Value* rule_filler::fill(CallInst* hole)
     return nullptr;
   }
 
-  ::support::for_each(all_rules(), [](auto const& rule) { unimplemented(); });
+  for_each(all_rules(), [&](auto const& rule) {
+    rule.match(hole, choices, generated);
+  });
 
-  return choices[0];
+  auto chosen = uniform_sample(generated);
+  assertion(
+      chosen != generated.end(), "Failed to sample anything in rule filler");
+
+  for (auto g : generated) {
+    if (g != *chosen) {
+      g->deleteValue();
+    }
+  }
+
+  return *chosen;
 }
 
 std::vector<Value*> rule_filler::collect_local(CallInst* hole) const
