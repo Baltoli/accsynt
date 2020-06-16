@@ -85,8 +85,8 @@ Value* rule_filler::fill(CallInst* hole)
     return nullptr;
   }
 
-  for_each(all_rules(), [&](auto const& rule) {
-    rule.match(hole, choices, generated);
+  for_each(all_rules(), [&, this](auto const& rule) {
+    rule.match(*this, hole, choices, generated);
   });
 
   auto chosen = uniform_sample(generated);

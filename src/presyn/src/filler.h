@@ -18,11 +18,11 @@ class filler {
 public:
   virtual ~filler() = default;
 
+  bool has_unknown_type(llvm::Value*) const;
+
 protected:
   void set_candidate(candidate&);
   candidate& get_candidate() const;
-
-  bool has_unknown_type(llvm::Value*) const;
 
   virtual llvm::Value* fill(llvm::CallInst*) = 0;
 
