@@ -31,12 +31,14 @@ public:
   template <typename Func>
   example(Func&&, props::property_set const&);
 
+  auto const& name() const { return name_; }
   auto const& input() const { return input_; }
   auto const& output() const { return output_; }
 
   std::vector<float> model_input() const;
 
 private:
+  std::string name_;
   feature_map input_ = {};
   feature_map output_ = {};
 };
@@ -86,6 +88,7 @@ private:
 
 template <typename Func>
 example::example(Func&& prop_enc, props::property_set const& ps)
+    : name_(ps.type_signature.name)
 {
   using namespace fmt::literals;
   using namespace support;
@@ -159,8 +162,9 @@ dataset::dataset(Iterator begin, Iterator end)
   });
 
   // Then construct the set of examples from each property set.
-  std::for_each(begin, end,
-      [this](auto const& ps) { examples_.emplace_back(prop_encoder(), ps); });
+  std::for_each(begin, end, [this](auto const& ps) {
+    examples_.emplace_back(prop_encoder(), ps);
+  });
 }
 
 template <typename Container>
@@ -202,7 +206,8 @@ struct formatter<::predict::example> {
   output=( {} )
 ))";
 
-    return format_to(ctx.out(), format, fmt::join(in_entries, ", "),
+    return format_to(
+        ctx.out(), format, fmt::join(in_entries, ", "),
         fmt::join(out_entries, ", "));
   }
 };
