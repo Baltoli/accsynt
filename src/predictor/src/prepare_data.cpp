@@ -48,8 +48,8 @@ std::string dataset::to_csv() const
   }
 
   // Make a header
-  auto header
-      = "{},{}"_format(fmt::join(in_keys, ","), fmt::join(out_keys, ","));
+  auto header = "{},{},{}"_format(
+      "name", fmt::join(in_keys, ","), fmt::join(out_keys, ","));
 
   // Then print each row using the collected keys
 
@@ -74,7 +74,7 @@ std::string dataset::to_csv() const
       }
     }
 
-    rows.push_back(fmt::format("{}", fmt::join(row, ",")));
+    rows.push_back(fmt::format("{},{}", e.name(), fmt::join(row, ",")));
   }
 
   return "{}\n{}"_format(header, fmt::join(rows, "\n"));
@@ -84,7 +84,7 @@ std::string dataset::name_map_csv() const
 {
   using namespace fmt::literals;
 
-  auto rows = std::vector<std::string> { "name,index" };
+  auto rows = std::vector<std::string> {"name,index"};
 
   for (auto const& name : prop_names_) {
     rows.push_back("{},{}"_format(name, prop_encoder()(name)));
