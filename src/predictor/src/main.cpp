@@ -47,7 +47,7 @@ int to_python()
 
   if (OutputDirectory == "-") {
     fmt::print("{}\n", data.to_csv());
-    fmt::print("{}\n", data.name_map_csv());
+    /* fmt::print("{}\n", data.name_map_csv()); */
   } else {
     auto out_dir = fs::path(OutputDirectory.getValue());
 
@@ -62,16 +62,16 @@ int to_python()
     }
 
     auto data_path = out_dir / "data.csv";
-    auto names_path = out_dir / "names.csv";
+    /* auto names_path = out_dir / "names.csv"; */
 
     auto data_f = std::fopen(data_path.c_str(), "w");
-    auto names_f = std::fopen(names_path.c_str(), "w");
+    /* auto names_f = std::fopen(names_path.c_str(), "w"); */
 
     fmt::print(data_f, "{}\n", data.to_csv());
-    fmt::print(names_f, "{}\n", data.name_map_csv());
+    /* fmt::print(names_f, "{}\n", data.name_map_csv()); */
 
     std::fclose(data_f);
-    std::fclose(names_f);
+    /* std::fclose(names_f); */
   }
 
   return 0;
