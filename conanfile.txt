@@ -10,6 +10,3 @@ value-ptr/0.4@baltoli/stable
 
 [generators]
 cmake
-
-[options]
-fmt:header_only=True
