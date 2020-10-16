@@ -11,7 +11,7 @@ target_link_libraries(props
   support
   CONAN_PKG::frozen
   CONAN_PKG::fmt
-  CONAN_PKG::pegtl)
+  CONAN_PKG::taocpp-pegtl)
 
 target_include_directories(props PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -37,7 +37,7 @@ add_executable(props_unit
 target_link_libraries(props_unit
   props
   CONAN_PKG::fmt
-  CONAN_PKG::Catch2)
+  CONAN_PKG::catch2)
 
 target_link_filesystem(props_unit)
 

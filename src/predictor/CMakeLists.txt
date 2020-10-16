@@ -35,7 +35,7 @@ add_executable(predictor_unit
 
 target_link_libraries(predictor_unit
   predict
-  CONAN_PKG::Catch2)
+  CONAN_PKG::catch2)
 
 target_include_directories(predictor_unit
   PRIVATE src)

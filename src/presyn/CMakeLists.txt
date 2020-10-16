@@ -22,7 +22,7 @@ add_executable(presyn-repl
 
 target_link_libraries(corepresyn
   CONAN_PKG::fmt
-  CONAN_PKG::pegtl
+  CONAN_PKG::taocpp-pegtl
   support
   props
   ${llvm_libs})
@@ -44,7 +44,7 @@ add_executable(presyn_unit
 
 target_link_libraries(presyn_unit
   corepresyn
-  CONAN_PKG::Catch2)
+  CONAN_PKG::catch2)
 
 target_include_directories(presyn_unit
   PRIVATE src)

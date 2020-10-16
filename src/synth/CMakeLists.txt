@@ -44,7 +44,6 @@ add_executable(synth_unit
 target_link_libraries(coresynth
   ${llvm_libs}
   CONAN_PKG::fmt
-  CONAN_PKG::spdlog
   CONAN_PKG::value-ptr
   support
   predict
@@ -58,7 +57,7 @@ target_link_libraries(fragment-demo
 
 target_link_libraries(synth_unit
   coresynth
-  CONAN_PKG::Catch2)
+  CONAN_PKG::catch2)
 
 target_link_filesystem(synth_unit)
 

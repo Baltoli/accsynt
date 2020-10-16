@@ -251,7 +251,7 @@ void candidate::safe_rauw(Instruction* stub, Value* call)
         replacements[user_call] = new_call;
 
       } else if (auto user_phi = dyn_cast<PHINode>(user)) {
-        auto new_phi = IRBuilder(stub).CreatePHI(
+        [[maybe_unused]] auto new_phi = IRBuilder(stub).CreatePHI(
             call->getType(), user_phi->getNumIncomingValues(),
             user_phi->getName());
 
