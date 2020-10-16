@@ -20,6 +20,9 @@ add_executable(presyn
 add_executable(presyn-repl
   src/repl.cpp)
 
+add_executable(oracle
+  src/oracle.cpp)
+
 target_link_libraries(corepresyn
   CONAN_PKG::fmt
   CONAN_PKG::taocpp-pegtl
@@ -34,6 +37,9 @@ target_link_libraries(presyn
 
 target_link_libraries(presyn-repl
   CONAN_PKG::readline
+  corepresyn)
+
+target_link_libraries(oracle
   corepresyn)
 
 add_executable(presyn_unit
