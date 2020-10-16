@@ -24,7 +24,7 @@ add_executable(coverage_unit
 
 target_link_libraries(coverage_unit
   coverage
-  CONAN_PKG::Catch2)
+  CONAN_PKG::catch2)
 
 target_include_directories(coverage_unit
   PRIVATE src)

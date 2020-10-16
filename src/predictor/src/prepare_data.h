@@ -100,7 +100,7 @@ example::example(Func&& prop_enc, props::property_set const& ps)
     input_["return_pointers"] = rt->pointers;
   }
 
-  for (auto const& [i, param] : enumerate(ps.type_signature.parameters)) {
+  for (auto [i, param] : enumerate(ps.type_signature.parameters)) {
     auto base_key = "param_{}_type"_format(i);
     auto ptr_key = "param_{}_pointers"_format(i);
 
@@ -122,7 +122,7 @@ example::example(Func&& prop_enc, props::property_set const& ps)
   auto outputs = 0;
   auto sizes = 0;
 
-  for (auto const& [idx, prop] : support::enumerate(ps.properties)) {
+  for (auto [idx, prop] : support::enumerate(ps.properties)) {
     auto prop_key = "out_prop_{}_name"_format(idx);
     output_[prop_key] = prop_enc(prop.name);
 

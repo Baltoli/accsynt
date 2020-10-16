@@ -1,3 +1,5 @@
+cmake_policy(SET CMP0068 NEW)
+
 list(APPEND pass_sources
   src/fix_floats.cpp
   src/clean.cpp

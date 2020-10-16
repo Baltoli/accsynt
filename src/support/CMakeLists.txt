@@ -62,7 +62,7 @@ target_link_libraries(support_unit
   support
   ${llvm_libs}
   CONAN_PKG::fmt
-  CONAN_PKG::Catch2)
+  CONAN_PKG::catch2)
 
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/test/inputs/deps.ll"
