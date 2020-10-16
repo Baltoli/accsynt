@@ -1,8 +1,11 @@
 #include "fragment.h"
+#include "sketch.h"
 
 #include <props/props.h>
 
 #include <support/input.h>
+
+#include <fmt/format.h>
 
 using namespace presyn;
 
@@ -29,4 +32,10 @@ int main()
       break;
     }
   }
+
+  fmt::print("; frag = {}\n", *current_frag);
+  fmt::print("; sig  = {}\n", sig);
+
+  auto sk = sketch(sig, *current_frag);
+  fmt::print("\n{}", sk.module());
 }
