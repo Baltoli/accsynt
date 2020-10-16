@@ -148,6 +148,30 @@ build_for<fixed_loop>(grammar::fragment_parse const& parse)
 }
 
 template <>
+std::unique_ptr<fragment>
+build_for<regular_loop>(grammar::fragment_parse const& parse)
+{
+  assertion(
+      parse.template_args.size() == 1,
+      "Regular loop requires exactly one template argument");
+
+  assertion(
+      parse.child_args.size() <= 1,
+      "Regular loop takes at most 1 child argument");
+
+  auto size = make_param(parse.template_args[0]);
+
+  std::unique_ptr<fragment> ret
+      = std::make_unique<regular_loop>(std::move(size));
+
+  for (auto const& c_arg : parse.child_args) {
+    ret = ret->compose(build(c_arg));
+  }
+
+  return ret;
+}
+
+template <>
 std::unique_ptr<fragment> build_for<if_>(grammar::fragment_parse const& parse)
 {
   assertion(parse.template_args.empty(), "If takes no template arguments");
@@ -218,6 +242,8 @@ std::unique_ptr<fragment> build(grammar::fragment_parse const& parse)
     return build_for<delimiter_loop>(parse);
   } else if (parse.name == "fixed") {
     return build_for<fixed_loop>(parse);
+  } else if (parse.name == "regular") {
+    return build_for<regular_loop>(parse);
   } else if (parse.name == "if") {
     return build_for<if_>(parse);
   } else if (parse.name == "if_else") {

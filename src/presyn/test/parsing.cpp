@@ -37,6 +37,7 @@ TEST_CASE("Can recognise fragment names")
     MATCH_EXACT("if_else");
     MATCH_EXACT("affine");
     MATCH_EXACT("index");
+    MATCH_EXACT("regular");
   }
 
   SECTION("Does not match incorrect names")
@@ -175,6 +176,9 @@ TEST_CASE("Can recognise fragments")
     MATCH_EXACT("if(if(if(if_else, if_else, if_else<>(), if(if(if<>())))))");
     MATCH_EXACT("affine<1, 1, 2, +3, -1>(affine)");
     MATCH_EXACT("affine<1, 1, 2, +3, -1>(index, index(index<>))");
+
+    MATCH_EXACT("regular<@x>");
+    MATCH_EXACT("regular<2>");
   }
 
   SECTION("Don't recognise wrong fragments")
@@ -196,6 +200,8 @@ TEST_CASE("Can recognise fragments")
     NOT_MATCH_EXACT("if<--22>()");
     NOT_MATCH_EXACT("indexed()");
     NOT_MATCH_EXACT("affine_index<>");
+
+    NOT_MATCH_EXACT("regular<reggilar>()");
   }
 }
 
@@ -206,18 +212,20 @@ TEST_CASE("The grammar doesn't have any issues")
 
 TEST_CASE("Printing and parsing are inverses")
 {
-  auto frags = std::array {"empty"_frag,
-                           "linear<7>()"_frag,
-                           "seq<>()"_frag,
-                           "seq(seq(), seq<>(empty))"_frag,
-                           "seq(linear<2>, seq(empty()))"_frag,
-                           "loop(seq(linear<7>, empty))"_frag,
-                           "delim<@x>(loop)"_frag,
-                           "fixed<@x, @N>(fixed<32, @y>(empty))"_frag,
-                           "if(if(linear<2>))"_frag,
-                           "if_else(if, loop(fixed<45, @wef_w>))"_frag,
-                           "affine<@ptr>(delim<@ptr>(if))"_frag,
-                           "index<@x>(affine<@y>(fixed<@p, @q>(loop)))"_frag};
+  auto frags = std::array {
+      "empty"_frag,
+      "linear<7>()"_frag,
+      "seq<>()"_frag,
+      "seq(seq(), seq<>(empty))"_frag,
+      "seq(linear<2>, seq(empty()))"_frag,
+      "loop(seq(linear<7>, empty))"_frag,
+      "delim<@x>(loop)"_frag,
+      "fixed<@x, @N>(fixed<32, @y>(empty))"_frag,
+      "regular<@param_name>(regular<2>(empty))"_frag,
+      "if(if(linear<2>))"_frag,
+      "if_else(if, loop(fixed<45, @wef_w>))"_frag,
+      "affine<@ptr>(delim<@ptr>(if))"_frag,
+      "index<@x>(affine<@y>(fixed<@p, @q>(loop)))"_frag};
 
   for (auto const& frag : frags) {
     auto str = frag->to_string();
