@@ -336,6 +336,36 @@ std::string fixed_loop::to_string() const
   }
 }
 
+// Regular Loop
+
+regular_loop::regular_loop(std::unique_ptr<parameter>&& size)
+    : size_(std::move(size))
+    , body_(std::make_unique<hole>())
+{
+}
+
+std::unique_ptr<fragment>
+regular_loop::compose(std::unique_ptr<fragment>&& other)
+{
+  return compose_generic<regular_loop>(std::move(other), body_);
+}
+
+bool regular_loop::accepts() const { return body_->accepts(); }
+
+llvm::BasicBlock*
+regular_loop::compile(sketch_context& ctx, llvm::BasicBlock* exit) const
+{
+  unimplemented();
+}
+
+std::string regular_loop::to_string() const
+{
+  assumes(body_, "Child fragment should not be null");
+  assumes(size_, "Parameter should not be null");
+
+  return fmt::format("regular<{}>({})", *size_, *body_);
+}
+
 // If
 
 if_::if_()
