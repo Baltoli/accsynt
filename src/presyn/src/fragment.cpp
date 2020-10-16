@@ -355,7 +355,49 @@ bool regular_loop::accepts() const { return body_->accepts(); }
 llvm::BasicBlock*
 regular_loop::compile(sketch_context& ctx, llvm::BasicBlock* exit) const
 {
-  unimplemented();
+  auto header = BasicBlock::Create(
+      thread_context::get(), "regular.header", exit->getParent());
+
+  auto pre_header = BasicBlock::Create(
+      thread_context::get(), "regular.pre-header", exit->getParent(), header);
+
+  auto entry = BasicBlock::Create(
+      thread_context::get(), "regular.entry", exit->getParent(), pre_header);
+
+  auto tail = BasicBlock::Create(
+      thread_context::get(), "regular.tail", exit->getParent());
+
+  auto build = IRBuilder(entry);
+  auto init_idx = build.getInt64(0);
+
+  Value* final_idx = nullptr;
+  if (auto cst_ptr = dynamic_cast<constant_int*>(size_.get())) {
+    final_idx = build.getInt64(cst_ptr->value());
+  } else if (auto named_ptr = dynamic_cast<named*>(size_.get())) {
+    final_idx = build.Insert(
+        ctx.stub(build.getInt64Ty(), named_ptr->name()), "regular.upper");
+  }
+  assertion(final_idx != nullptr, "Should be able to get an index");
+
+  build.CreateBr(pre_header);
+
+  build.SetInsertPoint(pre_header);
+  auto idx = build.CreatePHI(init_idx->getType(), 2, "regular.idx");
+  idx->addIncoming(init_idx, entry);
+  auto cond = build.CreateICmpSLT(idx, final_idx, "regular.cond");
+  build.CreateCondBr(cond, header, exit);
+
+  build.SetInsertPoint(header);
+  auto body_entry = body_->compile(ctx, tail);
+  build.CreateBr(body_entry);
+
+  build.SetInsertPoint(tail);
+  auto next_idx = build.CreateAdd(idx, build.getInt64(1), "regular.next-idx");
+
+  idx->addIncoming(next_idx, tail);
+  build.CreateBr(pre_header);
+
+  return entry;
 }
 
 std::string regular_loop::to_string() const
