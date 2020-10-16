@@ -1,9 +1,12 @@
+#include "candidate.h"
 #include "fragment.h"
+#include "rule_filler.h"
 #include "sketch.h"
 
 #include <props/props.h>
 
 #include <support/input.h>
+#include <support/llvm_format.h>
 
 #include <fmt/format.h>
 
@@ -36,6 +39,14 @@ int main()
   fmt::print("; frag = {}\n", *current_frag);
   fmt::print("; sig  = {}\n", sig);
 
-  auto sk = sketch(sig, *current_frag);
-  fmt::print("\n{}", sk.module());
+  auto cand
+      = candidate(sketch(sig, *current_frag), std::make_unique<rule_filler>());
+
+  if (cand.is_valid()) {
+    fmt::print("; Valid reified candidate - can proceed to execution\n");
+  } else {
+    fmt::print("; Invalid candidate - no execution\n");
+  }
+
+  fmt::print("\n{}", cand.module());
 }
