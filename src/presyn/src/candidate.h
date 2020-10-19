@@ -2,6 +2,7 @@
 
 #include "candidate_visitors.h"
 #include "filler.h"
+#include "sketch_context.h"
 
 #include <props/props.h>
 
@@ -29,6 +30,8 @@ public:
 
   llvm::Module& module();
   llvm::Module const& module() const;
+
+  sketch_context& ctx();
 
 protected:
   // A converter is essentially the identity function, but one that performs
@@ -84,6 +87,8 @@ private:
   // The canonical type for holes in this candidate. We always get this on
   // construction from the sketch context.
   llvm::Type* hole_type_;
+
+  sketch_context ctx_;
 };
 
 } // namespace presyn
