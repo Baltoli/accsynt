@@ -4,6 +4,7 @@
 #include "rules.h"
 
 #include <support/assert.h>
+#include <support/llvm_format.h>
 #include <support/random.h>
 #include <support/tuple.h>
 
@@ -66,8 +67,10 @@ Value* rule_filler::fill(CallInst* hole)
   auto choices = std::vector<llvm::Value*> {};
   auto generated = std::vector<llvm::Value*> {};
 
-  auto collect_from = [&choices, this](auto const& src) {
-    for (auto it = src.begin(); it != src.end() && choices.size() < pool_size_;
+  auto collect_from = [&choices, this](auto&& src) {
+    for (auto it = std::forward<decltype(src)>(src).begin();
+         it != std::forward<decltype(src)>(src).end()
+         && choices.size() < pool_size_;
          ++it) {
       choices.push_back(*it);
     }
@@ -77,14 +80,6 @@ Value* rule_filler::fill(CallInst* hole)
   collect_from(collect_params(hole));
   collect_from(collect_constants(hole));
 
-  if (!has_unknown_type(hole)) {
-    choices.push_back(collect_constants(hole)[0]);
-  }
-
-  if (choices.empty()) {
-    return nullptr;
-  }
-
   for_each(all_rules(), [&](auto const& rule) {
     rule.match(*this, hole, choices, generated);
   });
@@ -92,12 +87,6 @@ Value* rule_filler::fill(CallInst* hole)
   auto chosen = uniform_sample(generated);
   assertion(
       chosen != generated.end(), "Failed to sample anything in rule filler");
-
-  for (auto g : generated) {
-    if (g != *chosen) {
-      /* g->deleteValue(); */
-    }
-  }
 
   return *chosen;
 }
