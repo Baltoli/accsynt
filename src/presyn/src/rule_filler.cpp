@@ -86,7 +86,7 @@ Value* rule_filler::fill(CallInst* hole)
   }
 
   for_each(all_rules(), [&](auto const& rule) {
-    rule.match(hole, choices, generated);
+    rule.match(*this, hole, choices, generated);
   });
 
   auto chosen = uniform_sample(generated);
@@ -95,7 +95,7 @@ Value* rule_filler::fill(CallInst* hole)
 
   for (auto g : generated) {
     if (g != *chosen) {
-      g->deleteValue();
+      /* g->deleteValue(); */
     }
   }
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "rule_filler.h"
+
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Value.h>
 
@@ -13,7 +15,8 @@ namespace rules {
 #define RULE(name)                                                             \
   struct name {                                                                \
     void match(                                                                \
-        llvm::CallInst* hole, std::vector<llvm::Value*> const& choices,        \
+        rule_filler& filler, llvm::CallInst* hole,                             \
+        std::vector<llvm::Value*> const& choices,                              \
         std::vector<llvm::Value*>& generated) const;                           \
   } // namespace rules
 

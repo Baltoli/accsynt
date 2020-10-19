@@ -18,6 +18,8 @@ class filler {
 public:
   virtual ~filler() = default;
 
+  llvm::Value* copy_value(llvm::Value*) const;
+
 protected:
   void set_candidate(candidate&);
   candidate& get_candidate() const;
