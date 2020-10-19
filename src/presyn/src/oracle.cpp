@@ -7,17 +7,32 @@
 
 #include <support/input.h>
 #include <support/llvm_format.h>
+#include <support/terminal.h>
 
 #include <fmt/format.h>
 
 using namespace presyn;
 
+namespace term = support::terminal;
+
 int main()
 {
+  using namespace fmt::literals;
+
   std::unique_ptr<fragment> current_frag = std::make_unique<hole>();
 
-  auto sig_line = support::get_line(" sig> ");
-  auto sig = props::signature::parse(sig_line);
+  auto sig = [] {
+    auto sig_line = support::get_line(" sig> ");
+
+    try {
+      return props::signature::parse(sig_line);
+    } catch (std::runtime_error& e) {
+      fmt::print(
+          stderr, "{}Invalid signature:{} {}\n"_format(
+                      term::f_red, term::reset, sig_line));
+      std::exit(1);
+    }
+  }();
 
   while (true) {
     auto line = support::get_line("frag> ");
@@ -32,7 +47,10 @@ int main()
     if (auto frag = fragment::parse(line)) {
       current_frag = current_frag->compose(std::move(frag));
     } else {
-      break;
+      fmt::print(
+          stderr,
+          "{}Invalid fragment:{} {}\n"_format(term::f_red, term::reset, line));
+      std::exit(2);
     }
   }
 
