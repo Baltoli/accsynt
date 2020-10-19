@@ -3,6 +3,7 @@
 #include "sketch.h"
 
 #include <support/assert.h>
+#include <support/llvm_format.h>
 #include <support/narrow_cast.h>
 
 #include <llvm/IR/BasicBlock.h>
@@ -12,6 +13,8 @@
 #include <llvm/IR/InstVisitor.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Module.h>
+
+#include <llvm/Support/raw_ostream.h>
 
 #include <algorithm>
 #include <map>
@@ -277,10 +280,23 @@ void candidate::safe_rauw(Instruction* stub, Value* call)
   stub->eraseFromParent();
 }
 
-CallInst* candidate::update_type(CallInst* stub, Type* type)
+CallInst* candidate::update_type(CallInst* stub, Type* new_rt)
 {
-  unimplemented();
-  ;
+  // TODO: traits (??) system for tracking whether types are _convertible_ - for
+  // now just look for them being hole -> not hole and blow up elsewhere.
+  auto fn = stub->getCalledFunction();
+  auto fn_ty = fn->getFunctionType();
+
+  auto new_fn_ty
+      = FunctionType::get(new_rt, fn_ty->params(), fn_ty->isVarArg());
+
+  auto new_fn = Function::Create(
+      new_fn_ty, GlobalValue::PrivateLinkage, fn->getName(), fn->getParent());
+
+  auto args_copy = std::vector<Value*> {};
+  std::copy(stub->arg_begin(), stub->arg_end(), std::back_inserter(args_copy));
+
+  return CallInst::Create(new_fn, args_copy, stub->getName(), stub);
 }
 
 } // namespace presyn

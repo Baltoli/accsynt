@@ -29,7 +29,7 @@ void all_if_opaque::match(
 {
   if (fill.has_unknown_type(hole)) {
     for (auto val : choices) {
-      generated.push_back(fill.copy_value(val));
+      generated.push_back(fill.select_type(hole, val->getType()));
     }
   }
 }

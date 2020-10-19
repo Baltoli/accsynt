@@ -70,9 +70,7 @@ Value* filler::copy_value(Value* val) const
 CallInst* filler::select_type(CallInst* call, Type* type)
 {
   auto& cand = get_candidate();
-  auto new_call = cand.update_type(call, type);
-  cand.safe_rauw(call, new_call);
-  return new_call;
+  return cand.update_type(call, type);
 }
 
 Value* zero_filler::fill(CallInst* hole)
