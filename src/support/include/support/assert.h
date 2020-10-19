@@ -42,7 +42,7 @@ void assert_impl(
           "func"_a = func);
 
       if constexpr (sizeof...(args) > 0) {
-        fmt::print("\n{}\n", fmt::format(std::forward<Args>(args)...));
+        fmt::print("  {}\n", fmt::format(std::forward<Args>(args)...));
       }
 
       std::exit(1);
