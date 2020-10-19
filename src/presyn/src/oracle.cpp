@@ -11,14 +11,13 @@
 
 #include <fmt/format.h>
 
+using namespace fmt::literals;
 using namespace presyn;
 
 namespace term = support::terminal;
 
 int main()
-{
-  using namespace fmt::literals;
-
+try {
   std::unique_ptr<fragment> current_frag = std::make_unique<hole>();
 
   auto sig = [] {
@@ -67,4 +66,9 @@ int main()
   }
 
   fmt::print("\n{}", cand.module());
+} catch (std::runtime_error& e) {
+  fmt::print(
+      stderr,
+      "{}Synthesis error:{} {}\n"_format(term::f_red, term::reset, e.what()));
+  std::exit(3);
 }
