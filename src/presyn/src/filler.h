@@ -19,7 +19,11 @@ public:
   virtual ~filler() = default;
 
   llvm::Value* copy_value(llvm::Value*) const;
+
   bool has_unknown_type(llvm::Value*) const;
+  bool is_hole(llvm::Value*) const;
+
+  llvm::CallInst* select_type(llvm::CallInst*, llvm::Type*);
 
 protected:
   void set_candidate(candidate&);

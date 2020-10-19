@@ -42,6 +42,20 @@ protected:
   // working at a level earlier than LLVM's own RAUW supports.
   llvm::Function* converter(llvm::Type*, llvm::Type*);
 
+  // A wrapper around LLVM RAUW that will handle changing types in the
+  // instructions we're changing.
+  //
+  // We need this because RAUW (sensibly) doesn't allow you to change the type
+  // of an operand - in our limited domain, we know that the calls to stub
+  // declarations are variadic and we don't care about the types. Additionally,
+  // we know that this is the only context in which our opaque stub type will
+  // appear, so we're free to just change the type.
+  void safe_rauw(llvm::Instruction*, llvm::Value*);
+
+  // This is responsible for creating a new stubbed call with an updated type
+  // (but not for replacing the uses - delegate that back to safe_rauw.
+  llvm::CallInst* update_type(llvm::CallInst*, llvm::Type*);
+
 private:
   void resolve_names();
   void choose_values();
@@ -58,20 +72,6 @@ private:
 
   std::map<std::pair<llvm::Type*, llvm::Type*>, llvm::Function*> converters_
       = {};
-
-  // A wrapper around LLVM RAUW that will handle changing types in the
-  // instructions we're changing.
-  //
-  // We need this because RAUW (sensibly) doesn't allow you to change the type
-  // of an operand - in our limited domain, we know that the calls to stub
-  // declarations are variadic and we don't care about the types. Additionally,
-  // we know that this is the only context in which our opaque stub type will
-  // appear, so we're free to just change the type.
-  void safe_rauw(llvm::Instruction*, llvm::Value*);
-
-  // This is responsible for creating a new stubbed call with an updated type
-  // (but not for replacing the uses - delegate that back to safe_rauw.
-  llvm::CallInst* update_type(llvm::CallInst*, llvm::Type*);
 
   // Operators defined by special functions in sketches - these are things that
   // we know the abstract semantics for ahead of time (e.g. that a value should

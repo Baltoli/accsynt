@@ -28,12 +28,25 @@ candidate& filler::get_candidate() const
   return *candidate_;
 }
 
-bool filler::has_unknown_type(llvm::Value* val) const
+bool filler::has_unknown_type(Value* val) const
 {
   return val->getType() == get_candidate().hole_type();
 }
 
-Value* filler::copy_value(llvm::Value* val) const
+bool filler::is_hole(Value* val) const
+{
+  if (has_unknown_type(val)) {
+    return true;
+  }
+
+  if (auto call = dyn_cast<CallInst>(val)) {
+    return call->getCalledFunction()->isDeclaration();
+  }
+
+  return false;
+}
+
+Value* filler::copy_value(Value* val) const
 {
   using namespace fmt::literals;
 
@@ -52,6 +65,14 @@ Value* filler::copy_value(llvm::Value* val) const
     // just instructions, or are there other things that need the same?
     return val;
   }
+}
+
+CallInst* filler::select_type(CallInst* call, Type* type)
+{
+  auto& cand = get_candidate();
+  auto new_call = cand.update_type(call, type);
+  cand.safe_rauw(call, new_call);
+  return new_call;
 }
 
 Value* zero_filler::fill(CallInst* hole)
