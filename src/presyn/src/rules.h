@@ -12,17 +12,20 @@ namespace presyn {
 
 namespace rules {
 
+#define ALL_RULE_DEFS                                                          \
+  RULE(do_nothing)                                                             \
+  RULE(all_of_type)                                                            \
+  RULE(all_if_opaque)
+
 #define RULE(name)                                                             \
   struct name {                                                                \
     void match(                                                                \
         rule_filler& filler, llvm::CallInst* hole,                             \
         std::vector<llvm::Value*> const& choices,                              \
         std::vector<llvm::Value*>& generated) const;                           \
-  } // namespace rules
+  }; // namespace rules
 
-RULE(do_nothing);
-RULE(all_of_type);
-RULE(all_if_opaque);
+ALL_RULE_DEFS
 
 #undef RULE
 
@@ -32,9 +35,9 @@ inline auto all_rules()
 {
   // clang-format off
   return std::tuple {
-    rules::do_nothing {}, 
-    rules::all_of_type {},
-    rules::all_if_opaque {},
+#define RULE(name) rules::name {},
+    ALL_RULE_DEFS
+#undef RULE
   };
   // clang-format on
 }
