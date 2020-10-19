@@ -65,29 +65,35 @@ Value* rule_filler::fill(CallInst* hole)
 {
   using ::support::for_each;
 
-  auto choices = std::vector<llvm::Value*> {};
-  auto generated = std::vector<llvm::Value*> {};
+  while (true) {
+    auto choices = std::vector<llvm::Value*> {};
+    auto generated = std::vector<llvm::Value*> {};
 
-  auto collect_from = [&choices, this](auto&& src) {
-    for (auto it = FWD(src).begin();
-         it != FWD(src).end() && choices.size() < pool_size_; ++it) {
-      choices.push_back(*it);
+    auto collect_from = [&choices, this](auto&& src) {
+      for (auto it = FWD(src).begin();
+           it != FWD(src).end() && choices.size() < pool_size_; ++it) {
+        choices.push_back(*it);
+      }
+    };
+
+    collect_from(collect_local(hole));
+    collect_from(collect_params(hole));
+    collect_from(collect_constants(hole));
+
+    for_each(all_rules(), [&](auto const& rule) {
+      rule.match(*this, hole, choices, generated);
+    });
+
+    auto chosen = uniform_sample(generated);
+    assertion(
+        chosen != generated.end(), "Failed to sample anything in rule filler");
+
+    if (is_hole(*chosen)) {
+      unimplemented();
+    } else {
+      return *chosen;
     }
-  };
-
-  collect_from(collect_local(hole));
-  collect_from(collect_params(hole));
-  collect_from(collect_constants(hole));
-
-  for_each(all_rules(), [&](auto const& rule) {
-    rule.match(*this, hole, choices, generated);
-  });
-
-  auto chosen = uniform_sample(generated);
-  assertion(
-      chosen != generated.end(), "Failed to sample anything in rule filler");
-
-  return *chosen;
+  }
 }
 
 std::vector<Value*> rule_filler::collect_local(CallInst* hole) const
