@@ -22,6 +22,7 @@ namespace rules {
 
 RULE(do_nothing);
 RULE(all_of_type);
+RULE(all_if_opaque);
 
 #undef RULE
 
@@ -32,7 +33,8 @@ inline auto all_rules()
   // clang-format off
   return std::tuple {
     rules::do_nothing {}, 
-    rules::all_of_type {}
+    rules::all_of_type {},
+    rules::all_if_opaque {},
   };
   // clang-format on
 }

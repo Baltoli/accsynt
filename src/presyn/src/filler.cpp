@@ -44,7 +44,9 @@ Value* filler::copy_value(llvm::Value* val) const
     auto name
         = "{}copy"_format(inst->hasName() ? inst->getName().str() + "." : "");
 
-    return CallInst::Create(conv, {inst}, name, inst);
+    auto call = CallInst::Create(conv, {inst}, name, inst);
+    call->moveAfter(inst);
+    return call;
   } else {
     // TODO: think harder about what needs copied through an ID function - is it
     // just instructions, or are there other things that need the same?
