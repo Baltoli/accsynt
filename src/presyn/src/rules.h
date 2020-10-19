@@ -13,9 +13,10 @@ namespace presyn {
 namespace rules {
 
 #define ALL_RULE_DEFS                                                          \
-  RULE(do_nothing)                                                             \
+  RULE(add)                                                                    \
+  RULE(all_if_opaque)                                                          \
   RULE(all_of_type)                                                            \
-  RULE(all_if_opaque)
+  RULE(do_nothing)
 
 #define RULE(name)                                                             \
   struct name {                                                                \
