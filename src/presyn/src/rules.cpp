@@ -1,5 +1,19 @@
 #include "rules.h"
 
-namespace presyn {
+using namespace llvm;
 
-} // namespace presyn
+namespace presyn::rules {
+
+void do_nothing::match(
+    CallInst* hole, std::vector<Value*> const& choices,
+    std::vector<Value*>& generated) const
+{
+}
+
+void all_of_type::match(
+    CallInst* hole, std::vector<Value*> const& choices,
+    std::vector<Value*>& generated) const
+{
+}
+
+} // namespace presyn::rules
