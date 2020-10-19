@@ -16,13 +16,13 @@ namespace support::detail {
 
 template <typename T>
 struct llvm_formattable {
-  // Ideally this would be a concept restricting to things that permit streaming
-  // to a raw_string_ostream, but for now this check catches both of the cases
-  // we care about while using only one formatter implementation.
-  static constexpr bool value
-      = std::is_same_v<
-            llvm::StringRef,
-            T> || std::is_same_v<llvm::Module, T> || std::is_base_of_v<llvm::Value, T>;
+  // clang-format off
+  static constexpr bool value =
+    std::is_same_v<llvm::StringRef, T>  || 
+    std::is_same_v<llvm::Module, T>     || 
+    std::is_base_of_v<llvm::Value, T>   ||
+    std::is_base_of_v<llvm::Type, T>;
+  // clang-format on
 };
 
 template <typename T>
@@ -46,6 +46,6 @@ struct fmt::formatter<
     auto os = llvm::raw_string_ostream(str);
 
     os << v;
-    return format_to(ctx.out(), "{}", ::support::left_trim(str));
+    return format_to(ctx.out(), "{}", ::support::left_trim(os.str()));
   }
 };
