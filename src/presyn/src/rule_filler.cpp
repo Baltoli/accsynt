@@ -7,6 +7,7 @@
 #include <support/llvm_format.h>
 #include <support/random.h>
 #include <support/tuple.h>
+#include <support/utility.h>
 
 #include <algorithm>
 
@@ -68,10 +69,8 @@ Value* rule_filler::fill(CallInst* hole)
   auto generated = std::vector<llvm::Value*> {};
 
   auto collect_from = [&choices, this](auto&& src) {
-    for (auto it = std::forward<decltype(src)>(src).begin();
-         it != std::forward<decltype(src)>(src).end()
-         && choices.size() < pool_size_;
-         ++it) {
+    for (auto it = FWD(src).begin();
+         it != FWD(src).end() && choices.size() < pool_size_; ++it) {
       choices.push_back(*it);
     }
   };
