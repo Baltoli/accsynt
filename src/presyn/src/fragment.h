@@ -336,6 +336,32 @@ private:
 };
 
 /**
+ * Similar to a fixed loop, but without the required direct access to a pointer
+ * (as the semantics in this case are linked to the oracle complexity in terms
+ * of a particular parameter).
+ *
+ * Usual composition semantics.
+ */
+class regular_loop final : public fragment {
+public:
+  regular_loop(std::unique_ptr<parameter>&&);
+
+  [[nodiscard]] std::unique_ptr<fragment>
+  compose(std::unique_ptr<fragment>&&) override;
+
+  bool accepts() const override;
+
+  [[nodiscard]] llvm::BasicBlock*
+  compile(sketch_context&, llvm::BasicBlock*) const override;
+
+  std::string to_string() const override;
+
+private:
+  std::unique_ptr<parameter> size_;
+  std::unique_ptr<fragment> body_;
+};
+
+/**
  * Represents a conditional statement with no else branch:
  *
  *   if(P) { body }

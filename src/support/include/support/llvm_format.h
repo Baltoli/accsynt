@@ -4,6 +4,7 @@
 
 #include <fmt/format.h>
 
+#include <llvm/ADT/StringRef.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Value.h>
 #include <llvm/Support/raw_ostream.h>
@@ -19,7 +20,9 @@ struct llvm_formattable {
   // to a raw_string_ostream, but for now this check catches both of the cases
   // we care about while using only one formatter implementation.
   static constexpr bool value
-      = std::is_same_v<llvm::Module, T> || std::is_base_of_v<llvm::Value, T>;
+      = std::is_same_v<
+            llvm::StringRef,
+            T> || std::is_same_v<llvm::Module, T> || std::is_base_of_v<llvm::Value, T>;
 };
 
 template <typename T>

@@ -1,9 +1,46 @@
 #pragma once
 
+#include "rule_filler.h"
+
+#include <llvm/IR/Instructions.h>
+#include <llvm/IR/Value.h>
+
 #include <tuple>
+#include <vector>
 
 namespace presyn {
 
-inline auto all_rules() { return std::tuple {}; }
+namespace rules {
+
+#define ALL_RULE_DEFS                                                          \
+  RULE(add)                                                                    \
+  RULE(all_if_opaque)                                                          \
+  RULE(all_of_type)                                                            \
+  RULE(do_nothing)
+
+#define RULE(name)                                                             \
+  struct name {                                                                \
+    void match(                                                                \
+        rule_filler& filler, llvm::CallInst* hole,                             \
+        std::vector<llvm::Value*> const& choices,                              \
+        std::vector<llvm::Value*>& generated) const;                           \
+  }; // namespace rules
+
+ALL_RULE_DEFS
+
+#undef RULE
+
+} // namespace rules
+
+inline auto all_rules()
+{
+  // clang-format off
+  return std::tuple {
+#define RULE(name) rules::name {},
+    ALL_RULE_DEFS
+#undef RULE
+  };
+  // clang-format on
+}
 
 } // namespace presyn

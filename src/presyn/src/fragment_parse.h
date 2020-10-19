@@ -40,6 +40,7 @@ struct fragment_name :
     TAO_PEGTL_STRING("empty"), 
     TAO_PEGTL_STRING("seq"), 
     TAO_PEGTL_STRING("loop"),
+    TAO_PEGTL_STRING("regular"),
     TAO_PEGTL_STRING("delim"),
     TAO_PEGTL_STRING("fixed"),
     TAO_PEGTL_STRING("if_else"),

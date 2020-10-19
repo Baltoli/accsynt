@@ -5,6 +5,9 @@
 
 #include <llvm/IR/Constant.h>
 #include <llvm/IR/DerivedTypes.h>
+#include <llvm/IR/Instructions.h>
+
+#include <fmt/format.h>
 
 using namespace llvm;
 
@@ -28,6 +31,27 @@ candidate& filler::get_candidate() const
 bool filler::has_unknown_type(llvm::Value* val) const
 {
   return val->getType() == get_candidate().hole_type();
+}
+
+Value* filler::copy_value(llvm::Value* val) const
+{
+  using namespace fmt::literals;
+
+  if (auto inst = dyn_cast<Instruction>(val)) {
+    auto& cand = get_candidate();
+    auto conv = cand.converter(inst->getType(), inst->getType());
+
+    auto name
+        = "{}copy"_format(inst->hasName() ? inst->getName().str() + "." : "");
+
+    auto call = CallInst::Create(conv, {inst}, name, inst);
+    call->moveAfter(inst);
+    return call;
+  } else {
+    // TODO: think harder about what needs copied through an ID function - is it
+    // just instructions, or are there other things that need the same?
+    return val;
+  }
 }
 
 Value* zero_filler::fill(CallInst* hole)

@@ -1,27 +1,30 @@
 project(libsupport VERSION 0.1 LANGUAGES CXX)
 
 add_library(support
-  src/instr_count.cpp
+  src/argument_generator.cpp
   src/call_builder.cpp
   src/call_wrapper.cpp
+  src/choose.cpp
+  src/dynamic_library.cpp
+  src/file.cpp
   src/float_compare.cpp
   src/hash.cpp
-  src/file.cpp
-  src/random.cpp
+  src/input.cpp
+  src/instr_count.cpp
   src/llvm_cloning.cpp
-  src/llvm_values.cpp
   src/llvm_utils.cpp
+  src/llvm_values.cpp
   src/load_module.cpp
-  src/dynamic_library.cpp
-  src/choose.cpp
-  src/argument_generator.cpp
-  src/string.cpp
+  src/random.cpp
   src/similarity.cpp
-  src/thread_context.cpp)
+  src/string.cpp
+  src/thread_context.cpp
+)
 
 target_link_libraries(support
   ${llvm_libs}
   props
+  CONAN_PKG::readline
   )
 
 target_link_filesystem(support)
