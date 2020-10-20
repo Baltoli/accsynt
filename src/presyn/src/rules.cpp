@@ -44,8 +44,8 @@ void add::match(
     for (auto v1 : choices) {
       for (auto v2 : choices) {
         if (v1->getType() == v2->getType()) {
-          generated.push_back(
-              BinaryOperator::Create(Instruction::BinaryOps::Add, v1, v2));
+          generated.push_back(BinaryOperator::Create(
+              Instruction::BinaryOps::Add, v1, v2, "add", hole));
         }
       }
     }
