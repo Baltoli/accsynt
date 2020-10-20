@@ -36,7 +36,7 @@ public:
     if (inst.isConditional()) {
       build.CreateCall(
           trampoline_,
-          {build.getInt32(next_id_), inst.getCondition(), instance_ptr_});
+          {build.getInt64(next_id_), inst.getCondition(), instance_ptr_});
 
       ids_[&inst] = next_id_;
       ++next_id_;
@@ -72,11 +72,11 @@ void wrapper::instrument()
 
   // Create another global mapping for the trampoline function. The visitor then
   // receives this external function as its callback to insert.
-  auto i32_t = llvm::IntegerType::get(ctx, 32);
+  auto i64_t = llvm::IntegerType::get(ctx, 64);
   auto bool_t = llvm::IntegerType::get(ctx, 1);
   auto void_t = llvm::Type::getVoidTy(ctx);
   auto trampoline_t
-      = llvm::FunctionType::get(void_t, {i32_t, bool_t, p_i8_t}, false);
+      = llvm::FunctionType::get(void_t, {i64_t, bool_t, p_i8_t}, false);
 
   auto func = llvm::Function::Create(
       trampoline_t, llvm::GlobalValue::ExternalLinkage, "trampoline", *mod);

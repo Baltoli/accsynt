@@ -1,6 +1,5 @@
 #pragma once
 
-#include "evaluator.h"
 #include "fragment.h"
 #include "synthesizer.h"
 
@@ -32,11 +31,8 @@ public:
   generate_result generate();
 
 private:
-  example_set make_examples(props::property_set, support::call_wrapper&);
-
   llvm::Module mod_;
 
-  evaluator eval_;
   std::vector<fragment::frag_ptr> choices_;
 
   props::property_set properties_;

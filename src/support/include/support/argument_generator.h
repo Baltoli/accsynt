@@ -101,7 +101,7 @@ private:
   // Type erasure
   struct concept
   {
-    virtual ~concept() {}
+    virtual ~concept() { }
     virtual concept* clone() = 0;
     virtual void gen_args(call_builder&) = 0;
   };
@@ -170,12 +170,12 @@ public:
   void gen_args(call_builder&);
 
 private:
-  int gen_rows();
-  std::vector<int> gen_rowstr(int rows);
-  std::vector<int> gen_colidx(std::vector<int> const& rowstr);
-  std::vector<float> gen_data(std::vector<int> const& rowstr);
-  std::vector<float> gen_input(std::vector<int> const& colidx);
-  std::vector<float> gen_output(int rows);
+  int64_t gen_rows();
+  std::vector<int64_t> gen_rowstr(int64_t rows);
+  std::vector<int64_t> gen_colidx(std::vector<int64_t> const& rowstr);
+  std::vector<float> gen_data(std::vector<int64_t> const& rowstr);
+  std::vector<float> gen_input(std::vector<int64_t> const& colidx);
+  std::vector<float> gen_output(int64_t rows);
 
   bool is_csr_spmv(props::signature const&);
 

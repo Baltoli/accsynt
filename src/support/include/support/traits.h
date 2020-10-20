@@ -28,9 +28,9 @@ struct has_member_find : std::false_type {
 };
 
 template <typename T>
-struct has_member_find<T,
-    std::void_t<decltype(std::declval<T>().find(
-        std::declval<typename T::key_type>()))>> : std::true_type {
+struct has_member_find<
+    T, std::void_t<decltype(std::declval<T>().find(
+           std::declval<typename T::key_type>()))>> : std::true_type {
 };
 
 template <typename T>
@@ -45,8 +45,9 @@ decltype(auto) container_find(Container&& c, Key const& key)
   if constexpr (has_member_find_v<Container>) {
     return std::forward<decltype(c)>(c).find(key);
   } else {
-    return std::find(begin(std::forward<decltype(c)>(c)),
-        end(std::forward<decltype(c)>(c)), key);
+    return std::find(
+        begin(std::forward<decltype(c)>(c)), end(std::forward<decltype(c)>(c)),
+        key);
   }
 }
 
@@ -74,5 +75,14 @@ struct is_unique_ptr<std::unique_ptr<T>> : std::true_type {
 
 template <typename T>
 constexpr bool is_unique_ptr_v = is_unique_ptr<T>::value;
+
+template <typename T>
+struct is_buildable_int {
+  static constexpr bool value
+      = std::is_integral_v<T> && sizeof(T) == sizeof(int64_t);
+};
+
+template <typename T>
+constexpr bool is_buildable_int_v = is_buildable_int<T>::value;
 
 } // namespace support

@@ -5,6 +5,7 @@
 
 #include <llvm/ExecutionEngine/GenericValue.h>
 
+#include <cstdint>
 #include <type_traits>
 #include <vector>
 
@@ -19,7 +20,7 @@ namespace detail {
 template <typename T>
 uint8_t nth_byte(T val, size_t n)
 {
-  uint8_t data[sizeof(T)] = { 0 };
+  uint8_t data[sizeof(T)] = {0};
   memcpy(data, &val, sizeof(T));
   return data[n];
 }
@@ -27,7 +28,7 @@ uint8_t nth_byte(T val, size_t n)
 template <typename T>
 T from_bytes(uint8_t const* data)
 {
-  auto ret = T{};
+  auto ret = T {};
   memcpy(&ret, data, sizeof(T));
   return ret;
 }
@@ -147,7 +148,7 @@ private:
   std::vector<uint8_t> args_;
 
   size_t current_arg_ = 0;
-  std::vector<std::vector<int>> int_data_ = {};
+  std::vector<std::vector<int64_t>> int_data_ = {};
   std::vector<std::vector<float>> float_data_ = {};
   std::vector<std::vector<char>> char_data_ = {};
 };
@@ -164,7 +165,7 @@ void call_builder::add(T arg)
 
   // clang-format off
   static_assert((
-    std::is_same_v<Base, int> || 
+    is_buildable_int_v<Base> ||
     std::is_same_v<Base, float> || 
     std::is_same_v<Base, char>) &&
     !std::is_pointer_v<Base>, "Must be scalar, not pointer!");
@@ -182,7 +183,7 @@ void call_builder::add(T arg)
     }
   }
 
-  if constexpr (std::is_same_v<Base, int>) {
+  if constexpr (is_buildable_int_v<Base>) {
     if (param.type != props::base_type::integer) {
       throw call_builder_error("Adding non-integer when integer expected");
     }
@@ -208,8 +209,9 @@ void call_builder::add(T arg)
 template <typename T>
 void call_builder::add(std::vector<T> arg)
 {
-  static_assert(std::is_same_v<T,
-                    int> || std::is_same_v<T, float> || std::is_same_v<T, char>,
+  static_assert(
+      is_buildable_int_v<
+          T> || std::is_same_v<T, float> || std::is_same_v<T, char>,
       "Pointed-to data must be of base type");
 
   assert(current_arg_ < signature_.parameters.size());
@@ -222,7 +224,7 @@ void call_builder::add(std::vector<T> arg)
     }
   }
 
-  if constexpr (std::is_same_v<T, int>) {
+  if constexpr (is_buildable_int_v<T>) {
     if (param.type != props::base_type::integer) {
       throw call_builder_error("Adding non-integer when integer expected");
     }
@@ -240,7 +242,7 @@ void call_builder::add(std::vector<T> arg)
   if constexpr (std::is_same_v<T, char>) {
     char_data_.push_back(arg);
     data = char_data_.back().data();
-  } else if constexpr (std::is_same_v<T, int>) {
+  } else if constexpr (is_buildable_int_v<T>) {
     int_data_.push_back(arg);
     data = int_data_.back().data();
   } else if constexpr (std::is_same_v<T, float>) {
@@ -299,10 +301,10 @@ T call_builder::get(size_t idx) const
   }
 
   if constexpr (
-      std::is_same_v<T,
-          int> || std::is_same_v<T, float> || std::is_same_v<T, char>) {
+      is_buildable_int_v<
+          T> || std::is_same_v<T, float> || std::is_same_v<T, char>) {
     return detail::from_bytes<T>(args_.data() + offset);
-  } else if constexpr (std::is_same_v<T, std::vector<int>>) {
+  } else if constexpr (std::is_same_v<T, std::vector<int64_t>>) {
     return int_data_.at(int_offset);
   } else if constexpr (std::is_same_v<T, std::vector<float>>) {
     return float_data_.at(float_offset);

@@ -82,7 +82,7 @@ TEST_CASE("bit_cast is an involution")
 
 TEST_CASE("can round trip to uint64_t") {
 #define OP ROUND_TRIP
-  TEST_CASES
+    TEST_CASES
 #undef OP
 }
 
@@ -139,20 +139,20 @@ define signext i8 @value() {
   SECTION("more complicated for ints")
   {
     auto str = R"(
-define i32 @work(i32, i32, i32) {
-  %4 = mul nsw i32 %2, %1
-  %5 = add nsw i32 %4, %0
-  ret i32 %5
+define i64 @work(i64, i64, i64) {
+  %4 = mul nsw i64 %2, %1
+  %5 = add nsw i64 %4, %0
+  ret i64 %5
 })";
 
     PARSE_TEST_MODULE(mod, str);
 
     auto wrap = call_wrapper("int work(int x, int y, int z)"_sig, *mod, "work");
     auto cb = wrap.get_builder();
-    cb.add(2, 3, 4);
+    cb.add(2ll, 3ll, 4ll);
 
     auto ret = wrap.call(cb);
-    REQUIRE(bit_cast<int>(ret) == 14);
+    REQUIRE(bit_cast<int64_t>(ret) == 14);
   }
 
   SECTION("more complicated for floats")

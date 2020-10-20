@@ -96,7 +96,7 @@ struct value {
   enum class type { integer, floating, parameter, string };
 
   type value_type;
-  int int_val;
+  int64_t int_val;
   float float_val;
   std::string param_val;
   std::string string_val;
@@ -104,7 +104,7 @@ struct value {
   bool operator==(value const& other) const;
   bool operator!=(value const& other) const;
 
-  static value with_int(int i);
+  static value with_int(int64_t i);
   static value with_float(float f);
   static value with_param(std::string param);
   static value with_string(std::string str);

@@ -51,9 +51,9 @@ void uniform_generator::seed(std::random_device::result_type seed)
 }
 
 template <>
-int uniform_generator::gen_single<int>()
+int64_t uniform_generator::gen_single<int64_t>()
 {
-  return std::uniform_int_distribution<int>(-4, size_ - 1)(engine_);
+  return std::uniform_int_distribution<int64_t>(-4, size_ - 1)(engine_);
 }
 
 template <>
@@ -72,10 +72,10 @@ void uniform_generator::gen_args(call_builder& build)
 {
   // clang-format off
   sig_visitor {
-    on(base_type::integer,      [&] { build.add(gen_single<int>()); }),
+    on(base_type::integer,      [&] { build.add(gen_single<int64_t>()); }),
     on(base_type::character,    [&] { build.add(gen_single<char>()); }),
     on(base_type::floating,     [&] { build.add(gen_single<float>()); }),
-    on(base_type::integer,   1, [&] { build.add(gen_array<int>()); }),
+    on(base_type::integer,   1, [&] { build.add(gen_array<int64_t>()); }),
     on(base_type::character, 1, [&] { build.add(gen_array<char>()); }),
     on(base_type::floating,  1, [&] { build.add(gen_array<float>()); })
   }.visit(build.signature());
@@ -118,19 +118,19 @@ void csr_generator::gen_args(call_builder& build)
   }
 }
 
-int csr_generator::gen_rows()
+int64_t csr_generator::gen_rows()
 {
-  return std::uniform_int_distribution<int>(1, max_size_)(engine_);
+  return std::uniform_int_distribution<int64_t>(1, max_size_)(engine_);
 }
 
-std::vector<int> csr_generator::gen_rowstr(int rows)
+std::vector<int64_t> csr_generator::gen_rowstr(int64_t rows)
 {
-  auto rowstr = std::vector<int>(rows + 1);
+  auto rowstr = std::vector<int64_t>(rows + 1);
   auto b = rowstr.begin();
   auto e = rowstr.end();
 
   std::generate(b, e, [&] {
-    return std::uniform_int_distribution<int>(0, max_size_)(engine_);
+    return std::uniform_int_distribution<int64_t>(0, max_size_)(engine_);
   });
 
   std::sort(b, e);
@@ -139,15 +139,16 @@ std::vector<int> csr_generator::gen_rowstr(int rows)
   return rowstr;
 }
 
-std::vector<int> csr_generator::gen_colidx(std::vector<int> const& rowstr)
+std::vector<int64_t>
+csr_generator::gen_colidx(std::vector<int64_t> const& rowstr)
 {
   auto nnz = rowstr.back();
 
   auto rows = rowstr.size() - 1;
-  auto indexes = std::vector<int>(max_size_);
+  auto indexes = std::vector<int64_t>(max_size_);
   std::iota(indexes.begin(), indexes.end(), 0);
 
-  auto colidx = std::vector<int>(nnz);
+  auto colidx = std::vector<int64_t>(nnz);
   auto offset = colidx.begin();
 
   for (auto i = 0u; i < rows; ++i) {
@@ -161,7 +162,7 @@ std::vector<int> csr_generator::gen_colidx(std::vector<int> const& rowstr)
   return colidx;
 }
 
-std::vector<float> csr_generator::gen_data(std::vector<int> const& rowstr)
+std::vector<float> csr_generator::gen_data(std::vector<int64_t> const& rowstr)
 {
   auto nnz = rowstr.back();
   auto data = std::vector<float>(nnz);
@@ -173,7 +174,7 @@ std::vector<float> csr_generator::gen_data(std::vector<int> const& rowstr)
   return data;
 }
 
-std::vector<float> csr_generator::gen_input(std::vector<int> const& colidx)
+std::vector<float> csr_generator::gen_input(std::vector<int64_t> const& colidx)
 {
   auto cols = (*std::max_element(colidx.begin(), colidx.end())) + 1;
   auto iv = std::vector<float>(cols);
@@ -185,7 +186,7 @@ std::vector<float> csr_generator::gen_input(std::vector<int> const& colidx)
   return iv;
 }
 
-std::vector<float> csr_generator::gen_output(int rows)
+std::vector<float> csr_generator::gen_output(int64_t rows)
 {
   return std::vector<float>(rows);
 }

@@ -19,7 +19,7 @@ TEST_CASE("can get LLVM types from parameters")
     auto p = param {"any_name", base_type::integer, 0};
     auto t = p.llvm_type();
 
-    REQUIRE(t->isIntegerTy(32));
+    REQUIRE(t->isIntegerTy(64));
   }
 
   SECTION("for character values")
@@ -54,7 +54,7 @@ TEST_CASE("can get LLVM types from parameters")
     REQUIRE(t->isPointerTy());
 
     auto t1 = cast<PointerType>(t)->getElementType();
-    REQUIRE(t1->isIntegerTy(32));
+    REQUIRE(t1->isIntegerTy(64));
   }
 
   SECTION("for character pointers")
@@ -107,7 +107,7 @@ TEST_CASE("can get LLVM types from signatures")
     /* REQUIRE(!ft->isVarArg()); */
 
     /* auto rt = ft->getReturnType(); */
-    /* REQUIRE(rt->isIntegerTy(32)); */
+    /* REQUIRE(rt->isIntegerTy(64)); */
 
     /* REQUIRE(ft->getNumParams() == 0); */
   }
@@ -138,7 +138,7 @@ TEST_CASE("can get LLVM types from signatures")
     auto p0_t = cast<PointerType>(p0)->getElementType();
     auto p3_t = cast<PointerType>(p3)->getElementType();
 
-    REQUIRE(p0_t->isIntegerTy(32));
+    REQUIRE(p0_t->isIntegerTy(64));
     REQUIRE(p3_t->isPointerTy());
 
     auto p3_t_t = cast<PointerType>(p3_t)->getElementType();
@@ -164,7 +164,7 @@ TEST_CASE("can create functions from signatures")
   auto p2 = ft->getParamType(2);
   auto p3 = ft->getParamType(3);
 
-  REQUIRE(p0->isIntegerTy(32));
+  REQUIRE(p0->isIntegerTy(64));
   REQUIRE(p1->isPointerTy());
   REQUIRE(p2->isPointerTy());
   REQUIRE(p3->isPointerTy());
@@ -203,7 +203,7 @@ TEST_CASE("Can create data types from LLVM types")
 
   SECTION("Ints")
   {
-    auto ty = Type::getInt32Ty(ctx);
+    auto ty = Type::getInt64Ty(ctx);
     auto dt = data_type::from_llvm(ty);
 
     REQUIRE(dt);
@@ -226,7 +226,7 @@ TEST_CASE("Can create data types from LLVM types")
     REQUIRE(d1);
     REQUIRE(*d1 == data_type {base_type::floating, 1});
 
-    auto t2 = Type::getInt32PtrTy(ctx);
+    auto t2 = Type::getInt64PtrTy(ctx);
     auto d2 = data_type::from_llvm(t2);
     REQUIRE(d2);
     REQUIRE(*d2 == data_type {base_type::integer, 1});
@@ -237,7 +237,7 @@ TEST_CASE("Can create data types from LLVM types")
     REQUIRE(*d3 == data_type {base_type::character, 3});
   }
 
-  SECTION("Others") {}
+  SECTION("Others") { }
 }
 
 TEST_CASE("Can create signatures from LLVM function types")
@@ -246,7 +246,7 @@ TEST_CASE("Can create signatures from LLVM function types")
   auto void_ty = Type::getVoidTy(ctx);
   auto bool_ty = Type::getInt1Ty(ctx);
   auto char_ty = Type::getInt8Ty(ctx);
-  auto int_ty = Type::getInt32Ty(ctx);
+  auto int_ty = Type::getInt64Ty(ctx);
   auto float_ty = Type::getFloatTy(ctx);
 
   SECTION("Simple function type")
