@@ -16,7 +16,7 @@ void all_of_type::match(
     rule_filler& fill, CallInst* hole, std::vector<Value*> const& choices,
     std::vector<Value*>& generated) const
 {
-  if (!fill.has_unknown_type(hole)) {
+  if (fill.has_known_type(hole)) {
     for (auto val : choices) {
       if (val->getType() == hole->getType()) {
         generated.push_back(fill.copy_value(val));

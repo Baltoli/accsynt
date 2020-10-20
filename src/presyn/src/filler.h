@@ -21,7 +21,9 @@ public:
   llvm::Value* copy_value(llvm::Value*) const;
 
   bool has_unknown_type(llvm::Value*) const;
+  bool has_known_type(llvm::Value*) const;
   bool is_hole(llvm::Value*) const;
+  bool is_value(llvm::Value*) const;
 
   llvm::CallInst* select_type(llvm::CallInst*, llvm::Type*);
 

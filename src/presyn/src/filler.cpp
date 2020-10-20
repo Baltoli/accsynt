@@ -33,6 +33,8 @@ bool filler::has_unknown_type(Value* val) const
   return val->getType() == get_candidate().hole_type();
 }
 
+bool filler::has_known_type(Value* val) const { return !has_unknown_type(val); }
+
 bool filler::is_hole(Value* val) const
 {
   if (has_unknown_type(val)) {
@@ -45,6 +47,8 @@ bool filler::is_hole(Value* val) const
 
   return false;
 }
+
+bool filler::is_value(Value* val) const { return !is_hole(val); }
 
 Value* filler::copy_value(Value* val) const
 {
