@@ -60,10 +60,10 @@ private:
   blas_properties blas_props_;
 
   size_t max_size_ = 16;
-  std::map<size_t, int> sizes_;
+  std::map<size_t, int64_t> sizes_;
 
   void create_next_sizes();
-  int random_size();
+  int64_t random_size();
 };
 
 template <typename Old>

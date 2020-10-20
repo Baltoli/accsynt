@@ -124,9 +124,9 @@ void blas_generator::generate(call_builder& builder)
   }
 }
 
-int blas_generator::random_size()
+int64_t blas_generator::random_size()
 {
-  auto dis = std::uniform_int_distribution<int>(0, max_size_);
+  auto dis = std::uniform_int_distribution<int64_t>(0, max_size_);
   return dis(random_);
 }
 } // namespace synth

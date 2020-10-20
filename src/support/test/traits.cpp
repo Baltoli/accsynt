@@ -113,10 +113,10 @@ TEST_CASE("can check for specialization")
 
 TEST_CASE("can check buildable ints")
 {
-  static_assert(is_buildable_int_v<int>);
   static_assert(is_buildable_int_v<int64_t>);
   static_assert(is_buildable_int_v<long long>);
 
+  static_assert(!is_buildable_int_v<int>);
   static_assert(!is_buildable_int_v<float>);
   static_assert(!is_buildable_int_v<char>);
   static_assert(!is_buildable_int_v<S<int>>);

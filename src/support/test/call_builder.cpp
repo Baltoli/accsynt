@@ -108,18 +108,18 @@ TEST_CASE("Can extract arguments from a call_builder")
   SECTION("Fails if not enough arguments are present")
   {
     auto c1 = call_builder("void f()"_sig);
-    REQUIRE_THROWS_AS(c1.get<int>(0), call_builder_error);
+    REQUIRE_THROWS_AS(c1.get<int64_t>(0), call_builder_error);
 
     auto c2 = call_builder("void f(int x)"_sig);
-    c2.add(0);
+    c2.add(0ll);
     REQUIRE_THROWS_AS(c2.get<int64_t>(1), call_builder_error);
 
     auto c3 = call_builder("void f(int x, int y, int z)"_sig);
-    c3.add(0, 0);
+    c3.add(0ll, 0ll);
     REQUIRE_THROWS_AS(c3.get<int64_t>(2), call_builder_error);
 
     auto c4 = call_builder("void f(char v, int g)"_sig);
-    c4.add('a', 78);
+    c4.add('a', 78ll);
     REQUIRE_THROWS_AS(c4.get<int64_t>(2), call_builder_error);
   }
 
@@ -160,7 +160,7 @@ TEST_CASE("Can extract arguments from a call_builder")
       auto vs
           = GENERATE_COPY(take(100, chunk(2, map<char>(to_c, ALLVS(char)))));
 
-      c2.add(vs[0], 0, 0.0f, vs[1]);
+      c2.add(vs[0], 0ll, 0.0f, vs[1]);
       REQUIRE(c2.get<char>(0) == vs[0]);
       REQUIRE(c2.get<char>(3) == vs[1]);
     }
@@ -180,7 +180,7 @@ TEST_CASE("Can extract arguments from a call_builder")
     {
       auto c = call_builder("void g(float x, int v, float y)"_sig);
       auto v = GENERATE(take(1000, chunk(2, ALLVS(float))));
-      c.add(v[0], 4, v[1]);
+      c.add(v[0], 4ll, v[1]);
 
       REQUIRE(c.get<float>(0) == v[0]);
       REQUIRE(c.get<float>(2) == v[1]);
@@ -237,7 +237,7 @@ TEST_CASE("Can extract arguments from a call_builder")
   {
     auto c1
         = call_builder("int fun(int a, int *b, float *c, float d, char e)"_sig);
-    auto a = 784123;
+    auto a = 784123ll;
     auto b = std::vector<int64_t> {1, 2, 3};
     auto c = std::vector {0.4f, 0.2f, 453.2f};
     auto d = 5768.11f;
@@ -256,7 +256,7 @@ TEST_CASE("Can extract arguments from a call_builder")
     auto c1 = call_builder(
         "int fun(int *aio_efd, int woo, float *c__a, float doo, char eep)"_sig);
     auto aio_efd = std::vector<int64_t> {1, 2, 3};
-    auto woo = 784123;
+    auto woo = 784123ll;
     auto c__a = std::vector {0.4f, 0.2f, 453.2f};
     auto doo = 5768.11f;
     auto eep = '{';

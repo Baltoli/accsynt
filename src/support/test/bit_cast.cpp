@@ -82,7 +82,7 @@ TEST_CASE("bit_cast is an involution")
 
 TEST_CASE("can round trip to uint64_t") {
 #define OP ROUND_TRIP
-  TEST_CASES
+    TEST_CASES
 #undef OP
 }
 
@@ -149,7 +149,7 @@ define i32 @work(i32, i32, i32) {
 
     auto wrap = call_wrapper("int work(int x, int y, int z)"_sig, *mod, "work");
     auto cb = wrap.get_builder();
-    cb.add(2, 3, 4);
+    cb.add(2ll, 3ll, 4ll);
 
     auto ret = wrap.call(cb);
     REQUIRE(bit_cast<int>(ret) == 14);
