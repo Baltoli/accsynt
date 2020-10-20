@@ -1,6 +1,4 @@
 add_library(coresynth
-  src/gp_sampler.cpp
-  src/evaluator.cpp
   src/accessor_rules.cpp
   src/rules.cpp
   src/rule_registry.cpp

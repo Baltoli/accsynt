@@ -2,6 +2,8 @@
 
 #include <catch2/catch.hpp>
 
+#include <cstdint>
+
 using namespace props;
 using namespace props::literals;
 using namespace support;
@@ -27,7 +29,7 @@ TEST_CASE("Can extract the nth byte of values")
 
   SECTION("for floating values")
   {
-    auto val = float{ 12.345 };
+    auto val = float {12.345};
     REQUIRE(detail::nth_byte(val, 0) == 31);
     REQUIRE(detail::nth_byte(val, 1) == 133);
     REQUIRE(detail::nth_byte(val, 2) == 69);
@@ -63,8 +65,8 @@ TEST_CASE("Can get values back from bytes")
 {
   SECTION("for ints")
   {
-    auto i = GENERATE(take(1000, ALLVS(int)));
-    REQUIRE(detail::from_bytes<int>(u8ptr(i)) == i);
+    auto i = GENERATE(take(1000, ALLVS(int64_t)));
+    REQUIRE(detail::from_bytes<int64_t>(u8ptr(i)) == i);
   }
 
   SECTION("for floats")
@@ -81,13 +83,13 @@ TEST_CASE("Can get values back from bytes")
 
   SECTION("for pointers")
   {
-    REQUIRE(sizeof(long) == sizeof(int*));
+    REQUIRE(sizeof(int64_t) == sizeof(int64_t*));
 
-    long long_val = GENERATE(take(1000, ALLVS(long)));
+    int64_t long_val = GENERATE(take(1000, ALLVS(int64_t)));
 
-    int* ptr;
+    int64_t* ptr;
     memcpy(&ptr, &long_val, sizeof(long_val));
-    REQUIRE(detail::from_bytes<int*>(u8ptr(ptr)) == ptr);
+    REQUIRE(detail::from_bytes<int64_t*>(u8ptr(ptr)) == ptr);
   }
 }
 #undef u8ptr
@@ -110,15 +112,15 @@ TEST_CASE("Can extract arguments from a call_builder")
 
     auto c2 = call_builder("void f(int x)"_sig);
     c2.add(0);
-    REQUIRE_THROWS_AS(c2.get<int>(1), call_builder_error);
+    REQUIRE_THROWS_AS(c2.get<int64_t>(1), call_builder_error);
 
     auto c3 = call_builder("void f(int x, int y, int z)"_sig);
     c3.add(0, 0);
-    REQUIRE_THROWS_AS(c3.get<int>(2), call_builder_error);
+    REQUIRE_THROWS_AS(c3.get<int64_t>(2), call_builder_error);
 
     auto c4 = call_builder("void f(char v, int g)"_sig);
     c4.add('a', 78);
-    REQUIRE_THROWS_AS(c4.get<char>(2), call_builder_error);
+    REQUIRE_THROWS_AS(c4.get<int64_t>(2), call_builder_error);
   }
 
   SECTION("Can get ints back correctly")
@@ -126,18 +128,18 @@ TEST_CASE("Can extract arguments from a call_builder")
     SECTION("A simple case")
     {
       auto c1 = call_builder("void f(int x)"_sig);
-      auto v1 = GENERATE(take(1000, ALLVS(int)));
+      auto v1 = GENERATE(take(1000, ALLVS(int64_t)));
       c1.add(v1);
-      REQUIRE(c1.get<int>(0) == v1);
+      REQUIRE(c1.get<int64_t>(0) == v1);
     }
 
     SECTION("More args")
     {
       auto c2 = call_builder("void g(int x, float v, int y)"_sig);
-      auto v2 = GENERATE(take(1000, chunk(2, ALLVS(int))));
+      auto v2 = GENERATE(take(1000, chunk(2, ALLVS(int64_t))));
       c2.add(v2[0], 0.4f, v2[1]);
-      REQUIRE(c2.get<int>(0) == v2[0]);
-      REQUIRE(c2.get<int>(2) == v2[1]);
+      REQUIRE(c2.get<int64_t>(0) == v2[0]);
+      REQUIRE(c2.get<int64_t>(2) == v2[1]);
     }
   }
 
@@ -192,11 +194,11 @@ TEST_CASE("Can extract arguments from a call_builder")
       auto c1 = call_builder("void h(int *x)"_sig);
 
       auto len = GENERATE(take(1, random(1, 1000)));
-      auto vec = GENERATE_COPY(take(100, chunk(len, ALLVS(int))));
+      auto vec = GENERATE_COPY(take(100, chunk(len, ALLVS(int64_t))));
 
       c1.add(vec);
 
-      auto ext_vec = c1.get<std::vector<int>>(0);
+      auto ext_vec = c1.get<std::vector<int64_t>>(0);
       REQUIRE(ext_vec == vec);
       REQUIRE(ext_vec.data() != vec.data());
     }
@@ -236,14 +238,14 @@ TEST_CASE("Can extract arguments from a call_builder")
     auto c1
         = call_builder("int fun(int a, int *b, float *c, float d, char e)"_sig);
     auto a = 784123;
-    auto b = std::vector{ 1, 2, 3 };
-    auto c = std::vector{ 0.4f, 0.2f, 453.2f };
+    auto b = std::vector<int64_t> {1, 2, 3};
+    auto c = std::vector {0.4f, 0.2f, 453.2f};
     auto d = 5768.11f;
     auto e = '{';
     c1.add(a, b, c, d, e);
 
-    REQUIRE(c1.get<int>(0) == a);
-    REQUIRE(c1.get<std::vector<int>>(1) == b);
+    REQUIRE(c1.get<int64_t>(0) == a);
+    REQUIRE(c1.get<std::vector<int64_t>>(1) == b);
     REQUIRE(c1.get<std::vector<float>>(2) == c);
     REQUIRE(c1.get<float>(3) == d);
     REQUIRE(c1.get<char>(4) == e);
@@ -253,15 +255,15 @@ TEST_CASE("Can extract arguments from a call_builder")
   {
     auto c1 = call_builder(
         "int fun(int *aio_efd, int woo, float *c__a, float doo, char eep)"_sig);
-    auto aio_efd = std::vector{ 1, 2, 3 };
+    auto aio_efd = std::vector<int64_t> {1, 2, 3};
     auto woo = 784123;
-    auto c__a = std::vector{ 0.4f, 0.2f, 453.2f };
+    auto c__a = std::vector {0.4f, 0.2f, 453.2f};
     auto doo = 5768.11f;
     auto eep = '{';
     c1.add(aio_efd, woo, c__a, doo, eep);
 
-    REQUIRE(c1.get<std::vector<int>>("aio_efd") == aio_efd);
-    REQUIRE(c1.get<int>("woo") == woo);
+    REQUIRE(c1.get<std::vector<int64_t>>("aio_efd") == aio_efd);
+    REQUIRE(c1.get<int64_t>("woo") == woo);
     REQUIRE(c1.get<std::vector<float>>("c__a") == c__a);
     REQUIRE(c1.get<float>("doo") == doo);
     REQUIRE(c1.get<char>("eep") == eep);

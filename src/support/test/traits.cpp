@@ -45,7 +45,8 @@ TEST_CASE("has_member_find works")
     static_assert(
         has_member_find_v<std::set<int>>, "Set should have member find");
 
-    static_assert(!has_member_find_v<std::vector<std::string>>,
+    static_assert(
+        !has_member_find_v<std::vector<std::string>>,
         "Vector should not have member find");
 
     static_assert(
@@ -54,13 +55,15 @@ TEST_CASE("has_member_find works")
 
   SECTION("generic find works")
   {
-    auto set = std::set{ 1, 2, 3 };
-    auto vec = std::vector{ 7, 5, 3, 1 };
+    auto set = std::set {1, 2, 3};
+    auto vec = std::vector {7, 5, 3, 1};
 
-    static_assert(has_member_find_v<decltype(set)>,
+    static_assert(
+        has_member_find_v<decltype(set)>,
         "Set variable should have member find");
 
-    static_assert(!has_member_find_v<decltype(vec)>,
+    static_assert(
+        !has_member_find_v<decltype(vec)>,
         "Vector variable should not have member find");
 
     auto s_found = container_find(set, 2);
@@ -106,4 +109,15 @@ TEST_CASE("can check for specialization")
   static_assert(is_specialized_v<S, float>);
   static_assert(!is_specialized_v<S, bool>);
   static_assert(!is_specialized_v<S, S<int>>);
+}
+
+TEST_CASE("can check buildable ints")
+{
+  static_assert(is_buildable_int_v<int>);
+  static_assert(is_buildable_int_v<int64_t>);
+  static_assert(is_buildable_int_v<long long>);
+
+  static_assert(!is_buildable_int_v<float>);
+  static_assert(!is_buildable_int_v<char>);
+  static_assert(!is_buildable_int_v<S<int>>);
 }

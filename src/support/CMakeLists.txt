@@ -16,7 +16,6 @@ add_library(support
   src/llvm_values.cpp
   src/load_module.cpp
   src/random.cpp
-  src/similarity.cpp
   src/string.cpp
   src/thread_context.cpp
 )
@@ -54,7 +53,6 @@ add_executable(support_unit
   test/llvm_values.cpp
   test/instr_count.cpp
   test/random.cpp
-  test/similarity.cpp
   test/string.cpp
   test/hash.cpp
   test/timeout.cpp

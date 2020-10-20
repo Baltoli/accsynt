@@ -6,6 +6,7 @@
 #include <support/argument_generator.h>
 #include <support/call_builder.h>
 
+#include <cstdint>
 #include <limits>
 #include <map>
 #include <random>
@@ -25,21 +26,23 @@ public:
   virtual void generate(support::call_builder& builder);
 
 protected:
-  virtual void generate_value(
-      support::call_builder& builder, props::param param);
+  virtual void
+  generate_value(support::call_builder& builder, props::param param);
 
-  int random_int(int min = std::numeric_limits<int>::min(),
-      int max = std::numeric_limits<int>::max());
-  float random_float(float min = std::numeric_limits<float>::min(),
-      float max = std::numeric_limits<float>::max());
-
-  std::vector<float> random_float_data(int length,
+  int64_t random_int(
+      int64_t min = std::numeric_limits<int64_t>::min(),
+      int64_t max = std::numeric_limits<int64_t>::max());
+  float random_float(
       float min = std::numeric_limits<float>::min(),
       float max = std::numeric_limits<float>::max());
 
-  std::vector<int> random_int_data(int length,
-      int min = std::numeric_limits<int>::min(),
-      int max = std::numeric_limits<int>::max());
+  std::vector<float> random_float_data(
+      int length, float min = std::numeric_limits<float>::min(),
+      float max = std::numeric_limits<float>::max());
+
+  std::vector<int64_t> random_int_data(
+      int length, int64_t min = std::numeric_limits<int64_t>::min(),
+      int64_t max = std::numeric_limits<int64_t>::max());
 
   props::property_set properties_;
 
@@ -76,8 +79,10 @@ private:
   Old old_gen_;
 };
 
-static_assert(support::detail::is_generator_v<gen_adaptor<generator>>,
+static_assert(
+    support::detail::is_generator_v<gen_adaptor<generator>>,
     "Default generator should adapt to new interface");
-static_assert(support::detail::is_generator_v<gen_adaptor<blas_generator>>,
+static_assert(
+    support::detail::is_generator_v<gen_adaptor<blas_generator>>,
     "BLAS generator should adapt to new interface");
 } // namespace synth

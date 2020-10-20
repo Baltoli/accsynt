@@ -14,7 +14,8 @@ TEST_CASE("uniform generator works")
 {
   SECTION("it is a generator")
   {
-    static_assert(detail::is_generator_v<uniform_generator>,
+    static_assert(
+        detail::is_generator_v<uniform_generator>,
         "Uniform generator must be a generator");
   }
 
@@ -29,7 +30,8 @@ TEST_CASE("CSR SPMV generator works")
 {
   SECTION("it is a generator")
   {
-    static_assert(detail::is_generator_v<csr_generator>,
+    static_assert(
+        detail::is_generator_v<csr_generator>,
         "CSR generator must be a generator");
   }
 
@@ -44,9 +46,9 @@ TEST_CASE("CSR SPMV generator works")
     auto ov = c1.get<std::vector<float>>("ov");
     auto a = c1.get<std::vector<float>>("a");
     auto iv = c1.get<std::vector<float>>("iv");
-    auto rowstr = c1.get<std::vector<int>>("rowstr");
-    auto colidx = c1.get<std::vector<int>>("colidx");
-    auto rows = c1.get<int>("rows");
+    auto rowstr = c1.get<std::vector<int64_t>>("rowstr");
+    auto colidx = c1.get<std::vector<int64_t>>("colidx");
+    auto rows = c1.get<int64_t>("rows");
 
     REQUIRE(rowstr.at(0) == 0);
     REQUIRE(std::is_sorted(rowstr.begin(), rowstr.end()));

@@ -20,10 +20,11 @@ const char* parse_error::what() const noexcept { return str_; }
 
 std::optional<base_type> base_type_from_string(std::string const& str)
 {
-  auto map = std::unordered_map<std::string, base_type>{
-    { "char", base_type::character }, { "int", base_type::integer },
-    { "float", base_type::floating }, { "bool", base_type::boolean }
-  };
+  auto map = std::unordered_map<std::string, base_type> {
+      {"char", base_type::character},
+      {"int", base_type::integer},
+      {"float", base_type::floating},
+      {"bool", base_type::boolean}};
 
   if (map.find(str) != map.end()) {
     return map.at(str);
@@ -109,8 +110,8 @@ struct property_grammar : seq<property_name, opt<star<blank>, property_list>> {
 struct file_grammar
     : seq<star<ignore_line, eol>,
           action<signature_action, state<signature, signature_grammar>>, eol,
-          action<property_action,
-              star<state<property, property_grammar>, eolf>>> {
+          action<
+              property_action, star<state<property, property_grammar>, eolf>>> {
 };
 
 template <>
@@ -174,7 +175,7 @@ struct signature_action<type_name> {
   {
     auto type = base_type_from_string(in.string());
     if (type) {
-      sig.return_type = data_type{ type.value(), 0 };
+      sig.return_type = data_type {type.value(), 0};
     }
   }
 };
@@ -263,7 +264,7 @@ property_set property_set::load(std::string_view path)
   return pset;
 }
 
-value value::with_int(int i)
+value value::with_int(int64_t i)
 {
   value v;
   v.value_type = type::integer;

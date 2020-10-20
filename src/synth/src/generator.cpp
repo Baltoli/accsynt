@@ -4,6 +4,8 @@
 
 #include <fmt/format.h>
 
+#include <cstdint>
+
 using namespace props;
 using namespace support;
 
@@ -45,9 +47,9 @@ void generator::generate_value(call_builder& builder, props::param param)
   }
 }
 
-int generator::random_int(int min, int max)
+int64_t generator::random_int(int64_t min, int64_t max)
 {
-  auto dis = std::uniform_int_distribution<int>(min, max);
+  auto dis = std::uniform_int_distribution<int64_t>(min, max);
   return dis(random_);
 }
 
@@ -57,17 +59,18 @@ float generator::random_float(float min, float max)
   return dis(random_);
 }
 
-std::vector<float> generator::random_float_data(
-    int length, float min, float max)
+std::vector<float>
+generator::random_float_data(int length, float min, float max)
 {
   auto ret = std::vector<float>(length, 0.0f);
   std::generate(ret.begin(), ret.end(), [&] { return random_float(min, max); });
   return ret;
 }
 
-std::vector<int> generator::random_int_data(int length, int min, int max)
+std::vector<int64_t>
+generator::random_int_data(int length, int64_t min, int64_t max)
 {
-  auto ret = std::vector<int>(length, 0);
+  auto ret = std::vector<int64_t>(length, 0);
   std::generate(ret.begin(), ret.end(), [&] { return random_int(min, max); });
   return ret;
 }
@@ -90,10 +93,10 @@ void blas_generator::create_next_sizes()
   for (auto [ptr_idx, size_idx] : blas_props_.loop_sizes()) {
     if (sizes_.find(size_idx) == sizes_.end()) {
       auto new_size_val = random_size();
-      sizes_.insert({ size_idx, new_size_val });
+      sizes_.insert({size_idx, new_size_val});
     }
 
-    auto [p_it, p_ins] = sizes_.insert({ ptr_idx, sizes_.at(size_idx) });
+    auto [p_it, p_ins] = sizes_.insert({ptr_idx, sizes_.at(size_idx)});
     if (!p_ins) {
       throw std::runtime_error("Invalid size specification for blas");
     }
