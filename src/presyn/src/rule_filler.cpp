@@ -9,6 +9,8 @@
 #include <support/tuple.h>
 #include <support/utility.h>
 
+#include <llvm/IR/Dominators.h>
+
 #include <algorithm>
 
 using namespace support;
@@ -72,10 +74,14 @@ Value* rule_filler::fill(CallInst* hole)
   auto collect_from = [&choices, this](auto&& src) {
     for (auto it = FWD(src).begin();
          it != FWD(src).end() && choices.size() < pool_size_; ++it) {
-      choices.push_back(*it);
+      auto ty = (*it)->getType();
+      if (!ty->isVoidTy()) {
+        choices.push_back(*it);
+      }
     }
   };
 
+  collect_from(collect_safe(hole));
   collect_from(collect_local(hole));
   collect_from(collect_params(hole));
   collect_from(collect_constants(hole));
@@ -107,6 +113,31 @@ Value* rule_filler::fill(CallInst* hole)
   }
 
   return *chosen;
+}
+
+std::vector<llvm::Value*> rule_filler::collect_safe(llvm::CallInst* hole) const
+{
+  auto ret = std::vector<Value*> {};
+
+  auto func = hole->getFunction();
+  assertion(func, "Hole does not have an enclosing function");
+
+  auto this_bb = hole->getParent();
+  assertion(this_bb, "Hole does not have an enclosing BB");
+
+  auto tree = DominatorTree(*func);
+
+  for (auto& bb : *func) {
+    if (&bb != this_bb) {
+      for (auto& inst : bb) {
+        if (tree.dominates(&inst, hole)) {
+          ret.push_back(&inst);
+        }
+      }
+    }
+  }
+
+  return ret;
 }
 
 std::vector<Value*> rule_filler::collect_local(CallInst* hole) const
