@@ -11,9 +11,10 @@ size_t base_type_size(base_type dt)
   case base_type::character:
   case base_type::boolean:
     return 1;
-  case base_type::integer:
   case base_type::floating:
     return 4;
+  case base_type::integer:
+    return 8;
   }
 
   throw std::runtime_error("Invalid type");
@@ -61,7 +62,7 @@ bool signature::accepts_pointer() const
 
 bool property_set::is_valid() const
 {
-  auto param_names = std::set<std::string_view>{};
+  auto param_names = std::set<std::string_view> {};
   for (auto const& param : type_signature.parameters) {
     auto [iter, ins] = param_names.insert(param.name);
     if (!ins) {
