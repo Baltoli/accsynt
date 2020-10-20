@@ -7,14 +7,13 @@
 #include <support/narrow_cast.h>
 
 #include <llvm/IR/BasicBlock.h>
+#include <llvm/IR/CFG.h>
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/Function.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/InstVisitor.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Module.h>
-
-#include <llvm/Support/raw_ostream.h>
 
 #include <algorithm>
 #include <deque>
@@ -35,6 +34,7 @@ candidate::candidate(sketch&& sk, std::unique_ptr<filler> fill)
   filler_->set_candidate(*this);
 
   resolve_names();
+  insert_phis();
   choose_values();
   resolve_operators();
 }
@@ -158,6 +158,29 @@ void candidate::resolve_operators()
     auto call = build.CreateCall(conv, {val}, stub->getName());
 
     safe_rauw(stub, call);
+  }
+}
+
+void candidate::insert_phis(int n_per_type)
+{
+  // This is the first step in turning a sketch into a candidate program.
+  // Sketches don't know how they're being composed, so can't necessarily insert
+  // the appropriate Phi nodes to allow for control-dependent data flow.
+  //
+  // To solve this, we add an opaque Phi node to every block - later in the
+  // refinement process we can select a type, and subsequently a concrete value
+  // for each of these nodes.
+
+  auto& func = function();
+
+  for (auto& bb : func) {
+    if (bb.hasNPredecessorsOrMore(2)) {
+      // Don't need a Phi node if the BB has fewer than 2 preds
+      auto n_preds = pred_size(&bb);
+      auto first = bb.getFirstNonPHI();
+
+      auto phi = PHINode::Create(hole_type(), pred_size(&bb), "join", first);
+    }
   }
 }
 

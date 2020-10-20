@@ -63,6 +63,7 @@ private:
   void resolve_names();
   void choose_values();
   void resolve_operators();
+  void insert_phis(int n_per_type = 1);
 
   std::optional<std::string> arg_name(llvm::Value*) const;
 
