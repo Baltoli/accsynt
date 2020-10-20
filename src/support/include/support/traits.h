@@ -78,7 +78,8 @@ constexpr bool is_unique_ptr_v = is_unique_ptr<T>::value;
 
 template <typename T>
 struct is_buildable_int {
-  static constexpr bool value = std::disjunction_v<std::is_same<T, int64_t>>;
+  static constexpr bool value
+      = std::is_integral_v<T> && sizeof(T) == sizeof(int64_t);
 };
 
 template <typename T>
