@@ -3,6 +3,7 @@
 #include "sketch.h"
 
 #include <support/assert.h>
+#include <support/llvm_format.h>
 #include <support/narrow_cast.h>
 
 #include <llvm/IR/BasicBlock.h>
@@ -13,7 +14,10 @@
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Module.h>
 
+#include <llvm/Support/raw_ostream.h>
+
 #include <algorithm>
+#include <deque>
 #include <map>
 #include <set>
 
@@ -26,6 +30,7 @@ candidate::candidate(sketch&& sk, std::unique_ptr<filler> fill)
     , signature_(sk.ctx_.signature())
     , module_(std::move(sk.module_))
     , hole_type_(sk.ctx_.opaque_type())
+    , ctx_(std::move(sk.ctx_))
 {
   filler_->set_candidate(*this);
 
@@ -33,6 +38,8 @@ candidate::candidate(sketch&& sk, std::unique_ptr<filler> fill)
   choose_values();
   resolve_operators();
 }
+
+sketch_context& candidate::ctx() { return ctx_; }
 
 Type* candidate::hole_type() const { return hole_type_; }
 
@@ -99,14 +106,19 @@ void candidate::choose_values()
   //
   // This process is delegated to the filler object passed in at construction.
 
-  auto holes = std::vector<CallInst*> {};
+  auto holes = std::deque<CallInst*> {};
 
   stub_visitor([&holes](auto& ci) { holes.push_back(&ci); }).visit(function());
 
-  for (auto hole : holes) {
+  while (!holes.empty()) {
+    auto hole = holes.front();
+    holes.pop_front();
+
+    fmt::print("; Filling {}\n", *hole);
     auto new_val = filler_->fill(hole);
 
     if (new_val) {
+      fmt::print(";  ...to {}\n", *new_val);
       // The filler returned a valid value
       auto conv = converter(new_val->getType(), hole->getType());
 
@@ -114,6 +126,10 @@ void candidate::choose_values()
       auto call = build.CreateCall(conv, {new_val}, hole->getName());
 
       safe_rauw(hole, call);
+
+      if (filler_->is_hole(new_val)) {
+        holes.push_front(cast<CallInst>(new_val));
+      }
     } else {
       // No possible value returned by the filler - just delete the hole.
       hole->eraseFromParent();
@@ -277,10 +293,14 @@ void candidate::safe_rauw(Instruction* stub, Value* call)
   stub->eraseFromParent();
 }
 
-CallInst* candidate::update_type(CallInst* stub, Type* type)
+CallInst* candidate::update_type(CallInst* stub, Type* new_rt)
 {
-  unimplemented();
-  ;
+  auto args_copy = std::vector<Value*> {};
+  std::copy(stub->arg_begin(), stub->arg_end(), std::back_inserter(args_copy));
+
+  auto ret = ctx().stub(new_rt, args_copy);
+  ret->insertBefore(stub);
+  return ret;
 }
 
 } // namespace presyn

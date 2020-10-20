@@ -7,6 +7,7 @@
 #include <support/llvm_format.h>
 #include <support/random.h>
 #include <support/tuple.h>
+#include <support/utility.h>
 
 #include <algorithm>
 
@@ -63,15 +64,14 @@ namespace presyn {
 Value* rule_filler::fill(CallInst* hole)
 {
   using ::support::for_each;
+  using ::support::in_debug;
 
   auto choices = std::vector<llvm::Value*> {};
   auto generated = std::vector<llvm::Value*> {};
 
   auto collect_from = [&choices, this](auto&& src) {
-    for (auto it = std::forward<decltype(src)>(src).begin();
-         it != std::forward<decltype(src)>(src).end()
-         && choices.size() < pool_size_;
-         ++it) {
+    for (auto it = FWD(src).begin();
+         it != FWD(src).end() && choices.size() < pool_size_; ++it) {
       choices.push_back(*it);
     }
   };
@@ -84,9 +84,27 @@ Value* rule_filler::fill(CallInst* hole)
     rule.match(*this, hole, choices, generated);
   });
 
+  in_debug([&generated] {
+    for (auto v : generated) {
+      if (auto inst = dyn_cast<Instruction>(v)) {
+        assertion(
+            inst->getParent(),
+            "Rule generating instruction outside of a BB: {}", *inst);
+      }
+    }
+  });
+
   auto chosen = uniform_sample(generated);
   assertion(
       chosen != generated.end(), "Failed to sample anything in rule filler");
+
+  for (auto val : generated) {
+    if (auto inst = dyn_cast<Instruction>(val)) {
+      if (inst != *chosen) {
+        inst->eraseFromParent();
+      }
+    }
+  }
 
   return *chosen;
 }
