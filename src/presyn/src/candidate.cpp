@@ -17,6 +17,7 @@
 #include <llvm/Support/raw_ostream.h>
 
 #include <algorithm>
+#include <deque>
 #include <map>
 #include <set>
 
@@ -105,14 +106,19 @@ void candidate::choose_values()
   //
   // This process is delegated to the filler object passed in at construction.
 
-  auto holes = std::vector<CallInst*> {};
+  auto holes = std::deque<CallInst*> {};
 
   stub_visitor([&holes](auto& ci) { holes.push_back(&ci); }).visit(function());
 
-  for (auto hole : holes) {
+  while (!holes.empty()) {
+    auto hole = holes.front();
+    holes.pop_front();
+
+    fmt::print("; Filling {}\n", *hole);
     auto new_val = filler_->fill(hole);
 
     if (new_val) {
+      fmt::print(";  ...to {}\n", *new_val);
       // The filler returned a valid value
       auto conv = converter(new_val->getType(), hole->getType());
 
@@ -120,6 +126,10 @@ void candidate::choose_values()
       auto call = build.CreateCall(conv, {new_val}, hole->getName());
 
       safe_rauw(hole, call);
+
+      if (filler_->is_hole(new_val)) {
+        holes.push_front(cast<CallInst>(new_val));
+      }
     } else {
       // No possible value returned by the filler - just delete the hole.
       hole->eraseFromParent();

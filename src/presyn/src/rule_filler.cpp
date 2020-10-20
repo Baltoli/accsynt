@@ -87,6 +87,14 @@ Value* rule_filler::fill(CallInst* hole)
   assertion(
       chosen != generated.end(), "Failed to sample anything in rule filler");
 
+  for (auto val : generated) {
+    if (auto inst = dyn_cast<Instruction>(val)) {
+      if (inst != *chosen) {
+        inst->eraseFromParent();
+      }
+    }
+  }
+
   return *chosen;
 }
 
