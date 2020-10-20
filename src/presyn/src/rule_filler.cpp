@@ -64,6 +64,7 @@ namespace presyn {
 Value* rule_filler::fill(CallInst* hole)
 {
   using ::support::for_each;
+  using ::support::in_debug;
 
   auto choices = std::vector<llvm::Value*> {};
   auto generated = std::vector<llvm::Value*> {};
@@ -81,6 +82,16 @@ Value* rule_filler::fill(CallInst* hole)
 
   for_each(all_rules(), [&](auto const& rule) {
     rule.match(*this, hole, choices, generated);
+  });
+
+  in_debug([&generated] {
+    for (auto v : generated) {
+      if (auto inst = dyn_cast<Instruction>(v)) {
+        assertion(
+            inst->getParent(),
+            "Rule generating instruction outside of a BB: {}", *inst);
+      }
+    }
   });
 
   auto chosen = uniform_sample(generated);
