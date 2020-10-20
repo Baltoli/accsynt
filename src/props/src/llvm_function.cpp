@@ -17,7 +17,7 @@ Type* base_llvm_type(base_type dt)
   case base_type::boolean:
     return IntegerType::get(thread_context::get(), 1);
   case base_type::integer:
-    return IntegerType::get(thread_context::get(), 32);
+    return IntegerType::get(thread_context::get(), 64);
   case base_type::floating:
     return Type::getFloatTy(thread_context::get());
   default:
@@ -89,7 +89,7 @@ std::optional<data_type> data_type::from_llvm(llvm::Type* ty)
     return data_type {base_type::boolean, 0};
   } else if (ty->isIntegerTy(8)) {
     return data_type {base_type::character, 0};
-  } else if (ty->isIntegerTy(32)) {
+  } else if (ty->isIntegerTy(64)) {
     return data_type {base_type::integer, 0};
   } else if (ty->isPointerTy()) {
     auto depth = 1u;
