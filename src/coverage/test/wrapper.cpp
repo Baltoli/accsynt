@@ -10,39 +10,52 @@
 
 using namespace props::literals;
 
-auto count_negs = R"(
-define i32 @count_negs(i32, float*) {
-  br label %3
+auto count_negs = R"#(
+define i64 @count_negs(i64* %0, i64 %1) {
+  %3 = alloca i64*, align 8
+  %4 = alloca i64, align 8
+  %5 = alloca i64, align 8
+  %6 = alloca i64, align 8
+  store i64* %0, i64** %3, align 8
+  store i64 %1, i64* %4, align 8
+  store i64 0, i64* %5, align 8
+  store i64 0, i64* %6, align 8
+  br label %7
 
-3:                                                ; preds = %13, %2
-  %.01 = phi i32 [ 0, %2 ], [ %.1, %13 ]
-  %.0 = phi i32 [ 0, %2 ], [ %14, %13 ]
-  %4 = icmp slt i32 %.0, %0
-  br i1 %4, label %5, label %15
+7:                                                ; preds = %21, %2
+  %8 = load i64, i64* %6, align 8
+  %9 = load i64, i64* %4, align 8
+  %10 = icmp slt i64 %8, %9
+  br i1 %10, label %11, label %24
 
-5:                                                ; preds = %3
-  %6 = sext i32 %.0 to i64
-  %7 = getelementptr inbounds float, float* %1, i64 %6
-  %8 = load float, float* %7, align 4
-  %9 = fcmp olt float %8, 0.000000e+00
-  br i1 %9, label %10, label %12
+11:                                               ; preds = %7
+  %12 = load i64*, i64** %3, align 8
+  %13 = load i64, i64* %6, align 8
+  %14 = getelementptr inbounds i64, i64* %12, i64 %13
+  %15 = load i64, i64* %14, align 8
+  %16 = icmp slt i64 %15, 0
+  br i1 %16, label %17, label %20
 
-10:                                               ; preds = %5
-  %11 = add nsw i32 %.01, 1
-  br label %12
+17:                                               ; preds = %11
+  %18 = load i64, i64* %5, align 8
+  %19 = add nsw i64 %18, 1
+  store i64 %19, i64* %5, align 8
+  br label %20
 
-12:                                               ; preds = %10, %5
-  %.1 = phi i32 [ %11, %10 ], [ %.01, %5 ]
-  br label %13
+20:                                               ; preds = %17, %11
+  br label %21
 
-13:                                               ; preds = %12
-  %14 = add nsw i32 %.0, 1
-  br label %3
+21:                                               ; preds = %20
+  %22 = load i64, i64* %6, align 8
+  %23 = add nsw i64 %22, 1
+  store i64 %23, i64* %6, align 8
+  br label %7
 
-15:                                               ; preds = %3
-  ret i32 %.01
+24:                                               ; preds = %7
+  %25 = load i64, i64* %5, align 8
+  ret i64 %25
 }
-)";
+)#";
 
 TEST_CASE("Can construct coverage wrappers")
 {
