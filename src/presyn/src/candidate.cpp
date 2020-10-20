@@ -179,7 +179,17 @@ void candidate::insert_phis(int n_per_type)
       auto n_preds = pred_size(&bb);
       auto first = bb.getFirstNonPHI();
 
-      auto phi = PHINode::Create(hole_type(), pred_size(&bb), "join", first);
+      auto phi = PHINode::Create(hole_type(), n_preds, "join", first);
+
+      for (auto pred : predecessors(&bb)) {
+        auto end = pred->getTerminator();
+
+        auto in_stub = ctx().stub();
+        in_stub->setName("join.in");
+
+        in_stub->insertBefore(end);
+        phi->addIncoming(in_stub, pred);
+      }
     }
   }
 }
