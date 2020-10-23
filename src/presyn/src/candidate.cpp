@@ -274,7 +274,7 @@ llvm::Function* candidate::converter(llvm::Type* from, llvm::Type* to)
   return converters_.at({from, to});
 }
 
-void candidate::safe_rauw(Instruction* stub, Value* call)
+std::set<llvm::CallInst*> candidate::safe_rauw(Instruction* stub, Value* call)
 {
   auto replacements = std::map<Instruction*, Value*> {};
 
@@ -346,6 +346,8 @@ void candidate::safe_rauw(Instruction* stub, Value* call)
   if (stub->getParent()) {
     stub->eraseFromParent();
   }
+
+  return {};
 }
 
 CallInst* candidate::update_type(CallInst* stub, Type* new_rt)

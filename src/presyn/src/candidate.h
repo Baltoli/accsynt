@@ -55,7 +55,7 @@ protected:
   // declarations are variadic and we don't care about the types. Additionally,
   // we know that this is the only context in which our opaque stub type will
   // appear, so we're free to just change the type.
-  void safe_rauw(llvm::Instruction*, llvm::Value*);
+  std::set<llvm::CallInst*> safe_rauw(llvm::Instruction*, llvm::Value*);
 
   // This is responsible for creating a new stubbed call with an updated type
   // (but not for replacing the uses - delegate that back to safe_rauw.
