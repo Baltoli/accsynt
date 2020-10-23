@@ -7,14 +7,13 @@
 #include <support/narrow_cast.h>
 
 #include <llvm/IR/BasicBlock.h>
+#include <llvm/IR/CFG.h>
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/Function.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/InstVisitor.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Module.h>
-
-#include <llvm/Support/raw_ostream.h>
 
 #include <algorithm>
 #include <deque>
@@ -30,11 +29,15 @@ candidate::candidate(sketch&& sk, std::unique_ptr<filler> fill)
     , signature_(sk.ctx_.signature())
     , module_(std::move(sk.module_))
     , hole_type_(sk.ctx_.opaque_type())
+    , type_convs_()
     , ctx_(std::move(sk.ctx_))
 {
   filler_->set_candidate(*this);
 
+  type_convs_.register_opaque(hole_type());
+
   resolve_names();
+  insert_phis();
   choose_values();
   resolve_operators();
 }
@@ -114,18 +117,19 @@ void candidate::choose_values()
     auto hole = holes.front();
     holes.pop_front();
 
-    fmt::print("; Filling {}\n", *hole);
     auto new_val = filler_->fill(hole);
 
     if (new_val) {
-      fmt::print(";  ...to {}\n", *new_val);
       // The filler returned a valid value
       auto conv = converter(new_val->getType(), hole->getType());
 
       auto build = IRBuilder(hole);
       auto call = build.CreateCall(conv, {new_val}, hole->getName());
 
-      safe_rauw(hole, call);
+      auto new_holes = safe_rauw(hole, call);
+      for (auto nh : new_holes) {
+        holes.push_back(nh);
+      }
 
       if (filler_->is_hole(new_val)) {
         holes.push_front(cast<CallInst>(new_val));
@@ -158,6 +162,57 @@ void candidate::resolve_operators()
     auto call = build.CreateCall(conv, {val}, stub->getName());
 
     safe_rauw(stub, call);
+  }
+}
+
+void candidate::insert_phis(int n_per_type)
+{
+  // This is the first step in turning a sketch into a candidate program.
+  // Sketches don't know how they're being composed, so can't necessarily insert
+  // the appropriate Phi nodes to allow for control-dependent data flow.
+  //
+  // To solve this, we add an opaque Phi node to every block - later in the
+  // refinement process we can select a type, and subsequently a concrete value
+  // for each of these nodes.
+
+  auto& func = function();
+
+  for (auto& bb : func) {
+    if (bb.hasNPredecessorsOrMore(2)) {
+      // Don't need a Phi node if the BB has fewer than 2 preds
+      auto n_preds = pred_size(&bb);
+      auto first = bb.getFirstNonPHI();
+
+      auto phi = PHINode::Create(hole_type(), n_preds, "join", first);
+
+      for (auto pred : predecessors(&bb)) {
+        auto end = pred->getTerminator();
+
+        auto in_stub = ctx().stub();
+        in_stub->setName("join.in");
+
+        in_stub->insertBefore(end);
+        phi->addIncoming(in_stub, pred);
+      }
+    }
+  }
+
+  hoist_phis();
+}
+
+void candidate::hoist_phis()
+{
+  for (auto& bb : function()) {
+    [[maybe_unused]] auto first_non_phi = bb.getFirstNonPHI();
+
+    for (auto& inst : bb) {
+      // FIXME: when I get LLVM 11 working, check if the first_non_phi comes
+      // before inst - if so, break out of the loop.
+
+      if (auto as_phi = dyn_cast<PHINode>(&inst)) {
+        as_phi->moveBefore(bb, bb.getFirstInsertionPt());
+      }
+    }
   }
 }
 
@@ -240,9 +295,10 @@ llvm::Function* candidate::converter(llvm::Type* from, llvm::Type* to)
   return converters_.at({from, to});
 }
 
-void candidate::safe_rauw(Instruction* stub, Value* call)
+std::set<llvm::CallInst*> candidate::safe_rauw(Instruction* stub, Value* call)
 {
   auto replacements = std::map<Instruction*, Value*> {};
+  auto new_holes = std::set<CallInst*> {};
 
   if (call->getType() == stub->getType()) {
     stub->replaceAllUsesWith(call);
@@ -267,19 +323,38 @@ void candidate::safe_rauw(Instruction* stub, Value* call)
         replacements[user_call] = new_call;
 
       } else if (auto user_phi = dyn_cast<PHINode>(user)) {
-        [[maybe_unused]] auto new_phi = IRBuilder(stub).CreatePHI(
+        auto new_phi = IRBuilder(user_phi).CreatePHI(
             call->getType(), user_phi->getNumIncomingValues(),
             user_phi->getName());
 
-        for (auto& val : user_phi->incoming_values()) {
-          // assert this is a call ? edge cases
-          auto incoming_call = cast<CallInst>(val);
-          auto typed_call = update_type(incoming_call, call->getType());
+        for (auto i = 0u; i < user_phi->getNumIncomingValues(); ++i) {
+          auto in_val = user_phi->getIncomingValue(i);
+          auto in_block = user_phi->getIncomingBlock(i);
 
-          replacements[incoming_call] = typed_call;
+          // First step here is to make sure that every incoming value is
+          // compatible with the new one's type.
+          assertion(
+              type_convs_.is_lossless(in_val->getType(), call->getType()),
+              "Invalid type conversion when RAUW-NTing a Phi Node: {} => {}",
+              *in_val->getType(), *call->getType());
+
+          // We also need to check that the incoming value is actually a hole -
+          // we can't yet go around changing the type of arbitrary things.
+          assertion(
+              filler_->is_hole(in_val),
+              "Can't change non-hole incoming value to a Phi: {}", *in_val);
+
+          auto in_call = cast<CallInst>(in_val);
+
+          // Now we know that we can safely convert the types, so go ahead and
+          // create the new incoming value for this one.
+          auto retyped_in_call = update_type(in_call, call->getType());
+          new_phi->addIncoming(retyped_in_call, in_block);
+
+          new_holes.insert(retyped_in_call);
         }
 
-        // how to now RAUW a phi node???
+        replacements[user_phi] = new_phi;
       } else {
         invalid_state();
       }
@@ -287,10 +362,17 @@ void candidate::safe_rauw(Instruction* stub, Value* call)
   }
 
   for (auto [st, ca] : replacements) {
-    safe_rauw(st, ca);
+    auto rec_holes = safe_rauw(st, ca);
+    for (auto rh : rec_holes) {
+      new_holes.insert(rh);
+    }
   }
 
-  stub->eraseFromParent();
+  if (stub->getParent()) {
+    stub->eraseFromParent();
+  }
+
+  return new_holes;
 }
 
 CallInst* candidate::update_type(CallInst* stub, Type* new_rt)

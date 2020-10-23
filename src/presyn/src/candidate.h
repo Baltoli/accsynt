@@ -4,6 +4,8 @@
 #include "filler.h"
 #include "sketch_context.h"
 
+#include <support/llvm_types.h>
+
 #include <props/props.h>
 
 #include <llvm/IR/Module.h>
@@ -53,7 +55,12 @@ protected:
   // declarations are variadic and we don't care about the types. Additionally,
   // we know that this is the only context in which our opaque stub type will
   // appear, so we're free to just change the type.
-  void safe_rauw(llvm::Instruction*, llvm::Value*);
+  //
+  // Performing RAUW on a Phi node may create new holes that need to be filled -
+  // this is part of the type refinement process. For example, consider a Phi
+  // where both "arms" have opaque type. When a type or value is selected for
+  // one of the incoming arms, all the other arms receive that type as well.
+  std::set<llvm::CallInst*> safe_rauw(llvm::Instruction*, llvm::Value*);
 
   // This is responsible for creating a new stubbed call with an updated type
   // (but not for replacing the uses - delegate that back to safe_rauw.
@@ -63,6 +70,8 @@ private:
   void resolve_names();
   void choose_values();
   void resolve_operators();
+  void insert_phis(int n_per_type = 1);
+  void hoist_phis();
 
   std::optional<std::string> arg_name(llvm::Value*) const;
 
@@ -87,6 +96,8 @@ private:
   // The canonical type for holes in this candidate. We always get this on
   // construction from the sketch context.
   llvm::Type* hole_type_;
+
+  support::type_conversions type_convs_;
 
   sketch_context ctx_;
 };
