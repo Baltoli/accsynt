@@ -6,6 +6,7 @@
 
 #include <props/props.h>
 
+#include <support/assert.h>
 #include <support/input.h>
 #include <support/llvm_format.h>
 #include <support/terminal.h>
@@ -21,6 +22,17 @@ namespace cl = llvm::cl;
 namespace term = support::terminal;
 namespace opts = presyn::oracle::opts;
 
+// Read a line of input, either from a file or from standard input. If from
+// stdin, then display a prompt as well.
+std::string read_line(std::string const& prompt)
+{
+  if (opts::InputFilename == "-") {
+    return get_line(prompt);
+  } else {
+    unimplemented();
+  }
+}
+
 int main(int argc, char** argv)
 try {
   cl::ParseCommandLineOptions(argc, argv);
@@ -28,7 +40,7 @@ try {
   std::unique_ptr<fragment> current_frag = std::make_unique<hole>();
 
   auto sig = [] {
-    auto sig_line = get_line(" sig> ");
+    auto sig_line = read_line(" sig> ");
 
     try {
       return props::signature::parse(sig_line);
@@ -41,7 +53,7 @@ try {
   }();
 
   while (true) {
-    auto line = get_line("frag> ");
+    auto line = read_line("frag> ");
 
     // Break out of the REPL if we get ^D or an empty input
     if (line.empty()) {
