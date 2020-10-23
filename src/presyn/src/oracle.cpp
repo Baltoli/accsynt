@@ -13,6 +13,8 @@
 
 #include <fmt/format.h>
 
+#include <fstream>
+
 using namespace support;
 using namespace presyn;
 
@@ -29,7 +31,15 @@ std::string read_line(std::string const& prompt)
   if (opts::InputFilename == "-") {
     return get_line(prompt);
   } else {
-    unimplemented();
+    static auto file = std::ifstream();
+
+    if (!file.is_open()) {
+      file.open(opts::InputFilename);
+    }
+
+    auto line = std::string();
+    std::getline(file, line);
+    return line;
   }
 }
 
