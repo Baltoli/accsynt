@@ -6,6 +6,8 @@
 
 #include <fmt/format.h>
 
+#include <cstdlib>
+
 namespace support {
 
 namespace detail {
@@ -26,12 +28,11 @@ void assert_impl(
   using namespace fmt::literals;
   namespace term = support::terminal;
 
-  if constexpr (detail::debug) {
-    auto result = std::forward<Cond>(cond)();
+  auto result = std::forward<Cond>(cond)();
+  if (!result) {
+    assert_fail();
 
-    if (!result) {
-      assert_fail();
-
+    if constexpr (detail::debug) {
       auto path = filesystem::path(file);
       fmt::print(
           "{type}{bad}{check}{reset} at:\n"
@@ -46,6 +47,8 @@ void assert_impl(
       }
 
       std::exit(1);
+    } else {
+      std::abort();
     }
   }
 }
