@@ -117,11 +117,9 @@ void candidate::choose_values()
     auto hole = holes.front();
     holes.pop_front();
 
-    fmt::print("; Filling {}\n", *hole);
     auto new_val = filler_->fill(hole);
 
     if (new_val) {
-      fmt::print(";  ...to {}\n", *new_val);
       // The filler returned a valid value
       auto conv = converter(new_val->getType(), hole->getType());
 
@@ -278,7 +276,6 @@ llvm::Function* candidate::converter(llvm::Type* from, llvm::Type* to)
 
 void candidate::safe_rauw(Instruction* stub, Value* call)
 {
-  fmt::print("A: {}\n", *stub);
   auto replacements = std::map<Instruction*, Value*> {};
 
   if (call->getType() == stub->getType()) {
@@ -309,31 +306,30 @@ void candidate::safe_rauw(Instruction* stub, Value* call)
             user_phi->getName());
 
         for (auto i = 0u; i < user_phi->getNumIncomingValues(); ++i) {
-          auto val = user_phi->getIncomingValue(i);
-          auto block = user_phi->getIncomingBlock(i);
+          auto in_val = user_phi->getIncomingValue(i);
+          auto in_block = user_phi->getIncomingBlock(i);
 
-          // The call logic here works because argument lists can be
-          // heterogeneous - i.e. we could update a call stub(opaque*, i32) to
-          // stub(i32, i32) no problem at all, but Phi nodes need to have the
-          // same type in all their branches.
-          //
-          // To handle this, the easiest thing is probably to assert that the
-          // Phi node arguments are consistent. Basically, make sure that all
-          // the other nodes are either opaque or the _same_ type as what we're
-          // converting to. Abstract this behind essentially a "lossless
-          // conversion" trait that we can query for pairs of LLVM types.
-          //
-          // Question - could we detect / flag against bad replacements early,
-          // so as not to break this?
+          // First step here is to make sure that every incoming value is
+          // compatible with the new one's type.
+          assertion(
+              type_convs_.is_lossless(in_val->getType(), call->getType()),
+              "Invalid type conversion when RAUW-NTing a Phi Node: {} => {}",
+              *in_val->getType(), *call->getType());
 
-          // assert this is a call ? edge cases
-          // ?????????????????? fix
-          /* auto incoming_call = cast<CallInst>(val); */
-          /* auto typed_call = update_type(incoming_call, call->getType()); */
+          // We also need to check that the incoming value is actually a hole -
+          // we can't yet go around changing the type of arbitrary things.
+          assertion(
+              filler_->is_hole(in_val),
+              "Can't change non-hole incoming value to a Phi: {}", *in_val);
 
-          /* new_phi->addIncoming(typed_call, incoming_call->getParent()); */
+          auto in_call = cast<CallInst>(in_val);
 
-          /* replacements[incoming_call] = typed_call; */
+          // Now we know that we can safely convert the types, so go ahead and
+          // create the new incoming value for this one.
+          auto retyped_in_call = update_type(in_call, call->getType());
+          /* replacements[in_call] = retyped_in_call; */
+
+          new_phi->addIncoming(retyped_in_call, in_block);
         }
 
         replacements[user_phi] = new_phi;
