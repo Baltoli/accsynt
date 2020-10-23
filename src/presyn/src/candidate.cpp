@@ -275,6 +275,7 @@ llvm::Function* candidate::converter(llvm::Type* from, llvm::Type* to)
 
 void candidate::safe_rauw(Instruction* stub, Value* call)
 {
+  fmt::print("A: {}\n", *stub);
   auto replacements = std::map<Instruction*, Value*> {};
 
   if (call->getType() == stub->getType()) {
@@ -300,19 +301,39 @@ void candidate::safe_rauw(Instruction* stub, Value* call)
         replacements[user_call] = new_call;
 
       } else if (auto user_phi = dyn_cast<PHINode>(user)) {
-        [[maybe_unused]] auto new_phi = IRBuilder(stub).CreatePHI(
+        auto new_phi = IRBuilder(user_phi).CreatePHI(
             call->getType(), user_phi->getNumIncomingValues(),
             user_phi->getName());
 
-        for (auto& val : user_phi->incoming_values()) {
-          // assert this is a call ? edge cases
-          auto incoming_call = cast<CallInst>(val);
-          auto typed_call = update_type(incoming_call, call->getType());
+        for (auto i = 0u; i < user_phi->getNumIncomingValues(); ++i) {
+          auto val = user_phi->getIncomingValue(i);
+          auto block = user_phi->getIncomingBlock(i);
 
-          replacements[incoming_call] = typed_call;
+          // The call logic here works because argument lists can be
+          // heterogeneous - i.e. we could update a call stub(opaque*, i32) to
+          // stub(i32, i32) no problem at all, but Phi nodes need to have the
+          // same type in all their branches.
+          //
+          // To handle this, the easiest thing is probably to assert that the
+          // Phi node arguments are consistent. Basically, make sure that all
+          // the other nodes are either opaque or the _same_ type as what we're
+          // converting to. Abstract this behind essentially a "lossless
+          // conversion" trait that we can query for pairs of LLVM types.
+          //
+          // Question - could we detect / flag against bad replacements early,
+          // so as not to break this?
+
+          // assert this is a call ? edge cases
+          // ?????????????????? fix
+          /* auto incoming_call = cast<CallInst>(val); */
+          /* auto typed_call = update_type(incoming_call, call->getType()); */
+
+          /* new_phi->addIncoming(typed_call, incoming_call->getParent()); */
+
+          /* replacements[incoming_call] = typed_call; */
         }
 
-        // how to now RAUW a phi node???
+        replacements[user_phi] = new_phi;
       } else {
         invalid_state();
       }
@@ -323,7 +344,9 @@ void candidate::safe_rauw(Instruction* stub, Value* call)
     safe_rauw(st, ca);
   }
 
-  stub->eraseFromParent();
+  if (stub->getParent()) {
+    stub->eraseFromParent();
+  }
 }
 
 CallInst* candidate::update_type(CallInst* stub, Type* new_rt)
