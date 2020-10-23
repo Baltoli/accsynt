@@ -29,9 +29,12 @@ candidate::candidate(sketch&& sk, std::unique_ptr<filler> fill)
     , signature_(sk.ctx_.signature())
     , module_(std::move(sk.module_))
     , hole_type_(sk.ctx_.opaque_type())
+    , type_convs_()
     , ctx_(std::move(sk.ctx_))
 {
   filler_->set_candidate(*this);
+
+  type_convs_.register_opaque(hole_type());
 
   resolve_names();
   insert_phis();

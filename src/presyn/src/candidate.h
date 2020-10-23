@@ -4,6 +4,8 @@
 #include "filler.h"
 #include "sketch_context.h"
 
+#include <support/llvm_types.h>
+
 #include <props/props.h>
 
 #include <llvm/IR/Module.h>
@@ -88,6 +90,8 @@ private:
   // The canonical type for holes in this candidate. We always get this on
   // construction from the sketch context.
   llvm::Type* hole_type_;
+
+  support::type_conversions type_convs_;
 
   sketch_context ctx_;
 };
