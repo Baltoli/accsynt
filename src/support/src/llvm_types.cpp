@@ -7,14 +7,19 @@ void type_conversions::register_opaque(llvm::Type* op)
   opaque_types_.insert(op);
 }
 
+bool type_conversions::is_opaque(llvm::Type* ty) const
+{
+  return opaque_types_.find(ty) != opaque_types_.end();
+}
+
 bool type_conversions::is_lossless(llvm::Type* from, llvm::Type* to) const
 {
-  if (opaque_types_.find(from) != opaque_types_.end()) {
+  if (is_opaque(from)) {
     // Can always losslessly convert from an opaque type to anything
     return true;
   }
 
-  if (opaque_types_.find(to) != opaque_types_.end()) {
+  if (is_opaque(to)) {
     // Conversely, can't convert to an opaque type from anything - previous case
     // will handle the opaque -> opaque conversion which is OK.
     return false;

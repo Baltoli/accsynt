@@ -13,6 +13,7 @@ public:
 
   void register_opaque(llvm::Type*);
 
+  bool is_opaque(llvm::Type*) const;
   bool is_lossless(llvm::Type* from, llvm::Type* to) const;
 
 private:
