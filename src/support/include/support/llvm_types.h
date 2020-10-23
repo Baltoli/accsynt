@@ -13,6 +13,8 @@ public:
 
   void register_opaque(llvm::Type*);
 
+  bool is_lossless(llvm::Type* from, llvm::Type* to) const;
+
 private:
   std::set<llvm::Type*> opaque_types_;
 };
