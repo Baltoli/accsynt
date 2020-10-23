@@ -26,6 +26,8 @@ add_compile_options(
   -Wno-error=sign-compare
 )
 
+include(TimeTrace)
+
 if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
   add_compile_options(
     "$<$<COMPILE_LANGUAGE:CXX>:-Wno-unused-private-field>"

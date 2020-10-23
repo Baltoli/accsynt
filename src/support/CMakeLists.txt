@@ -12,6 +12,7 @@ add_library(support
   src/input.cpp
   src/instr_count.cpp
   src/llvm_cloning.cpp
+  src/llvm_types.cpp
   src/llvm_utils.cpp
   src/llvm_values.cpp
   src/load_module.cpp
@@ -42,20 +43,21 @@ install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 install(EXPORT SupportConfig DESTINATION share/Support/cmake)
 
 add_executable(support_unit
+  test/argument_generator.cpp
   test/bit_cast.cpp
   test/call_builder.cpp
   test/cartesian_product.cpp
-  test/floats.cpp
-  test/traits.cpp
-  test/load_module.cpp
   test/choose.cpp
-  test/argument_generator.cpp
-  test/llvm_values.cpp
+  test/floats.cpp
+  test/hash.cpp
   test/instr_count.cpp
+  test/llvm_types.cpp
+  test/llvm_values.cpp
+  test/load_module.cpp
   test/random.cpp
   test/string.cpp
-  test/hash.cpp
   test/timeout.cpp
+  test/traits.cpp
   test/utility.cpp
   test/main.cpp)
 
