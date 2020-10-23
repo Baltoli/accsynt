@@ -71,6 +71,7 @@ private:
   void choose_values();
   void resolve_operators();
   void insert_phis(int n_per_type = 1);
+  void hoist_phis();
 
   std::optional<std::string> arg_name(llvm::Value*) const;
 

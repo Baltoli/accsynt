@@ -196,6 +196,24 @@ void candidate::insert_phis(int n_per_type)
       }
     }
   }
+
+  hoist_phis();
+}
+
+void candidate::hoist_phis()
+{
+  for (auto& bb : function()) {
+    [[maybe_unused]] auto first_non_phi = bb.getFirstNonPHI();
+
+    for (auto& inst : bb) {
+      // FIXME: when I get LLVM 11 working, check if the first_non_phi comes
+      // before inst - if so, break out of the loop.
+
+      if (auto as_phi = dyn_cast<PHINode>(&inst)) {
+        as_phi->moveBefore(bb, bb.getFirstInsertionPt());
+      }
+    }
+  }
 }
 
 bool candidate::is_valid() const
