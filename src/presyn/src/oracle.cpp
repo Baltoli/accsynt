@@ -1,5 +1,6 @@
 #include "candidate.h"
 #include "fragment.h"
+#include "oracle_options.h"
 #include "rule_filler.h"
 #include "sketch.h"
 
@@ -11,17 +12,21 @@
 
 #include <fmt/format.h>
 
+using namespace support;
+using namespace llvm;
 using namespace fmt::literals;
 using namespace presyn;
 
-namespace term = support::terminal;
+namespace term = ::support::terminal;
 
-int main()
+int main(int argc, char** argv)
 try {
+  cl::ParseCommandLineOptions(argc, argv);
+
   std::unique_ptr<fragment> current_frag = std::make_unique<hole>();
 
   auto sig = [] {
-    auto sig_line = support::get_line(" sig> ");
+    auto sig_line = get_line(" sig> ");
 
     try {
       return props::signature::parse(sig_line);
@@ -34,7 +39,7 @@ try {
   }();
 
   while (true) {
-    auto line = support::get_line("frag> ");
+    auto line = get_line("frag> ");
 
     // Break out of the REPL if we get ^D or an empty input
     if (line.empty()) {
