@@ -21,6 +21,7 @@ add_executable(presyn-repl
   src/repl.cpp)
 
 add_executable(oracle
+  src/oracle_options.cpp
   src/oracle.cpp)
 
 target_link_libraries(corepresyn
