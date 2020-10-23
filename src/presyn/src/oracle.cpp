@@ -33,24 +33,23 @@ std::string read_line(std::string const& prompt)
   }
 }
 
-int main(int argc, char** argv)
-try {
-  cl::ParseCommandLineOptions(argc, argv);
+props::signature get_sig()
+{
+  auto sig_line = read_line(" sig> ");
 
+  try {
+    return props::signature::parse(sig_line);
+  } catch (std::runtime_error& e) {
+    fmt::print(
+        stderr, "{}Invalid signature:{} {}\n"_format(
+                    term::f_red, term::reset, sig_line));
+    std::exit(1);
+  }
+}
+
+std::unique_ptr<fragment> get_fragment()
+{
   std::unique_ptr<fragment> current_frag = std::make_unique<hole>();
-
-  auto sig = [] {
-    auto sig_line = read_line(" sig> ");
-
-    try {
-      return props::signature::parse(sig_line);
-    } catch (std::runtime_error& e) {
-      fmt::print(
-          stderr, "{}Invalid signature:{} {}\n"_format(
-                      term::f_red, term::reset, sig_line));
-      std::exit(1);
-    }
-  }();
 
   while (true) {
     auto line = read_line("frag> ");
@@ -72,11 +71,20 @@ try {
     }
   }
 
-  fmt::print("; frag = {}\n", *current_frag);
+  return current_frag;
+}
+
+int main(int argc, char** argv)
+try {
+  cl::ParseCommandLineOptions(argc, argv);
+
+  auto sig = get_sig();
+  auto frag = get_fragment();
+
+  fmt::print("; frag = {}\n", *frag);
   fmt::print("; sig  = {}\n", sig);
 
-  auto cand
-      = candidate(sketch(sig, *current_frag), std::make_unique<rule_filler>());
+  auto cand = candidate(sketch(sig, *frag), std::make_unique<rule_filler>());
 
   if (cand.is_valid()) {
     fmt::print("; Valid reified candidate - can proceed to execution\n");
