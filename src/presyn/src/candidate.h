@@ -55,6 +55,11 @@ protected:
   // declarations are variadic and we don't care about the types. Additionally,
   // we know that this is the only context in which our opaque stub type will
   // appear, so we're free to just change the type.
+  //
+  // Performing RAUW on a Phi node may create new holes that need to be filled -
+  // this is part of the type refinement process. For example, consider a Phi
+  // where both "arms" have opaque type. When a type or value is selected for
+  // one of the incoming arms, all the other arms receive that type as well.
   std::set<llvm::CallInst*> safe_rauw(llvm::Instruction*, llvm::Value*);
 
   // This is responsible for creating a new stubbed call with an updated type

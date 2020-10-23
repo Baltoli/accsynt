@@ -126,7 +126,10 @@ void candidate::choose_values()
       auto build = IRBuilder(hole);
       auto call = build.CreateCall(conv, {new_val}, hole->getName());
 
-      safe_rauw(hole, call);
+      auto new_holes = safe_rauw(hole, call);
+      for (auto nh : new_holes) {
+        holes.push_back(nh);
+      }
 
       if (filler_->is_hole(new_val)) {
         holes.push_front(cast<CallInst>(new_val));
@@ -277,6 +280,7 @@ llvm::Function* candidate::converter(llvm::Type* from, llvm::Type* to)
 std::set<llvm::CallInst*> candidate::safe_rauw(Instruction* stub, Value* call)
 {
   auto replacements = std::map<Instruction*, Value*> {};
+  auto new_holes = std::set<CallInst*> {};
 
   if (call->getType() == stub->getType()) {
     stub->replaceAllUsesWith(call);
@@ -327,9 +331,9 @@ std::set<llvm::CallInst*> candidate::safe_rauw(Instruction* stub, Value* call)
           // Now we know that we can safely convert the types, so go ahead and
           // create the new incoming value for this one.
           auto retyped_in_call = update_type(in_call, call->getType());
-          /* replacements[in_call] = retyped_in_call; */
-
           new_phi->addIncoming(retyped_in_call, in_block);
+
+          new_holes.insert(retyped_in_call);
         }
 
         replacements[user_phi] = new_phi;
@@ -340,14 +344,17 @@ std::set<llvm::CallInst*> candidate::safe_rauw(Instruction* stub, Value* call)
   }
 
   for (auto [st, ca] : replacements) {
-    safe_rauw(st, ca);
+    auto rec_holes = safe_rauw(st, ca);
+    for (auto rh : rec_holes) {
+      new_holes.insert(rh);
+    }
   }
 
   if (stub->getParent()) {
     stub->eraseFromParent();
   }
 
-  return {};
+  return new_holes;
 }
 
 CallInst* candidate::update_type(CallInst* stub, Type* new_rt)
