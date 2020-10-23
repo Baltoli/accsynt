@@ -13,11 +13,13 @@
 #include <fmt/format.h>
 
 using namespace support;
-using namespace llvm;
-using namespace fmt::literals;
 using namespace presyn;
 
-namespace term = ::support::terminal;
+using namespace fmt::literals;
+
+namespace cl = llvm::cl;
+namespace term = support::terminal;
+namespace opts = presyn::oracle::opts;
 
 int main(int argc, char** argv)
 try {
