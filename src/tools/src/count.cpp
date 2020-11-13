@@ -9,8 +9,12 @@
 using namespace llvm;
 
 static cl::opt<std::string> InputFilename(
-    cl::Positional, cl::desc("<input bitcode file>"), cl::init("-"),
+    cl::Positional, cl::desc("<input bitcode file>"), cl::Required,
     cl::value_desc("filename"));
+
+static cl::opt<std::string> FunctionName(
+    cl::Positional, cl::desc("<function name>"), cl::Required,
+    cl::value_desc("function"));
 
 int main(int argc, char** argv)
 {
