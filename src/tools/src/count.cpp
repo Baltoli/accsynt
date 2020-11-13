@@ -31,8 +31,14 @@ int main(int argc, char** argv)
     return 1;
   }
 
-  auto pass = createCountPass();
-  for (auto& fn : *mod) {
-    pass->runOnFunction(fn);
+  auto func = mod->getFunction(FunctionName);
+  if (!func) {
+    Err.print(argv[1], errs());
+    return 2;
   }
+
+  auto pass = createCountPass();
+  pass->runOnFunction(*func);
+
+  outs() << pass->getCount() << '\n';
 }
