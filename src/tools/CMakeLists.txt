@@ -15,6 +15,9 @@ add_executable(graph-match
 add_executable(cyclo
   src/cyclo.cpp)
 
+add_executable(count
+  src/count.cpp)
+
 target_link_libraries(convert
   CONAN_PKG::fmt
   ${llvm_libs}
@@ -37,6 +40,9 @@ target_link_libraries(graph-match
 target_link_libraries(cyclo
   ${llvm_libs}
   AccsyntPasses)
+
+target_link_libraries(count
+  ${llvm_libs})
 
 install(
   TARGETS detect convert graph-match cyclo
