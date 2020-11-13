@@ -1,3 +1,5 @@
+#include <passes/passes.h>
+
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/LegacyPassManager.h>
 #include <llvm/IR/Module.h>
@@ -27,5 +29,10 @@ int main(int argc, char** argv)
   if (!mod) {
     Err.print(argv[0], errs());
     return 1;
+  }
+
+  auto pass = createCountPass();
+  for (auto& fn : *mod) {
+    pass->runOnFunction(fn);
   }
 }

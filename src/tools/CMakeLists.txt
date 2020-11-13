@@ -21,7 +21,7 @@ add_executable(count
 target_link_libraries(convert
   CONAN_PKG::fmt
   ${llvm_libs}
-  AccsyntPasses)
+  AccsyntPasses_static)
 
 if(APPLE)
   target_link_libraries(detect
@@ -39,11 +39,12 @@ target_link_libraries(graph-match
 
 target_link_libraries(cyclo
   ${llvm_libs}
-  AccsyntPasses)
+  AccsyntPasses_static)
 
 target_link_libraries(count
-  ${llvm_libs})
+  ${llvm_libs}
+  AccsyntPasses_static)
 
 install(
-  TARGETS detect convert graph-match cyclo
+  TARGETS detect convert graph-match cyclo count
   DESTINATION ${CMAKE_INSTALL_BINDIR})
