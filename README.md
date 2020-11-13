@@ -33,6 +33,7 @@ cmake \
   -DLLVM_ENABLE_RTTI=On \
   -DLLVM_TARGETS_TO_BUILD=X86 \
   -DLLVM_ENABLE_PROJECTS="clang;libcxx;libcxxabi" \
+  -DDEFAULT_SYSROOT=$(xcode-select -p)/SDKs/MacOSX.sdk" \
   ../llvm
 make -j`nproc`
 make install
