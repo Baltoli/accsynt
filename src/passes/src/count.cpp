@@ -1,5 +1,8 @@
 #include <passes/passes.h>
 
+#include <iterator>
+#include <numeric>
+
 using namespace llvm;
 
 Count::Count()
@@ -10,13 +13,10 @@ Count::Count()
 
 bool Count::runOnFunction(Function& F)
 {
-  count_ = 0;
-
-  for (auto& bb : F) {
-    for (auto& inst : bb) {
-      ++count_;
-    }
-  }
+  count_ = std::accumulate(
+      F.begin(), F.end(), 0, [](auto const& acc, auto const& bb) {
+        return acc + std::distance(bb.begin(), bb.end());
+      });
 
   return false;
 }
