@@ -91,18 +91,10 @@ try {
   auto sig = get_sig();
   auto frag = get_fragment();
 
-  fmt::print("; frag = {}\n", *frag);
-  fmt::print("; sig  = {}\n", sig);
-
-  auto cand = candidate(sketch(sig, *frag), std::make_unique<rule_filler>());
-
-  if (cand.is_valid()) {
-    fmt::print("; Valid reified candidate - can proceed to execution\n");
-  } else {
-    fmt::print("; Invalid candidate - no execution\n");
+  while (true) {
+    auto cand = candidate(sketch(sig, *frag), std::make_unique<rule_filler>());
+    assertion(cand.is_valid(), "Reification produced an invalid candidate");
   }
-
-  fmt::print("\n{}", cand.module());
 } catch (std::runtime_error& e) {
   fmt::print(
       stderr,
