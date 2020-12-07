@@ -15,7 +15,7 @@ add_executable(graph-match
 add_executable(cyclo
   src/cyclo.cpp)
 
-add_executable(count
+add_executable(instrcount
   src/count.cpp)
 
 target_link_libraries(convert
@@ -41,10 +41,10 @@ target_link_libraries(cyclo
   ${llvm_libs}
   AccsyntPasses_static)
 
-target_link_libraries(count
+target_link_libraries(instrcount
   ${llvm_libs}
   AccsyntPasses_static)
 
 install(
-  TARGETS detect convert graph-match cyclo count
+  TARGETS detect convert graph-match cyclo instrcount
   DESTINATION ${CMAKE_INSTALL_BINDIR})
