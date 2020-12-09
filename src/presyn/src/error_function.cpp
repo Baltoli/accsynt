@@ -10,7 +10,7 @@ int scalar_distance_error(
     output_example const& before, output_example const& after)
 {
   assertion(
-      before.output_args.signature() == after.output_args.signature(),
+      before.output_args.signature().compatible(after.output_args.signature()),
       "Can't compute error function on argument packs with different "
       "underlying signatures");
 
