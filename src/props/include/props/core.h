@@ -90,6 +90,8 @@ struct signature {
   {
   }
 
+  bool compatible(signature const& other) const;
+
   bool operator==(signature const& other) const;
   bool operator!=(signature const& other) const;
 };
