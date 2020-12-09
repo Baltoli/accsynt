@@ -57,6 +57,8 @@ struct param {
 
   llvm::Type* llvm_type() const;
 
+  bool compatible(param const& other) const;
+
   bool operator==(param const& other) const;
   bool operator!=(param const& other) const;
 };
