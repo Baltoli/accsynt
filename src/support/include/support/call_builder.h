@@ -96,7 +96,6 @@ public:
   template <typename T>
   void add(T arg);
 
-  template <>
   void add(int arg);
 
   /**
