@@ -62,7 +62,15 @@ public:
    * Construct with a type signature - the signature is used to check that each
    * argument is correct when it is added to the pack.
    */
-  call_builder(props::signature sig);
+  explicit call_builder(props::signature sig);
+
+  /**
+   * Construct a call_builder with a type signature as well as a series of
+   * arguments. This just forwards to the variadic helper after delegating the
+   * constructor.
+   */
+  template <typename Ts>
+  explicit call_builder(props::signature sig, Ts&& args...);
 
   /**
    * Copy constructor and assignment using copy-and-swap. The copy constructor
@@ -157,6 +165,13 @@ struct output_example {
   uint64_t return_value;
   call_builder output_args;
 };
+
+template <typename Ts>
+call_builder::call_builder(props::signature sig, Ts&& args...)
+    : call_builder(sig)
+{
+  add(std::forward<Ts>(args));
+}
 
 template <typename T>
 void call_builder::add(T arg)
