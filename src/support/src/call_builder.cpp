@@ -70,6 +70,12 @@ call_builder& call_builder::operator=(call_builder other)
   return *this;
 }
 
+template <>
+void call_builder::add(int arg)
+{
+  add(static_cast<long>(arg));
+}
+
 void swap(call_builder& left, call_builder& right)
 {
   using std::swap;

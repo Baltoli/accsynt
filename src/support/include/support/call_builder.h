@@ -96,6 +96,9 @@ public:
   template <typename T>
   void add(T arg);
 
+  template <>
+  void add(int arg);
+
   /**
    * Add a vector to the argument pack. Copies the vector into the builder's
    * internal storage, then writes the raw bytes of the newly copied vector's

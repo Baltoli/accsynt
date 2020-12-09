@@ -7,6 +7,7 @@
 #include <support/call_builder.h>
 
 using namespace support;
+using namespace presyn;
 using namespace props;
 using namespace props::literals;
 
@@ -14,6 +15,8 @@ TEST_CASE("Can get errors from built packs")
 {
   auto sig = "int f(int x, int y)"_sig;
 
-  auto b1 = call_builder(sig);
-  auto b2 = call_builder(sig);
+  auto b1 = call_builder(sig, 1, 2);
+  auto b2 = call_builder(sig, 1, 2);
+
+  [[maybe_unused]] auto err = presyn::scalar_distance_error({0, b1}, {0, b2});
 }
