@@ -1,5 +1,6 @@
 add_library(corepresyn
   src/error_function.cpp
+  src/optimiser.cpp
   src/parameter.cpp
   src/fragment.cpp
   src/fragment_parse.cpp
