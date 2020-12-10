@@ -2,6 +2,7 @@
 
 #include <support/assert.h>
 
+using namespace support;
 using namespace llvm;
 
 namespace presyn {
@@ -16,5 +17,7 @@ optimiser::optimiser(Function* f, std::set<Instruction*> hs)
         "Instruction outside target function: {}", *hole);
   }
 }
+
+void optimiser::run(call_wrapper& wrap) { }
 
 } // namespace presyn
