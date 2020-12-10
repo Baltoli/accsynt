@@ -2,10 +2,14 @@
 
 #include "optimiser.h"
 
+#include <support/llvm_format.h>
 #include <support/thread_context.h>
 
+#include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/Module.h>
+
+#include <fmt/format.h>
 
 using namespace support;
 using namespace llvm;
@@ -17,4 +21,8 @@ TEST_CASE("Scratch tests for optimiser")
   auto int64_ty = IntegerType::get(ctx, 64);
   auto f_ty = FunctionType::get(int64_ty, {int64_ty}, false);
   auto func = Function::Create(f_ty, GlobalValue::InternalLinkage, "ref", mod);
+
+  auto bb = BasicBlock::Create(ctx, "linear", func);
+
+  fmt::print("{}\n", *func);
 }
