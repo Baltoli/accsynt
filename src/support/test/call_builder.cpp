@@ -269,3 +269,52 @@ TEST_CASE("Can extract arguments from a call_builder")
     REQUIRE(c1.get<char>("eep") == eep);
   }
 }
+
+TEST_CASE("Can compare call builders for equality")
+{
+  SECTION("Full equality")
+  {
+    auto c1 = call_builder("int f(int a, int b)"_sig, 2, 4);
+    auto c2 = call_builder("int f(int a, int b)"_sig, 2, 4);
+    REQUIRE(c1 == c2);
+
+    auto c3 = call_builder(
+        "int f(int *c, float *d)"_sig, std::vector<int64_t> {0},
+        std::vector<float> {6.5});
+    auto c4 = call_builder(
+        "int f(int *c, float *d)"_sig, std::vector<int64_t> {0},
+        std::vector<float> {6.5});
+    REQUIRE(c3 == c4);
+
+    auto c5 = call_builder("char f()"_sig);
+    auto c6 = call_builder("char f()"_sig);
+    REQUIRE(c5 == c6);
+
+    auto c7 = call_builder("char f(int x)"_sig, 1);
+    auto c8 = call_builder("char f(int x)"_sig, 6);
+    REQUIRE(c7 != c8);
+  }
+
+  SECTION("Partial equality")
+  {
+    auto c1 = call_builder("int f(int a, int b)"_sig, 2, 4);
+    auto c2 = call_builder("int fun(int aa, int bbb)"_sig, 2, 4);
+    REQUIRE(c1.scalar_args_equal(c2));
+
+    auto c3 = call_builder(
+        "int f(char a, int *c, float *d)"_sig, 'a', std::vector<int64_t> {4440},
+        std::vector<float> {6.5, 457839});
+    auto c4 = call_builder(
+        "int f(char a, int *c, float *d)"_sig, 'a', std::vector<int64_t> {0},
+        std::vector<float> {6.5});
+    REQUIRE(c3.scalar_args_equal(c4));
+
+    auto c5 = call_builder("char f()"_sig);
+    auto c6 = call_builder("char f()"_sig);
+    REQUIRE(c5.scalar_args_equal(c6));
+
+    auto c7 = call_builder("char f(int x)"_sig, 1);
+    auto c8 = call_builder("char f(int x)"_sig, 6);
+    REQUIRE(!c7.scalar_args_equal(c8));
+  }
+}

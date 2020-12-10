@@ -54,7 +54,7 @@ TEST_CASE("Can check if sigs are compatible")
     REQUIRE(!s3.compatible(s4));
 
     auto s5 = "float j(int x)"_sig;
-    auto s6 = "float j(int x)"_sig;
+    auto s6 = "float j()"_sig;
     REQUIRE(!s5.compatible(s6));
   }
 }

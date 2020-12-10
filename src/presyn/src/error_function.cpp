@@ -14,8 +14,9 @@ int scalar_distance_error(
       "Can't compute error function on argument packs with different "
       "underlying signatures");
 
-  for (auto param : before.output_args.signature().parameters) {
-  }
+  assertion(
+      !before.output_args.signature().accepts_pointer(),
+      "Can't compute scalar error if signature accepts any pointer arguments");
 
   return 0;
 }

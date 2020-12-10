@@ -69,8 +69,8 @@ public:
    * arguments. This just forwards to the variadic helper after delegating the
    * constructor.
    */
-  template <typename Ts>
-  explicit call_builder(props::signature sig, Ts&& args...);
+  template <typename... Ts>
+  explicit call_builder(props::signature sig, Ts&&... args);
 
   /**
    * Copy constructor and assignment using copy-and-swap. The copy constructor
@@ -142,6 +142,14 @@ public:
   uint8_t* args();
 
   /**
+   * Scalar equality comparison - are all the scalar arguments to this builder
+   * the same as the ones passed to the other builder? This essentially denotes
+   * equality up to possible mutation of memory (i.e. if the other builder
+   * represents the state after a call, we allow it to have been mutated).
+   */
+  bool scalar_args_equal(call_builder const& other) const;
+
+  /**
    * Deep equality comparison - descends into stored vectors rather than
    * comparing pointer data for equality.
    */
@@ -168,11 +176,11 @@ struct output_example {
   call_builder output_args;
 };
 
-template <typename Ts>
-call_builder::call_builder(props::signature sig, Ts&& args...)
+template <typename... Ts>
+call_builder::call_builder(props::signature sig, Ts&&... args)
     : call_builder(sig)
 {
-  add(std::forward<Ts>(args));
+  add(std::forward<Ts>(args)...);
 }
 
 template <typename T>

@@ -91,6 +91,37 @@ uint8_t* call_builder::args()
   return args_.data();
 }
 
+bool call_builder::scalar_args_equal(call_builder const& other) const
+{
+  if (args_.size() != other.args_.size()) {
+    return false;
+  }
+
+  if (!signature_.compatible(other.signature_)) {
+    return false;
+  }
+
+  size_t offset = 0;
+  bool all_eq = true;
+
+  for (auto const& param : signature_.parameters) {
+    if (!all_eq) {
+      return false;
+    }
+
+    if (param.pointer_depth == 0) {
+      // Value comparisons done on the raw byte data
+      for (auto i = 0u; i < base_type_size(param.type); ++i, ++offset) {
+        all_eq = all_eq && (args_.at(offset) == other.args_.at(offset));
+      }
+    } else {
+      offset += 8;
+    }
+  }
+
+  return all_eq;
+}
+
 bool call_builder::operator==(call_builder const& other) const
 {
   // Easy up front checks - we need to be storing the same quantity of
