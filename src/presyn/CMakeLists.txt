@@ -45,6 +45,7 @@ target_link_libraries(oracle
   corepresyn)
 
 add_executable(presyn_unit
+  test/optimiser.cpp
   test/error_function.cpp
   test/fragment.cpp
   test/parsing.cpp
