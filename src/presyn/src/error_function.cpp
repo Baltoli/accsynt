@@ -2,6 +2,8 @@
 
 #include <support/assert.h>
 
+#include <cmath>
+
 using namespace support;
 
 namespace presyn {
@@ -18,7 +20,12 @@ int scalar_distance_error(
       !before.output_args.signature().accepts_pointer(),
       "Can't compute scalar error if signature accepts any pointer arguments");
 
-  return 0;
+  assertion(
+      before.output_args.scalar_args_equal(after.output_args),
+      "Can't compute scalar error if arguments were different");
+
+  return std::abs(
+      static_cast<int64_t>(before.return_value - after.return_value));
 }
 
 } // namespace presyn
