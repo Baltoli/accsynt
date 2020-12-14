@@ -22,6 +22,8 @@ provider::provider(LLVMContext& ctx, Module& mod)
 {
 }
 
+llvm::Module const& provider::module() const { return mod_; }
+
 Type* provider::hole_type() const { return hole_type_; }
 
 Instruction* provider::create_hole(Type* ty)

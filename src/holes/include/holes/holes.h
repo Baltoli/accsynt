@@ -16,6 +16,8 @@ class provider {
 public:
   provider(llvm::LLVMContext&, llvm::Module&);
 
+  llvm::Module const& module() const;
+
   llvm::Type* hole_type() const;
 
   llvm::Instruction* create_hole();
