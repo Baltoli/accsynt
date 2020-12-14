@@ -2,11 +2,14 @@
 
 #include "optimiser.h"
 
+#include <holes/holes.h>
+
 #include <support/llvm_format.h>
 #include <support/thread_context.h>
 
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/DerivedTypes.h>
+#include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Module.h>
 
 #include <fmt/format.h>
@@ -24,5 +27,12 @@ TEST_CASE("Scratch tests for optimiser")
 
   auto bb = BasicBlock::Create(ctx, "linear", func);
 
-  fmt::print("{}\n", *func);
+  auto hp = holes::provider(ctx, mod);
+
+  for (auto i = 0; i < 3; ++i) {
+    auto hole = hp.create_hole();
+    IRBuilder<>(bb).Insert(hole);
+  }
+
+  fmt::print("{}\n", mod);
 }
