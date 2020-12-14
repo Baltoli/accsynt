@@ -7,15 +7,13 @@ using namespace llvm;
 
 namespace presyn {
 
-optimiser::optimiser(Function* f, std::set<Instruction*> hs)
+optimiser::optimiser(Function* f, holes::provider&& hp)
     : target_(f)
-    , holes_(hs)
+    , provider_(std::move(hp))
 {
-  for (auto hole : hs) {
-    assertion(
-        hole->getFunction() == target_,
-        "Instruction outside target function: {}", *hole);
-  }
+  assertion(
+      target_->getParent() == &provider_.module(),
+      "No cross-module optimisation is supported");
 }
 
 void optimiser::run(call_wrapper& wrap) { }

@@ -31,6 +31,7 @@ target_link_libraries(corepresyn
   CONAN_PKG::taocpp-pegtl
   support
   props
+  holes
   ${llvm_libs})
 
 target_link_filesystem(corepresyn)
