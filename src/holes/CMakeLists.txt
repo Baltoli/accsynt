@@ -4,6 +4,7 @@ add_library(holes
   src/holes.cpp)
 
 target_link_libraries(holes
+  support
   ${llvm_libs})
 
 target_include_directories(holes PUBLIC
