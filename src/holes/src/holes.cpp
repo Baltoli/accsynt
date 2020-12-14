@@ -3,6 +3,7 @@
 #include <support/thread_context.h>
 
 #include <llvm/IR/DerivedTypes.h>
+#include <llvm/IR/Instruction.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Type.h>
 
@@ -12,16 +13,19 @@ using namespace llvm;
 
 namespace holes {
 
-Type* get_hole_type(LLVMContext& ctx)
+provider::provider(Module& mod, LLVMContext& ctx)
+    : mod_(mod)
+    , ctx_(ctx)
+    , hole_type_(StructType::create(ctx_, "hole"))
 {
-  static auto holes = std::unordered_map<LLVMContext*, Type*> {};
-  if (holes.find(&ctx) == holes.end()) {
-    holes[&ctx] = StructType::create(ctx, "hole");
-  }
-
-  return holes.at(&ctx);
 }
 
-Type* get_hole_type() { return get_hole_type(support::thread_context::get()); }
+Type* provider::hole_type() const { return hole_type_; }
+
+Instruction* provider::create_hole() const
+{
+  return nullptr;
+  ;
+}
 
 } // namespace holes
