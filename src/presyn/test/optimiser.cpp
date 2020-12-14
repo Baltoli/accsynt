@@ -34,5 +34,9 @@ TEST_CASE("Scratch tests for optimiser")
     IRBuilder<>(bb).Insert(hole);
   }
 
+  auto ret_hole = hp.create_hole(int64_ty);
+  IRBuilder<>(bb).Insert(ret_hole);
+  ReturnInst::Create(ctx, ret_hole, bb);
+
   fmt::print("{}\n", mod);
 }

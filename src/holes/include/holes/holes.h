@@ -19,6 +19,7 @@ public:
   llvm::Type* hole_type() const;
 
   llvm::Instruction* create_hole();
+  llvm::Instruction* create_hole(llvm::Type* ty);
 
 private:
   llvm::Function* get_identity(llvm::Type*);

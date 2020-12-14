@@ -24,12 +24,14 @@ provider::provider(LLVMContext& ctx, Module& mod)
 
 Type* provider::hole_type() const { return hole_type_; }
 
-Instruction* provider::create_hole()
+Instruction* provider::create_hole(Type* ty)
 {
-  auto ud_val = UndefValue::get(hole_type());
-  auto id = get_identity(hole_type());
+  auto ud_val = UndefValue::get(ty);
+  auto id = get_identity(ty);
   return CallInst::Create(id, {ud_val}, "hole");
 }
+
+Instruction* provider::create_hole() { return create_hole(hole_type()); }
 
 Function* provider::get_identity(Type* ty)
 {
