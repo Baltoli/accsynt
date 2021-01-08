@@ -34,7 +34,10 @@ std::unordered_set<llvm::Instruction*> const& provider::holes() const
   return holes_;
 }
 
-void provider::reset() { holes_.clear(); }
+void provider::reset()
+{
+  /* holes_.erase_if([this](auto h) { return h->getType() == hole_type(); }); */
+}
 
 void provider::rauw_nt(llvm::Instruction* before, llvm::Value* after)
 {
