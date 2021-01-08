@@ -19,6 +19,7 @@ public:
   provider(llvm::LLVMContext&, llvm::Module&);
 
   llvm::Module const& module() const;
+  llvm::LLVMContext& ctx();
 
   llvm::Type* hole_type() const;
 

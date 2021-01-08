@@ -9,6 +9,7 @@ namespace presyn {
 
 optimiser::optimiser(holes::provider&& hp)
     : provider_(std::move(hp))
+    , constants_ {}
 {
 }
 
@@ -20,7 +21,8 @@ void optimiser::run(Function* target, call_wrapper& wrap)
 
   for (auto hole : provider_.holes()) {
     if (hole->getType() == provider_.hole_type()) {
-      unimplemented();
+      provider_.rauw_nt(
+          hole, get_constant(0, IntegerType::get(provider_.ctx(), 64)));
     }
   }
 

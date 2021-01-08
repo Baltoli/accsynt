@@ -26,7 +26,9 @@ provider::provider(LLVMContext& ctx, Module& mod)
 {
 }
 
-llvm::Module const& provider::module() const { return mod_; }
+Module const& provider::module() const { return mod_; }
+
+LLVMContext& provider::ctx() { return ctx_; }
 
 Type* provider::hole_type() const { return hole_type_; }
 
