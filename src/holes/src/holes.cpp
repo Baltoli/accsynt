@@ -45,6 +45,12 @@ void provider::rauw_nt(llvm::Instruction* before, llvm::Value* after)
   auto id_fn = get_identity(after->getType());
   auto after_id = CallInst::Create(id_fn, {after}, after->getName());
 
+  if (before->getType() == after_id->getType()) {
+    before->replaceAllUsesWith(after_id);
+  } else {
+    unimplemented();
+  }
+
   holes_.erase(before);
   holes_.insert(after_id);
 }
