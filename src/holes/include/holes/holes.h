@@ -6,9 +6,11 @@ class Function;
 class Instruction;
 class Module;
 class Type;
+class Value;
 } // namespace llvm
 
 #include <unordered_map>
+#include <unordered_set>
 
 namespace holes {
 
@@ -31,6 +33,8 @@ private:
 
   llvm::Type* hole_type_;
   std::unordered_map<llvm::Type*, llvm::Function*> identities_;
+
+  std::unordered_set<llvm::Value*> holes_;
 };
 
 } // namespace holes

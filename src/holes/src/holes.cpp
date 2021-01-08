@@ -19,6 +19,7 @@ provider::provider(LLVMContext& ctx, Module& mod)
     , mod_(mod)
     , hole_type_(StructType::create(ctx_, "hole"))
     , identities_ {}
+    , holes_ {}
 {
 }
 
@@ -33,7 +34,12 @@ Instruction* provider::create_hole(Type* ty)
   return CallInst::Create(id, {ud_val}, "hole");
 }
 
-Instruction* provider::create_hole() { return create_hole(hole_type()); }
+Instruction* provider::create_hole()
+{
+  auto new_hole = create_hole(hole_type());
+  holes_.insert(new_hole);
+  return new_hole;
+}
 
 Function* provider::get_identity(Type* ty)
 {
