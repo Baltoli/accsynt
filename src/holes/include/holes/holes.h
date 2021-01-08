@@ -22,10 +22,12 @@ public:
 
   llvm::Type* hole_type() const;
 
+  void rauw_nt(llvm::Instruction* before, llvm::Value* after);
+
   llvm::Instruction* create_hole();
   llvm::Instruction* create_hole(llvm::Type* ty);
 
-  std::unordered_set<llvm::Value*> const& holes() const;
+  std::unordered_set<llvm::Instruction*> const& holes() const;
 
 private:
   llvm::Function* get_identity(llvm::Type*);
@@ -36,7 +38,7 @@ private:
   llvm::Type* hole_type_;
   std::unordered_map<llvm::Type*, llvm::Function*> identities_;
 
-  std::unordered_set<llvm::Value*> holes_;
+  std::unordered_set<llvm::Instruction*> holes_;
 };
 
 } // namespace holes

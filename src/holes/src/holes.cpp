@@ -1,5 +1,7 @@
 #include <holes/holes.h>
 
+#include <support/assert.h>
+#include <support/llvm_format.h>
 #include <support/thread_context.h>
 
 #include <llvm/IR/BasicBlock.h>
@@ -27,9 +29,24 @@ llvm::Module const& provider::module() const { return mod_; }
 
 Type* provider::hole_type() const { return hole_type_; }
 
-std::unordered_set<llvm::Value*> const& provider::holes() const
+std::unordered_set<llvm::Instruction*> const& provider::holes() const
 {
   return holes_;
+}
+
+void provider::rauw_nt(llvm::Instruction* before, llvm::Value* after)
+{
+  assertion(
+      holes_.find(before) != holes_.end(),
+      "RAUW-NT can only be used on values representing holes - use regular "
+      "LLVM RAUW otherwise. Failed to replace {} with {}.",
+      *before, *after);
+
+  auto id_fn = get_identity(after->getType());
+  auto after_id = CallInst::Create(id_fn, {after}, after->getName());
+
+  holes_.erase(before);
+  holes_.insert(after_id);
 }
 
 Instruction* provider::create_hole(Type* ty)
