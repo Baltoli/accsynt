@@ -25,8 +25,6 @@ void optimiser::run(Function* target, call_wrapper& wrap)
   }
 
   provider_.reset();
-
-  unimplemented();
 }
 
 } // namespace presyn
