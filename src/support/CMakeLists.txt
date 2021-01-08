@@ -48,6 +48,7 @@ add_executable(support_unit
   test/call_builder.cpp
   test/cartesian_product.cpp
   test/choose.cpp
+  test/containers.cpp
   test/floats.cpp
   test/hash.cpp
   test/instr_count.cpp
