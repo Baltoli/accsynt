@@ -34,6 +34,8 @@ std::unordered_set<llvm::Instruction*> const& provider::holes() const
   return holes_;
 }
 
+void provider::reset() { holes_.clear(); }
+
 void provider::rauw_nt(llvm::Instruction* before, llvm::Value* after)
 {
   assertion(

@@ -27,6 +27,7 @@ public:
   llvm::Instruction* create_hole();
   llvm::Instruction* create_hole(llvm::Type* ty);
 
+  void reset();
   std::unordered_set<llvm::Instruction*> const& holes() const;
 
 private:

@@ -9,18 +9,17 @@
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Value.h>
 
-#include <set>
+#include <unordered_map>
 
 namespace presyn {
 
 class optimiser {
 public:
-  optimiser(llvm::Function*, holes::provider&&);
+  optimiser(holes::provider&&);
 
-  void run(support::call_wrapper& wrap);
+  void run(llvm::Function*, support::call_wrapper& wrap);
 
 private:
-  llvm::Function* target_;
   holes::provider provider_;
 };
 

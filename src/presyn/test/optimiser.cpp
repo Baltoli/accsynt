@@ -66,11 +66,11 @@ TEST_CASE("Scratch tests for optimiser")
   auto hp = holes::provider(ctx, mod);
 
   auto target = create_target(mod, hp);
-  auto optim = presyn::optimiser(target, std::move(hp));
+  auto optim = presyn::optimiser(std::move(hp));
 
   auto ref = create_ref(mod);
   auto wrap = call_wrapper(*ref);
-  optim.run(wrap);
+  optim.run(ref, wrap);
 
   fmt::print("{}\n", mod);
 }
