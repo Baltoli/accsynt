@@ -27,6 +27,11 @@ llvm::Module const& provider::module() const { return mod_; }
 
 Type* provider::hole_type() const { return hole_type_; }
 
+std::unordered_set<llvm::Value*> const& provider::holes() const
+{
+  return holes_;
+}
+
 Instruction* provider::create_hole(Type* ty)
 {
   auto ud_val = UndefValue::get(ty);

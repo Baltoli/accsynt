@@ -25,6 +25,8 @@ public:
   llvm::Instruction* create_hole();
   llvm::Instruction* create_hole(llvm::Type* ty);
 
+  std::unordered_set<llvm::Value*> const& holes() const;
+
 private:
   llvm::Function* get_identity(llvm::Type*);
 
