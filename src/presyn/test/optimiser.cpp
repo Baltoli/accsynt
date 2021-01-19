@@ -70,7 +70,7 @@ TEST_CASE("Scratch tests for optimiser")
 
   auto ref = create_ref(mod);
   auto wrap = call_wrapper(*ref);
-  optim.run(ref, wrap);
+  optim.run(target, wrap);
 
   fmt::print("{}\n", mod);
 }

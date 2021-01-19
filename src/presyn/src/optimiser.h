@@ -29,6 +29,9 @@ private:
 
   holes::provider provider_;
 
+  std::unordered_map<llvm::Instruction*, std::unordered_set<llvm::Instruction*>>
+      live_values_;
+
   std::unordered_map<llvm::Type*, llvm::Function*> constants_;
 };
 
