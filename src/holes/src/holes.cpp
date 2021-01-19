@@ -81,45 +81,33 @@ void provider::rauw_nt_helper(
   if (before->getType() == after_id->getType()) {
     before->replaceAllUsesWith(after_id);
   } else {
-    fmt::print("Replacing [{}] with [{}]\n", *before, *after);
     // Different types so we need to recreate every stub call that *uses* the
     // result of this one separately.
 
     for (auto user : before->users()) {
-      fmt::print("  user: [{}]\n", *user);
-      /*   assertion( */
-      /*       isa<CallInst>(user) || isa<PHINode>(user), */
-      /*       "Users of stub calls must be calls or PHIs"); */
+      assertion(
+          isa<CallInst>(user) || isa<PHINode>(user),
+          "Users of stub calls must be calls or PHIs");
 
-      /*   if (auto user_call = dyn_cast<CallInst>(user)) { */
-      /*     auto new_args = std::vector<Value*> {}; */
-      /*     for (auto& arg : user_call->args()) { */
-      /*       new_args.push_back(arg == before ? after : arg); */
-      /*     } */
+      if (auto user_call = dyn_cast<CallInst>(user)) {
+        auto new_args = std::vector<Value*> {};
+        for (auto& arg : user_call->args()) {
+          new_args.push_back(arg == before ? after : arg);
+        }
 
-      /*     auto new_call = IRBuilder(before).CreateCall( */
-      /*         user_call->getCalledFunction(), new_args, before->getName());
-       */
+        auto new_call = IRBuilder(before).CreateCall(
+            user_call->getCalledFunction(), new_args, before->getName());
 
-      /*     rauw_nt(user_call, new_call); */
-      /*     /1*     replacements[user_call] = new_call; *1/ */
+        rauw_nt(user_call, new_call);
+        replacements[user_call] = new_call;
 
-      /*   } else if (auto user_phi = dyn_cast<PHINode>(user)) { */
-      /*     unimplemented(); */
-      /*   } else { */
-      /*     invalid_state(); */
-      /*   } */
+      } else if (auto user_phi = dyn_cast<PHINode>(user)) {
+        unimplemented();
+      } else {
+        invalid_state();
+      }
     }
   }
-
-  /*
-  for (auto [st, ca] : replacements) {
-    auto rec_holes = safe_rauw(st, ca);
-    for (auto rh : rec_holes) {
-      new_holes.insert(rh);
-    }
-  }
-  */
 
   if (before->getParent()) {
     before->eraseFromParent();
