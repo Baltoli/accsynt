@@ -16,6 +16,22 @@ optimiser::optimiser(holes::provider&& hp)
 {
 }
 
+void optimiser::rauw_nt_proxy(Instruction* before, Instruction* after)
+{
+  provider_.rauw_nt(before, after);
+
+  for (auto& [val, cands] : live_values_) {
+    if (val == before) {
+      live_values_[after] = cands;
+      live_values_.erase(before);
+    } else {
+      if (cands.erase(before) > 0) {
+        cands.insert(after);
+      }
+    }
+  }
+}
+
 void optimiser::run(Function* target, call_wrapper& wrap)
 {
   assertion(
@@ -27,7 +43,7 @@ void optimiser::run(Function* target, call_wrapper& wrap)
   for (auto hole : initial_holes) {
     if (hole->getType() == provider_.hole_type()) {
       auto cst = get_constant(0, IntegerType::get(provider_.ctx(), 64));
-      provider_.rauw_nt(hole, cst);
+      rauw_nt_proxy(hole, cst);
     }
   }
 

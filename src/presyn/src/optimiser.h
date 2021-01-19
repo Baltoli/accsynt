@@ -27,6 +27,8 @@ private:
   template <typename Value>
   llvm::Instruction* get_constant(Value, llvm::Type*);
 
+  void rauw_nt_proxy(llvm::Instruction* before, llvm::Instruction* after);
+
   holes::provider provider_;
 
   std::unordered_map<llvm::Instruction*, std::unordered_set<llvm::Instruction*>>
