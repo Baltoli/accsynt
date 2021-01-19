@@ -8,6 +8,7 @@
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/DerivedTypes.h>
+#include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Instruction.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/LLVMContext.h>
@@ -54,11 +55,60 @@ void provider::rauw_nt(llvm::Instruction* before, llvm::Value* after)
   auto id_fn = get_identity(after->getType());
   auto after_id = CallInst::Create(id_fn, {after}, after->getName());
 
+  // Handle the case where the 'after' is an unlinked instruction
+  if (auto inst = dyn_cast<Instruction>(after); !inst->getParent()) {
+    inst->insertBefore(before);
+    after_id->insertAfter(inst);
+  } else {
+    after_id->insertBefore(before);
+  }
+
   if (before->getType() == after_id->getType()) {
     before->replaceAllUsesWith(after_id);
   } else {
-    unimplemented();
+    fmt::print("Replacing [{}] with [{}]\n", *before, *after);
+    // Different types so we need to recreate every stub call that *uses* the
+    // result of this one separately.
+
+    for (auto user : before->users()) {
+      fmt::print("  user: [{}]\n", *user);
+      /*   assertion( */
+      /*       isa<CallInst>(user) || isa<PHINode>(user), */
+      /*       "Users of stub calls must be calls or PHIs"); */
+
+      /*   if (auto user_call = dyn_cast<CallInst>(user)) { */
+      /*     auto new_args = std::vector<Value*> {}; */
+      /*     for (auto& arg : user_call->args()) { */
+      /*       new_args.push_back(arg == before ? after : arg); */
+      /*     } */
+
+      /*     auto new_call = IRBuilder(before).CreateCall( */
+      /*         user_call->getCalledFunction(), new_args, before->getName());
+       */
+
+      /*     rauw_nt(user_call, new_call); */
+      /*     /1*     replacements[user_call] = new_call; *1/ */
+
+      /*   } else if (auto user_phi = dyn_cast<PHINode>(user)) { */
+      /*     unimplemented(); */
+      /*   } else { */
+      /*     invalid_state(); */
+      /*   } */
+    }
   }
+
+  /*
+  for (auto [st, ca] : replacements) {
+    auto rec_holes = safe_rauw(st, ca);
+    for (auto rh : rec_holes) {
+      new_holes.insert(rh);
+    }
+  }
+
+  if (stub->getParent()) {
+    stub->eraseFromParent();
+  }
+  */
 
   holes_.erase(before);
   holes_.insert(after_id);

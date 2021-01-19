@@ -21,7 +21,11 @@ typename Set::size_type erase_if(Set& set, Pred&& p)
       set.erase(it);
       it = next_it;
 
-      continue;
+      if (it == e) {
+        break;
+      } else {
+        continue;
+      }
     }
   }
 

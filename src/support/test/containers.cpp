@@ -27,8 +27,8 @@ TEST_CASE("Can erase from unordered sets")
 
 TEST_CASE("Can erase from sets")
 {
-  auto s1 = std::set {3, 4, 5, 6, 7, 8, 9};
+  auto s1 = std::set {3, 4, 5, 6, 7, 8, 9, 10};
   auto e1 = support::erase_if(s1, is_even);
-  REQUIRE(e1 == 3);
+  REQUIRE(e1 == 4);
   REQUIRE(s1 == std::set {3, 5, 7, 9});
 }

@@ -19,10 +19,12 @@ void optimiser::run(Function* target, call_wrapper& wrap)
       target->getParent() == &provider_.module(),
       "No cross-module optimisation is supported");
 
-  for (auto hole : provider_.holes()) {
+  auto initial_holes = provider_.holes();
+
+  for (auto hole : initial_holes) {
     if (hole->getType() == provider_.hole_type()) {
-      provider_.rauw_nt(
-          hole, get_constant(0, IntegerType::get(provider_.ctx(), 64)));
+      auto cst = get_constant(0, IntegerType::get(provider_.ctx(), 64));
+      provider_.rauw_nt(hole, cst);
     }
   }
 
