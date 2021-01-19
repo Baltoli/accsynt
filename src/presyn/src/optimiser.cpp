@@ -7,15 +7,28 @@ using namespace llvm;
 
 namespace presyn {
 
-optimiser::optimiser(Function* f, holes::provider&& hp)
-    : target_(f)
-    , provider_(std::move(hp))
+optimiser::optimiser(holes::provider&& hp)
+    : provider_(std::move(hp))
+    , constants_ {}
 {
-  assertion(
-      target_->getParent() == &provider_.module(),
-      "No cross-module optimisation is supported");
 }
 
-void optimiser::run(call_wrapper& wrap) { }
+void optimiser::run(Function* target, call_wrapper& wrap)
+{
+  assertion(
+      target->getParent() == &provider_.module(),
+      "No cross-module optimisation is supported");
+
+  auto initial_holes = provider_.holes();
+
+  for (auto hole : initial_holes) {
+    if (hole->getType() == provider_.hole_type()) {
+      auto cst = get_constant(0, IntegerType::get(provider_.ctx(), 64));
+      provider_.rauw_nt(hole, cst);
+    }
+  }
+
+  provider_.reset();
+}
 
 } // namespace presyn
