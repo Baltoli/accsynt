@@ -19,6 +19,8 @@ public:
   provider(llvm::LLVMContext&, llvm::Module&);
 
   llvm::Module const& module() const;
+  llvm::Module& module();
+
   llvm::LLVMContext& ctx();
 
   llvm::Type* hole_type() const;
@@ -32,6 +34,10 @@ public:
   std::unordered_set<llvm::Instruction*> const& holes() const;
 
 private:
+  void rauw_nt_helper(
+      llvm::Instruction* before, llvm::Value* after,
+      std::unordered_map<llvm::Instruction*, llvm::Value*>& replacements);
+
   llvm::Function* get_identity(llvm::Type*);
 
   llvm::LLVMContext& ctx_;

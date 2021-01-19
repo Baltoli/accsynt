@@ -41,7 +41,8 @@ llvm::Instruction* optimiser::get_constant(Value v, llvm::Type* ty)
           = llvm::FunctionType::get(int_ty, {int_ty, int_ty, int_ty}, false);
 
       auto cst_fn = llvm::Function::Create(
-          fn_ty, llvm::GlobalValue::InternalLinkage, "const");
+          fn_ty, llvm::GlobalValue::InternalLinkage, "const",
+          &provider_.module());
 
       auto bb = llvm::BasicBlock::Create(cst_fn->getContext(), "", cst_fn);
 

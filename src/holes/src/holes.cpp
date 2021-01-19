@@ -29,6 +29,8 @@ provider::provider(LLVMContext& ctx, Module& mod)
 
 Module const& provider::module() const { return mod_; }
 
+Module& provider::module() { return mod_; }
+
 LLVMContext& provider::ctx() { return ctx_; }
 
 Type* provider::hole_type() const { return hole_type_; }
@@ -45,6 +47,19 @@ void provider::reset()
 }
 
 void provider::rauw_nt(llvm::Instruction* before, llvm::Value* after)
+{
+  auto reps = std::unordered_map<Instruction*, Value*> {};
+
+  rauw_nt_helper(before, after, reps);
+
+  for (auto [old_i, new_i] : reps) {
+    rauw_nt(old_i, new_i);
+  }
+}
+
+void provider::rauw_nt_helper(
+    llvm::Instruction* before, llvm::Value* after,
+    std::unordered_map<Instruction*, Value*>& replacements)
 {
   assertion(
       holes_.find(before) != holes_.end(),
@@ -104,11 +119,11 @@ void provider::rauw_nt(llvm::Instruction* before, llvm::Value* after)
       new_holes.insert(rh);
     }
   }
-
-  if (stub->getParent()) {
-    stub->eraseFromParent();
-  }
   */
+
+  if (before->getParent()) {
+    before->eraseFromParent();
+  }
 
   holes_.erase(before);
   holes_.insert(after_id);
