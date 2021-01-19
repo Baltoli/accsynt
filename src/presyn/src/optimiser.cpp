@@ -16,6 +16,28 @@ optimiser::optimiser(holes::provider&& hp)
 {
 }
 
+void optimiser::run(Function* target, call_wrapper& wrap)
+{
+  assertion(
+      target->getParent() == &provider_.module(),
+      "No cross-module optimisation is supported");
+
+  auto initial_holes = provider_.holes();
+
+  for (auto hole : initial_holes) {
+    if (hole->getType() == provider_.hole_type()) {
+      auto cst = get_constant(0, IntegerType::get(provider_.ctx(), 64));
+      rauw_nt_proxy(hole, cst);
+
+      provider_.add_hole(cst);
+    }
+  }
+
+  compute_initial_live_sets(target);
+
+  provider_.reset();
+}
+
 void optimiser::rauw_nt_proxy(Instruction* before, Instruction* after)
 {
   provider_.rauw_nt(before, after);
@@ -32,46 +54,29 @@ void optimiser::rauw_nt_proxy(Instruction* before, Instruction* after)
   }
 }
 
-void optimiser::run(Function* target, call_wrapper& wrap)
+void optimiser::compute_initial_live_sets(Function* target)
 {
-  assertion(
-      target->getParent() == &provider_.module(),
-      "No cross-module optimisation is supported");
-
-  auto initial_holes = provider_.holes();
-
-  for (auto hole : initial_holes) {
-    if (hole->getType() == provider_.hole_type()) {
-      auto cst = get_constant(0, IntegerType::get(provider_.ctx(), 64));
-      rauw_nt_proxy(hole, cst);
-    }
-  }
-
   auto dom_tree = DominatorTree(*target);
 
   // TODO: Naive implementation - fix later
-  for (auto& from_bb : *target) {
-    for (auto& from_i : from_bb) {
-      live_values_.try_emplace(&from_i);
+  for (auto& from_i : provider_.holes()) {
+    live_values_.try_emplace(from_i);
 
-      for (auto& to_bb : *target) {
-        for (auto& to_i : to_bb) {
-          if (dom_tree.dominates(&from_i, &to_i)) {
-            live_values_[&to_i].insert(&from_i);
-          }
+    for (auto& to_bb : *target) {
+      for (auto& to_i : to_bb) {
+        if (dom_tree.dominates(&to_i, from_i)) {
+          live_values_[from_i].insert(&to_i);
         }
       }
     }
   }
+}
 
-  for (auto const& [val, cands] : live_values_) {
-    fmt::print("Instruction {} could use:\n", *val);
-    for (auto const& c : cands) {
-      fmt::print("  {}\n", *c);
-    }
+void optimiser::resolve_undefs()
+{
+  auto holes = provider_.holes();
+  for (auto& hole : holes) {
   }
-
-  provider_.reset();
 }
 
 } // namespace presyn

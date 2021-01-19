@@ -131,6 +131,8 @@ Instruction* provider::create_hole()
   return new_hole;
 }
 
+void provider::add_hole(Instruction* inst) { holes_.insert(inst); }
+
 Function* provider::get_identity(Type* ty)
 {
   if (identities_.find(ty) == identities_.end()) {

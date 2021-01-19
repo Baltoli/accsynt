@@ -24,6 +24,9 @@ public:
   void run(llvm::Function*, support::call_wrapper& wrap);
 
 private:
+  void compute_initial_live_sets(llvm::Function*);
+  void resolve_undefs();
+
   template <typename Value>
   llvm::Instruction* get_constant(Value, llvm::Type*);
 

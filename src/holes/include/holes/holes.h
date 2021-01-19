@@ -32,6 +32,7 @@ public:
 
   void reset();
   std::unordered_set<llvm::Instruction*> const& holes() const;
+  void add_hole(llvm::Instruction*);
 
 private:
   void rauw_nt_helper(
