@@ -2,9 +2,7 @@
 
 ![](https://github.com/baltoli/accsynt/workflows/Unit%20Tests/badge.svg?branch=master)
 
-AccSynt is a library for automatically learning the behaviour of an accelerator
-by querying an interface for input / output examples. It is an experimental
-research project in a state of continuous development.
+AccSynt is a collection of tools and utilities for building program synthesizers in LLVM.
 
 ## Building
 
