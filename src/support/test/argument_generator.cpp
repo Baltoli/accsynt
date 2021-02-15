@@ -45,14 +45,16 @@ TEST_CASE("override generator works")
 
   SECTION("it will generate fixed values")
   {
-    auto ag = argument_generator(override_generator("x", 67));
+    auto ag = argument_generator(override_generator("x", 67ll));
     auto build = call_builder("int f(int x, int y)"_sig);
 
     ag.gen_args(build);
 
     auto x = build.get<int64_t>("x");
+    auto y = build.get<int64_t>("y");
 
     REQUIRE(x == 67);
+    REQUIRE(y != 67);
   }
 }
 

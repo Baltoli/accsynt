@@ -246,8 +246,15 @@ void override_generator<Value>::gen_args(call_builder& build)
 {
   using namespace props;
 
-  auto make_action
-      = [&](auto&& action) { return [&](auto const& p) { action(); }; };
+  auto make_action = [&](auto&& action) {
+    return [&](auto const& p) {
+      if (p.name == key_) {
+        build.add(value_);
+      } else {
+        action();
+      }
+    };
+  };
 
   auto vis = sig_visitor {
       on(base_type::integer,
