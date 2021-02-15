@@ -152,6 +152,9 @@ public:
   void gen_args(call_builder&);
 
 protected:
+  void start_gen();
+  void end_gen();
+
   // Specialised only for int and float - doing it as a template makes the code
   // a bit nicer for the array case, which can just forward through to this
   // template rather than doing is_same checks.
@@ -164,6 +167,14 @@ protected:
 private:
   std::default_random_engine engine_;
   size_t size_;
+
+  bool reuse_;
+
+  std::vector<std::vector<int>> int_arrays_;
+  std::vector<std::vector<float>> float_arrays_;
+
+  size_t int_idx_;
+  size_t float_idx_;
 };
 
 /**

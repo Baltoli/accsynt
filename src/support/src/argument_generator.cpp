@@ -37,6 +37,11 @@ void argument_generator::gen_args(call_builder& build)
 uniform_generator::uniform_generator(size_t sz)
     : engine_(get_random_device()())
     , size_(sz)
+    , reuse_(false)
+    , int_arrays_ {}
+    , float_arrays_ {}
+    , int_idx_(0)
+    , float_idx_(0)
 {
 }
 
