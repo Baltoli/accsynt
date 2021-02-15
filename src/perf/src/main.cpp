@@ -48,12 +48,12 @@ try {
   auto mod = Module("perf_internal", thread_context::get());
   auto ref = call_wrapper(property_set.type_signature, mod, fn_name, lib);
 
-  auto gen = override_generator(Parameter, 0LL, 128);
+  auto gen = override_generator(Parameter, 0LL, MemSize);
 
-  for (auto val = 0; val < 200'000; val += 1000) {
+  for (int val = Start; val < End; val += Step) {
     gen.set_value(val);
 
-    for (auto i = 0; i < 10; ++i) {
+    for (auto i = 0; i < Reps; ++i) {
       auto b = ref.get_builder();
       gen.gen_args(b);
 
