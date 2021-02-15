@@ -87,11 +87,25 @@ call_builder call_wrapper::get_builder() const
 
 uint64_t call_wrapper::call(call_builder& build)
 {
+  auto [rv, _] = call_timed(build);
+  return rv;
+}
+
+std::pair<uint64_t, std::chrono::nanoseconds>
+call_wrapper::call_timed(call_builder& build)
+{
   auto addr = engine_->getPointerToFunction(wrapper_);
   engine_->finalizeObject();
   auto jit_fn = reinterpret_cast<uint64_t (*)(uint8_t*)>(addr);
   auto args = build.args();
-  return jit_fn(args);
+
+  auto clk = std::chrono::steady_clock {};
+
+  auto start = clk.now();
+  auto rv = jit_fn(args);
+  auto end = clk.now();
+
+  return {rv, end - start};
 }
 
 size_t call_wrapper::marshalled_size(llvm::Type const* type) const

@@ -50,14 +50,16 @@ try {
 
   auto gen = override_generator(Parameter, 0LL, 128);
 
-  for (auto val = 0; val < 2'000'000; val += 1000) {
+  for (auto val = 0; val < 200'000; val += 1000) {
     gen.set_value(val);
 
-    auto b = ref.get_builder();
-    gen.gen_args(b);
+    for (auto i = 0; i < 10; ++i) {
+      auto b = ref.get_builder();
+      gen.gen_args(b);
 
-    auto [t, res] = timed([&] { return ref.call(b); });
-    fmt::print("{},{}\n", val, std::chrono::nanoseconds(t).count());
+      auto [res, t] = ref.call_timed(b);
+      fmt::print("{},{}\n", val, t.count());
+    }
   }
 
 } catch (props::parse_error& perr) {

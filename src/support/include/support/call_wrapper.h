@@ -12,6 +12,7 @@
 #include <llvm/IR/Function.h>
 #include <llvm/IR/Module.h>
 
+#include <chrono>
 #include <memory>
 
 namespace support {
@@ -89,6 +90,13 @@ public:
    * function's return value.
    */
   uint64_t call(call_builder& builder);
+
+  /**
+   * Call the wrapped function with an assembled argument pack, returning the
+   * function's return value and the time spent executing it.
+   */
+  std::pair<uint64_t, std::chrono::nanoseconds>
+  call_timed(call_builder& builder);
 
   /**
    * Get the name of the underlying function implementation (if it's not already
