@@ -14,8 +14,23 @@
 #include <llvm/IR/Module.h>
 #include <llvm/Support/CommandLine.h>
 
+#include <chrono>
+#include <type_traits>
+
 using namespace support;
 using namespace llvm;
+
+template <typename F>
+auto timed(F&& func)
+{
+  auto clk = std::chrono::steady_clock {};
+
+  auto start = clk.now();
+  auto ret = std::forward<F>(func)();
+  auto end = clk.now();
+
+  return std::pair {end - start, ret};
+}
 
 int main(int argc, char** argv)
 try {
@@ -33,13 +48,13 @@ try {
   auto mod = Module("perf_internal", thread_context::get());
   auto ref = call_wrapper(property_set.type_signature, mod, fn_name, lib);
 
-  auto gen = override_generator(Parameter, int64_t {16});
+  auto gen = override_generator(Parameter, int64_t {2000000}, 128);
 
   auto b = ref.get_builder();
   gen.gen_args(b);
-  auto res = ref.call(b);
 
-  fmt::print("{}\n", bit_cast<float>(res));
+  auto [t, res] = timed([&] { return ref.call(b); });
+  fmt::print("{}ns\n", std::chrono::nanoseconds(t).count());
 
 } catch (props::parse_error& perr) {
   errs() << perr.what() << '\n';
