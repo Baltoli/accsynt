@@ -159,6 +159,27 @@ private:
 };
 
 /**
+ * Generator used to override the value of a single parameter, and forward all
+ * others on to an underlying uniform generator.
+ *
+ * If the signature passed does not have that parameter, then the behaviour will
+ * be identical to the underlying generator.
+ */
+template <typename Value>
+class override_generator {
+public:
+  template <typename... Args>
+  override_generator(std::string key, Value&& val, Args&&... args);
+
+  void gen_args(call_builder&);
+
+private:
+  uniform_generator base_gen_;
+  std::string key_;
+  Value value_;
+};
+
+/**
  * Generator specifically used for CSR SPMV arguments - will only work if the
  * arguments are exactly right (i.e. are named correctly and have the right
  * types). Otherwise it'll throw an exception.
@@ -201,6 +222,41 @@ std::vector<T> uniform_generator::gen_array()
   std::generate(ret.begin(), ret.end(), [this] { return gen_single<T>(); });
   return ret;
 }
+
+template <typename Value>
+template <typename... Args>
+override_generator<Value>::override_generator(
+    std::string key, Value&& val, Args&&... args)
+    : base_gen_(std::forward<Args>(args)...)
+    , key_(key)
+    , value_(val)
+{
+}
+
+template <typename Value>
+void override_generator<Value>::gen_args(call_builder& build)
+{
+  using namespace props;
+
+  auto make_action
+      = [&](auto&& action) { return [&](auto const& p) { action(); }; };
+
+  auto vis = sig_visitor {
+      on(base_type::integer,
+         make_action([&] { build.add(base_gen_.gen_single<int64_t>()); })),
+      on(base_type::character,
+         make_action([&] { build.add(base_gen_.gen_single<char>()); })),
+      on(base_type::floating,
+         make_action([&] { build.add(base_gen_.gen_single<float>()); })),
+      on(base_type::integer, 1,
+         make_action([&] { build.add(base_gen_.gen_array<int64_t>()); })),
+      on(base_type::character, 1,
+         make_action([&] { build.add(base_gen_.gen_array<char>()); })),
+      on(base_type::floating, 1,
+         make_action([&] { build.add(base_gen_.gen_array<float>()); }))};
+  vis.visit(build.signature());
+}
+
 } // namespace support
 
 #undef VAL
