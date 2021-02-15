@@ -1,5 +1,6 @@
 #pragma once
 
+#include <support/assert.h>
 #include <support/call_builder.h>
 #include <support/traits.h>
 #include <support/utility.h>
@@ -148,13 +149,12 @@ public:
   uniform_generator();
   uniform_generator(size_t);
 
+  void preallocate(size_t);
+
   void seed(std::random_device::result_type);
   void gen_args(call_builder&);
 
 protected:
-  void start_gen();
-  void end_gen();
-
   // Specialised only for int and float - doing it as a template makes the code
   // a bit nicer for the array case, which can just forward through to this
   // template rather than doing is_same checks.
@@ -165,16 +165,19 @@ protected:
   std::vector<T> gen_array();
 
 private:
+  template <typename T>
+  std::vector<T> gen_array_internal();
+
   std::default_random_engine engine_;
   size_t size_;
 
   bool reuse_;
 
-  std::vector<std::vector<int>> int_arrays_;
+  std::vector<std::vector<int64_t>> int_arrays_;
   std::vector<std::vector<float>> float_arrays_;
+  std::vector<std::vector<char>> char_arrays_;
 
-  size_t int_idx_;
-  size_t float_idx_;
+  int prealloc_idx_;
 };
 
 /**
@@ -235,6 +238,24 @@ float uniform_generator::gen_single<float>();
 template <typename T>
 std::vector<T> uniform_generator::gen_array()
 {
+  if (reuse_) {
+    if constexpr (std::is_same_v<T, int64_t>) {
+      return int_arrays_.at(prealloc_idx_++);
+    } else if constexpr (std::is_same_v<T, float>) {
+      return float_arrays_.at(prealloc_idx_++);
+    } else if constexpr (std::is_same_v<T, char>) {
+      return char_arrays_.at(prealloc_idx_++);
+    } else {
+      invalid_state();
+    }
+  } else {
+    return gen_array_internal<T>();
+  }
+}
+
+template <typename T>
+std::vector<T> uniform_generator::gen_array_internal()
+{
   // Cubing here to ensure that sizes are respected even if we're in the
   // presence of (say) an O(n^3) algorithm.
   auto ret = std::vector<T>(size_ * size_ * size_);
@@ -250,6 +271,7 @@ override_generator<Value>::override_generator(
     , key_(key)
     , value_(val)
 {
+  base_gen_.preallocate(16);
 }
 
 template <typename Value>

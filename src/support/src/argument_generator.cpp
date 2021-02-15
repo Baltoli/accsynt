@@ -40,8 +40,8 @@ uniform_generator::uniform_generator(size_t sz)
     , reuse_(false)
     , int_arrays_ {}
     , float_arrays_ {}
-    , int_idx_(0)
-    , float_idx_(0)
+    , char_arrays_ {}
+    , prealloc_idx_(0)
 {
 }
 
@@ -53,6 +53,17 @@ uniform_generator::uniform_generator()
 void uniform_generator::seed(std::random_device::result_type seed)
 {
   engine_.seed(seed);
+}
+
+void uniform_generator::preallocate(size_t n)
+{
+  reuse_ = true;
+
+  for (auto i = 0u; i < n; ++i) {
+    int_arrays_.push_back(gen_array_internal<int64_t>());
+    float_arrays_.push_back(gen_array_internal<float>());
+    char_arrays_.push_back(gen_array_internal<char>());
+  }
 }
 
 template <>
