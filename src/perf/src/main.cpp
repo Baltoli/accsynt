@@ -60,7 +60,7 @@ try {
       gen.gen_args(b);
 
       auto [res, t] = ref.call_timed(b);
-      fmt::print("{},{}\n", val, t.count());
+      fmt::print("{},{},{}\n", Parameter, val, t.count());
     }
   }
 
