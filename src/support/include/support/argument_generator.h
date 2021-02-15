@@ -125,6 +125,10 @@ protected:
   std::unique_ptr<concept> strategy_;
 };
 
+// Forward declaration for friendship
+template <typename Value>
+class override_generator;
+
 /**
  * Generate arguments uniformly - use this if there's absolutely no restriction
  * on how data is structured other than a physical size limit for arrays, which
@@ -135,6 +139,9 @@ protected:
  * generator.
  */
 class uniform_generator {
+  template <typename Value>
+  friend class override_generator;
+
 public:
   static constexpr size_t max_size = 32;
 
@@ -144,7 +151,7 @@ public:
   void seed(std::random_device::result_type);
   void gen_args(call_builder&);
 
-private:
+protected:
   // Specialised only for int and float - doing it as a template makes the code
   // a bit nicer for the array case, which can just forward through to this
   // template rather than doing is_same checks.
@@ -154,6 +161,7 @@ private:
   template <typename T>
   std::vector<T> gen_array();
 
+private:
   std::default_random_engine engine_;
   size_t size_;
 };
