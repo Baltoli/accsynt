@@ -33,7 +33,7 @@ try {
   auto mod = Module("perf_internal", thread_context::get());
   auto ref = call_wrapper(property_set.type_signature, mod, fn_name, lib);
 
-  auto gen = uniform_generator();
+  auto gen = override_generator(Parameter, int64_t {16});
 
   auto b = ref.get_builder();
   gen.gen_args(b);
