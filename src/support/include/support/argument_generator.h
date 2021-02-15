@@ -150,6 +150,7 @@ public:
   uniform_generator(size_t);
 
   void preallocate(size_t);
+  void reset();
 
   void seed(std::random_device::result_type);
   void gen_args(call_builder&);
@@ -193,6 +194,7 @@ public:
   template <typename... Args>
   override_generator(std::string key, Value&& val, Args&&... args);
 
+  void set_value(Value&& v);
   void gen_args(call_builder&);
 
 private:
@@ -275,9 +277,17 @@ override_generator<Value>::override_generator(
 }
 
 template <typename Value>
+void override_generator<Value>::set_value(Value&& v)
+{
+  value_ = std::forward<Value>(v);
+}
+
+template <typename Value>
 void override_generator<Value>::gen_args(call_builder& build)
 {
   using namespace props;
+
+  base_gen_.reset();
 
   auto make_action = [&](auto&& action) {
     return [&](auto const& p) {

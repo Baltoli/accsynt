@@ -48,13 +48,17 @@ try {
   auto mod = Module("perf_internal", thread_context::get());
   auto ref = call_wrapper(property_set.type_signature, mod, fn_name, lib);
 
-  auto gen = override_generator(Parameter, int64_t {2000000}, 128);
+  auto gen = override_generator(Parameter, 0LL, 128);
 
-  auto b = ref.get_builder();
-  gen.gen_args(b);
+  for (auto val = 0; val < 2'000'000; val += 1000) {
+    gen.set_value(val);
 
-  auto [t, res] = timed([&] { return ref.call(b); });
-  fmt::print("{}ns\n", std::chrono::nanoseconds(t).count());
+    auto b = ref.get_builder();
+    gen.gen_args(b);
+
+    auto [t, res] = timed([&] { return ref.call(b); });
+    fmt::print("{},{}\n", val, std::chrono::nanoseconds(t).count());
+  }
 
 } catch (props::parse_error& perr) {
   errs() << perr.what() << '\n';

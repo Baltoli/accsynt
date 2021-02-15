@@ -66,6 +66,8 @@ void uniform_generator::preallocate(size_t n)
   }
 }
 
+void uniform_generator::reset() { prealloc_idx_ = 0; }
+
 template <>
 int64_t uniform_generator::gen_single<int64_t>()
 {
@@ -86,6 +88,8 @@ float uniform_generator::gen_single<float>()
 
 void uniform_generator::gen_args(call_builder& build)
 {
+  reset();
+
   // clang-format off
   sig_visitor {
     on(base_type::integer,      [&] { build.add(gen_single<int64_t>()); }),
