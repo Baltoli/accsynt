@@ -7,6 +7,7 @@
 #include <support/call_wrapper.h>
 #include <support/dynamic_library.h>
 #include <support/llvm_format.h>
+#include <support/options.h>
 #include <support/thread_context.h>
 
 #include <fmt/format.h>
@@ -38,6 +39,7 @@ try {
   LLVMInitializeNativeAsmPrinter();
   LLVMInitializeNativeAsmParser();
 
+  hide_llvm_options();
   cl::ParseCommandLineOptions(argc, argv);
 
   auto property_set = props::property_set::load(PropertiesPath);
