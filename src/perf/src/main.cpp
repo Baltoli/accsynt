@@ -52,6 +52,8 @@ try {
 
   auto gen = override_generator(Parameter, 0LL, MemSize);
 
+  fmt::print("param,value,time\n");
+
   for (int val = Start; val < End; val += Step) {
     gen.set_value(val);
 
