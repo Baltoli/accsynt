@@ -26,6 +26,38 @@ TEST_CASE("uniform generator works")
   }
 }
 
+TEST_CASE("override generator works")
+{
+  SECTION("it is a generator")
+  {
+    static_assert(
+        detail::is_generator_v<override_generator<int64_t>>,
+        "Override generator must be a generator");
+
+    static_assert(
+        detail::is_generator_v<override_generator<float>>,
+        "Override generator must be a generator");
+
+    static_assert(
+        detail::is_generator_v<override_generator<char>>,
+        "Override generator must be a generator");
+  }
+
+  SECTION("it will generate fixed values")
+  {
+    auto ag = argument_generator(override_generator("x", 67ll));
+    auto build = call_builder("int f(int x, int y)"_sig);
+
+    ag.gen_args(build);
+
+    auto x = build.get<int64_t>("x");
+    auto y = build.get<int64_t>("y");
+
+    REQUIRE(x == 67);
+    REQUIRE(y != 67);
+  }
+}
+
 TEST_CASE("CSR SPMV generator works")
 {
   SECTION("it is a generator")
