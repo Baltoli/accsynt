@@ -5,6 +5,7 @@
 
 #include <llvm/ExecutionEngine/GenericValue.h>
 
+#include <algorithm>
 #include <cstdint>
 #include <type_traits>
 #include <vector>
@@ -32,6 +33,20 @@ T from_bytes(uint8_t const* data)
   memcpy(&ret, data, sizeof(T));
   return ret;
 }
+
+template <typename T>
+std::vector<uint8_t> to_bytes(T val)
+{
+  auto ret = std::vector<uint8_t>(sizeof(T), 0);
+
+  uint8_t data[sizeof(T)] = {0};
+  memcpy(data, &val, sizeof(T));
+
+  std::copy(&data[0], &data[sizeof(T)], ret.begin());
+
+  return ret;
+}
+
 } // namespace detail
 
 /**
@@ -112,6 +127,8 @@ public:
    */
   template <typename T>
   T get(size_t idx) const;
+
+  std::vector<uint8_t> get_bytes(size_t idx) const;
 
   /**
    * Testing method that looks up the index of the supplied argument and

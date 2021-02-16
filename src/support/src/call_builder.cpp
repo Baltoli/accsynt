@@ -83,9 +83,29 @@ void swap(call_builder& left, call_builder& right)
 
 uint8_t* call_builder::args()
 {
-  assert(current_arg_ == signature_.parameters.size()
+  assert(
+      current_arg_ == signature_.parameters.size()
       && "Argument pack not fully built yet!");
   return args_.data();
+}
+
+std::vector<uint8_t> call_builder::get_bytes(size_t idx) const
+{
+  auto const& param = signature_.parameters.at(idx);
+
+  if (param.pointer_depth == 0) {
+  } else {
+    if (param.pointer_depth != 1) {
+      throw std::runtime_error("Can't extract nested pointers");
+    }
+
+    if (param.type == props::base_type::character) {
+    } else if (param.type == props::base_type::integer) {
+    } else if (param.type == props::base_type::floating) {
+    }
+  }
+
+  return {};
 }
 
 bool call_builder::operator==(call_builder const& other) const
@@ -130,18 +150,19 @@ bool call_builder::operator==(call_builder const& other) const
 
       if (param.type == base_type::integer) {
         all_eq = all_eq
-            && (int_data_.at(int_data_offset)
-                   == other.int_data_.at(int_data_offset));
+                 && (int_data_.at(int_data_offset)
+                     == other.int_data_.at(int_data_offset));
         int_data_offset++;
       } else if (param.type == base_type::character) {
         all_eq = all_eq
-            && (char_data_.at(char_data_offset)
-                   == other.char_data_.at(char_data_offset));
+                 && (char_data_.at(char_data_offset)
+                     == other.char_data_.at(char_data_offset));
         char_data_offset++;
       } else if (param.type == base_type::floating) {
         all_eq = all_eq
-            && approx_equal(float_data_.at(float_data_offset),
-                   other.float_data_.at(float_data_offset));
+                 && approx_equal(
+                     float_data_.at(float_data_offset),
+                     other.float_data_.at(float_data_offset));
         float_data_offset++;
       }
     }
