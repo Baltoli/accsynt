@@ -103,3 +103,6 @@ add_test_shared_library(arm_vfill)
 add_test_shared_library(arm_vneg)
 add_test_shared_library(arm_voffset)
 add_test_shared_library(arm_vscal)
+
+# Other
+add_test_shared_library(triangle_sum)

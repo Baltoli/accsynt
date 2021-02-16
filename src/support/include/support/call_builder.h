@@ -1,10 +1,13 @@
 #pragma once
 
 #include <props/props.h>
+
+#include <support/assert.h>
 #include <support/traits.h>
 
 #include <llvm/ExecutionEngine/GenericValue.h>
 
+#include <algorithm>
 #include <cstdint>
 #include <type_traits>
 #include <vector>
@@ -32,6 +35,20 @@ T from_bytes(uint8_t const* data)
   memcpy(&ret, data, sizeof(T));
   return ret;
 }
+
+template <typename T>
+std::vector<uint8_t> to_bytes(T val)
+{
+  auto ret = std::vector<uint8_t>(sizeof(T), 0);
+
+  uint8_t data[sizeof(T)] = {0};
+  memcpy(data, &val, sizeof(T));
+
+  std::copy(&data[0], &data[sizeof(T)], ret.begin());
+
+  return ret;
+}
+
 } // namespace detail
 
 /**
@@ -87,6 +104,23 @@ public:
   void reset();
 
   /**
+   * Is this builder ready to be used as arguments to a function? True iff the
+   * added argument count is the same as the number of parameters in the
+   * underlying signature.
+   */
+  bool ready() const;
+
+  /**
+   * The number of arguments added to this builder so far.
+   */
+  size_t args_count() const;
+
+  /**
+   * The maximum number of arguments that can be added to this builder.
+   */
+  size_t args_capacity() const;
+
+  /**
    * Add a scalar value to the argument pack, copying its bytes in directly. If
    * the builder is not expecting a scalar argument of the passed type, an
    * exception is thrown.
@@ -122,6 +156,13 @@ public:
    */
   template <typename T>
   T get(size_t idx) const;
+
+  /**
+   * Method for dumping IO examples - retrieves the raw bytes as they'd be
+   * passed through to the called function, but segregated by parameter type so
+   * we can disambiguate them).
+   */
+  std::vector<uint8_t> get_bytes(size_t idx) const;
 
   /**
    * Testing method that looks up the index of the supplied argument and
@@ -196,7 +237,7 @@ void call_builder::add(T arg)
     !std::is_pointer_v<Base>, "Must be scalar, not pointer!");
   // clang-format on
 
-  if (current_arg_ >= signature_.parameters.size()) {
+  if (ready()) {
     throw call_builder_error("Parameter list is already full");
   }
 
@@ -239,7 +280,7 @@ void call_builder::add(std::vector<T> arg)
           T> || std::is_same_v<T, float> || std::is_same_v<T, char>,
       "Pointed-to data must be of base type");
 
-  assert(current_arg_ < signature_.parameters.size());
+  assertion(!ready(), "Cannot add argument when pack is ready!");
 
   auto param = signature_.parameters.at(current_arg_);
 
@@ -261,7 +302,9 @@ void call_builder::add(std::vector<T> arg)
     }
   }
 
-  assert(param.pointer_depth == 1);
+  assertion(
+      param.pointer_depth == 1, "Cannot add nested pointers (param: {})",
+      param);
 
   void* data = nullptr;
   if constexpr (std::is_same_v<T, char>) {
@@ -275,8 +318,8 @@ void call_builder::add(std::vector<T> arg)
     data = float_data_.back().data();
   }
 
-  assert(
-      (data || arg.empty()) && "Something very wrong inside vector building!");
+  assertion(
+      data || arg.empty(), "Something very wrong inside vector building!");
 
   for (auto i = 0u; i < sizeof(data); ++i) {
     args_.push_back(detail::nth_byte(data, i));

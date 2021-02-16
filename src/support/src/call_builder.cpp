@@ -1,3 +1,4 @@
+#include <support/assert.h>
 #include <support/call_builder.h>
 #include <support/float_compare.h>
 
@@ -40,7 +41,9 @@ call_builder::call_builder(call_builder const& other)
         args_.push_back(other.args_.at(offset));
       }
     } else {
-      assert(param.pointer_depth == 1 && "Can't copy nested pointers");
+      assertion(
+          param.pointer_depth == 1, "Can't copy nested pointers (param is {})",
+          param);
 
       void* data = nullptr;
       if (param.type == base_type::integer) {
@@ -64,6 +67,18 @@ call_builder::call_builder(call_builder const& other)
 
 void call_builder::reset() { *this = call_builder(signature_); }
 
+bool call_builder::ready() const
+{
+  return current_arg_ == signature_.parameters.size();
+}
+
+size_t call_builder::args_count() const { return current_arg_; }
+
+size_t call_builder::args_capacity() const
+{
+  return signature().parameters.size();
+}
+
 call_builder& call_builder::operator=(call_builder other)
 {
   swap(*this, other);
@@ -85,9 +100,9 @@ void swap(call_builder& left, call_builder& right)
 
 uint8_t* call_builder::args()
 {
-  assert(
-      current_arg_ == signature_.parameters.size()
-      && "Argument pack not fully built yet!");
+  assertion(
+      ready(), "Argument pack not fully built yet (count: {}, expected: {})",
+      args_count(), args_capacity());
   return args_.data();
 }
 
@@ -120,6 +135,47 @@ bool call_builder::scalar_args_equal(call_builder const& other) const
   }
 
   return all_eq;
+}
+
+std::vector<uint8_t> call_builder::get_bytes(size_t idx) const
+{
+  auto const& param = signature_.parameters.at(idx);
+
+  if (param.pointer_depth == 0) {
+    if (param.type == props::base_type::character) {
+      return detail::to_bytes(get<char>(idx));
+    } else if (param.type == props::base_type::integer) {
+      return detail::to_bytes(get<int64_t>(idx));
+    } else if (param.type == props::base_type::floating) {
+      return detail::to_bytes(get<float>(idx));
+    } else {
+      invalid_state();
+    }
+  } else {
+    if (param.pointer_depth != 1) {
+      throw std::runtime_error("Can't extract nested pointers");
+    }
+
+    auto ret = std::vector<uint8_t> {};
+    auto copy_bytes = [&ret](auto&& args) {
+      for (auto i = 0u; i < args.size(); ++i) {
+        auto bytes = detail::to_bytes(args[i]);
+        std::copy(bytes.begin(), bytes.end(), std::back_inserter(ret));
+      }
+    };
+
+    if (param.type == props::base_type::character) {
+      copy_bytes(get<std::vector<char>>(idx));
+    } else if (param.type == props::base_type::integer) {
+      copy_bytes(get<std::vector<int64_t>>(idx));
+    } else if (param.type == props::base_type::floating) {
+      copy_bytes(get<std::vector<float>>(idx));
+    } else {
+      invalid_state();
+    }
+
+    return ret;
+  }
 }
 
 bool call_builder::operator==(call_builder const& other) const

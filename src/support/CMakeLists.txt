@@ -16,6 +16,7 @@ add_library(support
   src/llvm_utils.cpp
   src/llvm_values.cpp
   src/load_module.cpp
+  src/options.cpp
   src/random.cpp
   src/string.cpp
   src/thread_context.cpp

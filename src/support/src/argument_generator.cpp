@@ -37,6 +37,11 @@ void argument_generator::gen_args(call_builder& build)
 uniform_generator::uniform_generator(size_t sz)
     : engine_(get_random_device()())
     , size_(sz)
+    , reuse_(false)
+    , int_arrays_ {}
+    , float_arrays_ {}
+    , char_arrays_ {}
+    , prealloc_idx_(0)
 {
 }
 
@@ -49,6 +54,19 @@ void uniform_generator::seed(std::random_device::result_type seed)
 {
   engine_.seed(seed);
 }
+
+void uniform_generator::preallocate(size_t n)
+{
+  reuse_ = true;
+
+  for (auto i = 0u; i < n; ++i) {
+    int_arrays_.push_back(gen_array_internal<int64_t>());
+    float_arrays_.push_back(gen_array_internal<float>());
+    char_arrays_.push_back(gen_array_internal<char>());
+  }
+}
+
+void uniform_generator::reset() { prealloc_idx_ = 0; }
 
 template <>
 int64_t uniform_generator::gen_single<int64_t>()
@@ -70,6 +88,8 @@ float uniform_generator::gen_single<float>()
 
 void uniform_generator::gen_args(call_builder& build)
 {
+  reset();
+
   // clang-format off
   sig_visitor {
     on(base_type::integer,      [&] { build.add(gen_single<int64_t>()); }),
