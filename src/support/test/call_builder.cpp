@@ -65,13 +65,13 @@ TEST_CASE("Can get values back from bytes")
 {
   SECTION("for ints")
   {
-    auto i = GENERATE(take(1000, ALLVS(int64_t)));
+    auto i = GENERATE(take(100, ALLVS(int64_t)));
     REQUIRE(detail::from_bytes<int64_t>(u8ptr(i)) == i);
   }
 
   SECTION("for floats")
   {
-    auto i = GENERATE(take(1000, ALLVS(float)));
+    auto i = GENERATE(take(100, ALLVS(float)));
     REQUIRE(detail::from_bytes<float>(u8ptr(i)) == i);
   }
 
@@ -85,7 +85,7 @@ TEST_CASE("Can get values back from bytes")
   {
     REQUIRE(sizeof(int64_t) == sizeof(int64_t*));
 
-    int64_t long_val = GENERATE(take(1000, ALLVS(int64_t)));
+    int64_t long_val = GENERATE(take(100, ALLVS(int64_t)));
 
     int64_t* ptr;
     memcpy(&ptr, &long_val, sizeof(long_val));
@@ -93,6 +93,19 @@ TEST_CASE("Can get values back from bytes")
   }
 }
 #undef u8ptr
+
+TEST_CASE("Can get byte vectors from values")
+{
+  SECTION("For ints")
+  {
+    auto i = GENERATE(take(100, ALLVS(int64_t)));
+    auto bytes = detail::to_bytes(i);
+
+    for (auto n = 0u; n < bytes.size(); ++n) {
+      REQUIRE(bytes.at(n) == detail::nth_byte(i, n));
+    }
+  }
+}
 
 TEST_CASE("Can construct call builders from signatures")
 {
@@ -267,5 +280,23 @@ TEST_CASE("Can extract arguments from a call_builder")
     REQUIRE(c1.get<std::vector<float>>("c__a") == c__a);
     REQUIRE(c1.get<float>("doo") == doo);
     REQUIRE(c1.get<char>("eep") == eep);
+  }
+
+  SECTION("Can get bytes back for dumping")
+  {
+    auto cb = call_builder("int f(char c, int *xs, float y)"_sig);
+    auto c = 'a';
+    auto xs = std::vector<int64_t> {4, -55};
+    auto y = 678.4f;
+
+    cb.add(c, xs, y);
+
+    REQUIRE(cb.get_bytes(0) == std::vector<uint8_t> {97});
+    REQUIRE(
+        cb.get_bytes(1)
+        == std::vector<uint8_t> {
+            0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xC9, 0xFF, 0xFF,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF});
+    REQUIRE(cb.get_bytes(2) == std::vector<uint8_t> {0x9A, 0x99, 0x29, 0x44});
   }
 }
