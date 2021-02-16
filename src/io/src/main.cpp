@@ -21,17 +21,25 @@
 using namespace support;
 using namespace llvm;
 
-template <typename F>
-auto timed(F&& func)
+void dump_bytes(std::vector<uint8_t> const& bytes)
 {
-  auto clk = std::chrono::steady_clock {};
+  for (auto b : bytes) {
+    fmt::print("{:02X}", b);
+  }
 
-  auto start = clk.now();
-  auto ret = std::forward<F>(func)();
-  auto end = clk.now();
-
-  return std::pair {end - start, ret};
+  fmt::print("\n");
 }
+
+void dump(call_builder const& build)
+{
+  assertion(build.ready(), "Shouldn't be dumping incomplete packs");
+
+  for (auto i = 0u; i < build.args_count(); ++i) {
+    dump_bytes(build.get_bytes(i));
+  }
+}
+
+void dump_rv(uint64_t rv) { dump_bytes(::support::detail::to_bytes(rv)); }
 
 int main(int argc, char** argv)
 try {
@@ -49,6 +57,20 @@ try {
 
   auto mod = Module("perf_internal", thread_context::get());
   auto ref = call_wrapper(property_set.type_signature, mod, fn_name, lib);
+
+  auto gen = uniform_generator();
+
+  auto build = ref.get_builder();
+
+  fmt::print("{}\n", build.signature());
+
+  gen.gen_args(build);
+  dump(build);
+
+  auto rv = ref.call(build);
+  dump(build);
+
+  dump_rv(rv);
 
 } catch (props::parse_error& perr) {
   errs() << perr.what() << '\n';
