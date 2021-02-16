@@ -284,7 +284,19 @@ TEST_CASE("Can extract arguments from a call_builder")
 
   SECTION("Can get bytes back for dumping")
   {
-    ;
-    ;
+    auto cb = call_builder("int f(char c, int *xs, float y)"_sig);
+    auto c = 'a';
+    auto xs = std::vector<int64_t> {4, -55};
+    auto y = 678.4f;
+
+    cb.add(c, xs, y);
+
+    REQUIRE(cb.get_bytes(0) == std::vector<uint8_t> {97});
+    REQUIRE(
+        cb.get_bytes(1)
+        == std::vector<uint8_t> {
+            0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xC9, 0xFF, 0xFF,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF});
+    REQUIRE(cb.get_bytes(2) == std::vector<uint8_t> {0x9A, 0x99, 0x29, 0x44});
   }
 }
