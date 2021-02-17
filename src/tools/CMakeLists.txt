@@ -18,6 +18,9 @@ add_executable(cyclo
 add_executable(instrcount
   src/count.cpp)
 
+add_executable(divine-prep
+  src/divine.cpp)
+
 target_link_libraries(convert
   CONAN_PKG::fmt
   ${llvm_libs}
@@ -45,6 +48,11 @@ target_link_libraries(instrcount
   ${llvm_libs}
   AccsyntPasses_static)
 
+target_link_libraries(divine-prep
+  ${llvm_libs}
+  support
+  CONAN_PKG::fmt)
+
 install(
-  TARGETS detect convert graph-match cyclo instrcount
+  TARGETS detect convert graph-match cyclo instrcount divine-prep
   DESTINATION ${CMAKE_INSTALL_BINDIR})
