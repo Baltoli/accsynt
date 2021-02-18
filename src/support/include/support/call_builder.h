@@ -49,14 +49,6 @@ std::vector<uint8_t> to_bytes(T val)
   return ret;
 }
 
-/**
- * Helper traits to work with pack visitor functions.
- */
-template <typename ScalarF, typename VectorF>
-struct are_visitors_invocable {
-  using sc_t = std::invoke_result<ScalarF, char>;
-};
-
 } // namespace detail
 
 /**
@@ -401,11 +393,11 @@ void call_builder::visit_args(ScalarF&& on_scalar, VectorF&& on_vector) const
 
     if (param.pointer_depth == 0) {
       if (param.type == props::base_type::character) {
-        return std::forward<ScalarF>(on_scalar)(get<char>(i));
+        std::forward<ScalarF>(on_scalar)(get<char>(i));
       } else if (param.type == props::base_type::integer) {
-        return std::forward<ScalarF>(on_scalar)(get<int64_t>(i));
+        std::forward<ScalarF>(on_scalar)(get<int64_t>(i));
       } else if (param.type == props::base_type::floating) {
-        return std::forward<ScalarF>(on_scalar)(get<float>(i));
+        std::forward<ScalarF>(on_scalar)(get<float>(i));
       } else {
         invalid_state();
       }
@@ -415,11 +407,11 @@ void call_builder::visit_args(ScalarF&& on_scalar, VectorF&& on_vector) const
           param);
 
       if (param.type == props::base_type::character) {
-        return std::forward<VectorF>(on_vector)(get<std::vector<char>>(i));
+        std::forward<VectorF>(on_vector)(get<std::vector<char>>(i));
       } else if (param.type == props::base_type::integer) {
-        return std::forward<VectorF>(on_vector)(get<std::vector<int64_t>>(i));
+        std::forward<VectorF>(on_vector)(get<std::vector<int64_t>>(i));
       } else if (param.type == props::base_type::floating) {
-        return std::forward<VectorF>(on_vector)(get<std::vector<float>>(i));
+        std::forward<VectorF>(on_vector)(get<std::vector<float>>(i));
       } else {
         invalid_state();
       }
@@ -430,13 +422,13 @@ void call_builder::visit_args(ScalarF&& on_scalar, VectorF&& on_vector) const
 template <typename VectorF>
 void call_builder::visit_pointer_args(VectorF&& on_vector) const
 {
-  visit_args([] {}, std::forward<VectorF>(on_vector));
+  visit_args([](auto&&) {}, std::forward<VectorF>(on_vector));
 }
 
 template <typename ScalarF>
 void call_builder::visit_scalar_args(ScalarF&& on_scalar) const
 {
-  visit_args(std::forward<ScalarF>(on_scalar), [] {});
+  visit_args(std::forward<ScalarF>(on_scalar), [](auto&&) {});
 }
 
 } // namespace support
