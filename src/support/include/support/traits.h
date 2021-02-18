@@ -85,4 +85,18 @@ struct is_buildable_int {
 template <typename T>
 constexpr bool is_buildable_int_v = is_buildable_int<T>::value;
 
+template <typename T, typename... Ts>
+struct are_same : std::conjunction<std::is_same<T, Ts>...> {
+};
+
+template <typename T, typename... Ts>
+constexpr inline bool are_same_v = are_same<T, Ts...>::value;
+
+template <typename T, typename... Ts>
+struct is_any : std::disjunction<std::is_same<T, Ts>...> {
+};
+
+template <typename T, typename... Ts>
+constexpr inline bool is_any_v = is_any<T, Ts...>::value;
+
 } // namespace support

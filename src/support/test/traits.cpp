@@ -121,3 +121,28 @@ TEST_CASE("can check buildable ints")
   static_assert(!is_buildable_int_v<char>);
   static_assert(!is_buildable_int_v<S<int>>);
 }
+
+TEST_CASE("variadic is_same works")
+{
+  SECTION("is any")
+  {
+    static_assert(is_any_v<A, int, char, A, float*, S<int>>);
+    static_assert(is_any_v<A, A>);
+    static_assert(is_any_v<int, int, int, char>);
+
+    static_assert(!is_any_v<A>);
+    static_assert(!is_any_v<A, int, int>);
+    static_assert(!is_any_v<int, A, char>);
+    static_assert(!is_any_v<S<int>, S<float>>);
+  }
+
+  SECTION("are same")
+  {
+    static_assert(are_same_v<int>);
+    static_assert(are_same_v<A, A, A, A>);
+    static_assert(are_same_v<char, char>);
+
+    static_assert(!are_same_v<A, int, A, A, A>);
+    static_assert(!are_same_v<S<int>, S<int>, S<float>>);
+  }
+}
