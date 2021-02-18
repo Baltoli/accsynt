@@ -21,25 +21,20 @@
 using namespace support;
 using namespace llvm;
 
-void dump_bytes(std::vector<uint8_t> const& bytes)
+void dump_pre(call_builder const& build)
 {
-  for (auto b : bytes) {
-    fmt::print("{:02X}", b);
-  }
-
-  fmt::print("\n");
+  build.visit_args(
+      [](auto&& sv) { fmt::print("{}\n", sv); },
+      [](auto&& vv) { fmt::print("{}\n", fmt::join(vv, ",")); });
 }
 
-void dump(call_builder const& build)
+void dump_post(call_builder const& build)
 {
-  assertion(build.ready(), "Shouldn't be dumping incomplete packs");
-
-  for (auto i = 0u; i < build.args_count(); ++i) {
-    dump_bytes(build.get_bytes(i));
-  }
+  build.visit_pointer_args(
+      [](auto&& vv) { fmt::print("{}\n", fmt::join(vv, ",")); });
 }
 
-void dump_rv(uint64_t rv) { dump_bytes(::support::detail::to_bytes(rv)); }
+void dump_rv(uint64_t rv) { fmt::print("{}\n", rv); }
 
 int main(int argc, char** argv)
 try {
@@ -65,10 +60,10 @@ try {
   fmt::print("{}\n", build.signature());
 
   gen.gen_args(build);
-  dump(build);
+  dump_pre(build);
 
   auto rv = ref.call(build);
-  dump(build);
+  dump_post(build);
 
   dump_rv(rv);
 

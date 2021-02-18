@@ -299,4 +299,56 @@ TEST_CASE("Can extract arguments from a call_builder")
             0xFF, 0xFF, 0xFF, 0xFF, 0xFF});
     REQUIRE(cb.get_bytes(2) == std::vector<uint8_t> {0x9A, 0x99, 0x29, 0x44});
   }
+
+  SECTION("By visiting")
+  {
+    auto cb = call_builder("int f(int x, char *c, float y, float *g)"_sig);
+
+    auto x = 34LL;
+    auto c = std::vector {'a', 'v'};
+    auto y = 3498.34f;
+    auto g = std::vector {89.95f, 389.3f};
+
+    cb.add(x, c, y, g);
+
+    SECTION("All args")
+    {
+      auto out = std::string {};
+
+      cb.visit_args(
+          [&out](auto const& sv) { out = fmt::format("{}S{}", out, sv); },
+          [&out](auto const& vv) {
+            out = fmt::format("{}V", out);
+            for (auto const& elt : vv) {
+              out = fmt::format("{}{}", out, elt);
+            }
+          });
+
+      REQUIRE(out == "S34VavS3498.34V89.95389.3");
+    }
+
+    SECTION("Pointers")
+    {
+      auto out = std::string {};
+
+      cb.visit_pointer_args([&out](auto const& vv) {
+        out = fmt::format("{}V", out);
+        for (auto const& elt : vv) {
+          out = fmt::format("{}{}", out, elt);
+        }
+      });
+
+      REQUIRE(out == "VavV89.95389.3");
+    }
+
+    SECTION("Scalars")
+    {
+      auto out = std::string {};
+
+      cb.visit_scalar_args(
+          [&out](auto const& sv) { out = fmt::format("{}S{}", out, sv); });
+
+      REQUIRE(out == "S34S3498.34");
+    }
+  }
 }
