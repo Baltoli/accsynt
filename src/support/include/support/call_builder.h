@@ -49,6 +49,14 @@ std::vector<uint8_t> to_bytes(T val)
   return ret;
 }
 
+/**
+ * Helper traits to work with pack visitor functions.
+ */
+template <typename ScalarF, typename VectorF>
+struct are_visitors_invocable {
+  using sc_t = std::invoke_result<ScalarF, char>;
+};
+
 } // namespace detail
 
 /**
