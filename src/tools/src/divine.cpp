@@ -7,6 +7,7 @@
 
 #include <fmt/format.h>
 
+#include <llvm/Bitcode/BitcodeWriter.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
@@ -14,12 +15,16 @@
 #include <llvm/IRReader/IRReader.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/SourceMgr.h>
+#include <llvm/Support/raw_ostream.h>
 
 using namespace support;
 using namespace llvm;
 
 static cl::opt<std::string>
     PropertiesPath(cl::Positional, cl::Required, cl::desc("<properties file>"));
+
+static cl::opt<std::string> OutputPath(
+    "o", cl::desc("Bitcode output path"), cl::desc("filename"), cl::init("-"));
 
 static cl::list<std::string> InputFilenames(
     cl::Positional, cl::desc("<input bitcode files...>"),
@@ -87,5 +92,12 @@ int main(int argc, char** argv)
   irb.CreateRet(irb.getInt32(5));
 
   verifyModule(unified_mod, &errs());
-  fmt::print("{}\n", unified_mod);
+
+  if (OutputPath == "-") {
+    fmt::print("{}\n", unified_mod);
+  } else {
+    auto ec = std::error_code {};
+    auto os = raw_fd_ostream(OutputPath, ec);
+    WriteBitcodeToFile(unified_mod, os);
+  }
 }
