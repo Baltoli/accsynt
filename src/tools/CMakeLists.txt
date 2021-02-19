@@ -51,6 +51,7 @@ target_link_libraries(instrcount
 
 target_link_libraries(divine-prep
   ${llvm_libs}
+  props
   support
   CONAN_PKG::fmt)
 

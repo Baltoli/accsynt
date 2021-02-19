@@ -63,6 +63,13 @@ int main(int argc, char** argv)
 
   auto entry = BasicBlock::Create(ctx, "entry", decls.main_);
   auto irb = IRBuilder<>(entry);
+
+  if (!fns_to_verify.empty()) {
+    auto args = decls.allocate_symbolic(property_set.type_signature);
+
+    auto ref = irb.CreateCall(fns_to_verify[0], args);
+  }
+
   irb.CreateRet(irb.getInt32(0));
 
   verifyModule(unified_mod, &errs());
