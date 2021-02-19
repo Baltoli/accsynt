@@ -65,7 +65,7 @@ int main(int argc, char** argv)
   auto irb = IRBuilder<>(entry);
 
   if (!fns_to_verify.empty()) {
-    auto args = decls.allocate_symbolic(property_set.type_signature);
+    auto args = decls.allocate_symbolic(irb, property_set.type_signature);
 
     auto ref = irb.CreateCall(fns_to_verify[0], args);
   }

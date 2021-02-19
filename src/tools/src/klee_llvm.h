@@ -3,6 +3,7 @@
 #include <props/props.h>
 
 #include <llvm/IR/Function.h>
+#include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Type.h>
@@ -12,7 +13,8 @@
 struct klee_decls {
   klee_decls(llvm::Module&);
 
-  std::vector<llvm::Value*> allocate_symbolic(props::signature const&);
+  std::vector<llvm::Value*>
+  allocate_symbolic(llvm::IRBuilder<>&, props::signature const&);
 
   llvm::Function* make_symbolic;
   llvm::Function* assume;

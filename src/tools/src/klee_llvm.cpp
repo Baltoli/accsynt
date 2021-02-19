@@ -2,7 +2,7 @@
 
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/Constants.h>
-#include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/Instructions.h>
 #include <llvm/Support/CommandLine.h>
 
 using namespace llvm;
@@ -21,9 +21,41 @@ klee_decls::klee_decls(Module& mod)
 {
 }
 
-std::vector<Value*> klee_decls::allocate_symbolic(signature const& sig)
+std::vector<Value*>
+klee_decls::allocate_symbolic(IRBuilder<>& irb, signature const& sig)
 {
   auto ret = std::vector<Value*> {};
+  auto array_size_v = irb.CreateCall(array_size);
+
+  for (auto const& param : sig.parameters) {
+    auto base_ty = base_llvm_type(param.type);
+
+    auto size = [&]() -> Value* {
+      if (param.pointer_depth == 0) {
+        return ConstantInt::get(get_size_ty(irb.getContext()), 1);
+      } else {
+        return array_size_v;
+      }
+    }();
+
+    auto alloc = irb.CreateAlloca(base_ty, size, param.name);
+    auto cast_alloc
+        = irb.CreatePointerCast(alloc, irb.getInt8Ty()->getPointerTo());
+
+    auto size_in_bytes
+        = irb.CreateMul(size, ConstantInt::get(size->getType(), 8));
+
+    irb.CreateCall(
+        make_symbolic,
+        {cast_alloc, size_in_bytes, irb.CreateGlobalStringPtr(param.name)});
+
+    if (param.pointer_depth == 0) {
+      ret.push_back(irb.CreateLoad(alloc));
+    } else {
+      ret.push_back(alloc);
+    }
+  }
+
   return ret;
 }
 
