@@ -1,10 +1,15 @@
+#include <props/props.h>
+
+#include <support/llvm_cloning.h>
 #include <support/llvm_format.h>
 #include <support/options.h>
+#include <support/thread_context.h>
 
 #include <fmt/format.h>
 
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
+#include <llvm/IR/Verifier.h>
 #include <llvm/IRReader/IRReader.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/SourceMgr.h>
@@ -12,9 +17,12 @@
 using namespace support;
 using namespace llvm;
 
-static cl::opt<std::string> InputFilename(
-    cl::Positional, cl::desc("<input bitcode file>"), cl::init("-"),
-    cl::value_desc("filename"));
+static cl::opt<std::string>
+    PropertiesPath(cl::Positional, cl::Required, cl::desc("<properties file>"));
+
+static cl::list<std::string> InputFilenames(
+    cl::Positional, cl::desc("<input bitcode files...>"),
+    cl::value_desc("filename"), cl::OneOrMore);
 
 /*
  * The gist of what this tool needs to do is as follows:
@@ -28,19 +36,51 @@ static cl::opt<std::string> InputFilename(
  * - Write everything out to a single bitcode file.
  */
 
+Function* create_main(Module& mod)
+{
+  auto& ctx = mod.getContext();
+
+  auto i32_ty = IntegerType::get(ctx, 32);
+  auto char_ty = IntegerType::get(ctx, 8);
+  auto argv_ty = char_ty->getPointerTo()->getPointerTo();
+
+  auto fn_ty = FunctionType::get(i32_ty, {i32_ty, argv_ty}, false);
+
+  auto func
+      = Function::Create(fn_ty, GlobalValue::ExternalLinkage, "main", &mod);
+
+  return func;
+}
+
 int main(int argc, char** argv)
 {
   hide_llvm_options();
 
   cl::ParseCommandLineOptions(argc, argv);
-  LLVMContext Context;
+  auto& ctx = thread_context::get();
   SMDiagnostic Err;
 
-  auto&& mod = parseIRFile(InputFilename, Err, Context, true, "");
-  if (!mod) {
-    Err.print(argv[0], errs());
-    return 1;
+  auto property_set = props::property_set::load(PropertiesPath);
+  auto fn_name = property_set.type_signature.name;
+
+  auto unified_mod = Module("klee_unified", ctx);
+
+  auto fns_to_verify = std::vector<Function*> {};
+
+  for (auto fn : InputFilenames) {
+    auto&& mod = parseIRFile(fn, Err, ctx, true, "");
+    if (!mod) {
+      Err.print(argv[0], errs());
+      return 1;
+    }
+
+    auto func = mod->getFunction(fn_name);
+
+    fns_to_verify.push_back(copy_function(func, &unified_mod));
   }
 
-  fmt::print("{}\n", *mod);
+  fmt::print("{}\n", unified_mod);
+  verifyModule(unified_mod, &errs());
+
+  create_main(unified_mod);
 }
