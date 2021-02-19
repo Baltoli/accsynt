@@ -42,6 +42,11 @@ static cl::list<std::string> InputFilenames(
  * - Write everything out to a single bitcode file.
  */
 
+Type* get_size_ty(LLVMContext& ctx)
+{
+  return IntegerType::get(ctx, sizeof(size_t) * 8);
+}
+
 Function* create_main(Module& mod)
 {
   auto& ctx = mod.getContext();
@@ -54,6 +59,37 @@ Function* create_main(Module& mod)
 
   auto func
       = Function::Create(fn_ty, GlobalValue::ExternalLinkage, "main", &mod);
+
+  return func;
+}
+
+Function* create_klee_make_symbolic(Module& mod)
+{
+  auto& ctx = mod.getContext();
+
+  auto vp_ty = IntegerType::get(ctx, 8)->getPointerTo();
+  auto size_ty = get_size_ty(ctx);
+  auto void_ty = Type::getVoidTy(ctx);
+
+  auto fn_ty = FunctionType::get(void_ty, {vp_ty, size_ty, vp_ty}, false);
+
+  auto func = Function::Create(
+      fn_ty, GlobalValue::ExternalLinkage, "klee_make_symbolic", &mod);
+
+  return func;
+}
+
+Function* create_assert(Module& mod)
+{
+  auto& ctx = mod.getContext();
+
+  auto void_ty = Type::getVoidTy(ctx);
+  auto bool_ty = IntegerType::get(ctx, 1);
+
+  auto fn_ty = FunctionType::get(void_ty, {bool_ty}, false);
+
+  auto func
+      = Function::Create(fn_ty, GlobalValue::ExternalLinkage, "assert", &mod);
 
   return func;
 }
@@ -86,10 +122,17 @@ int main(int argc, char** argv)
   }
 
   auto main_f = create_main(unified_mod);
+  auto ms_f = create_klee_make_symbolic(unified_mod);
+  auto assert_f = create_assert(unified_mod);
 
   auto entry = BasicBlock::Create(ctx, "entry", main_f);
   auto irb = IRBuilder<>(entry);
-  irb.CreateRet(irb.getInt32(5));
+  auto sym = irb.CreateAlloca(irb.getInt32Ty(), nullptr, "sym");
+  auto make = irb.CreateCall(
+      ms_f, {irb.CreatePointerCast(sym, irb.getInt8Ty()->getPointerTo()),
+             irb.getInt64(4), irb.CreateGlobalStringPtr("sym")});
+  auto ass = irb.CreateCall(assert_f, {irb.getFalse()});
+  irb.CreateRet(irb.getInt32(0));
 
   verifyModule(unified_mod, &errs());
 
