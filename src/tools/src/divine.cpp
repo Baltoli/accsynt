@@ -73,13 +73,6 @@ copied_args(IRBuilder<>& irb, Value* size, std::vector<Value*> const& args)
   return ret;
 }
 
-Value* check_all_equal(
-    IRBuilder<>& irb, Value* size, std::vector<Value*> const& ref,
-    std::vector<Value*> const& other)
-{
-  return irb.getFalse();
-}
-
 int main(int argc, char** argv)
 {
   hide_llvm_options();
@@ -128,7 +121,8 @@ int main(int argc, char** argv)
       auto other = irb.CreateCall(fns_to_verify[i], other_args);
 
       irb.CreateCall(
-          decls.assert_, check_all_equal(irb, size, after_ref, other_args));
+          decls.assert_,
+          decls.check_all_equal(irb, size, after_ref, other_args));
     }
   }
 

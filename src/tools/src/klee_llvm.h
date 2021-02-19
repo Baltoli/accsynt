@@ -13,6 +13,10 @@
 struct klee_decls {
   klee_decls(llvm::Module&);
 
+  llvm::Value* check_all_equal(
+      llvm::IRBuilder<>&, llvm::Value*, std::vector<llvm::Value*> const&,
+      std::vector<llvm::Value*> const&);
+
   std::vector<llvm::Value*>
   allocate_symbolic(llvm::IRBuilder<>&, props::signature const&);
 
@@ -28,6 +32,9 @@ private:
   llvm::Function* create_assert(llvm::Module&);
   llvm::Function* create_main(llvm::Module&);
   llvm::Function* create_array_size(llvm::Module&);
+
+  std::map<llvm::Type*, llvm::Function*> array_equals_;
 };
 
 llvm::Type* get_size_ty(llvm::LLVMContext& ctx);
+llvm::Value* create_eq(llvm::IRBuilder<>& irb, llvm::Value* a, llvm::Value* b);
