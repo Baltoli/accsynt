@@ -1,5 +1,7 @@
 #include "klee_llvm.h"
 
+#include <support/llvm_format.h>
+
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/Instructions.h>
@@ -42,8 +44,11 @@ klee_decls::allocate_symbolic(IRBuilder<>& irb, signature const& sig)
     auto cast_alloc
         = irb.CreatePointerCast(alloc, irb.getInt8Ty()->getPointerTo());
 
-    auto size_in_bytes
-        = irb.CreateMul(size, ConstantInt::get(size->getType(), 8));
+    auto pointed = cast<PointerType>(alloc->getType())->getElementType();
+    auto size_in_bytes = irb.CreateMul(
+        size,
+        ConstantInt::get(size->getType(), pointed->getScalarSizeInBits() / 8));
+    /* pointed->getIntegerBitWidth() / 8)); */
 
     irb.CreateCall(
         make_symbolic,

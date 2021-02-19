@@ -32,6 +32,29 @@ static cl::list<std::string> InputFilenames(
     cl::Positional, cl::desc("<input bitcode files...>"),
     cl::value_desc("filename"), cl::OneOrMore);
 
+Value* copy_array(IRBuilder<>& irb, Value* array, Value* size)
+{
+  auto mod = irb.GetInsertBlock()->getParent()->getParent();
+
+  auto elt_ty = cast<PointerType>(array->getType())->getElementType();
+
+  auto copy = irb.CreateAlloca(elt_ty, size);
+
+  auto mem_cpy = Intrinsic::getDeclaration(
+      mod, Intrinsic::memcpy,
+      {array->getType(), array->getType(), size->getType()});
+
+  irb.CreateCall(
+      mem_cpy,
+      {copy, array,
+       irb.CreateMul(
+           size, ConstantInt::get(
+                     size->getType(), elt_ty->getScalarSizeInBits() / 8)),
+       irb.getFalse()});
+
+  return copy;
+}
+
 int main(int argc, char** argv)
 {
   hide_llvm_options();
@@ -72,16 +95,7 @@ int main(int argc, char** argv)
     for (auto arg : args) {
       auto arg_ty = arg->getType();
       if (auto ptr_ty = dyn_cast<PointerType>(arg_ty)) {
-        auto size = irb.CreateCall(decls.array_size);
-        auto copy = irb.CreateAlloca(ptr_ty->getElementType(), size);
-
-        auto mem_cpy = Intrinsic::getDeclaration(
-            &unified_mod, Intrinsic::memcpy, {ptr_ty, ptr_ty, size->getType()});
-
-        irb.CreateCall(
-            mem_cpy, {copy, arg,
-                      irb.CreateMul(size, ConstantInt::get(size->getType(), 8)),
-                      irb.getFalse()});
+        copy_array(irb, arg, irb.CreateCall(decls.array_size));
       }
     }
 
