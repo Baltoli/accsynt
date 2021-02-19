@@ -7,6 +7,7 @@
 
 #include <fmt/format.h>
 
+#include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Verifier.h>
@@ -79,8 +80,12 @@ int main(int argc, char** argv)
     fns_to_verify.push_back(copy_function(func, &unified_mod));
   }
 
-  fmt::print("{}\n", unified_mod);
-  verifyModule(unified_mod, &errs());
+  auto main_f = create_main(unified_mod);
 
-  create_main(unified_mod);
+  auto entry = BasicBlock::Create(ctx, "entry", main_f);
+  auto irb = IRBuilder<>(entry);
+  irb.CreateRet(irb.getInt32(5));
+
+  verifyModule(unified_mod, &errs());
+  fmt::print("{}\n", unified_mod);
 }
