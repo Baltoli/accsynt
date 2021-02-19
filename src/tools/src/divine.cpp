@@ -55,6 +55,31 @@ Value* copy_array(IRBuilder<>& irb, Value* array, Value* size)
   return copy;
 }
 
+std::vector<Value*>
+copied_args(IRBuilder<>& irb, Value* size, std::vector<Value*> const& args)
+{
+  auto ret = std::vector<Value*> {};
+
+  for (auto arg : args) {
+
+    auto arg_ty = arg->getType();
+    if (auto ptr_ty = dyn_cast<PointerType>(arg_ty)) {
+      ret.push_back(copy_array(irb, arg, size));
+    } else {
+      ret.push_back(arg);
+    }
+  }
+
+  return ret;
+}
+
+Value* check_all_equal(
+    IRBuilder<>& irb, Value* size, std::vector<Value*> const& ref,
+    std::vector<Value*> const& other)
+{
+  return irb.getFalse();
+}
+
 int main(int argc, char** argv)
 {
   hide_llvm_options();
@@ -89,18 +114,21 @@ int main(int argc, char** argv)
 
   if (!fns_to_verify.empty()) {
     auto args = decls.allocate_symbolic(irb, property_set.type_signature);
+    auto size = irb.CreateCall(decls.array_size);
+
+    auto original_args = copied_args(irb, size, args);
 
     auto ref = irb.CreateCall(fns_to_verify[0], args);
 
-    for (auto arg : args) {
-      auto arg_ty = arg->getType();
-      if (auto ptr_ty = dyn_cast<PointerType>(arg_ty)) {
-        copy_array(irb, arg, irb.CreateCall(decls.array_size));
-      }
-    }
+    auto after_ref = copied_args(irb, size, args);
 
     for (auto i = 1u; i < fns_to_verify.size(); ++i) {
-      auto other = irb.CreateCall(fns_to_verify[i], args);
+      auto other_args = copied_args(irb, size, original_args);
+
+      auto other = irb.CreateCall(fns_to_verify[i], other_args);
+
+      irb.CreateCall(
+          decls.assert_, check_all_equal(irb, size, after_ref, other_args));
     }
   }
 
