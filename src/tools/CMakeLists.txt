@@ -19,6 +19,7 @@ add_executable(instrcount
   src/count.cpp)
 
 add_executable(divine-prep
+  src/klee_llvm.cpp
   src/divine.cpp)
 
 target_link_libraries(convert
