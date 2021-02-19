@@ -68,6 +68,26 @@ int main(int argc, char** argv)
     auto args = decls.allocate_symbolic(irb, property_set.type_signature);
 
     auto ref = irb.CreateCall(fns_to_verify[0], args);
+
+    for (auto arg : args) {
+      auto arg_ty = arg->getType();
+      if (auto ptr_ty = dyn_cast<PointerType>(arg_ty)) {
+        auto size = irb.CreateCall(decls.array_size);
+        auto copy = irb.CreateAlloca(ptr_ty->getElementType(), size);
+
+        auto mem_cpy = Intrinsic::getDeclaration(
+            &unified_mod, Intrinsic::memcpy, {ptr_ty, ptr_ty, size->getType()});
+
+        irb.CreateCall(
+            mem_cpy, {copy, arg,
+                      irb.CreateMul(size, ConstantInt::get(size->getType(), 8)),
+                      irb.getFalse()});
+      }
+    }
+
+    for (auto i = 1u; i < fns_to_verify.size(); ++i) {
+      auto other = irb.CreateCall(fns_to_verify[i], args);
+    }
   }
 
   irb.CreateRet(irb.getInt32(0));
