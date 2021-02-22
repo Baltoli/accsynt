@@ -88,7 +88,7 @@ int main(int argc, char** argv)
         validators(), [&](auto&& val) { all = all && val(p_set); });
 
     if (all) {
-      fmt::print("{}\n", p);
+      fmt::print("{}\n", p.string());
     }
   }
 }
