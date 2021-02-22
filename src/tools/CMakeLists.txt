@@ -18,6 +18,9 @@ add_executable(cyclo
 add_executable(instrcount
   src/count.cpp)
 
+add_executable(props-filter
+  src/filter.cpp)
+
 target_link_libraries(convert
   CONAN_PKG::fmt
   ${llvm_libs}
@@ -44,6 +47,14 @@ target_link_libraries(cyclo
 target_link_libraries(instrcount
   ${llvm_libs}
   AccsyntPasses_static)
+
+target_link_libraries(props-filter
+  CONAN_PKG::fmt
+  ${llvm_libs}
+  props
+  support)
+
+target_link_filesystem(props-filter)
 
 install(
   TARGETS detect convert graph-match cyclo instrcount
