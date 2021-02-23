@@ -36,6 +36,12 @@ static cl::opt<bool> ScalarOnly(
     "scalar", cl::desc("Return property sets that only use scalar inputs"),
     cl::init(false));
 
+bool is_props_file(fs::path const& path)
+{
+  return path.extension() == ".props"
+         || (path.extension().empty() && path.filename() == "props");
+}
+
 std::set<fs::path> get_all_files()
 {
   auto ret = std::set<fs::path> {};
@@ -52,7 +58,7 @@ std::set<fs::path> get_all_files()
         root);
 
     for (auto const& entry : fs::recursive_directory_iterator(root)) {
-      if (entry.path().extension() == ".props") {
+      if (is_props_file(entry.path())) {
         ret.insert(fs::canonical(entry));
       }
     }
