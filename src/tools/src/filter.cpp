@@ -38,8 +38,9 @@ static cl::opt<bool> ScalarOnly(
 
 bool is_props_file(fs::path const& path)
 {
-  return path.extension() == ".props"
-         || (path.extension().empty() && path.filename() == "props");
+  return fs::is_regular_file(path)
+         && (path.extension() == ".props"
+             || (path.extension().empty() && path.filename() == "props"));
 }
 
 std::set<fs::path> get_all_files()
