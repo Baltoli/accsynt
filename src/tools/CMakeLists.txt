@@ -67,5 +67,5 @@ target_link_libraries(norm
 target_link_filesystem(norm)
 
 install(
-  TARGETS detect convert graph-match cyclo instrcount
+  TARGETS detect convert graph-match cyclo instrcount norm
   DESTINATION ${CMAKE_INSTALL_BINDIR})
