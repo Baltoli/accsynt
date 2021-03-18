@@ -4,9 +4,11 @@
 #include <fmt/format.h>
 
 #include <llvm/Bitcode/BitcodeWriter.h>
+#include <llvm/IR/LegacyPassManager.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IRReader/IRReader.h>
 #include <llvm/Support/CommandLine.h>
+#include <llvm/Transforms/IPO/PassManagerBuilder.h>
 
 using namespace support;
 using namespace llvm;
@@ -26,6 +28,20 @@ static cl::opt<bool> Textual(
 static cl::opt<bool> Force(
     "f", cl::desc("Force binary output to the terminal"), cl::init(false));
 
+void run_norm_passes(Module& mod)
+{
+  auto pm = legacy::PassManager();
+
+  auto pmb = PassManagerBuilder();
+  pmb.OptLevel = 2;
+  pmb.DisableUnrollLoops = true;
+  pmb.LoopVectorize = false;
+  pmb.SLPVectorize = false;
+  pmb.populateModulePassManager(pm);
+
+  pm.run(mod);
+}
+
 int main(int argc, char** argv)
 {
   cl::ParseCommandLineOptions(argc, argv);
@@ -38,6 +54,8 @@ int main(int argc, char** argv)
     err.print(argv[0], errs());
     return 1;
   }
+
+  run_norm_passes(*mod);
 
   to_file_or_default(OutputFilename, [&mod](auto&& os) {
     if (!Textual) {
