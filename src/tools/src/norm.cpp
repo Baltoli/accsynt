@@ -28,18 +28,32 @@ static cl::opt<bool> Textual(
 static cl::opt<bool> Force(
     "f", cl::desc("Force binary output to the terminal"), cl::init(false));
 
-void run_norm_passes(Module& mod)
+void remove_optnone(Function& func)
+{
+  func.removeFnAttr(Attribute::AttrKind::OptimizeNone);
+}
+
+void run_passes(Module& mod)
 {
   auto pm = legacy::PassManager();
 
   auto pmb = PassManagerBuilder();
-  pmb.OptLevel = 2;
+  pmb.OptLevel = 1;
   pmb.DisableUnrollLoops = true;
   pmb.LoopVectorize = false;
   pmb.SLPVectorize = false;
   pmb.populateModulePassManager(pm);
 
   pm.run(mod);
+}
+
+void normalise(Module& mod)
+{
+  for (auto& fn : mod) {
+    remove_optnone(fn);
+  }
+
+  run_passes(mod);
 }
 
 int main(int argc, char** argv)
@@ -55,7 +69,7 @@ int main(int argc, char** argv)
     return 1;
   }
 
-  run_norm_passes(*mod);
+  normalise(*mod);
 
   to_file_or_default(OutputFilename, [&mod](auto&& os) {
     if (!Textual) {
