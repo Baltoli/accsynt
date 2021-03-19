@@ -22,6 +22,12 @@ add_executable(divine-prep
   src/klee_llvm.cpp
   src/divine.cpp)
 
+add_executable(props-filter
+  src/filter.cpp)
+
+add_executable(norm
+  src/norm.cpp)
+
 target_link_libraries(convert
   CONAN_PKG::fmt
   ${llvm_libs}
@@ -55,6 +61,21 @@ target_link_libraries(divine-prep
   support
   CONAN_PKG::fmt)
 
+target_link_libraries(props-filter
+  CONAN_PKG::fmt
+  ${llvm_libs}
+  props
+  support)
+
+target_link_filesystem(props-filter)
+
+target_link_libraries(norm
+  CONAN_PKG::fmt
+  ${llvm_libs}
+  support)
+
+target_link_filesystem(norm)
+
 install(
-  TARGETS detect convert graph-match cyclo instrcount divine-prep
+  TARGETS detect convert graph-match cyclo instrcount norm divine-prep
   DESTINATION ${CMAKE_INSTALL_BINDIR})
