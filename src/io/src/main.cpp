@@ -16,30 +16,54 @@
 #include <llvm/Support/CommandLine.h>
 
 #include <chrono>
+#include <optional>
 #include <type_traits>
 
 using namespace support;
 using namespace llvm;
 
-void dump_bytes(std::vector<uint8_t> const& bytes)
+void dump_pre(call_builder const& build)
 {
-  for (auto b : bytes) {
-    fmt::print("{:02X}", b);
-  }
-
-  fmt::print("\n");
+  build.visit_args(
+      [](auto&& sv) { fmt::print("{}\n", sv); },
+      [](auto&& vv) { fmt::print("{}\n", fmt::join(vv, ",")); });
 }
 
-void dump(call_builder const& build)
+void dump_post(call_builder const& build)
 {
-  assertion(build.ready(), "Shouldn't be dumping incomplete packs");
-
-  for (auto i = 0u; i < build.args_count(); ++i) {
-    dump_bytes(build.get_bytes(i));
-  }
+  build.visit_pointer_args(
+      [](auto&& vv) { fmt::print("{}\n", fmt::join(vv, ",")); });
 }
 
-void dump_rv(uint64_t rv) { dump_bytes(::support::detail::to_bytes(rv)); }
+void dump_rv(uint64_t rv, std::optional<props::data_type> type_opt)
+{
+  if (type_opt) {
+    auto type = type_opt.value();
+
+    assertion(
+        type.pointers == 0,
+        "Shouldn't be dumping returned pointers (type is: {})", type);
+
+    switch (type.base) {
+    case props::base_type::integer:
+      fmt::print("{}\n", bit_cast<int64_t>(rv));
+      return;
+    case props::base_type::floating:
+      fmt::print("{}\n", bit_cast<float>(rv));
+      return;
+    case props::base_type::character:
+      fmt::print("{}\n", bit_cast<char>(rv));
+      return;
+    case props::base_type::boolean:
+      fmt::print("{}\n", bit_cast<bool>(rv));
+      return;
+    default:
+      invalid_state();
+    }
+  } else {
+    fmt::print("void\n");
+  }
+}
 
 int main(int argc, char** argv)
 try {
@@ -65,12 +89,12 @@ try {
   fmt::print("{}\n", build.signature());
 
   gen.gen_args(build);
-  dump(build);
+  dump_pre(build);
 
   auto rv = ref.call(build);
-  dump(build);
+  dump_post(build);
 
-  dump_rv(rv);
+  dump_rv(rv, property_set.type_signature.return_type);
 
 } catch (props::parse_error& perr) {
   errs() << perr.what() << '\n';

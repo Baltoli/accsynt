@@ -18,6 +18,12 @@ add_executable(cyclo
 add_executable(instrcount
   src/count.cpp)
 
+add_executable(props-filter
+  src/filter.cpp)
+
+add_executable(norm
+  src/norm.cpp)
+
 target_link_libraries(convert
   CONAN_PKG::fmt
   ${llvm_libs}
@@ -45,6 +51,21 @@ target_link_libraries(instrcount
   ${llvm_libs}
   AccsyntPasses_static)
 
+target_link_libraries(props-filter
+  CONAN_PKG::fmt
+  ${llvm_libs}
+  props
+  support)
+
+target_link_filesystem(props-filter)
+
+target_link_libraries(norm
+  CONAN_PKG::fmt
+  ${llvm_libs}
+  support)
+
+target_link_filesystem(norm)
+
 install(
-  TARGETS detect convert graph-match cyclo instrcount
+  TARGETS detect convert graph-match cyclo instrcount norm
   DESTINATION ${CMAKE_INSTALL_BINDIR})

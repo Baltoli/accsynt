@@ -165,6 +165,19 @@ public:
   std::vector<uint8_t> get_bytes(size_t idx) const;
 
   /**
+   * Testing methods used primarily for dumping IO examples, but can be used for
+   * any kind of behaviour that is uniform over the type of contained data.
+   */
+  template <typename ScalarF, typename VectorF>
+  void visit_args(ScalarF&& on_scalar, VectorF&& on_vector) const;
+
+  template <typename VectorF>
+  void visit_pointer_args(VectorF&& on_vector) const;
+
+  template <typename ScalarF>
+  void visit_scalar_args(ScalarF&& on_scalar) const;
+
+  /**
    * Testing method that looks up the index of the supplied argument and
    * dispatches to the index-based lookup.
    */
@@ -395,6 +408,52 @@ T call_builder::get(std::string const& name) const
   } else {
     throw call_builder_error("Parameter name not found when extracting");
   }
+}
+
+template <typename ScalarF, typename VectorF>
+void call_builder::visit_args(ScalarF&& on_scalar, VectorF&& on_vector) const
+{
+  for (auto i = 0u; i < args_count(); ++i) {
+    auto const& param = signature_.parameters.at(i);
+
+    if (param.pointer_depth == 0) {
+      if (param.type == props::base_type::character) {
+        std::forward<ScalarF>(on_scalar)(get<char>(i));
+      } else if (param.type == props::base_type::integer) {
+        std::forward<ScalarF>(on_scalar)(get<int64_t>(i));
+      } else if (param.type == props::base_type::floating) {
+        std::forward<ScalarF>(on_scalar)(get<float>(i));
+      } else {
+        invalid_state();
+      }
+    } else {
+      assertion(
+          param.pointer_depth == 1, "Can't visit nested pointers (param: {})",
+          param);
+
+      if (param.type == props::base_type::character) {
+        std::forward<VectorF>(on_vector)(get<std::vector<char>>(i));
+      } else if (param.type == props::base_type::integer) {
+        std::forward<VectorF>(on_vector)(get<std::vector<int64_t>>(i));
+      } else if (param.type == props::base_type::floating) {
+        std::forward<VectorF>(on_vector)(get<std::vector<float>>(i));
+      } else {
+        invalid_state();
+      }
+    }
+  }
+}
+
+template <typename VectorF>
+void call_builder::visit_pointer_args(VectorF&& on_vector) const
+{
+  visit_args([](auto&&) {}, std::forward<VectorF>(on_vector));
+}
+
+template <typename ScalarF>
+void call_builder::visit_scalar_args(ScalarF&& on_scalar) const
+{
+  visit_args(std::forward<ScalarF>(on_scalar), [](auto&&) {});
 }
 
 } // namespace support

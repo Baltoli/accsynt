@@ -5,6 +5,7 @@
 #include <llvm/IR/Module.h>
 
 #include <exception>
+#include <filesystem>
 #include <iosfwd>
 #include <optional>
 #include <string>
