@@ -15,6 +15,14 @@ cl::OptionCategory Experiments(
     "Experimental options",
     "These control parameters for an individual experimental run");
 
+cl::opt<PerfMode> Mode(
+    cl::desc("Experiment mode:"),
+    cl::values(
+        clEnumValN(LinearSpace, "linear", "Sample from a uniform linear space"),
+        clEnumValN(
+            Random, "random", "Sample randomly (baseline implementation)")),
+    cl::init(LinearSpace), cl::cat(Experiments));
+
 cl::opt<int> Start(
     "start", cl::desc("Variation starting point"), cl::value_desc("integer"),
     cl::init(0), cl::cat(Experiments));

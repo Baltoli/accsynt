@@ -2,6 +2,10 @@
 
 #include <llvm/Support/CommandLine.h>
 
+enum PerfMode { Random, LinearSpace };
+
+extern llvm::cl::opt<PerfMode> Mode;
+
 extern llvm::cl::opt<std::string> PropertiesPath;
 extern llvm::cl::opt<std::string> LibraryPath;
 extern llvm::cl::opt<std::string> Parameter;

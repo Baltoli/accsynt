@@ -33,6 +33,32 @@ auto timed(F&& func)
   return std::pair {end - start, ret};
 }
 
+void run_fixed(call_wrapper& ref)
+{
+  auto gen = override_generator(Parameter, 0LL, MemSize);
+
+  fmt::print("param,value,time\n");
+
+  for (int val = Start; val < End; val += Step) {
+    gen.set_value(val);
+
+    for (auto i = 0; i < Reps; ++i) {
+      auto b = ref.get_builder();
+      gen.gen_args(b);
+
+      auto [res, t] = ref.call_timed(b);
+      fmt::print("{},{},{}\n", Parameter, val, t.count());
+    }
+  }
+}
+
+void run_random(call_wrapper& ref)
+{
+  auto gen_base = uniform_generator(128);
+
+  unimplemented();
+}
+
 int main(int argc, char** argv)
 try {
   LLVMInitializeNativeTarget();
@@ -50,20 +76,15 @@ try {
   auto mod = Module("perf_internal", thread_context::get());
   auto ref = call_wrapper(property_set.type_signature, mod, fn_name, lib);
 
-  auto gen = override_generator(Parameter, 0LL, MemSize);
-
-  fmt::print("param,value,time\n");
-
-  for (int val = Start; val < End; val += Step) {
-    gen.set_value(val);
-
-    for (auto i = 0; i < Reps; ++i) {
-      auto b = ref.get_builder();
-      gen.gen_args(b);
-
-      auto [res, t] = ref.call_timed(b);
-      fmt::print("{},{},{}\n", Parameter, val, t.count());
-    }
+  switch (Mode) {
+  case LinearSpace:
+    run_fixed(ref);
+    return 0;
+  case Random:
+    run_random(ref);
+    return 0;
+  default:
+    unimplemented();
   }
 
 } catch (props::parse_error& perr) {
