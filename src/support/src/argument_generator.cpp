@@ -75,6 +75,10 @@ void uniform_generator::reset() { prealloc_idx_ = 0; }
 template <>
 int64_t uniform_generator::gen_single<int64_t>()
 {
+  assertion(
+      int_min <= int_max,
+      "Must set minimum int value below maximum (current interval: [{}, {}])\n",
+      int_min, int_max);
   return std::uniform_int_distribution<int64_t>(int_min, int_max)(engine_);
 }
 
@@ -87,6 +91,11 @@ char uniform_generator::gen_single<char>()
 template <>
 float uniform_generator::gen_single<float>()
 {
+  assertion(
+      float_min <= float_max,
+      "Must set minimum float value below maximum (current interval: [{}, "
+      "{}])\n",
+      float_min, float_max);
   return std::uniform_real_distribution<float>(float_min, float_max)(engine_);
 }
 

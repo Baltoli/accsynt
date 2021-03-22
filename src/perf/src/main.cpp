@@ -43,6 +43,10 @@ void run_fixed(call_wrapper& ref)
 void run_random(call_wrapper& ref)
 {
   auto gen_base = uniform_generator(128);
+  gen_base.int_min = -64;
+  gen_base.int_max = 64;
+  gen_base.float_min = -64.0;
+  gen_base.float_max = 64.0;
 
   fmt::print("param,value,time\n");
 
