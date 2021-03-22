@@ -146,6 +146,12 @@ class uniform_generator {
 public:
   static constexpr size_t max_size = 32;
 
+  int int_min;
+  int int_max;
+
+  float float_min;
+  float float_max;
+
   uniform_generator();
   uniform_generator(size_t);
 

@@ -35,7 +35,11 @@ void argument_generator::gen_args(call_builder& build)
 // Uniform generator implementation
 
 uniform_generator::uniform_generator(size_t sz)
-    : engine_(get_random_device()())
+    : int_min(-4)
+    , int_max(sz - 1)
+    , float_min(-5.0)
+    , float_max(5.0)
+    , engine_(get_random_device()())
     , size_(sz)
     , reuse_(false)
     , int_arrays_ {}
@@ -71,7 +75,7 @@ void uniform_generator::reset() { prealloc_idx_ = 0; }
 template <>
 int64_t uniform_generator::gen_single<int64_t>()
 {
-  return std::uniform_int_distribution<int64_t>(-4, size_ - 1)(engine_);
+  return std::uniform_int_distribution<int64_t>(int_min, int_max)(engine_);
 }
 
 template <>
@@ -83,7 +87,7 @@ char uniform_generator::gen_single<char>()
 template <>
 float uniform_generator::gen_single<float>()
 {
-  return std::uniform_real_distribution<float>(-5.0, 5.0)(engine_);
+  return std::uniform_real_distribution<float>(float_min, float_max)(engine_);
 }
 
 void uniform_generator::gen_args(call_builder& build)
