@@ -67,11 +67,13 @@ try {
   }
 
 } catch (props::parse_error& perr) {
-  errs() << perr.what() << '\n';
-  errs() << "  when parsing property set " << PropertiesPath << '\n';
+  fmt::print(
+      stderr, "{}\n  when parsing property set {}\n", perr.what(),
+      PropertiesPath);
   return 2;
 } catch (dyld_error& derr) {
-  errs() << derr.what() << '\n';
-  errs() << "  when loading dynamic library " << LibraryPath << '\n';
+  fmt::print(
+      stderr, "{}\n  when loading dynamic library {}\n", derr.what(),
+      LibraryPath);
   return 3;
 }
