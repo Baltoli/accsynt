@@ -35,6 +35,10 @@ cl::opt<int> Step(
     "step", cl::desc("Variation step"), cl::value_desc("integer"),
     cl::init(100), cl::cat(Experiments));
 
+cl::opt<int> Values(
+    "values", cl::desc("Number of values to try"), cl::value_desc("integer"),
+    cl::init(20), cl::cat(Experiments));
+
 cl::opt<int> Reps(
     "reps", cl::desc("Number of repetitions to execute for each step"),
     cl::value_desc("integer"), cl::init(5), cl::cat(Experiments));

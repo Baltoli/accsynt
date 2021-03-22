@@ -21,6 +21,14 @@
 using namespace support;
 using namespace llvm;
 
+void warmup(call_wrapper& ref)
+{
+  auto gen = uniform_generator();
+  auto b = ref.get_builder();
+
+  gen.gen_args(b);
+}
+
 void run_fixed(call_wrapper& ref)
 {
   auto gen = override_generator(Parameter, 0LL, MemSize);
@@ -50,9 +58,7 @@ void run_random(call_wrapper& ref)
 
   fmt::print("param,value,time\n");
 
-  // Run the same number of iterations using this tool as we would using the
-  // linear one.
-  for (int val = Start; val < End; val += Step) {
+  for (int val = 0; val < Values; ++val) {
     auto b = ref.get_builder();
     gen_base.gen_args(b);
 
@@ -61,6 +67,7 @@ void run_random(call_wrapper& ref)
 
       auto [res, t] = ref.call_timed(clone);
       auto used_arg = clone.get<int64_t>(Parameter);
+
       fmt::print("{},{},{}\n", Parameter, used_arg, t.count());
     }
   }
