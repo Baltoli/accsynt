@@ -21,18 +21,6 @@
 using namespace support;
 using namespace llvm;
 
-template <typename F>
-auto timed(F&& func)
-{
-  auto clk = std::chrono::steady_clock {};
-
-  auto start = clk.now();
-  auto ret = std::forward<F>(func)();
-  auto end = clk.now();
-
-  return std::pair {end - start, ret};
-}
-
 void run_fixed(call_wrapper& ref)
 {
   auto gen = override_generator(Parameter, 0LL, MemSize);
