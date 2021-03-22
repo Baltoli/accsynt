@@ -15,4 +15,7 @@ extern llvm::cl::opt<int> End;
 extern llvm::cl::opt<int> Step;
 extern llvm::cl::opt<int> Reps;
 
+extern llvm::cl::opt<int> Min;
+extern llvm::cl::opt<int> Max;
+
 extern llvm::cl::opt<int> MemSize;

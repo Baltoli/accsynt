@@ -39,6 +39,14 @@ cl::opt<int> Reps(
     "reps", cl::desc("Number of repetitions to execute for each step"),
     cl::value_desc("integer"), cl::init(5), cl::cat(Experiments));
 
+cl::opt<int>
+    Min("min", cl::desc("Minimum bounding value for random generation"),
+        cl::value_desc("integer"), cl::init(-64), cl::cat(Experiments));
+
+cl::opt<int>
+    Max("max", cl::desc("Maximum bounding value for random generation"),
+        cl::value_desc("integer"), cl::init(64), cl::cat(Experiments));
+
 cl::OptionCategory
     Memory("Memory options", "Fine-tuning memory allocation sizes and checks");
 
