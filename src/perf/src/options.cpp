@@ -11,6 +11,8 @@ cl::opt<std::string>
 cl::opt<std::string>
     Parameter(cl::Positional, cl::Required, cl::desc("<parameter name>"));
 
+cl::opt<std::string> Tag(cl::Positional, cl::Required, cl::desc("<tag>"));
+
 cl::OptionCategory Experiments(
     "Experimental options",
     "These control parameters for an individual experimental run");
