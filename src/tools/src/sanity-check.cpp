@@ -10,6 +10,7 @@
 
 #include <fmt/format.h>
 
+#include <llvm/IR/Module.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/TargetSelect.h>
 
@@ -39,6 +40,8 @@ void fail(std::string const& name, std::string const& reason)
 int main(int argc, char** argv)
 try {
   InitializeNativeTarget();
+  LLVMInitializeNativeAsmPrinter();
+  LLVMInitializeNativeAsmParser();
 
   hide_llvm_options();
   cl::ParseCommandLineOptions(argc, argv);
@@ -46,6 +49,7 @@ try {
   auto lib = dynamic_library(LibraryPath);
 
   auto& ctx = thread_context::get();
+  auto mod = Module("sanity-check", ctx);
 
   for (auto const& path : PropertyPaths) {
     try {
@@ -56,6 +60,14 @@ try {
         fail(name, "no such symbol in dynamic library");
         continue;
       }
+
+      auto ref = call_wrapper(ps.type_signature, mod, name, lib);
+      auto gen = uniform_generator();
+
+      auto b = ref.get_builder();
+      gen.gen_args(b);
+
+      ref.call(b);
 
       success(name);
     } catch (props::parse_error& perr) {
