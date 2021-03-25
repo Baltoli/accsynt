@@ -1,6 +1,5 @@
 #include <props/props.h>
 
-#include <support/assert.h>
 #include <support/call_wrapper.h>
 #include <support/dynamic_library.h>
 #include <support/options.h>
@@ -35,7 +34,9 @@ try {
     try {
       auto ps = props::property_set::load(path);
     } catch (props::parse_error& perr) {
-      unimplemented();
+      fmt::print(
+          stderr, "{}\n  (when parsing property set: {})\n", perr.what(), path);
+      return 2;
     }
   }
 } catch (dyld_error& derr) {

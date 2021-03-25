@@ -3,8 +3,11 @@
 #define TAO_PEGTL_NAMESPACE props_pegtl
 #include <tao/pegtl.hpp>
 
+#include <filesystem>
 #include <iostream>
 #include <unordered_map>
+
+namespace fs = std::filesystem;
 
 namespace props {
 
@@ -250,6 +253,10 @@ property_set property_set::parse(std::string_view str)
 
 property_set property_set::load(std::string_view path)
 {
+  if (!fs::exists(path)) {
+    throw parse_error("Property file does not exist");
+  }
+
   property_set pset;
   auto ok = pegtl::parse<seq<file_grammar, eof>>(file_input(path), pset);
 
