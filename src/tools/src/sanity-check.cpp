@@ -14,6 +14,8 @@
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/TargetSelect.h>
 
+#include <unordered_set>
+
 using namespace support;
 using namespace llvm;
 
@@ -37,6 +39,12 @@ void fail(std::string const& name, std::string const& reason)
       name, reason);
 }
 
+bool skip(std::string const& name)
+{
+  static auto problems = std::unordered_set<std::string> {"diveq", "diveq_sca"};
+  return problems.find(name) != problems.end();
+}
+
 int main(int argc, char** argv)
 try {
   InitializeNativeTarget();
@@ -55,6 +63,11 @@ try {
     try {
       auto ps = props::property_set::load(path);
       auto name = ps.type_signature.name;
+
+      if (skip(name)) {
+        fail(name, "skipped");
+        continue;
+      }
 
       if (!lib.raw_symbol(name)) {
         fail(name, "no such symbol in dynamic library");
