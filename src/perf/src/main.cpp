@@ -27,10 +27,14 @@ void warmup(call_wrapper& ref)
   auto b = ref.get_builder();
 
   gen.gen_args(b);
+
+  ref.call(b);
 }
 
 void run_fixed(call_wrapper& ref)
 {
+  warmup(ref);
+
   auto gen = override_generator(Parameter, 0LL, MemSize);
 
   fmt::print("param,value,time,tag\n");
@@ -50,6 +54,8 @@ void run_fixed(call_wrapper& ref)
 
 void run_random(call_wrapper& ref)
 {
+  warmup(ref);
+
   auto gen_base = uniform_generator(128);
   gen_base.int_min = Min;
   gen_base.int_max = Max;
