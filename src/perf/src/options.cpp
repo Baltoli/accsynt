@@ -10,8 +10,8 @@ cl::opt<std::string>
 
 cl::opt<std::string> Tag(cl::Positional, cl::Required, cl::desc("<tag>"));
 
-cl::list<std::string>
-    Parameters(cl::Positional, cl::OneOrMore, cl::desc("<parameter names...>"));
+cl::list<std::string> Parameters(
+    cl::Positional, cl::ZeroOrMore, cl::desc("<parameter names...>"));
 
 cl::OptionCategory Experiments(
     "Experimental options",

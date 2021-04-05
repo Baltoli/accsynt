@@ -21,6 +21,7 @@
 
 using namespace support;
 using namespace llvm;
+using namespace props;
 
 void warmup(call_wrapper& ref)
 {
@@ -32,13 +33,11 @@ void warmup(call_wrapper& ref)
   ref.call(b);
 }
 
-void run_fixed(call_wrapper& ref)
+void run_fixed(std::vector<std::string> params, call_wrapper& ref)
 {
   warmup(ref);
 
   fmt::print("param,value,time,tag\n");
-
-  auto params = std::vector<std::string>(Parameters);
 
   for (auto i = 0; i < params.size(); ++i) {
     auto gen
@@ -64,7 +63,7 @@ void run_fixed(call_wrapper& ref)
   }
 }
 
-void run_random(call_wrapper& ref)
+void run_random(std::vector<std::string> params, call_wrapper& ref)
 {
   warmup(ref);
 
@@ -76,7 +75,7 @@ void run_random(call_wrapper& ref)
 
   fmt::print("param,value,time,tag\n");
 
-  for (auto const& param : Parameters) {
+  for (auto const& param : params) {
     for (int val = 0; val < Values; ++val) {
       auto b = ref.get_builder();
       gen_base.gen_args(b);
@@ -105,6 +104,25 @@ try {
   auto property_set = props::property_set::load(PropertiesPath);
   auto fn_name = property_set.type_signature.name;
 
+  auto params = [&]() -> std::vector<std::string> {
+    if (Parameters.empty()) {
+      auto ret = std::vector<std::string> {};
+      sig_visitor {
+          on(base_type::integer, [&](auto const& p) { ret.push_back(p.name); }),
+          on(base_type::character,
+             [&](auto const& p) { ret.push_back(p.name); }),
+          on(base_type::floating,
+             [&](auto const& p) { ret.push_back(p.name); }),
+          on(base_type::integer, 1, [&](auto const& p) {}),
+          on(base_type::character, 1, [&](auto const& p) {}),
+          on(base_type::floating, 1, [&](auto const& p) {})}
+          .visit(property_set.type_signature);
+      return ret;
+    } else {
+      return Parameters;
+    }
+  }();
+
   auto lib = dynamic_library(LibraryPath);
 
   auto mod = Module("perf_internal", thread_context::get());
@@ -112,10 +130,10 @@ try {
 
   switch (Mode) {
   case LinearSpace:
-    run_fixed(ref);
+    run_fixed(params, ref);
     return 0;
   case Random:
-    run_random(ref);
+    run_random(params, ref);
     return 0;
   default:
     unimplemented();
