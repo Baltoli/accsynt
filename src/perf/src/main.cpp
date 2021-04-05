@@ -33,50 +33,50 @@ void warmup(call_wrapper& ref)
 
 void run_fixed(call_wrapper& ref)
 {
-  warmup(ref);
+  /* warmup(ref); */
 
-  auto gen = override_generator(Parameter, 0LL, MemSize);
+  /* auto gen = override_generator(Parameter, 0LL, MemSize); */
 
-  fmt::print("param,value,time,tag\n");
+  /* fmt::print("param,value,time,tag\n"); */
 
-  for (int val = Start; val < End; val += Step) {
-    gen.set_value(Parameter, val);
+  /* for (int val = Start; val < End; val += Step) { */
+  /*   gen.set_value(Parameter, val); */
 
-    for (auto i = 0; i < Reps; ++i) {
-      auto b = ref.get_builder();
-      gen.gen_args(b);
+  /*   for (auto i = 0; i < Reps; ++i) { */
+  /*     auto b = ref.get_builder(); */
+  /*     gen.gen_args(b); */
 
-      auto [res, t] = ref.call_timed(b);
-      fmt::print("{},{},{},{}\n", Parameter, val, t.count(), Tag);
-    }
-  }
+  /*     auto [res, t] = ref.call_timed(b); */
+  /*     fmt::print("{},{},{},{}\n", Parameter, val, t.count(), Tag); */
+  /*   } */
+  /* } */
 }
 
 void run_random(call_wrapper& ref)
 {
-  warmup(ref);
+  /* warmup(ref); */
 
-  auto gen_base = uniform_generator(128);
-  gen_base.int_min = Min;
-  gen_base.int_max = Max;
-  gen_base.float_min = float(Min);
-  gen_base.float_max = float(Max);
+  /* auto gen_base = uniform_generator(128); */
+  /* gen_base.int_min = Min; */
+  /* gen_base.int_max = Max; */
+  /* gen_base.float_min = float(Min); */
+  /* gen_base.float_max = float(Max); */
 
-  fmt::print("param,value,time,tag\n");
+  /* fmt::print("param,value,time,tag\n"); */
 
-  for (int val = 0; val < Values; ++val) {
-    auto b = ref.get_builder();
-    gen_base.gen_args(b);
+  /* for (int val = 0; val < Values; ++val) { */
+  /*   auto b = ref.get_builder(); */
+  /*   gen_base.gen_args(b); */
 
-    for (auto i = 0; i < Reps; ++i) {
-      auto clone = b;
+  /*   for (auto i = 0; i < Reps; ++i) { */
+  /*     auto clone = b; */
 
-      auto [res, t] = ref.call_timed(clone);
-      auto used_arg = clone.get<int64_t>(Parameter);
+  /*     auto [res, t] = ref.call_timed(clone); */
+  /*     auto used_arg = clone.get<int64_t>(Parameter); */
 
-      fmt::print("{},{},{},{}\n", Parameter, used_arg, t.count(), Tag);
-    }
-  }
+  /*     fmt::print("{},{},{},{}\n", Parameter, used_arg, t.count(), Tag); */
+  /*   } */
+  /* } */
 }
 
 int main(int argc, char** argv)
