@@ -40,7 +40,7 @@ void run_fixed(call_wrapper& ref)
   fmt::print("param,value,time,tag\n");
 
   for (int val = Start; val < End; val += Step) {
-    gen.set_value(val);
+    gen.set_value(Parameter, val);
 
     for (auto i = 0; i < Reps; ++i) {
       auto b = ref.get_builder();

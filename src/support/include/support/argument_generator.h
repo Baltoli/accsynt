@@ -11,6 +11,7 @@
 #include <memory>
 #include <random>
 #include <type_traits>
+#include <unordered_map>
 
 namespace support {
 
@@ -200,13 +201,13 @@ public:
   template <typename... Args>
   override_generator(std::string key, Value&& val, Args&&... args);
 
-  void set_value(Value&& v);
+  void set_value(std::string const& k, Value v);
   void gen_args(call_builder&);
 
 private:
   uniform_generator base_gen_;
-  std::string key_;
-  Value value_;
+
+  std::unordered_map<std::string, Value> map_;
 };
 
 /**
@@ -276,16 +277,15 @@ template <typename... Args>
 override_generator<Value>::override_generator(
     std::string key, Value&& val, Args&&... args)
     : base_gen_(std::forward<Args>(args)...)
-    , key_(key)
-    , value_(val)
+    , map_ {{key, val}}
 {
   base_gen_.preallocate(16);
 }
 
 template <typename Value>
-void override_generator<Value>::set_value(Value&& v)
+void override_generator<Value>::set_value(std::string const& key, Value v)
 {
-  value_ = std::forward<Value>(v);
+  map_[key] = v;
 }
 
 template <typename Value>
@@ -297,10 +297,12 @@ void override_generator<Value>::gen_args(call_builder& build)
 
   auto make_action = [&](auto&& action) {
     return [&](auto const& p) {
-      if (p.name == key_) {
-        build.add(value_);
-      } else {
-        action();
+      for (auto const& [key, value] : map_) {
+        if (p.name == key) {
+          build.add(value);
+        } else {
+          action();
+        }
       }
     };
   };
