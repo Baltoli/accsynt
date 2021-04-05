@@ -24,6 +24,9 @@ add_executable(props-filter
 add_executable(norm
   src/norm.cpp)
 
+add_executable(sanity-check
+  src/sanity-check.cpp)
+
 target_link_libraries(convert
   CONAN_PKG::fmt
   ${llvm_libs}
@@ -65,6 +68,14 @@ target_link_libraries(norm
   support)
 
 target_link_filesystem(norm)
+
+target_link_libraries(sanity-check
+  CONAN_PKG::fmt
+  ${llvm_libs}
+  props
+  support)
+
+target_link_filesystem(sanity-check)
 
 install(
   TARGETS detect convert graph-match cyclo instrcount norm

@@ -21,16 +21,62 @@
 using namespace support;
 using namespace llvm;
 
-template <typename F>
-auto timed(F&& func)
+void warmup(call_wrapper& ref)
 {
-  auto clk = std::chrono::steady_clock {};
+  auto gen = uniform_generator();
+  auto b = ref.get_builder();
 
-  auto start = clk.now();
-  auto ret = std::forward<F>(func)();
-  auto end = clk.now();
+  gen.gen_args(b);
 
-  return std::pair {end - start, ret};
+  ref.call(b);
+}
+
+void run_fixed(call_wrapper& ref)
+{
+  warmup(ref);
+
+  auto gen = override_generator(Parameter, 0LL, MemSize);
+
+  fmt::print("param,value,time,tag\n");
+
+  for (int val = Start; val < End; val += Step) {
+    gen.set_value(val);
+
+    for (auto i = 0; i < Reps; ++i) {
+      auto b = ref.get_builder();
+      gen.gen_args(b);
+
+      auto [res, t] = ref.call_timed(b);
+      fmt::print("{},{},{},{}\n", Parameter, val, t.count(), Tag);
+    }
+  }
+}
+
+void run_random(call_wrapper& ref)
+{
+  warmup(ref);
+
+  auto gen_base = uniform_generator(128);
+  gen_base.int_min = Min;
+  gen_base.int_max = Max;
+  gen_base.float_min = float(Min);
+  gen_base.float_max = float(Max);
+
+  fmt::print("param,value,time,tag\n");
+
+  for (int val = 0; val < Values; ++val) {
+    auto b = ref.get_builder();
+    gen_base.gen_args(b);
+
+    for (auto i = 0; i < Reps; ++i) {
+      auto clone = b;
+
+      auto [res, t] = ref.call_timed(clone);
+      auto used_arg = clone.get<int64_t>(Parameter);
+
+      fmt::print("{},{},{},{}\n", Parameter, used_arg, t.count(), Tag);
+    }
+  }
 }
 
 int main(int argc, char** argv)
@@ -50,28 +96,25 @@ try {
   auto mod = Module("perf_internal", thread_context::get());
   auto ref = call_wrapper(property_set.type_signature, mod, fn_name, lib);
 
-  auto gen = override_generator(Parameter, 0LL, MemSize);
-
-  fmt::print("param,value,time\n");
-
-  for (int val = Start; val < End; val += Step) {
-    gen.set_value(val);
-
-    for (auto i = 0; i < Reps; ++i) {
-      auto b = ref.get_builder();
-      gen.gen_args(b);
-
-      auto [res, t] = ref.call_timed(b);
-      fmt::print("{},{},{}\n", Parameter, val, t.count());
-    }
+  switch (Mode) {
+  case LinearSpace:
+    run_fixed(ref);
+    return 0;
+  case Random:
+    run_random(ref);
+    return 0;
+  default:
+    unimplemented();
   }
 
 } catch (props::parse_error& perr) {
-  errs() << perr.what() << '\n';
-  errs() << "  when parsing property set " << PropertiesPath << '\n';
+  fmt::print(
+      stderr, "{}\n  when parsing property set {}\n", perr.what(),
+      PropertiesPath);
   return 2;
 } catch (dyld_error& derr) {
-  errs() << derr.what() << '\n';
-  errs() << "  when loading dynamic library " << LibraryPath << '\n';
+  fmt::print(
+      stderr, "{}\n  when loading dynamic library {}\n", derr.what(),
+      LibraryPath);
   return 3;
 }
