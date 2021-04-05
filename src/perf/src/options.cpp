@@ -11,6 +11,12 @@ cl::opt<std::string>
 cl::opt<std::string>
     Parameter(cl::Positional, cl::Required, cl::desc("<parameter name>"));
 
+cl::list<std::string>
+    FixedParams("fix", cl::ZeroOrMore, cl::desc("<parameter name>"));
+
+cl::alias
+    FixedParamsA("f", cl::desc("Alias for -fix"), cl::aliasopt(FixedParams));
+
 cl::opt<std::string> Tag(cl::Positional, cl::Required, cl::desc("<tag>"));
 
 cl::OptionCategory Experiments(

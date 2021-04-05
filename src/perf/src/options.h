@@ -9,6 +9,7 @@ extern llvm::cl::opt<PerfMode> Mode;
 extern llvm::cl::opt<std::string> PropertiesPath;
 extern llvm::cl::opt<std::string> LibraryPath;
 extern llvm::cl::opt<std::string> Parameter;
+extern llvm::cl::list<std::string> FixedParams;
 extern llvm::cl::opt<std::string> Tag;
 
 extern llvm::cl::opt<int> Start;
