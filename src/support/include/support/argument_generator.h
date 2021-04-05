@@ -199,7 +199,11 @@ template <typename Value>
 class override_generator {
 public:
   template <typename... Args>
-  override_generator(std::string key, Value&& val, Args&&... args);
+  override_generator(
+      std::unordered_map<std::string, Value> map, Args&&... args);
+
+  template <typename... Args>
+  override_generator(std::string key, Value val, Args&&... args);
 
   void set_value(std::string const& k, Value v);
   void gen_args(call_builder&);
@@ -275,11 +279,21 @@ std::vector<T> uniform_generator::gen_array_internal()
 template <typename Value>
 template <typename... Args>
 override_generator<Value>::override_generator(
-    std::string key, Value&& val, Args&&... args)
+    std::unordered_map<std::string, Value> map, Args&&... args)
     : base_gen_(std::forward<Args>(args)...)
-    , map_ {{key, val}}
+    , map_(map)
 {
   base_gen_.preallocate(16);
+}
+
+template <typename Value>
+template <typename... Args>
+override_generator<Value>::override_generator(
+    std::string key, Value val, Args&&... args)
+    : override_generator(
+        std::unordered_map<std::string, Value> {{key, val}},
+        std::forward<Args>(args)...)
+{
 }
 
 template <typename Value>
@@ -297,12 +311,18 @@ void override_generator<Value>::gen_args(call_builder& build)
 
   auto make_action = [&](auto&& action) {
     return [&](auto const& p) {
+      auto any = false;
+
       for (auto const& [key, value] : map_) {
         if (p.name == key) {
           build.add(value);
-        } else {
-          action();
+          any = true;
+          break;
         }
+      }
+
+      if (!any) {
+        action();
       }
     };
   };

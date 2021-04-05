@@ -53,6 +53,14 @@ cl::opt<int>
     Max("max", cl::desc("Maximum bounding value for random generation"),
         cl::value_desc("integer"), cl::init(64), cl::cat(Experiments));
 
+cl::opt<int> Independent(
+    "independent", cl::desc("Fixed value for parameters held independent"),
+    cl::value_desc("integer"), cl::init(4096), cl::cat(Experiments));
+
+cl::alias IndependentA(
+    "i", cl::desc("Alias for -independent"), cl::aliasopt(Independent),
+    cl::cat(Experiments));
+
 cl::OptionCategory
     Memory("Memory options", "Fine-tuning memory allocation sizes and checks");
 

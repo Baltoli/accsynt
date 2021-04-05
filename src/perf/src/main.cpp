@@ -15,6 +15,7 @@
 #include <llvm/IR/Module.h>
 #include <llvm/Support/CommandLine.h>
 
+#include <algorithm>
 #include <chrono>
 #include <type_traits>
 
@@ -33,23 +34,34 @@ void warmup(call_wrapper& ref)
 
 void run_fixed(call_wrapper& ref)
 {
-  /* warmup(ref); */
+  warmup(ref);
 
-  /* auto gen = override_generator(Parameter, 0LL, MemSize); */
+  fmt::print("param,value,time,tag\n");
 
-  /* fmt::print("param,value,time,tag\n"); */
+  auto params = std::vector<std::string>(Parameters);
 
-  /* for (int val = Start; val < End; val += Step) { */
-  /*   gen.set_value(Parameter, val); */
+  for (auto i = 0; i < params.size(); ++i) {
+    auto gen
+        = override_generator(std::unordered_map<std::string, long> {}, MemSize);
 
-  /*   for (auto i = 0; i < Reps; ++i) { */
-  /*     auto b = ref.get_builder(); */
-  /*     gen.gen_args(b); */
+    for (auto i = 1; i < params.size(); ++i) {
+      gen.set_value(params[i], Independent);
+    }
 
-  /*     auto [res, t] = ref.call_timed(b); */
-  /*     fmt::print("{},{},{},{}\n", Parameter, val, t.count(), Tag); */
-  /*   } */
-  /* } */
+    for (int val = Start; val < End; val += Step) {
+      gen.set_value(params[0], val);
+
+      for (auto i = 0; i < Reps; ++i) {
+        auto b = ref.get_builder();
+        gen.gen_args(b);
+
+        auto [res, t] = ref.call_timed(b);
+        fmt::print("{},{},{},{}\n", params[0], val, t.count(), Tag);
+      }
+    }
+
+    std::rotate(params.begin(), params.begin() + 1, params.end());
+  }
 }
 
 void run_random(call_wrapper& ref)

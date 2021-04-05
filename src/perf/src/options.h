@@ -19,5 +19,6 @@ extern llvm::cl::opt<int> Reps;
 
 extern llvm::cl::opt<int> Min;
 extern llvm::cl::opt<int> Max;
+extern llvm::cl::opt<int> Independent;
 
 extern llvm::cl::opt<int> MemSize;
