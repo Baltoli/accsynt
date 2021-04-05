@@ -52,11 +52,6 @@ void* dynamic_library::raw_symbol(const std::string& sym) const
 
   dlerror();
   void* dy_sym = dlsym(lib_, sym.c_str());
-  char const* err = dlerror();
-  if (err) {
-    throw dyld_error(err);
-  }
-
   return dy_sym;
 }
 
