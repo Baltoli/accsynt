@@ -230,7 +230,7 @@ std::optional<std::string> candidate::arg_name(llvm::Value* arg) const
     if (arr_t->getElementType()->isIntegerTy(8)) {
       auto str = std::vector<char> {};
 
-      for (auto i = 0; i < arr_t->getNumElements(); ++i) {
+      for (auto i = 0u; i < arr_t->getNumElements(); ++i) {
         auto elt = const_val->getAggregateElement(i);
         auto chr = ::support::narrow_cast<char>(
             elt->getUniqueInteger().getSExtValue());
