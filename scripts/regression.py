@@ -5,6 +5,9 @@ import pandas as pd
 import scipy.optimize as opt
 import sys
 
+def const(x, cst):
+    return cst
+
 def linear(x, lin):
     return lin * x
 
@@ -21,7 +24,7 @@ if __name__ == "__main__":
             reset_index()
 
     for (func, param), g in df.groupby(['tag', 'param']):
-        for model in [linear, square, log]:
+        for model in [const, linear, square, log]:
             popt, pcov = opt.curve_fit(model, g['value'], g['time'])
             residuals = g['time'] - model(g['value'], *popt)
             ss_res = np.sum(residuals**2)
