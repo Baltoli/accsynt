@@ -121,7 +121,7 @@ build_for<fixed_loop>(grammar::fragment_parse const& parse)
   assertion(
       parse.child_args.size() <= 1, "Fixed takes at most 1 child argument");
 
-  for (int i = 1; i < parse.template_args.size(); ++i) {
+  for (auto i = 1u; i < parse.template_args.size(); ++i) {
     assertion(
         std::holds_alternative<std::string>(parse.template_args[i]),
         "Pointer arguments to fixed loop must be named");
