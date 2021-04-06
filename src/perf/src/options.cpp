@@ -8,10 +8,14 @@ cl::opt<std::string>
 cl::opt<std::string>
     LibraryPath(cl::Positional, cl::Required, cl::desc("<shared library>"));
 
-cl::opt<std::string> Tag(cl::Positional, cl::Required, cl::desc("<tag>"));
+cl::list<std::string> Parameters(
+    cl::Positional, cl::ZeroOrMore, cl::desc("<parameter names...>"));
 
-cl::list<std::string>
-    Parameters(cl::Positional, cl::OneOrMore, cl::desc("<parameter names...>"));
+cl::opt<std::string>
+    Tag("tag", cl::desc("Tag for example in dataset"), cl::value_desc("string"),
+        cl::init(""));
+
+cl::alias TagA("t", cl::desc("Alias for -tag"), cl::aliasopt(Tag));
 
 cl::OptionCategory Experiments(
     "Experimental options",
