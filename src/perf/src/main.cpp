@@ -110,16 +110,9 @@ try {
   auto params = [&]() -> std::vector<std::string> {
     if (Parameters.empty()) {
       auto ret = std::vector<std::string> {};
-      sig_visitor {
-          on(base_type::integer, [&](auto const& p) { ret.push_back(p.name); }),
-          on(base_type::character,
-             [&](auto const& p) { ret.push_back(p.name); }),
-          on(base_type::floating,
-             [&](auto const& p) { ret.push_back(p.name); }),
-          on(base_type::integer, 1, [&](auto const& p) {}),
-          on(base_type::character, 1, [&](auto const& p) {}),
-          on(base_type::floating, 1, [&](auto const& p) {})}
-          .visit(property_set.type_signature);
+      sig_visitor {on(base_type::integer, [&](auto const& p) {
+        ret.push_back(p.name);
+      })}.visit(property_set.type_signature);
       return ret;
     } else {
       return Parameters;
@@ -151,7 +144,6 @@ try {
   default:
     unimplemented();
   }
-
 } catch (props::parse_error& perr) {
   fmt::print(
       stderr, "{}\n  when parsing property set {}\n", perr.what(),
