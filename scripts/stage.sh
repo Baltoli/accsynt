@@ -19,22 +19,23 @@ shift
 
 file_names=$(find $dir -name '*.props')
 files=($file_names)
-i=1
-n=${#files[@]}
 
 script="get-perf-data.sh"
 
-echo "#!/usr/bin/env bash" > $script
-chmod +x $script
+echo "#!/usr/bin/env bash" >> $script
+echo "pids=()" >> $script
 
 for f in ${files[@]}; do
   base=$(basename $f .props)
-  echo "echo \"[$i/$n] Running $base...\""
+#   echo "echo \"[$i/$n] Running $base...\""
   echo -n $model $f $dylib \
     --linear --reps=10 \
     --step=8 --start=0 --end=2048 \
     --independent=512 --memsize=120
-  echo " > $output/$base.csv"
+  echo " > $output/$base.csv &"
+  echo 'pids+=($!)'
+done >> $script
 
-  i=$((i+1))
-done > $script
+echo 'wait ${pids[@]}' >> $script
+
+chmod +x $script
