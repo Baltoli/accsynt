@@ -135,6 +135,8 @@ try {
   }();
 
   auto lib = dynamic_library(LibraryPath);
+  auto disable_trace = lib.symbol<void()>("disable_trace");
+  disable_trace();
 
   auto mod = Module("perf_internal", thread_context::get());
   auto ref = call_wrapper(property_set.type_signature, mod, fn_name, lib);
