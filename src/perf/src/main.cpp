@@ -17,6 +17,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <string_view>
 #include <type_traits>
 
 using namespace support;
@@ -33,7 +34,8 @@ void warmup(call_wrapper& ref)
   ref.call(b);
 }
 
-void run_fixed(std::vector<std::string> params, call_wrapper& ref)
+void run_fixed(
+    std::vector<std::string> params, call_wrapper& ref, std::string_view tag)
 {
   warmup(ref);
 
@@ -55,7 +57,7 @@ void run_fixed(std::vector<std::string> params, call_wrapper& ref)
         gen.gen_args(b);
 
         auto [res, t] = ref.call_timed(b);
-        fmt::print("{},{},{},{}\n", params[0], val, t.count(), Tag);
+        fmt::print("{},{},{},{}\n", params[0], val, t.count(), tag);
       }
     }
 
@@ -63,7 +65,8 @@ void run_fixed(std::vector<std::string> params, call_wrapper& ref)
   }
 }
 
-void run_random(std::vector<std::string> params, call_wrapper& ref)
+void run_random(
+    std::vector<std::string> params, call_wrapper& ref, std::string_view tag)
 {
   warmup(ref);
 
@@ -86,7 +89,7 @@ void run_random(std::vector<std::string> params, call_wrapper& ref)
         auto [res, t] = ref.call_timed(clone);
         auto used_arg = clone.get<int64_t>(param);
 
-        fmt::print("{},{},{},{}\n", param, used_arg, t.count(), Tag);
+        fmt::print("{},{},{},{}\n", param, used_arg, t.count(), tag);
       }
     }
   }
@@ -123,6 +126,14 @@ try {
     }
   }();
 
+  auto tag = [&]() -> std::string {
+    if (Tag.empty()) {
+      return property_set.type_signature.name;
+    } else {
+      return Tag;
+    }
+  }();
+
   auto lib = dynamic_library(LibraryPath);
 
   auto mod = Module("perf_internal", thread_context::get());
@@ -130,10 +141,10 @@ try {
 
   switch (Mode) {
   case LinearSpace:
-    run_fixed(params, ref);
+    run_fixed(params, ref, tag);
     return 0;
   case Random:
-    run_random(params, ref);
+    run_random(params, ref, tag);
     return 0;
   default:
     unimplemented();
