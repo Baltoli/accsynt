@@ -39,11 +39,11 @@ void run_fixed(std::vector<std::string> params, call_wrapper& ref)
 
   fmt::print("param,value,time,tag\n");
 
-  for (auto i = 0; i < params.size(); ++i) {
+  for (auto i = 0u; i < params.size(); ++i) {
     auto gen
         = override_generator(std::unordered_map<std::string, long> {}, MemSize);
 
-    for (auto i = 1; i < params.size(); ++i) {
+    for (auto i = 1u; i < params.size(); ++i) {
       gen.set_value(params[i], Independent);
     }
 
