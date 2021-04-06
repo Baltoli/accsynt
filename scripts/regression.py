@@ -53,8 +53,16 @@ if __name__ == "__main__":
             agg({'time': 'mean'}).\
             reset_index()
 
+    print("function,param,model")
+
     for (func, param), g in df.groupby(['tag', 'param']):
-        models = [Const(), Linear(), Polynomial(2), Log(2)]
+        models = [
+            Const(), 
+            Linear(),
+            Polynomial(2),
+            Log(2)
+        ]
+
         scores = [fit_r_squared(m, g['value'], g['time']) for m in models]
         best = max(scores, key=lambda s: s[1])
-        print(best)
+        print(f"{func},{param},{best[2]}")
