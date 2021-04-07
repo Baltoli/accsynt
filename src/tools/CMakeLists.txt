@@ -28,6 +28,7 @@ add_executable(sanity-check
   src/sanity-check.cpp)
 
 add_executable(instrument
+  src/print_opcode.cpp
   src/instrument.cpp)
 
 target_link_libraries(convert

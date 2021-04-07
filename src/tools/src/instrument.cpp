@@ -1,3 +1,5 @@
+#include "print_opcode.h"
+
 #include <support/file.h>
 #include <support/thread_context.h>
 
@@ -26,7 +28,7 @@ static cl::opt<bool> Textual(
 static cl::opt<bool> Force(
     "f", cl::desc("Force binary output to the terminal"), cl::init(false));
 
-void instrument(Module& mod) { }
+void instrument(Module& mod) { PrintOpcodeVisitor().visit(mod); }
 
 int main(int argc, char** argv)
 {
