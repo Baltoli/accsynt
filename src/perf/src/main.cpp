@@ -95,6 +95,15 @@ void run_random(
   }
 }
 
+void normalise_names(property_set& ps)
+{
+  auto idx = 0;
+
+  sig_visitor {on(base_type::integer, [&](auto& p) {
+    p.name = fmt::format("param_id_{}", idx++);
+  })}.visit(ps.type_signature);
+}
+
 int main(int argc, char** argv)
 try {
   LLVMInitializeNativeTarget();
@@ -105,6 +114,8 @@ try {
   cl::ParseCommandLineOptions(argc, argv);
 
   auto property_set = props::property_set::load(PropertiesPath);
+  normalise_names(property_set);
+
   auto fn_name = property_set.type_signature.name;
 
   auto params = [&]() -> std::vector<std::string> {
