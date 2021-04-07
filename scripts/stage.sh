@@ -31,8 +31,8 @@ for f in ${files[@]}; do
   base=$(basename $f .props)
   echo "echo \"[$i/$n] Running $base...\""
   echo -n $model $f $dylib \
-    --linear --reps=10 \
-    --step=4 --start=0 --end=4096 \
+    --linear --reps=30 \
+    --step=1 --start=0 --end=4096 \
     --independent=256 --memsize=140
   echo " > $output/$base.csv"
 
