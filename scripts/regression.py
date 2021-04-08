@@ -34,7 +34,7 @@ class Log:
         self.base = base
 
     def __repr__(self):
-        return f"log({self.exp})"
+        return f"log({self.base})"
 
     def __call__(self, x, coef):
         return coef * np.log(x + 0.0001)
@@ -60,6 +60,8 @@ if __name__ == "__main__":
             Const(), 
             Linear(),
             Polynomial(2),
+            Polynomial(3),
+            Polynomial(4),
             Log(2)
         ]
 

@@ -49,6 +49,8 @@ void run_fixed(
       gen.set_value(params[i], Independent);
     }
 
+    auto done = false;
+
     for (int val = Start; val < End; val += Step) {
       gen.set_value(params[0], val);
 
@@ -58,6 +60,14 @@ void run_fixed(
 
         auto [res, t] = ref.call_timed(b);
         fmt::print("{},{},{},{}\n", params[0], val, t.count(), tag);
+
+	if(t.count() > 100'000'000) {
+		done = true;
+	}
+      }
+
+      if(done) {
+	      break;
       }
     }
 
@@ -95,6 +105,37 @@ void run_random(
   }
 }
 
+void run_single(
+    std::vector<std::string> params, call_wrapper& ref, std::string_view tag)
+{
+  warmup(ref);
+
+  auto gen
+      = override_generator(std::unordered_map<std::string, long> {}, MemSize);
+
+  fmt::print("value,time,tag\n");
+
+  auto b = ref.get_builder();
+  gen.gen_args(b);
+
+  for (auto i = 0; i < Reps; ++i) {
+    auto clone = b;
+
+    auto [res, t] = ref.call_timed(clone);
+
+    fmt::print("{},{},{}\n", Independent, t.count(), tag);
+  }
+}
+
+void normalise_names(property_set& ps)
+{
+  auto idx = 0;
+
+  sig_visitor {on(base_type::integer, [&](auto& p) {
+    p.name = fmt::format("param_id_{}", idx++);
+  })}.visit(ps.type_signature);
+}
+
 int main(int argc, char** argv)
 try {
   LLVMInitializeNativeTarget();
@@ -105,6 +146,8 @@ try {
   cl::ParseCommandLineOptions(argc, argv);
 
   auto property_set = props::property_set::load(PropertiesPath);
+  normalise_names(property_set);
+
   auto fn_name = property_set.type_signature.name;
 
   auto params = [&]() -> std::vector<std::string> {
@@ -140,6 +183,9 @@ try {
     return 0;
   case Random:
     run_random(params, ref, tag);
+    return 0;
+  case Single:
+    run_single(params, ref, tag);
     return 0;
   default:
     unimplemented();
