@@ -32,8 +32,8 @@ for f in ${files[@]}; do
   echo "echo \"[$i/$n] Running $base...\""
   echo -n $model $f $dylib \
     --linear --reps=10 \
-    --step=8 --start=0 --end=2048 \
-    --independent=512 --memsize=120
+    --step=8 --start=1 --end=3072 \
+    --independent=256 --memsize=90
   echo " > $output/$base.csv"
 
   i=$((i+1))
