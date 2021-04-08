@@ -194,5 +194,8 @@ mapping = {
 "mult": "utdsp",
 }
 
+def lookup(name):
+    return mapping[name]
+
 if __name__ == "__main__":
-    print(mapping[sys.argv[1]])
+    print(lookup(sys.argv[1]))
