@@ -49,6 +49,8 @@ void run_fixed(
       gen.set_value(params[i], Independent);
     }
 
+    auto done = false;
+
     for (int val = Start; val < End; val += Step) {
       gen.set_value(params[0], val);
 
@@ -58,6 +60,14 @@ void run_fixed(
 
         auto [res, t] = ref.call_timed(b);
         fmt::print("{},{},{},{}\n", params[0], val, t.count(), tag);
+
+	if(t.count() > 100'000'000) {
+		done = true;
+	}
+      }
+
+      if(done) {
+	      break;
       }
     }
 
