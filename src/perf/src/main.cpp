@@ -95,6 +95,28 @@ void run_random(
   }
 }
 
+void run_single(
+    std::vector<std::string> params, call_wrapper& ref, std::string_view tag)
+{
+  warmup(ref);
+
+  auto gen
+      = override_generator(std::unordered_map<std::string, long> {}, MemSize);
+
+  fmt::print("value,time,tag\n");
+
+  auto b = ref.get_builder();
+  gen.gen_args(b);
+
+  for (auto i = 0; i < Reps; ++i) {
+    auto clone = b;
+
+    auto [res, t] = ref.call_timed(clone);
+
+    fmt::print("{},{},{}\n", Independent, t.count(), tag);
+  }
+}
+
 void normalise_names(property_set& ps)
 {
   auto idx = 0;
@@ -151,6 +173,9 @@ try {
     return 0;
   case Random:
     run_random(params, ref, tag);
+    return 0;
+  case Single:
+    run_single(params, ref, tag);
     return 0;
   default:
     unimplemented();

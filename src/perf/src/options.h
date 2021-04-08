@@ -2,7 +2,7 @@
 
 #include <llvm/Support/CommandLine.h>
 
-enum PerfMode { Random, LinearSpace };
+enum PerfMode { Random, LinearSpace, Single };
 
 extern llvm::cl::opt<PerfMode> Mode;
 

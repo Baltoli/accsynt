@@ -26,7 +26,9 @@ cl::opt<PerfMode> Mode(
     cl::values(
         clEnumValN(LinearSpace, "linear", "Sample from a uniform linear space"),
         clEnumValN(
-            Random, "random", "Sample randomly (baseline implementation)")),
+            Random, "random", "Sample randomly (baseline implementation)"),
+        clEnumValN(
+            Single, "single", "Run a single randomly-sampled experiment")),
     cl::init(LinearSpace), cl::cat(Experiments));
 
 cl::opt<int> Start(
