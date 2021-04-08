@@ -60,6 +60,8 @@ if __name__ == "__main__":
             Const(), 
             Linear(),
             Polynomial(2),
+            Polynomial(3),
+            Polynomial(4),
             Log(2)
         ]
 

@@ -18,7 +18,7 @@ collatz,param_id_0,log(2)
 convol,param_id_0,linear
 convol,param_id_1,linear
 convolution,param_id_0,linear
-convolve2d,param_id_0,poly(2)
+convolve2d,param_id_0,poly(4)
 convolve2d,param_id_1,poly(2)
 count_each,param_id_0,const
 count_odds,param_id_0,linear
@@ -27,7 +27,7 @@ da,param_id_0,const
 dag_src,param_id_0,poly(2)
 darken,param_id_0,linear
 darken,param_id_1,linear
-dct,param_id_0,poly(2)
+dct,param_id_0,poly(3)
 digit_prod,param_id_0,const
 digits,param_id_0,const
 diveq_sca,param_id_0,const
@@ -70,7 +70,7 @@ kernel_3mm,param_id_3,const
 kernel_3mm,param_id_4,const
 kernel_atax,param_id_0,linear
 kernel_bicg,param_id_0,linear
-kernel_cholesky,param_id_0,poly(2)
+kernel_cholesky,param_id_0,poly(3)
 kernel_correlation,param_id_0,poly(2)
 kernel_correlation,param_id_1,linear
 kernel_covariance,param_id_0,poly(2)
@@ -80,7 +80,7 @@ kernel_fdtd_2,param_id_1,const
 kernel_fdtd_2d,param_id_0,const
 kernel_fdtd_2d,param_id_1,linear
 kernel_fdtd_2d,param_id_2,linear
-kernel_floyd_warshall,param_id_0,poly(2)
+kernel_floyd_warshall,param_id_0,poly(3)
 kernel_gemm,param_id_0,linear
 kernel_gemm,param_id_1,linear
 kernel_gemm,param_id_2,linear
@@ -90,7 +90,7 @@ kernel_gramschmidt,param_id_0,linear
 kernel_gramschmidt,param_id_1,poly(2)
 kernel_jacobi_1d_imper,param_id_0,linear
 kernel_jacobi_1d_imper,param_id_1,linear
-kernel_lu,param_id_0,poly(2)
+kernel_lu,param_id_0,poly(3)
 kernel_mvt,param_id_0,poly(2)
 kernel_seidel_2d,param_id_0,const
 kernel_seidel_2d,param_id_1,poly(2)
@@ -101,7 +101,7 @@ kernel_syr2k,param_id_1,linear
 kernel_syrk,param_id_0,poly(2)
 kernel_syrk,param_id_1,linear
 kernel_trisolv,param_id_0,poly(2)
-kernel_trmm,param_id_0,poly(2)
+kernel_trmm,param_id_0,poly(3)
 last_elem,param_id_0,linear
 last_zero_idx,param_id_0,linear
 latnrm,param_id_0,linear
