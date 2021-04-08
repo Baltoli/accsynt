@@ -16,6 +16,7 @@ shift
 
 output="$1"
 shift
+mkdir -p "$output"
 
 file_names=$(find $dir -name '*.props')
 files=($file_names)
@@ -33,7 +34,7 @@ for f in ${files[@]}; do
   echo -n $model $f $dylib \
     --single --reps=30 \
     --independent=2048 --memsize=80
-  echo " >> $output/${base}_eval.csv"
+  echo " >> $output/$base.csv"
 
   i=$((i+1))
 done > $script
