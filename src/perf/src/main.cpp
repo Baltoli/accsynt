@@ -121,6 +121,10 @@ void run_single(
   auto gen
       = override_generator(std::unordered_map<std::string, long> {}, MemSize);
 
+  for (auto const& param : params) {
+    gen.set_value(param, Independent);
+  }
+
   print("value,time,tag\n");
 
   auto b = ref.get_builder();
