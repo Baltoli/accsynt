@@ -28,7 +28,14 @@ static cl::opt<bool> Textual(
 static cl::opt<bool> Force(
     "f", cl::desc("Force binary output to the terminal"), cl::init(false));
 
-void instrument(Module& mod) { PrintOpcodeVisitor().visit(mod); }
+static cl::opt<std::string>
+    Tag("tag", cl::desc("Override function names as row tags"), cl::init(""));
+
+void instrument(Module& mod)
+{
+  auto v = Tag.empty() ? PrintOpcodeVisitor() : PrintOpcodeVisitor(Tag);
+  v.visit(mod);
+}
 
 int main(int argc, char** argv)
 {
