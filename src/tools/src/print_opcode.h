@@ -12,7 +12,13 @@ public:
   PrintOpcodeVisitor();
   explicit PrintOpcodeVisitor(std::string);
 
-  void visitInstruction(llvm::Instruction&);
+  void visitBinaryOperator(llvm::BinaryOperator&);
+  void visitUnaryOperator(llvm::UnaryOperator&);
+  void visitCmpInst(llvm::CmpInst&);
+  void visitLoadInst(llvm::LoadInst&);
+  void visitStoreInst(llvm::StoreInst&);
+  void visitBranchInst(llvm::BranchInst&);
+  void visitReturnInst(llvm::ReturnInst&);
 
 private:
   std::optional<std::string> tag_;

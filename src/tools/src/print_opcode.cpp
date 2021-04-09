@@ -41,7 +41,40 @@ void PrintOpcodeVisitor::instrument(llvm::Instruction& inst, std::string str)
   b.CreateCall(decl, {format, str_v, tag_v});
 }
 
-void PrintOpcodeVisitor::visitInstruction(Instruction& inst) { }
+void PrintOpcodeVisitor::visitBinaryOperator(llvm::BinaryOperator& inst)
+{
+  instrument(inst, inst.getOpcodeName());
+}
+
+void PrintOpcodeVisitor::visitUnaryOperator(llvm::UnaryOperator& inst)
+{
+  instrument(inst, inst.getOpcodeName());
+}
+
+void PrintOpcodeVisitor::visitCmpInst(llvm::CmpInst& inst)
+{
+  instrument(inst, inst.getOpcodeName());
+}
+
+void PrintOpcodeVisitor::visitLoadInst(llvm::LoadInst& inst)
+{
+  instrument(inst, "load");
+}
+
+void PrintOpcodeVisitor::visitStoreInst(llvm::StoreInst& inst)
+{
+  instrument(inst, "store");
+}
+
+void PrintOpcodeVisitor::visitBranchInst(llvm::BranchInst& inst)
+{
+  instrument(inst, "branch");
+}
+
+void PrintOpcodeVisitor::visitReturnInst(llvm::ReturnInst& inst)
+{
+  instrument(inst, "return");
+}
 
 Function* PrintOpcodeVisitor::printer_decl(Module& mod) const
 {
