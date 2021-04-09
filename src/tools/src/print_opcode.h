@@ -1,12 +1,40 @@
 #pragma once
 
 #include <llvm/IR/Function.h>
+#include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/InstVisitor.h>
+
+#include <optional>
+#include <unordered_map>
 
 class PrintOpcodeVisitor : public llvm::InstVisitor<PrintOpcodeVisitor> {
 public:
+  PrintOpcodeVisitor();
+  explicit PrintOpcodeVisitor(std::string);
+
   void visitInstruction(llvm::Instruction&);
 
 private:
+  std::optional<std::string> tag_;
+  std::unordered_map<std::string, llvm::Value*> string_table_;
+
+  std::string tag_at(llvm::Instruction&) const;
+
+  void instrument(llvm::Instruction&, std::string);
+
   llvm::Function* printer_decl(llvm::Module&) const;
+
+  template <typename... Params>
+  llvm::Value* get_string_constant(llvm::IRBuilder<Params...>&, std::string);
 };
+
+template <typename... Params>
+llvm::Value* PrintOpcodeVisitor::get_string_constant(
+    llvm::IRBuilder<Params...>& b, std::string s)
+{
+  if (string_table_.find(s) == string_table_.end()) {
+    string_table_[s] = b.CreateGlobalStringPtr(s);
+  }
+
+  return string_table_.at(s);
+}
