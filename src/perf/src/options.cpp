@@ -73,3 +73,9 @@ cl::OptionCategory
 cl::opt<int> MemSize(
     "memsize", cl::desc("Cube-root of maximum physical memory allocation size"),
     cl::value_desc("integer"), cl::init(32), cl::cat(Memory));
+
+cl::opt<bool> Quiet(
+    "quiet", cl::desc("Don't print timing values"), cl::value_desc("boolean"),
+    cl::init(false));
+
+cl::alias QuietA("q", cl::desc("Alias for -quiet"), cl::aliasopt(Quiet));
