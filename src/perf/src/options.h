@@ -22,3 +22,5 @@ extern llvm::cl::opt<int> Max;
 extern llvm::cl::opt<int> Independent;
 
 extern llvm::cl::opt<int> MemSize;
+
+extern llvm::cl::opt<bool> Quiet;

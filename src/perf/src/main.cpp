@@ -34,12 +34,20 @@ void warmup(call_wrapper& ref)
   ref.call(b);
 }
 
+template <typename... Args>
+void print(Args&&... args)
+{
+  if (!Quiet) {
+    fmt::print(std::forward<Args>(args)...);
+  }
+}
+
 void run_fixed(
     std::vector<std::string> params, call_wrapper& ref, std::string_view tag)
 {
   warmup(ref);
 
-  fmt::print("param,value,time,tag\n");
+  print("param,value,time,tag\n");
 
   for (auto i = 0u; i < params.size(); ++i) {
     auto gen
@@ -59,15 +67,15 @@ void run_fixed(
         gen.gen_args(b);
 
         auto [res, t] = ref.call_timed(b);
-        fmt::print("{},{},{},{}\n", params[0], val, t.count(), tag);
+        print("{},{},{},{}\n", params[0], val, t.count(), tag);
 
-	if(t.count() > 100'000'000) {
-		done = true;
-	}
+        if (t.count() > 100'000'000) {
+          done = true;
+        }
       }
 
-      if(done) {
-	      break;
+      if (done) {
+        break;
       }
     }
 
@@ -86,7 +94,7 @@ void run_random(
   gen_base.float_min = float(Min);
   gen_base.float_max = float(Max);
 
-  fmt::print("param,value,time,tag\n");
+  print("param,value,time,tag\n");
 
   for (auto const& param : params) {
     for (int val = 0; val < Values; ++val) {
@@ -99,7 +107,7 @@ void run_random(
         auto [res, t] = ref.call_timed(clone);
         auto used_arg = clone.get<int64_t>(param);
 
-        fmt::print("{},{},{},{}\n", param, used_arg, t.count(), tag);
+        print("{},{},{},{}\n", param, used_arg, t.count(), tag);
       }
     }
   }
@@ -113,7 +121,7 @@ void run_single(
   auto gen
       = override_generator(std::unordered_map<std::string, long> {}, MemSize);
 
-  fmt::print("value,time,tag\n");
+  print("value,time,tag\n");
 
   auto b = ref.get_builder();
   gen.gen_args(b);
@@ -123,7 +131,7 @@ void run_single(
 
     auto [res, t] = ref.call_timed(clone);
 
-    fmt::print("{},{},{}\n", Independent, t.count(), tag);
+    print("{},{},{}\n", Independent, t.count(), tag);
   }
 }
 
