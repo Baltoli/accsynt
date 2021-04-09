@@ -1,10 +1,35 @@
 #include "print_opcode.h"
 
 #include <llvm/IR/DerivedTypes.h>
+#include <llvm/IR/Dominators.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/Support/raw_ostream.h>
+#include <llvm/Transforms/Utils/PromoteMemToReg.h>
 
 using namespace llvm;
+
+PromoteVisitor::PromoteVisitor()
+    : to_promote_()
+{
+}
+
+void PromoteVisitor::promote() const
+{
+  for (auto& [f, as] : to_promote_) {
+    auto tree = DominatorTree(*f);
+    PromoteMemToReg(as, tree);
+  }
+}
+
+void PromoteVisitor::visitAllocaInst(llvm::AllocaInst& inst)
+{
+  auto func = inst.getParent()->getParent();
+  to_promote_.try_emplace(func);
+
+  if (isAllocaPromotable(&inst)) {
+    to_promote_.at(func).push_back(&inst);
+  }
+}
 
 PrintOpcodeVisitor::PrintOpcodeVisitor()
     : tag_(std::nullopt)

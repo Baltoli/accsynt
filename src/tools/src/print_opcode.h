@@ -7,6 +7,19 @@
 #include <optional>
 #include <unordered_map>
 
+class PromoteVisitor : public llvm::InstVisitor<PromoteVisitor> {
+public:
+  PromoteVisitor();
+
+  void visitAllocaInst(llvm::AllocaInst&);
+
+  void promote() const;
+
+private:
+  std::unordered_map<llvm::Function*, std::vector<llvm::AllocaInst*>>
+      to_promote_;
+};
+
 class PrintOpcodeVisitor : public llvm::InstVisitor<PrintOpcodeVisitor> {
 public:
   PrintOpcodeVisitor();

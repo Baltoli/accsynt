@@ -33,6 +33,10 @@ static cl::opt<std::string>
 
 void instrument(Module& mod)
 {
+  auto p = PromoteVisitor();
+  p.visit(mod);
+  p.promote();
+
   auto v = Tag.empty() ? PrintOpcodeVisitor() : PrintOpcodeVisitor(Tag);
   v.visit(mod);
 }
