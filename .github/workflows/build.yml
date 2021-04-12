@@ -19,7 +19,6 @@ jobs:
     - name: Add Conan remotes
       run: |
         conan remote add value_ptr https://api.bintray.com/conan/baltoli/value_ptr
-        conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
 
     - name: Install LLVM
       run: |
