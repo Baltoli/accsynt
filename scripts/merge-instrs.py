@@ -9,10 +9,17 @@ bad_funcs = [
     'trace_enabled'
 ]
 
+bad_instrs = [
+    'branch',
+    'call',
+    'return'
+]
+
 if __name__ == "__main__":
     dfs = [pd.read_csv(in_f) for in_f in sys.argv[1:]]
     df = pd.concat(dfs)
     df = df[~df['function'].isin(bad_funcs)].dropna()
+    df = df[~df['instruction'].isin(bad_instrs)]
     df['group'] = df['function'].apply(groups.lookup)
 
     totals = {}
