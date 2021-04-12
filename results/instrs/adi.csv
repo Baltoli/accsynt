@@ -11,5 +11,3 @@ fmul,kernel_adi,701
 fdiv,kernel_adi,717
 fsub,kernel_adi,701
 store,kernel_adi,718
-sub,kern,3443
-

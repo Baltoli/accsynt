@@ -13,5 +13,3 @@ fadd,iir_big,7767
 fsub,iir_big,2589
 store,iir_big,5223
 return,iir_big,28570
-icmp,iir_,2680
-

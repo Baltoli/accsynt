@@ -17,5 +17,3 @@ fsub,fft_big,1344
 fadd,fft_big,1344
 store,fft_big,1793
 ashr,fft_big,17
-sub,fft,317391
-

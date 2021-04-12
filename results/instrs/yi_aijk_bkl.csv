@@ -10,5 +10,3 @@ fmul,yi_aijk_bkl,84307588
 fadd,yi_aijk_bkl,84307588
 store,yi_aijk_bkl,65
 return,yi_aijk_bkl,2
-fadd,yi_a,84307588
-

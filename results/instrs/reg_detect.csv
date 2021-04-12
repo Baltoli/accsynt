@@ -10,5 +10,3 @@ load,kernel_reg_detect,338353
 store,kernel_reg_detect,314373
 fadd,kernel_reg_detect,23980
 return,kernel_reg_detect,2
-add,kernel_reg_d,1330186
-
