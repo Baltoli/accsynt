@@ -14,4 +14,11 @@ if __name__ == "__main__":
     df = pd.concat(dfs)
     df = df[~df['function'].isin(bad_funcs)].dropna()
     df['group'] = df['function'].apply(groups.lookup)
+
+    totals = {}
+    for f, gr in df.groupby('function'):
+        totals[f] = gr['freq'].sum()
+
+    df['total'] = df.apply(lambda r: totals[r['function']], axis=1)
+    df['rel_freq'] = df['freq'] / df['total']
     print(df.to_csv(index=False))
