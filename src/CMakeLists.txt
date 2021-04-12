@@ -74,5 +74,6 @@ add_subdirectory(predictor)
 add_subdirectory(presyn)
 add_subdirectory(props)
 add_subdirectory(support)
-add_subdirectory(synth)
+# Deprecated until I can figure out Conan hosting again.
+# add_subdirectory(synth)
 add_subdirectory(tools)

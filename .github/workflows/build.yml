@@ -16,10 +16,6 @@ jobs:
       run: |
         sudo pip install conan
 
-    - name: Add Conan remotes
-      run: |
-        conan remote add value_ptr https://api.bintray.com/conan/baltoli/value_ptr
-
     - name: Install LLVM
       run: |
         wget https://apt.llvm.org/llvm.sh
