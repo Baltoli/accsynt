@@ -1,0 +1,15 @@
+instruction,function,freq
+store,disable_trace,16395
+return,disable_trace,3
+branch,lpc,99396
+icmp,lpc,33304
+load,lpc,57447
+fmul,lpc,24783
+store,lpc,16395
+add,lpc,41055
+sub,lpc,16384
+fadd,lpc,8395
+fdiv,lpc,128
+fsub,lpc,16130
+return,lpc,3
+

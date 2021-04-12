@@ -1,0 +1,14 @@
+instruction,function,freq
+store,disable_trace,409377
+return,disable_trace,2
+branch,yijk_ai_fuse,3479698
+mul,yijk_ai_fuse,1637506
+add,yijk_ai_fuse,2046880
+sdiv,yijk_ai_fuse,1023441
+icmp,yijk_ai_fuse,2046881
+srem,yijk_ai_fuse,818752
+load,yijk_ai_fuse,409376
+store,yijk_ai_fuse,409377
+return,yijk_ai_fuse,2
+branch,yi,3479698
+

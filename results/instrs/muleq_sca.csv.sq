@@ -1,0 +1,11 @@
+instruction,function,freq
+store,disable_trace,144
+return,disable_trace,3
+branch,muleq_sca,433
+icmp,muleq_sca,145
+load,muleq_sca,143
+mul,muleq_sca,143
+store,muleq_sca,144
+add,muleq_sca,143
+return,muleq_sca,3
+

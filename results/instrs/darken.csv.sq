@@ -1,0 +1,12 @@
+instruction,function,freq
+store,disable_trace,16640
+return,disable_trace,3
+branch,darken,49921
+mul,darken,16641
+icmp,darken,16641
+load,darken,16639
+sdiv,darken,16639
+store,darken,16640
+add,darken,16639
+return,darken,3
+

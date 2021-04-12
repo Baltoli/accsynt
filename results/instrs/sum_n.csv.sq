@@ -1,0 +1,8 @@
+instruction,function,freq
+store,disable_trace,1
+return,disable_trace,3
+branch,sum_n,320
+icmp,sum_n,160
+add,sum_n,316
+return,sum_n,3
+

@@ -1,0 +1,9 @@
+instruction,function,freq
+store,disable_trace,1
+return,disable_trace,3
+branch,fib_n,268
+icmp,fib_n,134
+sub,fib_n,264
+add,fib_n,132
+return,fib_n,3
+

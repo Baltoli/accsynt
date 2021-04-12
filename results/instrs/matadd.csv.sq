@@ -1,0 +1,11 @@
+instruction,function,freq
+store,disable_trace,16637
+return,disable_trace,3
+branch,matadd,50657
+icmp,matadd,16936
+mul,matadd,33272
+add,matadd,66693
+load,matadd,33272
+store,matadd,16637
+return,matadd,3
+

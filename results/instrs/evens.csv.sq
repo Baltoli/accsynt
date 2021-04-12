@@ -1,0 +1,13 @@
+instruction,function,freq
+store,disable_trace,94
+return,disable_trace,321
+branch,evens,1261
+icmp,evens,266
+load,trace_enabled,636
+return,trace_enabled,321
+load,evens,636
+srem,evens,132
+add,evens,225
+store,evens,94
+return,evens,321
+

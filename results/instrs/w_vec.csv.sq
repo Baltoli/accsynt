@@ -1,0 +1,12 @@
+instruction,function,freq
+store,disable_trace,129
+return,disable_trace,3
+branch,w_vec,388
+icmp,w_vec,130
+return,w_vec,3
+load,w_vec,256
+fmul,w_vec,128
+fadd,w_vec,128
+store,w_vec,129
+add,w_vec,128
+

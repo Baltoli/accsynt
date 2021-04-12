@@ -1,0 +1,12 @@
+instruction,function,freq
+store,disable_trace,147
+return,disable_trace,3
+branch,n_real_updates,442
+icmp,n_real_updates,148
+load,n_real_updates,438
+fmul,n_real_updates,146
+fadd,n_real_updates,146
+store,n_real_updates,147
+add,n_real_updates,146
+return,n_real_updates,3
+

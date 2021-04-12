@@ -1,0 +1,12 @@
+instruction,function,freq
+store,disable_trace,1
+return,disable_trace,303
+branch,mirror_image,1351
+icmp,mirror_image,302
+load,trace_enabled,600
+return,trace_enabled,303
+load,mirror_image,600
+sub,mirror_image,300
+add,mirror_image,150
+return,mirror_image,303
+

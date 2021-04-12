@@ -1,0 +1,15 @@
+instruction,function,freq
+store,disable_trace,17253
+return,disable_trace,3
+branch,gaussian_blur,3537444
+icmp,gaussian_blur,1501238
+mul,gaussian_blur,879852
+add,gaussian_blur,3124270
+load,gaussian_blur,862600
+fmul,gaussian_blur,431300
+fdiv,gaussian_blur,431300
+fadd,gaussian_blur,431300
+store,gaussian_blur,17253
+sub,gaussian_blur,15750
+return,gaussian_blur,3
+

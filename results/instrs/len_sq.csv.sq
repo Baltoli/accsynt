@@ -1,0 +1,11 @@
+instruction,function,freq
+store,disable_trace,1
+return,disable_trace,3
+branch,len_sq,388
+icmp,len_sq,130
+return,len_sq,3
+load,len_sq,256
+fmul,len_sq,128
+fadd,len_sq,128
+add,len_sq,128
+

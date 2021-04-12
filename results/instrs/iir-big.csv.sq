@@ -1,0 +1,17 @@
+instruction,function,freq
+store,disable_trace,5223
+return,disable_trace,28570
+branch,iir_big,65128
+icmp,iir_big,2680
+load,trace_enabled,57136
+return,trace_enabled,28570
+load,iir_big,57136
+mul,iir_big,100971
+add,iir_big,69947
+fmul,iir_big,10356
+fadd,iir_big,7767
+fsub,iir_big,2589
+store,iir_big,5223
+return,iir_big,28570
+icmp,iir_,2680
+

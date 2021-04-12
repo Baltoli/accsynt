@@ -1,0 +1,12 @@
+instruction,function,freq
+store,disable_trace,1078
+return,disable_trace,1
+sdiv,convolve2d,1079
+branch,convolve2d,5555
+icmp,convolve2d,2223
+sub,convolve2d,1143
+add,convolve2d,5483
+mul,convolve2d,1077
+store,convolve2d,1078
+sdi,,1
+

@@ -1,0 +1,12 @@
+instruction,function,freq
+store,disable_trace,3
+return,disable_trace,3
+branch,fir_small,460
+icmp,fir_small,154
+load,fir_small,304
+fmul,fir_small,152
+fadd,fir_small,152
+add,fir_small,152
+store,fir_small,3
+return,fir_small,3
+

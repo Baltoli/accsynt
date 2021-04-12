@@ -1,0 +1,13 @@
+instruction,function,freq
+store,disable_trace,17001
+return,disable_trace,3
+branch,mean_filter,2823318
+icmp,mean_filter,1107966
+add,mean_filter,3073874
+mul,mean_filter,836800
+load,mean_filter,409900
+fadd,mean_filter,409900
+fdiv,mean_filter,17000
+store,mean_filter,17001
+return,mean_filter,3
+

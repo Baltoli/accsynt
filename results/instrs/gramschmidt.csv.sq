@@ -1,0 +1,15 @@
+instruction,function,freq
+store,disable_trace,2105410
+return,disable_trace,3
+branch,kernel_gramschmidt,6398669
+icmp,kernel_gramschmidt,2138438
+mul,kernel_gramschmidt,7372865
+add,kernel_gramschmidt,9494787
+store,kernel_gramschmidt,2105410
+return,kernel_gramschmidt,3
+load,kernel_gramschmidt,6307840
+fmul,kernel_gramschmidt,2097152
+fadd,kernel_gramschmidt,1056768
+fdiv,kernel_gramschmidt,16384
+fsub,kernel_gramschmidt,1040384
+

@@ -1,0 +1,11 @@
+instruction,function,freq
+store,disable_trace,305
+return,disable_trace,3
+branch,elementwise_sum_of_negated_sum_and_max,1224
+icmp,elementwise_sum_of_negated_sum_and_max,460
+load,elementwise_sum_of_negated_sum_and_max,608
+sub,elementwise_sum_of_negated_sum_and_max,152
+store,elementwise_sum_of_negated_sum_and_max,305
+add,elementwise_sum_of_negated_sum_and_max,456
+return,elementwise_sum_of_negated_sum_and_max,3
+

@@ -1,0 +1,10 @@
+instruction,function,freq
+store,disable_trace,9
+return,disable_trace,3
+load,complex_update,24
+fmul,complex_update,8
+fadd,complex_update,6
+store,complex_update,9
+fsub,complex_update,2
+return,complex_update,3
+

@@ -1,0 +1,13 @@
+instruction,function,freq
+store,disable_trace,172841
+return,disable_trace,3
+branch,fir2dim,623018
+icmp,fir2dim,225010
+mul,fir2dim,17284
+add,fir2dim,190282
+store,fir2dim,172841
+load,fir2dim,466668
+fmul,fir2dim,155556
+fadd,fir2dim,155556
+return,fir2dim,3
+

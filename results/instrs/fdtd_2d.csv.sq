@@ -1,0 +1,15 @@
+instruction,function,freq
+store,disable_trace,6242433
+return,disable_trace,3
+branch,kernel_fdtd_2d,18973188
+icmp,kernel_fdtd_2d,6340866
+return,kernel_fdtd_2d,3
+load,kernel_fdtd_2d,22823552
+store,kernel_fdtd_2d,6242433
+add,kernel_fdtd_2d,39453696
+mul,kernel_fdtd_2d,29033216
+sub,kernel_fdtd_2d,6258688
+fsub,kernel_fdtd_2d,14516608
+fmul,kernel_fdtd_2d,6226048
+fadd,kernel_fdtd_2d,2064512
+

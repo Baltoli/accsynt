@@ -1,0 +1,15 @@
+instruction,function,freq
+store,disable_trace,159
+return,disable_trace,34069
+branch,gemv,119788
+icmp,gemv,17272
+load,trace_enabled,68132
+return,trace_enabled,34069
+mul,gemv,16954
+add,gemv,34066
+load,gemv,68132
+fmul,gemv,16954
+fadd,gemv,16954
+store,gemv,159
+return,gemv,34069
+

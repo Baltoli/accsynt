@@ -1,0 +1,14 @@
+instruction,function,freq
+store,disable_trace,140292
+return,disable_trace,2
+branch,kernel_dynprog,419559
+icmp,kernel_dynprog,140585
+store,kernel_dynprog,140292
+return,kernel_dynprog,2
+sub,kernel_dynprog,262443
+mul,kernel_dynprog,991264
+add,kernel_dynprog,887997
+load,kernel_dynprog,363534
+fadd,kernel_dynprog,241674
+branch,kernel_dynp,419559
+

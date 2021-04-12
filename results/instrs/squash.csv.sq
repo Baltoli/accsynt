@@ -1,0 +1,15 @@
+instruction,function,freq
+store,disable_trace,16742
+return,disable_trace,3
+branch,squash,133959
+mul,squash,33486
+icmp,squash,66968
+load,squash,50246
+add,squash,33482
+sub,squash,33482
+fdiv,squash,16741
+fmul,squash,16741
+fadd,squash,16741
+store,squash,16742
+return,squash,3
+

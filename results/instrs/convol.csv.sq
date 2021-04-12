@@ -1,0 +1,15 @@
+instruction,function,freq
+store,disable_trace,153
+return,disable_trace,25620
+branch,convol,136558
+icmp,convol,34130
+sub,convol,33824
+load,trace_enabled,51234
+return,trace_enabled,25620
+load,convol,51234
+fmul,convol,16912
+fadd,convol,16912
+add,convol,17064
+store,convol,153
+return,convol,25620
+

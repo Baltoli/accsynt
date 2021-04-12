@@ -1,0 +1,13 @@
+instruction,function,freq
+store,disable_trace,6905
+return,disable_trace,21013
+branch,sort,60351
+icmp,sort,7361
+load,trace_enabled,42020
+return,trace_enabled,21013
+sub,sort,13957
+load,sort,42020
+store,sort,6905
+add,sort,3605
+return,sort,21013
+

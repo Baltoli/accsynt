@@ -1,0 +1,15 @@
+instruction,function,freq
+store,disable_trace,8394
+return,disable_trace,3
+branch,kernel_trisolv,25052
+icmp,kernel_trisolv,8395
+load,kernel_trisolv,24786
+store,kernel_trisolv,8394
+sub,kernel_trisolv,8262
+mul,kernel_trisolv,8262
+add,kernel_trisolv,16524
+fdiv,kernel_trisolv,131
+fmul,kernel_trisolv,8131
+fsub,kernel_trisolv,8131
+return,kernel_trisolv,3
+

@@ -1,0 +1,15 @@
+instruction,function,freq
+store,disable_trace,3
+return,disable_trace,263
+branch,fir_big,921
+icmp,fir_big,135
+load,trace_enabled,520
+return,trace_enabled,263
+sub,fir_big,129
+load,fir_big,520
+fmul,fir_big,129
+fadd,fir_big,129
+add,fir_big,131
+store,fir_big,3
+return,fir_big,263
+

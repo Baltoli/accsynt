@@ -1,0 +1,11 @@
+instruction,function,freq
+store,disable_trace,1
+return,disable_trace,3
+branch,mean,436
+icmp,mean,146
+load,mean,144
+fadd,mean,144
+add,mean,144
+fdiv,mean,2
+return,mean,3
+

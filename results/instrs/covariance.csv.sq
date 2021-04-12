@@ -1,0 +1,15 @@
+instruction,function,freq
+store,disable_trace,1106845
+return,disable_trace,3
+branch,kernel_covariance,3313545
+icmp,kernel_covariance,1107412
+store,kernel_covariance,1106845
+mul,kernel_covariance,3228985
+add,kernel_covariance,4327706
+load,kernel_covariance,3245544
+fadd,kernel_covariance,1073552
+fdiv,kernel_covariance,133
+fsub,kernel_covariance,16484
+fmul,kernel_covariance,1057068
+return,kernel_covariance,3
+

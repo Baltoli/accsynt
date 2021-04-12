@@ -1,0 +1,17 @@
+instruction,function,freq
+store,disable_trace,1128786
+return,disable_trace,3
+branch,kernel_correlation,3327949
+icmp,kernel_correlation,1112261
+store,kernel_correlation,1128786
+mul,kernel_correlation,3241098
+add,kernel_correlation,4344366
+load,kernel_correlation,3324528
+fadd,kernel_correlation,1077328
+fdiv,kernel_correlation,16959
+fsub,kernel_correlation,49935
+fmul,kernel_correlation,1077328
+fcmp,kernel_correlation,157
+sub,kernel_correlation,161
+return,kernel_correlation,3
+

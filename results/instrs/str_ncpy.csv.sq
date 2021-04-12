@@ -1,0 +1,10 @@
+instruction,function,freq
+store,disable_trace,137
+return,disable_trace,3
+branch,str_ncpy,552
+load,str_ncpy,274
+icmp,str_ncpy,276
+add,str_ncpy,138
+store,str_ncpy,137
+return,str_ncpy,3
+

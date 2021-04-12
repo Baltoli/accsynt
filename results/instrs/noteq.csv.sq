@@ -1,0 +1,9 @@
+instruction,function,freq
+store,disable_trace,1
+return,disable_trace,3
+branch,noteq,573
+icmp,noteq,258
+return,noteq,3
+load,noteq,256
+add,noteq,128
+

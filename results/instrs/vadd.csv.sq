@@ -1,0 +1,10 @@
+instruction,function,freq
+store,disable_trace,152
+return,disable_trace,3
+branch,vadd,457
+icmp,vadd,153
+load,vadd,302
+add,vadd,302
+store,vadd,152
+return,vadd,3
+

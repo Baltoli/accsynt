@@ -1,0 +1,11 @@
+instruction,function,freq
+store,disable_trace,139
+return,disable_trace,3
+branch,vmul,418
+icmp,vmul,140
+load,vmul,276
+mul,vmul,138
+store,vmul,139
+add,vmul,138
+return,vmul,3
+

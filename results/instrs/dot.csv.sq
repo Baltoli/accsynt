@@ -1,0 +1,10 @@
+instruction,function,freq
+store,disable_trace,1
+return,disable_trace,3
+branch,dot,457
+icmp,dot,153
+load,dot,302
+mul,dot,151
+add,dot,302
+return,dot,3
+

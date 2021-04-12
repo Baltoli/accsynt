@@ -1,0 +1,9 @@
+instruction,function,freq
+store,disable_trace,1
+return,disable_trace,3
+branch,sum_n_squared,322
+icmp,sum_n_squared,161
+mul,sum_n_squared,159
+add,sum_n_squared,318
+return,sum_n_squared,3
+

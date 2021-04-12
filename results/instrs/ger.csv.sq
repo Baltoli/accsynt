@@ -1,0 +1,15 @@
+instruction,function,freq
+store,disable_trace,16515
+return,disable_trace,49545
+branch,ger,149400
+icmp,ger,16824
+load,trace_enabled,115598
+return,trace_enabled,49545
+mul,ger,33028
+add,ger,49696
+load,ger,115598
+fmul,ger,16514
+fadd,ger,16514
+store,ger,16515
+return,ger,49545
+

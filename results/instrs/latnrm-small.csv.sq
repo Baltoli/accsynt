@@ -1,0 +1,15 @@
+instruction,function,freq
+store,disable_trace,152
+return,disable_trace,3
+load,latnrm,725
+branch,latnrm,872
+icmp,latnrm,292
+mul,latnrm,290
+store,latnrm,152
+fmul,latnrm,725
+fsub,latnrm,145
+fadd,latnrm,288
+add,latnrm,580
+sub,latnrm,143
+return,latnrm,3
+

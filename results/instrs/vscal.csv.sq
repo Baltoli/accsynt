@@ -1,0 +1,11 @@
+instruction,function,freq
+store,disable_trace,137
+return,disable_trace,3
+branch,vscal,412
+icmp,vscal,138
+load,vscal,136
+mul,vscal,136
+store,vscal,137
+add,vscal,136
+return,vscal,3
+

@@ -1,0 +1,11 @@
+instruction,function,freq
+store,disable_trace,394
+return,disable_trace,3
+branch,min_so_far_subtracted,1715
+icmp,min_so_far_subtracted,661
+load,min_so_far_subtracted,655
+store,min_so_far_subtracted,394
+add,min_so_far_subtracted,393
+sub,min_so_far_subtracted,131
+return,min_so_far_subtracted,3
+
