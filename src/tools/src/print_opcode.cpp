@@ -48,7 +48,7 @@ std::string PrintOpcodeVisitor::tag_at(llvm::Instruction& inst) const
   if (auto ot = tag_) {
     return *ot;
   } else {
-    return inst.getParent()->getParent()->getName();
+    return std::string(inst.getParent()->getParent()->getName());
   }
 }
 
