@@ -14,24 +14,25 @@
 
 using namespace llvm;
 
-static cl::opt<std::string> FunctionName(cl::Positional,
-    cl::desc("<function to convert to IDL>"), cl::value_desc("function name"));
+static cl::opt<std::string> FunctionName(
+    cl::Positional, cl::desc("<function to convert to IDL>"),
+    cl::value_desc("function name"));
 
-static cl::opt<std::string> InputFilename(cl::Positional,
-    cl::desc("<input bitcode file>"), cl::init("-"),
+static cl::opt<std::string> InputFilename(
+    cl::Positional, cl::desc("<input bitcode file>"), cl::init("-"),
     cl::value_desc("filename"));
 
-static cl::opt<std::string> OutputFilename("o",
-    cl::desc("Filename to save the generated constraints to"),
+static cl::opt<std::string> OutputFilename(
+    "o", cl::desc("Filename to save the generated constraints to"),
     cl::value_desc("filename"), cl::init("-"));
 
 void run_prepare_passes(Function& fn)
 {
-  auto pm = FunctionPassManager{};
+  auto pm = FunctionPassManager {};
   pm.addPass(PromotePass());
 
-  auto fam = FunctionAnalysisManager{};
-  auto pb = PassBuilder{};
+  auto fam = FunctionAnalysisManager {};
+  auto pb = PassBuilder {};
   pb.registerFunctionAnalyses(fam);
 
   pm.run(fn, fam);
@@ -52,7 +53,7 @@ int main(int argc, char** argv)
   LLVMContext Context;
   SMDiagnostic Err;
 
-  auto&& mod = parseIRFile(InputFilename, Err, Context, true, "");
+  auto&& mod = parseIRFile(InputFilename, Err, Context);
   if (!mod) {
     Err.print(argv[0], errs());
     return 1;

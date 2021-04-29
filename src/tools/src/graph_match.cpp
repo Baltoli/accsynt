@@ -23,11 +23,12 @@ static cl::opt<std::string> FunctionName(
 static cl::opt<std::string> FunctionName2(
     cl::Positional, cl::desc("<function>"), cl::value_desc("function name 2"));
 
-static cl::list<std::string> InputFiles(cl::Positional,
-    cl::desc("<bitcode files>"), cl::OneOrMore, cl::value_desc("filenames"));
+static cl::list<std::string> InputFiles(
+    cl::Positional, cl::desc("<bitcode files>"), cl::OneOrMore,
+    cl::value_desc("filenames"));
 
-static cl::opt<std::string> OutputFilename("o",
-    cl::desc("Filename to save the generated constraints to"),
+static cl::opt<std::string> OutputFilename(
+    "o", cl::desc("Filename to save the generated constraints to"),
     cl::value_desc("filename"), cl::init("-"));
 
 void run_norm_passes(Module& mod)
@@ -50,8 +51,8 @@ int main(int argc, char** argv)
   LLVMContext Context;
   SMDiagnostic Err;
 
-  auto&& first_mod = parseIRFile(InputFiles[0], Err, Context, true, "");
-  auto&& second_mod = parseIRFile(InputFiles[1], Err, Context, true, "");
+  auto&& first_mod = parseIRFile(InputFiles[0], Err, Context);
+  auto&& second_mod = parseIRFile(InputFiles[1], Err, Context);
 
   run_norm_passes(*first_mod);
   run_norm_passes(*second_mod);
@@ -59,7 +60,7 @@ int main(int argc, char** argv)
   auto first_fn = first_mod->getFunction(FunctionName);
   auto second_fn = second_mod->getFunction(FunctionName2);
 
-  auto graphs = std::vector<Graph>{};
+  auto graphs = std::vector<Graph> {};
   graphs.push_back(from_function(*first_fn));
   graphs.push_back(from_function(*second_fn));
 

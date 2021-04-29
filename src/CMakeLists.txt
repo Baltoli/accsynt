@@ -49,7 +49,7 @@ conan_cmake_run(CONANFILE "../conanfile.txt"
                 BASIC_SETUP CMAKE_TARGETS
                 BUILD missing)
 
-find_package(LLVM 10 REQUIRED CONFIG)
+find_package(LLVM REQUIRED CONFIG)
 
 include(ClangTidy)
 
@@ -61,7 +61,7 @@ llvm_map_components_to_libnames(llvm_libs
   asmparser x86asmparser x86codegen asmprinter
   codegen target transformutils
   bitwriter x86desc bitreader
-  core x86utils x86info support)
+  core x86info support)
 
 include(GNUInstallDirs)
 enable_testing()
