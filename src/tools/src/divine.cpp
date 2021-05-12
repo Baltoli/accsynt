@@ -89,7 +89,7 @@ int main(int argc, char** argv)
   auto fns_to_verify = std::vector<Function*> {};
 
   for (auto fn : InputFilenames) {
-    auto&& mod = parseIRFile(fn, Err, ctx, true, "");
+    auto&& mod = parseIRFile(fn, Err, ctx);
     if (!mod) {
       Err.print(argv[0], errs());
       return 1;
