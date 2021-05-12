@@ -7,9 +7,12 @@
 #include <props/props.h>
 
 #include <support/assert.h>
+#include <support/call_wrapper.h>
+#include <support/dynamic_library.h>
 #include <support/input.h>
 #include <support/llvm_format.h>
 #include <support/terminal.h>
+#include <support/thread_context.h>
 
 #include <fmt/format.h>
 
@@ -91,6 +94,10 @@ try {
   auto sig = get_sig();
   auto frag = get_fragment();
 
+  auto lib = dynamic_library(opts::SharedLibrary);
+  /* auto module = Module */
+  /* auto ref_impl = call_wrapper(sig, */
+
   while (true) {
     auto cand = candidate(sketch(sig, *frag), std::make_unique<rule_filler>());
     assertion(cand.is_valid(), "Reification produced an invalid candidate");
@@ -99,5 +106,10 @@ try {
   fmt::print(
       stderr,
       "{}Synthesis error:{} {}\n"_format(term::f_red, term::reset, e.what()));
+  std::exit(2);
+} catch (dyld_error& derr) {
+  fmt::print(
+      stderr, "{}\n  when loading dynamic library {}\n", derr.what(),
+      opts::SharedLibrary);
   std::exit(3);
 }

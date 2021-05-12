@@ -40,15 +40,20 @@ candidate::candidate(sketch&& sk, std::unique_ptr<filler> fill)
   insert_phis();
   choose_values();
   resolve_operators();
-
-  fmt::print("{}\n", *module_);
 }
 
 sketch_context& candidate::ctx() { return ctx_; }
 
 Type* candidate::hole_type() const { return hole_type_; }
 
-Function& candidate::function() const
+Function& candidate::function()
+{
+  auto func = module_->getFunction(signature_.name);
+  assertion(func != nullptr, "Must have correctly named candidate function");
+  return *func;
+}
+
+Function const& candidate::function() const
 {
   auto func = module_->getFunction(signature_.name);
   assertion(func != nullptr, "Must have correctly named candidate function");
@@ -218,7 +223,7 @@ void candidate::hoist_phis()
   }
 }
 
-bool candidate::is_valid() const
+bool candidate::is_valid()
 {
   auto vis = is_valid_visitor();
   vis.visit(function());
