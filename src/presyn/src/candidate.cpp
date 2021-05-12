@@ -40,6 +40,8 @@ candidate::candidate(sketch&& sk, std::unique_ptr<filler> fill)
   insert_phis();
   choose_values();
   resolve_operators();
+
+  fmt::print("{}\n", *module_);
 }
 
 sketch_context& candidate::ctx() { return ctx_; }
@@ -270,7 +272,9 @@ llvm::Function* candidate::converter(llvm::Type* from, llvm::Type* to)
 
     assertion(
         to->isPointerTy() == from->isPointerTy(),
-        "Can't convert between pointer and non-pointer");
+        "Can't convert between pointer and non-pointer (when converting {} to "
+        "{})",
+        *from, *to);
 
     if (from != to) {
       if (to->isPointerTy()) {
