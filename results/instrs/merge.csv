@@ -1,0 +1,12 @@
+instruction,function,freq
+store,disable_trace,137
+return,disable_trace,547
+branch,merge,2044
+add,merge,546
+icmp,merge,546
+load,trace_enabled,1088
+return,trace_enabled,547
+load,merge,1088
+store,merge,137
+return,merge,547
+

@@ -1,0 +1,13 @@
+instruction,function,freq
+store,disable_trace,1
+return,disable_trace,6
+branch,even_after_div_three,23
+icmp,even_after_div_three,8
+load,trace_enabled,6
+return,trace_enabled,6
+load,even_after_div_three,6
+sdiv,even_after_div_three,3
+srem,even_after_div_three,3
+add,even_after_div_three,4
+return,even_after_div_three,6
+

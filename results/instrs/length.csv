@@ -1,0 +1,5 @@
+instruction,function,freq
+store,disable_trace,1
+return,disable_trace,3
+return,length,3
+

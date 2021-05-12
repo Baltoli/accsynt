@@ -1,0 +1,13 @@
+instruction,function,freq
+store,disable_trace,629
+return,disable_trace,3
+branch,n_complex_updates,475
+icmp,n_complex_updates,159
+load,n_complex_updates,1884
+fmul,n_complex_updates,628
+fadd,n_complex_updates,471
+store,n_complex_updates,629
+fsub,n_complex_updates,157
+add,n_complex_updates,157
+return,n_complex_updates,3
+

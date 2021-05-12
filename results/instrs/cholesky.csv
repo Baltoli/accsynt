@@ -1,0 +1,15 @@
+instruction,function,freq
+store,disable_trace,8267
+return,disable_trace,3
+branch,kernel_cholesky,1090140
+icmp,kernel_cholesky,366180
+mul,kernel_cholesky,715428
+add,kernel_cholesky,1073340
+load,kernel_cholesky,715428
+sub,kernel_cholesky,357780
+fdiv,kernel_cholesky,132
+store,kernel_cholesky,8267
+fmul,kernel_cholesky,357648
+fsub,kernel_cholesky,349514
+return,kernel_cholesky,3
+

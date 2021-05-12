@@ -1,0 +1,11 @@
+instruction,function,freq
+store,disable_trace,1
+return,disable_trace,145
+branch,array_sum,714
+icmp,array_sum,144
+load,trace_enabled,284
+return,trace_enabled,145
+load,array_sum,284
+add,array_sum,284
+return,array_sum,145
+

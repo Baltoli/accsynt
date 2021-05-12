@@ -1,0 +1,9 @@
+instruction,function,freq
+store,disable_trace,1
+return,disable_trace,3
+branch,max,547
+icmp,max,272
+load,max,138
+add,max,135
+return,max,3
+

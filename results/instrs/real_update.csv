@@ -1,0 +1,9 @@
+instruction,function,freq
+store,disable_trace,9
+return,disable_trace,3
+store,real_update,9
+load,real_update,6
+fmul,real_update,2
+fadd,real_update,2
+return,real_update,3
+

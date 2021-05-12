@@ -63,7 +63,7 @@ int main(int argc, char** argv)
   auto& ctx = thread_context::get();
   auto err = SMDiagnostic {};
 
-  auto&& mod = parseIRFile(InputFilename, err, ctx, true, "");
+  auto&& mod = parseIRFile(InputFilename, err, ctx);
   if (!mod) {
     err.print(argv[0], errs());
     return 1;

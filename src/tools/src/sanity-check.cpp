@@ -41,7 +41,8 @@ void fail(std::string const& name, std::string const& reason)
 
 bool skip(std::string const& name)
 {
-  static auto problems = std::unordered_set<std::string> {"diveq", "diveq_sca"};
+  static auto problems
+      = std::unordered_set<std::string> {"diveq", "diveq_sca", "kernel_adi"};
   return problems.find(name) != problems.end();
 }
 

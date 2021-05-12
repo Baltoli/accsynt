@@ -1,0 +1,14 @@
+instruction,function,freq
+store,disable_trace,4064257
+return,disable_trace,3
+branch,kernel_jacobi_2d_imper,12354948
+icmp,kernel_jacobi_2d_imper,4129154
+return,kernel_jacobi_2d_imper,3
+sub,kernel_jacobi_2d_imper,8193280
+mul,kernel_jacobi_2d_imper,16257024
+add,kernel_jacobi_2d_imper,24417920
+load,kernel_jacobi_2d_imper,12192768
+fadd,kernel_jacobi_2d_imper,8128512
+fmul,kernel_jacobi_2d_imper,2032128
+store,kernel_jacobi_2d_imper,4064257
+

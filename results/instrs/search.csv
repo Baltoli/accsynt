@@ -1,0 +1,11 @@
+instruction,function,freq
+store,disable_trace,1
+return,disable_trace,148
+branch,search,1032
+icmp,search,443
+load,trace_enabled,290
+return,trace_enabled,148
+load,search,290
+add,search,148
+return,search,148
+

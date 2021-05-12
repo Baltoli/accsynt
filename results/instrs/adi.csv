@@ -1,0 +1,13 @@
+instruction,function,freq
+store,disable_trace,718
+return,disable_trace,1
+branch,kernel_adi,1596
+icmp,kernel_adi,544
+mul,kernel_adi,3556
+add,kernel_adi,4064
+load,kernel_adi,2838
+sub,kernel_adi,3443
+fmul,kernel_adi,701
+fdiv,kernel_adi,717
+fsub,kernel_adi,701
+store,kernel_adi,718

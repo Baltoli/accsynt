@@ -1,0 +1,9 @@
+instruction,function,freq
+store,disable_trace,1
+return,disable_trace,3
+branch,prod_n_squared,421
+icmp,prod_n_squared,141
+mul,prod_n_squared,278
+add,prod_n_squared,139
+return,prod_n_squared,3
+

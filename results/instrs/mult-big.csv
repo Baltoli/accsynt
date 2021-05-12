@@ -1,0 +1,13 @@
+instruction,function,freq
+store,disable_trace,16398
+return,disable_trace,3
+branch,mult_big,6374618
+icmp,mult_big,2130386
+mul,mult_big,4211013
+add,mult_big,6324859
+load,mult_big,4194616
+fmul,mult_big,2097308
+fadd,mult_big,2097308
+store,mult_big,16398
+return,mult_big,3
+

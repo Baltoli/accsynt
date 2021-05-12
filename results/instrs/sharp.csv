@@ -1,0 +1,16 @@
+instruction,function,freq
+store,disable_trace,15877
+return,disable_trace,3
+branch,sharpen,48362
+sub,sharpen,111426
+icmp,sharpen,16170
+add,sharpen,317666
+return,sharpen,3
+mul,sharpen,158760
+load,sharpen,142884
+fmul,sharpen,15876
+fsub,sharpen,15876
+fadd,sharpen,63504
+fdiv,sharpen,15876
+store,sharpen,15877
+

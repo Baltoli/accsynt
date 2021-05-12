@@ -1,0 +1,9 @@
+instruction,function,freq
+store,disable_trace,1
+return,disable_trace,3
+branch,binary_digits,22
+icmp,binary_digits,11
+add,binary_digits,9
+sdiv,binary_digits,9
+return,binary_digits,3
+

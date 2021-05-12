@@ -40,7 +40,7 @@ endif()
 
 if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
   message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
-  file(DOWNLOAD "https://raw.githubusercontent.com/conan-io/cmake-conan/v0.13/conan.cmake"
+  file(DOWNLOAD "https://raw.githubusercontent.com/conan-io/cmake-conan/v0.16.1/conan.cmake"
                 "${CMAKE_BINARY_DIR}/conan.cmake")
 endif()
 
@@ -49,7 +49,7 @@ conan_cmake_run(CONANFILE "../conanfile.txt"
                 BASIC_SETUP CMAKE_TARGETS
                 BUILD missing)
 
-find_package(LLVM 10 REQUIRED CONFIG)
+find_package(LLVM REQUIRED CONFIG)
 
 include(ClangTidy)
 
@@ -61,7 +61,7 @@ llvm_map_components_to_libnames(llvm_libs
   asmparser x86asmparser x86codegen asmprinter
   codegen target transformutils
   bitwriter x86desc bitreader
-  core x86utils x86info support)
+  core x86info support)
 
 include(GNUInstallDirs)
 enable_testing()
@@ -74,5 +74,6 @@ add_subdirectory(predictor)
 add_subdirectory(presyn)
 add_subdirectory(props)
 add_subdirectory(support)
-add_subdirectory(synth)
+# Deprecated until I can figure out Conan hosting again.
+# add_subdirectory(synth)
 add_subdirectory(tools)

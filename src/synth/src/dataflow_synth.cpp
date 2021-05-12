@@ -21,7 +21,7 @@ dataflow_synth::dataflow_synth(compile_context const& ctx)
     : dataflow_synth(ctx.func_, [&](auto* b) {
       auto const& meta = ctx.metadata_;
       return std::find(meta.data_blocks.begin(), meta.data_blocks.end(), b)
-          != meta.data_blocks.end();
+             != meta.data_blocks.end();
     })
 {
   for (auto s : ctx.metadata_.seeds) {
@@ -40,9 +40,8 @@ void dataflow_synth::output(Instruction* val) { outputs_.push_back(val); }
 void dataflow_synth::create_dataflow()
 {
   dom_tree_.recalculate(*function_);
-  auto const& roots = dom_tree_.getRoots();
 
-  auto root_live = std::vector<llvm::Value*>{};
+  auto root_live = std::vector<llvm::Value*> {};
   root_live.push_back(
       sampler_.constant(Type::getInt32Ty(function_->getContext())));
   root_live.push_back(
@@ -57,7 +56,7 @@ void dataflow_synth::create_dataflow()
     }
   }
 
-  for (auto* root : roots) {
+  for (auto* root : dom_tree_.roots()) {
     create_block_dataflow(root, root_live);
   }
 
@@ -142,11 +141,11 @@ void dataflow_synth::create_block_dataflow(
     sampler_.block(builder, 4, live);
   }
 
-  for (auto ch : dom_tree_.getNode(block)->getChildren()) {
+  for (auto ch : dom_tree_.getNode(block)->children()) {
     create_block_dataflow(ch->getBlock(), live);
   }
 
-  final_live_.insert({ block, live });
+  final_live_.insert({block, live});
 }
 
 dataflow_synth::block_live_map const& dataflow_synth::block_live() const

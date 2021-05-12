@@ -1,0 +1,10 @@
+instruction,function,freq
+store,disable_trace,295
+return,disable_trace,3
+branch,swap,445
+icmp,swap,149
+load,swap,294
+store,swap,295
+add,swap,147
+return,swap,3
+

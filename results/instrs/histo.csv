@@ -1,0 +1,14 @@
+instruction,function,freq
+store,disable_trace,16409
+return,disable_trace,3
+branch,histo,131290
+mul,histo,32820
+icmp,histo,65636
+load,histo,49242
+add,histo,32816
+sub,histo,32816
+fdiv,histo,16408
+fmul,histo,16408
+store,histo,16409
+return,histo,3
+

@@ -1,0 +1,13 @@
+instruction,function,freq
+store,disable_trace,16385
+return,disable_trace,32771
+branch,matmul_sca,115442
+icmp,matmul_sca,16686
+add,matmul_sca,65686
+return,matmul_sca,32771
+load,trace_enabled,65536
+return,trace_enabled,32771
+mul,matmul_sca,65536
+load,matmul_sca,65536
+store,matmul_sca,16385
+

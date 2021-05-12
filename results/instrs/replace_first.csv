@@ -1,0 +1,12 @@
+instruction,function,freq
+store,disable_trace,140
+return,disable_trace,283
+branch,replace_first,1408
+icmp,replace_first,284
+load,trace_enabled,560
+return,trace_enabled,283
+load,replace_first,560
+add,replace_first,280
+store,replace_first,140
+return,replace_first,283
+

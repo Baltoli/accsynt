@@ -1,0 +1,11 @@
+instruction,function,freq
+store,disable_trace,1
+return,disable_trace,141
+branch,sum_elts,694
+icmp,sum_elts,140
+load,trace_enabled,276
+return,trace_enabled,141
+load,sum_elts,276
+add,sum_elts,276
+return,sum_elts,141
+

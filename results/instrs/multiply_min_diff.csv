@@ -1,0 +1,11 @@
+instruction,function,freq
+store,disable_trace,158
+return,disable_trace,3
+branch,multiply_min_diff,1114
+icmp,multiply_min_diff,475
+load,multiply_min_diff,471
+sub,multiply_min_diff,314
+add,multiply_min_diff,314
+store,multiply_min_diff,158
+return,multiply_min_diff,3
+

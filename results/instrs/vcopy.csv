@@ -1,0 +1,12 @@
+instruction,function,freq
+store,disable_trace,132
+return,disable_trace,265
+branch,vcopy,921
+icmp,vcopy,133
+load,trace_enabled,524
+return,trace_enabled,265
+load,vcopy,524
+store,vcopy,132
+add,vcopy,131
+return,vcopy,265
+

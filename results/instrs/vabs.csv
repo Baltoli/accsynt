@@ -1,0 +1,11 @@
+instruction,function,freq
+store,disable_trace,142
+return,disable_trace,3
+branch,vabs,709
+icmp,vabs,284
+load,vabs,282
+sub,vabs,129
+store,vabs,142
+add,vabs,141
+return,vabs,3
+

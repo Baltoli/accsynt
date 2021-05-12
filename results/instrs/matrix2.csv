@@ -1,0 +1,14 @@
+instruction,function,freq
+store,disable_trace,2098233
+return,disable_trace,3
+branch,matrix2_main,6278938
+icmp,matrix2_main,2098526
+mul,matrix2_main,16492
+load,matrix2_main,6278204
+fmul,matrix2_main,2098232
+store,matrix2_main,2098233
+sub,matrix2_main,2081740
+fadd,matrix2_main,2081740
+add,matrix2_main,2081886
+return,matrix2_main,3
+

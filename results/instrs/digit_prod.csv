@@ -1,0 +1,10 @@
+instruction,function,freq
+store,disable_trace,1
+return,disable_trace,3
+branch,digit_prod,8
+icmp,digit_prod,4
+return,digit_prod,3
+srem,digit_prod,2
+mul,digit_prod,2
+sdiv,digit_prod,2
+

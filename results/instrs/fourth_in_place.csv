@@ -1,0 +1,13 @@
+instruction,function,freq
+store,disable_trace,285
+return,disable_trace,287
+branch,fourth_in_place,998
+icmp,fourth_in_place,144
+load,trace_enabled,1136
+return,trace_enabled,287
+load,fourth_in_place,1136
+mul,fourth_in_place,284
+store,fourth_in_place,285
+add,fourth_in_place,142
+return,fourth_in_place,287
+

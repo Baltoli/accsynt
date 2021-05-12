@@ -1,0 +1,13 @@
+instruction,function,freq
+store,disable_trace,2113569
+return,disable_trace,3
+branch,kernel_syrk,6424032
+icmp,kernel_syrk,2146900
+mul,kernel_syrk,6307904
+add,kernel_syrk,8438136
+load,kernel_syrk,6307904
+fmul,kernel_syrk,4210736
+store,kernel_syrk,2113569
+fadd,kernel_syrk,2097168
+return,kernel_syrk,3
+

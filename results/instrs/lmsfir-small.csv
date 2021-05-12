@@ -1,0 +1,14 @@
+instruction,function,freq
+store,disable_trace,153
+return,disable_trace,3
+branch,lmsfir,902
+icmp,lmsfir,302
+load,lmsfir,602
+fmul,lmsfir,302
+fadd,lmsfir,300
+add,lmsfir,298
+store,lmsfir,153
+fsub,lmsfir,2
+sub,lmsfir,156
+return,lmsfir,3
+

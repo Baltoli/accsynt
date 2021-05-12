@@ -1,0 +1,12 @@
+instruction,function,freq
+store,disable_trace,1
+return,disable_trace,3
+sub,convolution,2
+branch,convolution,394
+icmp,convolution,132
+load,convolution,260
+fmul,convolution,130
+fadd,convolution,130
+add,convolution,130
+return,convolution,3
+

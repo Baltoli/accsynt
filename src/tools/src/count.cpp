@@ -25,7 +25,7 @@ int main(int argc, char** argv)
   LLVMContext Context;
   SMDiagnostic Err;
 
-  auto&& mod = parseIRFile(InputFilename, Err, Context, true, "");
+  auto&& mod = parseIRFile(InputFilename, Err, Context);
   if (!mod) {
     Err.print(argv[0], errs());
     return 1;

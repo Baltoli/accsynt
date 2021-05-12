@@ -1,0 +1,12 @@
+instruction,function,freq
+store,disable_trace,1
+return,disable_trace,293
+branch,sum_of_squares,1019
+icmp,sum_of_squares,147
+load,trace_enabled,580
+return,trace_enabled,293
+load,sum_of_squares,580
+mul,sum_of_squares,145
+add,sum_of_squares,290
+return,sum_of_squares,293
+

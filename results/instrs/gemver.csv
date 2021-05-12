@@ -1,0 +1,13 @@
+instruction,function,freq
+store,disable_trace,49725
+return,disable_trace,3
+branch,kernel_gemver,151288
+icmp,kernel_gemver,50572
+mul,kernel_gemver,66112
+add,kernel_gemver,116256
+load,kernel_gemver,182088
+fmul,kernel_gemver,99168
+fadd,kernel_gemver,66252
+store,kernel_gemver,49725
+return,kernel_gemver,3
+

@@ -1,0 +1,13 @@
+instruction,function,freq
+store,disable_trace,33601
+return,disable_trace,3
+branch,kernel_atax,101416
+icmp,kernel_atax,33908
+store,kernel_atax,33601
+add,kernel_atax,66896
+load,kernel_atax,99888
+mul,kernel_atax,33296
+fmul,kernel_atax,33296
+fadd,kernel_atax,33296
+return,kernel_atax,3
+

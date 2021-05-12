@@ -1,0 +1,15 @@
+instruction,function,freq
+store,disable_trace,94
+return,disable_trace,469
+branch,multiply_evens,1589
+icmp,multiply_evens,282
+load,trace_enabled,932
+return,trace_enabled,469
+load,multiply_evens,932
+sub,multiply_evens,140
+srem,multiply_evens,140
+mul,multiply_evens,93
+store,multiply_evens,94
+add,multiply_evens,140
+return,multiply_evens,469
+

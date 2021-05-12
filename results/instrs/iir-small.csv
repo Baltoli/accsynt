@@ -1,0 +1,10 @@
+instruction,function,freq
+store,disable_trace,7
+return,disable_trace,3
+load,iir,14
+fmul,iir,8
+fadd,iir,6
+fsub,iir,2
+store,iir,7
+return,iir,3
+

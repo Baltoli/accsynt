@@ -1,0 +1,8 @@
+instruction,function,freq
+store,disable_trace,1
+return,disable_trace,3
+branch,triangle_sum,24680
+icmp,triangle_sum,8271
+add,triangle_sum,16145
+return,triangle_sum,3
+

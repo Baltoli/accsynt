@@ -15,14 +15,14 @@ namespace support {
 
 namespace {
 
-signature get_sig(Module const& mod, std::string const& name)
+signature get_sig(Module const& mod, StringRef name)
 {
   auto func = mod.getFunction(name);
   if (!func) {
     throw std::runtime_error("No such function");
   }
 
-  auto sig = signature::from_llvm(func->getFunctionType(), name);
+  auto sig = signature::from_llvm(func->getFunctionType(), std::string(name));
   if (!sig) {
     throw std::runtime_error("Invalid LLVM type signature for JIT call");
   }
@@ -33,7 +33,7 @@ signature get_sig(Module const& mod, std::string const& name)
 } // namespace
 
 call_wrapper::call_wrapper(
-    signature sig, llvm::Module const& mod, std::string const& name)
+    signature sig, llvm::Module const& mod, StringRef name)
     : signature_(sig)
 {
   auto mod_copy = copy_module_to(thread_context::get(), mod);
@@ -61,7 +61,7 @@ call_wrapper::call_wrapper(
   }
 }
 
-call_wrapper::call_wrapper(Module const& mod, std::string const& name)
+call_wrapper::call_wrapper(Module const& mod, StringRef name)
     : call_wrapper(get_sig(mod, name), mod, name)
 {
 }
@@ -72,11 +72,11 @@ call_wrapper::call_wrapper(Function const& func)
 }
 
 call_wrapper::call_wrapper(
-    signature sig, llvm::Module const& mod, std::string const& name,
+    signature sig, llvm::Module const& mod, StringRef name,
     dynamic_library const& dl)
     : call_wrapper(sig, mod, name)
 {
-  auto sym = dl.raw_symbol(name);
+  auto sym = dl.raw_symbol(std::string(name));
   engine_->addGlobalMapping(impl_, sym);
 }
 
@@ -174,6 +174,9 @@ Function* call_wrapper::build_wrapper_function(Module& mod, Function* fn) const
   return new_fn;
 }
 
-std::string call_wrapper::name() const { return implementation()->getName(); }
+std::string call_wrapper::name() const
+{
+  return std::string(implementation()->getName());
+}
 
 } // namespace support

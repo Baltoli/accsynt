@@ -91,9 +91,9 @@ TEST_CASE("CSR SPMV generator works")
     }
 
     auto nnz = rowstr.back();
-    REQUIRE(a.size() == nnz);
+    REQUIRE(static_cast<int64_t>(a.size()) == nnz);
 
-    REQUIRE(rowstr.size() == rows + 1);
+    REQUIRE(static_cast<int64_t>(rowstr.size()) == rows + 1);
 
     REQUIRE(*std::max_element(colidx.begin(), colidx.end()) < 128);
   }

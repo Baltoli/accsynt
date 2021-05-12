@@ -1,0 +1,11 @@
+instruction,function,freq
+store,disable_trace,129
+return,disable_trace,3
+branch,binary_mul_sum,388
+icmp,binary_mul_sum,130
+return,binary_mul_sum,3
+load,binary_mul_sum,512
+add,binary_mul_sum,384
+store,binary_mul_sum,129
+mul,binary_mul_sum,128
+

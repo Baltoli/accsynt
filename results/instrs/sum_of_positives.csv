@@ -1,0 +1,10 @@
+instruction,function,freq
+store,disable_trace,67
+return,disable_trace,3
+branch,sum_of_positives,762
+icmp,sum_of_positives,348
+load,sum_of_positives,404
+add,sum_of_positives,272
+store,sum_of_positives,67
+return,sum_of_positives,3
+

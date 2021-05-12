@@ -1,0 +1,10 @@
+instruction,function,freq
+store,disable_trace,16763
+return,disable_trace,3
+branch,matinit,51020
+icmp,matinit,17056
+mul,matinit,16762
+add,matinit,33670
+store,matinit,16763
+return,matinit,3
+

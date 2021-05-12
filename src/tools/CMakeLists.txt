@@ -31,6 +31,10 @@ add_executable(norm
 add_executable(sanity-check
   src/sanity-check.cpp)
 
+add_executable(instrument
+  src/print_opcode.cpp
+  src/instrument.cpp)
+
 target_link_libraries(convert
   CONAN_PKG::fmt
   ${llvm_libs}
@@ -71,6 +75,13 @@ target_link_libraries(props-filter
   support)
 
 target_link_filesystem(props-filter)
+
+target_link_libraries(instrument
+  CONAN_PKG::fmt
+  ${llvm_libs}
+  support)
+
+target_link_filesystem(instrument)
 
 target_link_libraries(norm
   CONAN_PKG::fmt
