@@ -1,0 +1,9 @@
+instruction,function,freq
+store,disable_trace,1
+return,disable_trace,3
+branch,a_pow_n,406
+icmp,a_pow_n,136
+mul,a_pow_n,134
+add,a_pow_n,134
+return,a_pow_n,3
+

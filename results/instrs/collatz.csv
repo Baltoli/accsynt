@@ -1,0 +1,11 @@
+instruction,function,freq
+store,disable_trace,1
+return,disable_trace,3
+branch,collatz,476
+icmp,collatz,238
+add,collatz,159
+srem,collatz,118
+mul,collatz,41
+sdiv,collatz,77
+return,collatz,3
+

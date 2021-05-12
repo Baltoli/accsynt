@@ -1,0 +1,9 @@
+instruction,function,freq
+store,disable_trace,1
+return,disable_trace,3
+branch,int_sqrt,38
+icmp,int_sqrt,19
+sub,int_sqrt,36
+add,int_sqrt,17
+return,int_sqrt,3
+

@@ -1,0 +1,11 @@
+instruction,function,freq
+store,disable_trace,1
+return,disable_trace,3
+branch,reverse_int,10
+icmp,reverse_int,5
+return,reverse_int,3
+mul,reverse_int,3
+srem,reverse_int,3
+add,reverse_int,3
+sdiv,reverse_int,3
+

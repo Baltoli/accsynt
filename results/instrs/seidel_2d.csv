@@ -1,0 +1,14 @@
+instruction,function,freq
+store,disable_trace,2032298
+return,disable_trace,3
+branch,kernel_seidel_2d,6178245
+sub,kernel_seidel_2d,14258621
+icmp,kernel_seidel_2d,2064839
+mul,kernel_seidel_2d,20322970
+add,kernel_seidel_2d,34565319
+load,kernel_seidel_2d,18290673
+fadd,kernel_seidel_2d,16258376
+fdiv,kernel_seidel_2d,2032297
+store,kernel_seidel_2d,2032298
+return,kernel_seidel_2d,3
+

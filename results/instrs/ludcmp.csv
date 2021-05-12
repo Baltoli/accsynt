@@ -1,0 +1,14 @@
+instruction,function,freq
+store,disable_trace,677
+return,disable_trace,1
+store,kernel_ludcmp,677
+branch,kernel_ludcmp,21098
+icmp,kernel_ludcmp,7275
+add,kernel_ludcmp,36173
+mul,kernel_ludcmp,13000
+load,kernel_ludcmp,12700
+fdiv,kernel_ludcmp,325
+fmul,kernel_ludcmp,5849
+fsub,kernel_ludcmp,5849
+l,,1
+

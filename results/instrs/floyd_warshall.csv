@@ -1,0 +1,13 @@
+instruction,function,freq
+store,disable_trace,2097153
+return,disable_trace,3
+branch,kernel_floyd_warshall,10568324
+icmp,kernel_floyd_warshall,2130178
+return,kernel_floyd_warshall,3
+mul,kernel_floyd_warshall,12567704
+add,kernel_floyd_warshall,14681368
+load,kernel_floyd_warshall,10470552
+fadd,kernel_floyd_warshall,4179096
+fcmp,kernel_floyd_warshall,2097152
+store,kernel_floyd_warshall,2097153
+

@@ -1,0 +1,17 @@
+instruction,function,freq
+store,disable_trace,181
+return,disable_trace,1
+sdiv,fft_small,1
+branch,fft_small,1610914
+icmp,fft_small,644357
+shl,fft_small,644294
+sub,fft_small,644276
+add,fft_small,967196
+load,fft_small,644636
+mul,fft_small,900
+fmul,fft_small,180
+fsub,fft_small,135
+fadd,fft_small,135
+store,fft_small,181
+ashr,fft_small,18
+

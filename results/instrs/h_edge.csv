@@ -1,0 +1,12 @@
+instruction,function,freq
+store,disable_trace,16815
+return,disable_trace,3
+branch,h_edge,51241
+icmp,h_edge,17134
+sub,h_edge,33787
+mul,h_edge,50442
+add,h_edge,84229
+load,h_edge,33628
+store,h_edge,16815
+return,h_edge,3
+

@@ -1,0 +1,14 @@
+instruction,function,freq
+store,disable_trace,2099519
+return,disable_trace,3
+branch,yijk_aij_xj_fuse,9725172
+add,yijk_aij_xj_fuse,4470886
+sdiv,yijk_aij_xj_fuse,8250
+mul,yijk_aij_xj_fuse,2102128
+icmp,yijk_aij_xj_fuse,4731332
+srem,yijk_aij_xj_fuse,2062
+load,yijk_aij_xj_fuse,4199036
+fmul,yijk_aij_xj_fuse,2099518
+store,yijk_aij_xj_fuse,2099519
+return,yijk_aij_xj_fuse,3
+

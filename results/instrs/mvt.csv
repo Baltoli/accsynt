@@ -1,0 +1,13 @@
+instruction,function,freq
+store,disable_trace,33569
+return,disable_trace,3
+branch,kernel_mvt,102192
+icmp,kernel_mvt,34164
+load,kernel_mvt,100704
+mul,kernel_mvt,33568
+add,kernel_mvt,67432
+fmul,kernel_mvt,33568
+fadd,kernel_mvt,33568
+store,kernel_mvt,33569
+return,kernel_mvt,3
+

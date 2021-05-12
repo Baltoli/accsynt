@@ -1,0 +1,11 @@
+instruction,function,freq
+store,disable_trace,142
+return,disable_trace,3
+branch,yi_ai_bi_ci,427
+icmp,yi_ai_bi_ci,143
+load,yi_ai_bi_ci,423
+fmul,yi_ai_bi_ci,282
+store,yi_ai_bi_ci,142
+add,yi_ai_bi_ci,141
+return,yi_ai_bi_ci,3
+

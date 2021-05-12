@@ -16,16 +16,11 @@ jobs:
       run: |
         sudo pip install conan
 
-    - name: Add Conan remotes
-      run: |
-        conan remote add value_ptr https://api.bintray.com/conan/baltoli/value_ptr
-        conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
-
     - name: Install LLVM
       run: |
         wget https://apt.llvm.org/llvm.sh
         chmod +x llvm.sh
-        sudo ./llvm.sh 10
+        sudo ./llvm.sh 12
 
     - name: Build AccSynt
       run: |
@@ -35,7 +30,7 @@ jobs:
               -DCMAKE_BUILD_TYPE=Debug \
               -DCMAKE_C_COMPILER=gcc-8 \
               -DCMAKE_CXX_COMPILER=g++-8 \
-              -DLLVM_DIR=`llvm-config-10 --cmakedir` \
+              -DLLVM_DIR=`llvm-config-12 --cmakedir` \
               ../src
         make -j `nproc`
 

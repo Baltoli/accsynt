@@ -1,0 +1,11 @@
+instruction,function,freq
+store,disable_trace,1
+return,disable_trace,131
+branch,last_zero_idx,830
+icmp,last_zero_idx,258
+return,last_zero_idx,131
+load,trace_enabled,256
+return,trace_enabled,131
+load,last_zero_idx,256
+add,last_zero_idx,128
+

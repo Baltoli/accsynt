@@ -1,0 +1,11 @@
+instruction,function,freq
+store,disable_trace,4358
+return,disable_trace,3
+branch,slice,87781
+mul,slice,16686
+icmp,slice,50054
+load,slice,33368
+store,slice,4358
+add,slice,16684
+return,slice,3
+

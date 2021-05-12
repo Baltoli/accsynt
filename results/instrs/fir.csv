@@ -1,0 +1,14 @@
+instruction,function,freq
+store,disable_trace,16689
+return,disable_trace,66353
+branch,fir,183036
+icmp,fir,16824
+load,trace_enabled,132700
+return,trace_enabled,66353
+load,fir,132700
+store,fir,16689
+sub,fir,16554
+mul,fir,16554
+add,fir,33242
+return,fir,66353
+

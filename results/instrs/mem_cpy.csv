@@ -1,0 +1,10 @@
+instruction,function,freq
+store,disable_trace,144
+return,disable_trace,3
+branch,mem_cpy,433
+icmp,mem_cpy,145
+load,mem_cpy,143
+store,mem_cpy,144
+add,mem_cpy,143
+return,mem_cpy,3
+

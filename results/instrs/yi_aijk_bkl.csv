@@ -1,0 +1,12 @@
+instruction,function,freq
+store,disable_trace,65
+return,disable_trace,2
+branch,yi_aijk_bkl,256282506
+icmp,yi_aijk_bkl,85651486
+mul,yi_aijk_bkl,84979473
+add,yi_aijk_bkl,169959007
+load,yi_aijk_bkl,168615176
+fmul,yi_aijk_bkl,84307588
+fadd,yi_aijk_bkl,84307588
+store,yi_aijk_bkl,65
+return,yi_aijk_bkl,2

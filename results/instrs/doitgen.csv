@@ -1,0 +1,13 @@
+instruction,function,freq
+store,disable_trace,20924594
+return,disable_trace,2
+branch,kernel_doitgen,63125774
+icmp,kernel_doitgen,21099736
+mul,kernel_doitgen,207368941
+add,kernel_doitgen,166033222
+store,kernel_doitgen,20924594
+load,kernel_doitgen,61920308
+fmul,kernel_doitgen,20582882
+fadd,kernel_doitgen,20582882
+return,kernel_doitgen,2
+

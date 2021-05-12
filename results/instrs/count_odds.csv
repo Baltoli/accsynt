@@ -1,0 +1,12 @@
+instruction,function,freq
+store,disable_trace,1
+return,disable_trace,151
+branch,count_odds,929
+icmp,count_odds,298
+load,trace_enabled,296
+return,trace_enabled,151
+load,count_odds,296
+srem,count_odds,148
+add,count_odds,185
+return,count_odds,151
+

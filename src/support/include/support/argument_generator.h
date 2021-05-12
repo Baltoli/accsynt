@@ -11,6 +11,7 @@
 #include <memory>
 #include <random>
 #include <type_traits>
+#include <unordered_map>
 
 namespace support {
 
@@ -198,15 +199,19 @@ template <typename Value>
 class override_generator {
 public:
   template <typename... Args>
-  override_generator(std::string key, Value&& val, Args&&... args);
+  override_generator(
+      std::unordered_map<std::string, Value> map, Args&&... args);
 
-  void set_value(Value&& v);
+  template <typename... Args>
+  override_generator(std::string key, Value val, Args&&... args);
+
+  void set_value(std::string const& k, Value v);
   void gen_args(call_builder&);
 
 private:
   uniform_generator base_gen_;
-  std::string key_;
-  Value value_;
+
+  std::unordered_map<std::string, Value> map_;
 };
 
 /**
@@ -274,18 +279,27 @@ std::vector<T> uniform_generator::gen_array_internal()
 template <typename Value>
 template <typename... Args>
 override_generator<Value>::override_generator(
-    std::string key, Value&& val, Args&&... args)
+    std::unordered_map<std::string, Value> map, Args&&... args)
     : base_gen_(std::forward<Args>(args)...)
-    , key_(key)
-    , value_(val)
+    , map_(map)
 {
   base_gen_.preallocate(16);
 }
 
 template <typename Value>
-void override_generator<Value>::set_value(Value&& v)
+template <typename... Args>
+override_generator<Value>::override_generator(
+    std::string key, Value val, Args&&... args)
+    : override_generator(
+        std::unordered_map<std::string, Value> {{key, val}},
+        std::forward<Args>(args)...)
 {
-  value_ = std::forward<Value>(v);
+}
+
+template <typename Value>
+void override_generator<Value>::set_value(std::string const& key, Value v)
+{
+  map_[key] = v;
 }
 
 template <typename Value>
@@ -297,9 +311,17 @@ void override_generator<Value>::gen_args(call_builder& build)
 
   auto make_action = [&](auto&& action) {
     return [&](auto const& p) {
-      if (p.name == key_) {
-        build.add(value_);
-      } else {
+      auto any = false;
+
+      for (auto const& [key, value] : map_) {
+        if (p.name == key) {
+          build.add(value);
+          any = true;
+          break;
+        }
+      }
+
+      if (!any) {
         action();
       }
     };

@@ -1,0 +1,14 @@
+instruction,function,freq
+store,disable_trace,5
+return,disable_trace,7
+branch,count_each,20
+icmp,count_each,6
+srem,count_each,4
+load,trace_enabled,12
+return,trace_enabled,7
+load,count_each,12
+add,count_each,4
+store,count_each,5
+sdiv,count_each,4
+return,count_each,7
+

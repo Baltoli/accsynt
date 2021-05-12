@@ -1,0 +1,11 @@
+instruction,function,freq
+store,disable_trace,139
+return,disable_trace,3
+branch,vneg,418
+icmp,vneg,140
+load,vneg,138
+sub,vneg,138
+store,vneg,139
+add,vneg,138
+return,vneg,3
+

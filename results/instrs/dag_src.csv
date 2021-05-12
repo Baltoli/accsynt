@@ -1,0 +1,13 @@
+instruction,function,freq
+store,disable_trace,156
+return,disable_trace,17271
+branch,dag_src,112775
+icmp,dag_src,34538
+load,trace_enabled,34536
+return,trace_enabled,17271
+mul,dag_src,17113
+add,dag_src,34381
+load,dag_src,34536
+store,dag_src,156
+return,dag_src,17271
+

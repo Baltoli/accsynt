@@ -1,0 +1,12 @@
+instruction,function,freq
+store,disable_trace,16960
+return,disable_trace,3
+branch,matsub,51646
+icmp,matsub,17267
+mul,matsub,33918
+add,matsub,51030
+load,matsub,33918
+sub,matsub,16959
+store,matsub,16960
+return,matsub,3
+

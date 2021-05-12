@@ -6,6 +6,7 @@
 #include <support/dynamic_library.h>
 #include <support/thread_context.h>
 
+#include <llvm/ADT/StringRef.h>
 #include <llvm/ExecutionEngine/GenericValue.h>
 #include <llvm/ExecutionEngine/MCJIT.h>
 #include <llvm/IR/Constants.h>
@@ -53,21 +54,21 @@ public:
    *
    * If the function type is incorrect, this will throw an exception.
    */
-  call_wrapper(llvm::Module const& mod, std::string const& name);
+  call_wrapper(llvm::Module const& mod, llvm::StringRef name);
 
   /**
    * Construct a wrapper for an existing function contained in a module. The
    * function is looked up by name in the module.
    */
   call_wrapper(
-      props::signature sig, llvm::Module const& mod, std::string const& name);
+      props::signature sig, llvm::Module const& mod, llvm::StringRef name);
 
   /**
    * Construct a wrapper for a symbol contained in a dynamic library. The name
    * is looked up using dlsym and registered with the execution engine.
    */
   call_wrapper(
-      props::signature sig, llvm::Module const& mod, std::string const& name,
+      props::signature sig, llvm::Module const& mod, llvm::StringRef name,
       dynamic_library const& dl);
 
   /**
@@ -77,7 +78,7 @@ public:
    */
   template <typename FPtr>
   call_wrapper(
-      props::signature sig, llvm::Module const& mod, std::string const& name,
+      props::signature sig, llvm::Module const& mod, llvm::StringRef name,
       FPtr ptr);
 
   /**
@@ -146,7 +147,7 @@ private:
 
 template <typename FPtr>
 call_wrapper::call_wrapper(
-    props::signature sig, llvm::Module const& mod, std::string const& name,
+    props::signature sig, llvm::Module const& mod, llvm::StringRef name,
     FPtr ptr)
     : call_wrapper(sig, mod, name)
 {
@@ -156,7 +157,7 @@ call_wrapper::call_wrapper(
 template <typename Builder>
 llvm::Value* call_wrapper::make_vector(Builder& B, size_t size) const
 {
-  auto vec_ty = llvm::VectorType::get(B.getInt8Ty(), size);
+  auto vec_ty = llvm::VectorType::get(B.getInt8Ty(), size, false);
   return llvm::Constant::getNullValue(vec_ty);
 }
 

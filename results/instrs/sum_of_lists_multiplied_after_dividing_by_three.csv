@@ -1,0 +1,12 @@
+instruction,function,freq
+store,disable_trace,259
+return,disable_trace,3
+branch,sum_of_lists_multiplied_after_dividing_by_three,1173
+icmp,sum_of_lists_multiplied_after_dividing_by_three,393
+load,sum_of_lists_multiplied_after_dividing_by_three,516
+sdiv,sum_of_lists_multiplied_after_dividing_by_three,129
+store,sum_of_lists_multiplied_after_dividing_by_three,259
+add,sum_of_lists_multiplied_after_dividing_by_three,516
+mul,sum_of_lists_multiplied_after_dividing_by_three,129
+return,sum_of_lists_multiplied_after_dividing_by_three,3
+

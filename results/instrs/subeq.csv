@@ -1,0 +1,11 @@
+instruction,function,freq
+store,disable_trace,138
+return,disable_trace,3
+branch,subeq,415
+icmp,subeq,139
+load,subeq,274
+sub,subeq,137
+store,subeq,138
+add,subeq,137
+return,subeq,3
+

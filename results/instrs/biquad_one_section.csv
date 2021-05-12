@@ -1,0 +1,8 @@
+instruction,function,freq
+store,disable_trace,1
+return,disable_trace,3
+fmul,biquad_one_section_main,10
+fsub,biquad_one_section_main,4
+fadd,biquad_one_section_main,4
+return,biquad_one_section_main,3
+

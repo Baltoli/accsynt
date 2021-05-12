@@ -1,0 +1,12 @@
+instruction,function,freq
+store,disable_trace,5
+return,disable_trace,3
+branch,dsp_dot_product,16
+icmp,dsp_dot_product,6
+load,dsp_dot_product,12
+fmul,dsp_dot_product,4
+fadd,dsp_dot_product,4
+store,dsp_dot_product,5
+add,dsp_dot_product,4
+return,dsp_dot_product,3
+

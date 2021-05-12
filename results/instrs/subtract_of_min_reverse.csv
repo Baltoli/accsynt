@@ -1,0 +1,11 @@
+instruction,function,freq
+store,disable_trace,148
+return,disable_trace,3
+branch,subtract_of_min_reverse,739
+icmp,subtract_of_min_reverse,296
+load,subtract_of_min_reverse,441
+sub,subtract_of_min_reverse,441
+store,subtract_of_min_reverse,148
+add,subtract_of_min_reverse,147
+return,subtract_of_min_reverse,3
+

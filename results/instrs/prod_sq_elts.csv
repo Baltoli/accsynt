@@ -1,0 +1,12 @@
+instruction,function,freq
+store,disable_trace,1
+return,disable_trace,289
+branch,prod_sq_elts,1005
+icmp,prod_sq_elts,145
+load,trace_enabled,572
+return,trace_enabled,289
+load,prod_sq_elts,572
+mul,prod_sq_elts,286
+add,prod_sq_elts,143
+return,prod_sq_elts,289
+

@@ -1,0 +1,12 @@
+instruction,function,freq
+store,disable_trace,159
+return,disable_trace,3
+branch,norm,956
+icmp,norm,320
+load,norm,316
+fadd,norm,158
+add,norm,316
+fdiv,norm,158
+store,norm,159
+return,norm,3
+

@@ -1,0 +1,13 @@
+instruction,function,freq
+store,disable_trace,16554
+return,disable_trace,3
+branch,aij_ajk_bkl,815926302
+icmp,aij_ajk_bkl,272680895
+mul,aij_ajk_bkl,270564371
+add,aij_ajk_bkl,541128883
+load,aij_ajk_bkl,536896262
+fmul,aij_ajk_bkl,268448131
+fadd,aij_ajk_bkl,268448131
+store,aij_ajk_bkl,16554
+return,aij_ajk_bkl,3
+

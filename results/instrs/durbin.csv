@@ -1,0 +1,15 @@
+instruction,function,freq
+store,disable_trace,17467
+return,disable_trace,3
+load,kernel_durbin,51492
+mul,kernel_durbin,50750
+add,kernel_durbin,76125
+store,kernel_durbin,17467
+branch,kernel_durbin,51648
+icmp,kernel_durbin,17316
+sub,kernel_durbin,76269
+fmul,kernel_durbin,17162
+fsub,kernel_durbin,296
+fadd,kernel_durbin,16718
+return,kernel_durbin,3
+

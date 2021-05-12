@@ -1,0 +1,11 @@
+instruction,function,freq
+store,disable_trace,134
+return,disable_trace,3
+branch,diveq_sca,403
+icmp,diveq_sca,135
+load,diveq_sca,133
+sdiv,diveq_sca,133
+store,diveq_sca,134
+add,diveq_sca,133
+return,diveq_sca,3
+

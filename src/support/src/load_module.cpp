@@ -46,7 +46,7 @@ std::unique_ptr<Module> load_module(std::string const& path)
   auto& ctx = thread_context::get();
   auto err = SMDiagnostic {};
 
-  auto mod = parseIRFile(path, err, ctx, true, "");
+  auto mod = parseIRFile(path, err, ctx);
   if (!mod) {
     err.print("load_module", errs());
     throw std::runtime_error("Error loading module: " + path);

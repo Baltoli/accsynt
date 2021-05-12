@@ -1,0 +1,13 @@
+instruction,function,freq
+store,disable_trace,33197
+return,disable_trace,3
+branch,kernel_gesummv,49864
+icmp,kernel_gesummv,16666
+store,kernel_gesummv,33197
+mul,kernel_gesummv,32800
+add,kernel_gesummv,49332
+load,kernel_gesummv,98664
+fmul,kernel_gesummv,33064
+fadd,kernel_gesummv,32932
+return,kernel_gesummv,3
+

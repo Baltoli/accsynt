@@ -8,10 +8,14 @@ cl::opt<std::string>
 cl::opt<std::string>
     LibraryPath(cl::Positional, cl::Required, cl::desc("<shared library>"));
 
-cl::opt<std::string>
-    Parameter(cl::Positional, cl::Required, cl::desc("<parameter name>"));
+cl::list<std::string> Parameters(
+    cl::Positional, cl::ZeroOrMore, cl::desc("<parameter names...>"));
 
-cl::opt<std::string> Tag(cl::Positional, cl::Required, cl::desc("<tag>"));
+cl::opt<std::string>
+    Tag("tag", cl::desc("Tag for example in dataset"), cl::value_desc("string"),
+        cl::init(""));
+
+cl::alias TagA("t", cl::desc("Alias for -tag"), cl::aliasopt(Tag));
 
 cl::OptionCategory Experiments(
     "Experimental options",
@@ -22,7 +26,9 @@ cl::opt<PerfMode> Mode(
     cl::values(
         clEnumValN(LinearSpace, "linear", "Sample from a uniform linear space"),
         clEnumValN(
-            Random, "random", "Sample randomly (baseline implementation)")),
+            Random, "random", "Sample randomly (baseline implementation)"),
+        clEnumValN(
+            Single, "single", "Run a single randomly-sampled experiment")),
     cl::init(LinearSpace), cl::cat(Experiments));
 
 cl::opt<int> Start(
@@ -53,9 +59,23 @@ cl::opt<int>
     Max("max", cl::desc("Maximum bounding value for random generation"),
         cl::value_desc("integer"), cl::init(64), cl::cat(Experiments));
 
+cl::opt<int> Independent(
+    "independent", cl::desc("Fixed value for parameters held independent"),
+    cl::value_desc("integer"), cl::init(4096), cl::cat(Experiments));
+
+cl::alias IndependentA(
+    "i", cl::desc("Alias for -independent"), cl::aliasopt(Independent),
+    cl::cat(Experiments));
+
 cl::OptionCategory
     Memory("Memory options", "Fine-tuning memory allocation sizes and checks");
 
 cl::opt<int> MemSize(
     "memsize", cl::desc("Cube-root of maximum physical memory allocation size"),
     cl::value_desc("integer"), cl::init(32), cl::cat(Memory));
+
+cl::opt<bool> Quiet(
+    "quiet", cl::desc("Don't print timing values"), cl::value_desc("boolean"),
+    cl::init(false));
+
+cl::alias QuietA("q", cl::desc("Alias for -quiet"), cl::aliasopt(Quiet));

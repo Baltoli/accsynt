@@ -1,0 +1,13 @@
+instruction,function,freq
+store,disable_trace,153
+return,disable_trace,155
+branch,cube_in_place,764
+icmp,cube_in_place,154
+load,trace_enabled,760
+return,trace_enabled,155
+load,cube_in_place,760
+mul,cube_in_place,304
+store,cube_in_place,153
+add,cube_in_place,152
+return,cube_in_place,155
+

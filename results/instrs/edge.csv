@@ -1,0 +1,12 @@
+instruction,function,freq
+store,disable_trace,16497
+return,disable_trace,3
+branch,v_edge,50187
+sub,v_edge,16637
+icmp,v_edge,16776
+add,v_edge,82619
+mul,v_edge,49488
+load,v_edge,32992
+store,v_edge,16497
+return,v_edge,3
+

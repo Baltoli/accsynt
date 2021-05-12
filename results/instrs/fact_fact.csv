@@ -1,0 +1,9 @@
+instruction,function,freq
+store,disable_trace,1
+return,disable_trace,3
+branch,fact_fact,150
+icmp,fact_fact,75
+mul,fact_fact,73
+sub,fact_fact,73
+return,fact_fact,3
+

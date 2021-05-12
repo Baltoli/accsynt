@@ -1,0 +1,13 @@
+instruction,function,freq
+store,disable_trace,142
+return,disable_trace,3
+branch,lerp,427
+icmp,lerp,143
+load,lerp,282
+fmul,lerp,282
+fsub,lerp,141
+fadd,lerp,141
+store,lerp,142
+add,lerp,141
+return,lerp,3
+

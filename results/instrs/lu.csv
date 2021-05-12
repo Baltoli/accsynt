@@ -1,0 +1,14 @@
+instruction,function,freq
+store,disable_trace,699121
+return,disable_trace,3
+branch,kernel_lu,2139054
+icmp,kernel_lu,715825
+add,kernel_lu,3504154
+mul,kernel_lu,2788331
+load,kernel_lu,2089211
+fdiv,kernel_lu,8149
+store,kernel_lu,699121
+fmul,kernel_lu,690971
+fsub,kernel_lu,690971
+return,kernel_lu,3
+

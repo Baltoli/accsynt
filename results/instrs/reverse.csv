@@ -1,0 +1,14 @@
+instruction,function,freq
+store,disable_trace,155
+return,disable_trace,311
+branch,reverse,851
+sdiv,reverse,79
+icmp,reverse,79
+load,trace_enabled,616
+return,trace_enabled,311
+load,reverse,616
+sub,reverse,462
+store,reverse,155
+add,reverse,77
+return,reverse,311
+

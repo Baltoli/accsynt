@@ -1,0 +1,12 @@
+instruction,function,freq
+store,disable_trace,314373
+return,disable_trace,2
+branch,kernel_reg_detect,961778
+icmp,kernel_reg_detect,322335
+sub,kernel_reg_detect,348491
+mul,kernel_reg_detect,1373432
+add,kernel_reg_detect,1330186
+load,kernel_reg_detect,338353
+store,kernel_reg_detect,314373
+fadd,kernel_reg_detect,23980
+return,kernel_reg_detect,2

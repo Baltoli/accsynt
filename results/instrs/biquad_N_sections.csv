@@ -1,0 +1,13 @@
+instruction,function,freq
+store,disable_trace,271
+return,disable_trace,3
+branch,biquad_N_sections,409
+icmp,biquad_N_sections,137
+load,biquad_N_sections,1350
+fmul,biquad_N_sections,675
+fsub,biquad_N_sections,270
+fadd,biquad_N_sections,270
+store,biquad_N_sections,271
+add,biquad_N_sections,135
+return,biquad_N_sections,3
+

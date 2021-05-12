@@ -10,8 +10,8 @@
 
 using namespace llvm;
 
-static cl::opt<std::string> InputFilename(cl::Positional,
-    cl::desc("<input bitcode file>"), cl::init("-"),
+static cl::opt<std::string> InputFilename(
+    cl::Positional, cl::desc("<input bitcode file>"), cl::init("-"),
     cl::value_desc("filename"));
 
 int main(int argc, char** argv)
@@ -21,7 +21,7 @@ int main(int argc, char** argv)
   LLVMContext Context;
   SMDiagnostic Err;
 
-  auto&& mod = parseIRFile(InputFilename, Err, Context, true, "");
+  auto&& mod = parseIRFile(InputFilename, Err, Context);
   if (!mod) {
     Err.print(argv[0], errs());
     return 1;

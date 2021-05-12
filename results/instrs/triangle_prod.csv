@@ -1,0 +1,9 @@
+instruction,function,freq
+store,disable_trace,1
+return,disable_trace,3
+branch,triangle_prod,24642
+icmp,triangle_prod,8257
+return,triangle_prod,3
+add,triangle_prod,8128
+mul,triangle_prod,8001
+

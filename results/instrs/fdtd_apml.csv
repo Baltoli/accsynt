@@ -1,0 +1,16 @@
+instruction,function,freq
+store,disable_trace,7137925
+return,disable_trace,2
+branch,kernel_fdtd_apml,5360786
+icmp,kernel_fdtd_apml,1791593
+add,kernel_fdtd_apml,99868666
+mul,kernel_fdtd_apml,55291217
+load,kernel_fdtd_apml,33905140
+fsub,kernel_fdtd_apml,7137924
+fadd,kernel_fdtd_apml,3568962
+store,kernel_fdtd_apml,7137925
+fdiv,kernel_fdtd_apml,8922405
+fmul,kernel_fdtd_apml,12491367
+return,kernel_fdtd_apml,2
+ad,,1
+

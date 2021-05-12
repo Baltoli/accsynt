@@ -1,0 +1,11 @@
+instruction,function,freq
+store,disable_trace,1
+return,disable_trace,166
+branch,min_elt,970
+icmp,min_elt,320
+load,trace_enabled,326
+return,trace_enabled,166
+load,min_elt,326
+add,min_elt,159
+return,min_elt,166
+
