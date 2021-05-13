@@ -14,6 +14,9 @@
 #include <support/terminal.h>
 #include <support/thread_context.h>
 
+#include <llvm/IR/Module.h>
+#include <llvm/Support/TargetSelect.h>
+
 #include <fmt/format.h>
 
 #include <fstream>
@@ -22,9 +25,10 @@ using namespace support;
 using namespace presyn;
 
 using namespace fmt::literals;
+using namespace llvm;
 
 namespace cl = llvm::cl;
-namespace term = support::terminal;
+namespace term = ::support::terminal;
 namespace opts = presyn::oracle::opts;
 
 // Read a line of input, either from a file or from standard input. If from
@@ -89,14 +93,18 @@ std::unique_ptr<fragment> get_fragment()
 
 int main(int argc, char** argv)
 try {
+  InitializeNativeTarget();
+  InitializeNativeTargetAsmPrinter();
+  InitializeNativeTargetAsmParser();
+
   cl::ParseCommandLineOptions(argc, argv);
 
   auto sig = get_sig();
   auto frag = get_fragment();
 
   auto lib = dynamic_library(opts::SharedLibrary);
-  /* auto module = Module */
-  /* auto ref_impl = call_wrapper(sig, */
+  auto module = Module("oracle", thread_context::get());
+  auto ref_impl = call_wrapper(sig, module, sig.name, lib);
 
   while (true) {
     auto cand = candidate(sketch(sig, *frag), std::make_unique<rule_filler>());
