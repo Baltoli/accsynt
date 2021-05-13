@@ -6,10 +6,13 @@
 
 #include <props/props.h>
 
+#include <support/argument_generator.h>
 #include <support/assert.h>
+#include <support/call_builder.h>
 #include <support/call_wrapper.h>
 #include <support/dynamic_library.h>
 #include <support/input.h>
+#include <support/llvm_cloning.h>
 #include <support/llvm_format.h>
 #include <support/terminal.h>
 #include <support/thread_context.h>
@@ -91,6 +94,29 @@ std::unique_ptr<fragment> get_fragment()
   return current_frag;
 }
 
+bool test(call_wrapper& a, call_wrapper& b)
+{
+  auto gen = uniform_generator();
+
+  for (auto i = 0; i < 64; ++i) {
+    auto build = a.get_builder();
+
+    gen.gen_args(build);
+
+    auto a_bef = build;
+    auto b_bef = build;
+
+    auto a_res = a.call(build);
+    auto b_res = b.call(build);
+
+    if (a_res != b_res) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 int main(int argc, char** argv)
 try {
   InitializeNativeTarget();
@@ -109,6 +135,13 @@ try {
   while (true) {
     auto cand = candidate(sketch(sig, *frag), std::make_unique<rule_filler>());
     assertion(cand.is_valid(), "Reification produced an invalid candidate");
+
+    auto cand_impl = call_wrapper(cand.function());
+
+    if (test(ref_impl, cand_impl)) {
+      fmt::print("{}\n", cand.module());
+      return 0;
+    }
   }
 } catch (std::runtime_error& e) {
   fmt::print(
