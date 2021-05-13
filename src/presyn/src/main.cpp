@@ -29,6 +29,6 @@ int main(int argc, char** argv)
   fmt::print("{}\n", *frag);
   fmt::print("{}\n", sig);
 
-  auto sk = sketch(sig, *frag);
-  fmt::print("\n{}", sk.module());
+  /*   auto sk = sketch(sig, *frag); */
+  /*   fmt::print("\n{}", sk.module()); */
 }

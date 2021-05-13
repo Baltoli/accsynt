@@ -81,7 +81,7 @@ private:
   std::unique_ptr<filler> filler_;
 
   props::signature signature_;
-  std::unique_ptr<llvm::Module> module_;
+  llvm::Module& module_;
 
   std::map<std::pair<llvm::Type*, llvm::Type*>, llvm::Function*> converters_
       = {};

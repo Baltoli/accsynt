@@ -29,15 +29,17 @@ class sketch {
   friend class candidate;
 
 public:
-  sketch(props::signature sig, fragment const&);
-  sketch(props::signature sig, std::unique_ptr<fragment> const&);
+  sketch(llvm::Module& mod, props::signature sig, fragment const&);
+  sketch(
+      llvm::Module& mod, props::signature sig,
+      std::unique_ptr<fragment> const&);
 
   llvm::Module& module();
   llvm::Module const& module() const;
 
 protected:
   // Allow these members to be accessed by the candidate constructor
-  std::unique_ptr<llvm::Module> module_;
+  llvm::Module& module_;
   sketch_context ctx_;
 
 private:

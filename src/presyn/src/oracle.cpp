@@ -107,7 +107,8 @@ try {
   auto ref_impl = call_wrapper(sig, module, sig.name, lib);
 
   while (true) {
-    auto cand = candidate(sketch(sig, *frag), std::make_unique<rule_filler>());
+    auto cand = candidate(
+        sketch(module, sig, *frag), std::make_unique<rule_filler>());
     assertion(cand.is_valid(), "Reification produced an invalid candidate");
   }
 } catch (std::runtime_error& e) {
