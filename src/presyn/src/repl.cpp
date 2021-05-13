@@ -39,14 +39,14 @@ int main()
   fmt::print("; frag = {}\n", *current_frag);
   fmt::print("; sig  = {}\n", sig);
 
-  /* auto sk = sketch(sig, *current_frag); */
+  auto sk = sketch(sig, *current_frag);
 
-  /* auto cand = candidate(std::move(sk), std::make_unique<rule_filler>()); */
-  /* if (cand.is_valid()) { */
-  /*   fmt::print("; Valid reified candidate - can proceed to execution\n"); */
-  /* } else { */
-  /*   fmt::print("; Invalid candidate - no execution\n"); */
-  /* } */
+  auto cand = candidate(std::move(sk), std::make_unique<rule_filler>());
+  if (cand.is_valid()) {
+    fmt::print("; Valid reified candidate - can proceed to execution\n");
+  } else {
+    fmt::print("; Invalid candidate - no execution\n");
+  }
 
-  /* fmt::print("\n{}", cand.module()); */
+  fmt::print("\n{}", cand.module());
 }

@@ -27,7 +27,7 @@ namespace presyn {
 candidate::candidate(sketch&& sk, std::unique_ptr<filler> fill)
     : filler_(std::move(fill))
     , signature_(sk.ctx_.signature())
-    , module_(sk.module_)
+    , module_(std::move(sk.module_))
     , hole_type_(sk.ctx_.opaque_type())
     , type_convs_()
     , ctx_(std::move(sk.ctx_))
@@ -48,20 +48,20 @@ Type* candidate::hole_type() const { return hole_type_; }
 
 Function& candidate::function()
 {
-  auto func = module_.getFunction(signature_.name);
+  auto func = module_->getFunction(signature_.name);
   assertion(func != nullptr, "Must have correctly named candidate function");
   return *func;
 }
 
 Function const& candidate::function() const
 {
-  auto func = module_.getFunction(signature_.name);
+  auto func = module_->getFunction(signature_.name);
   assertion(func != nullptr, "Must have correctly named candidate function");
   return *func;
 }
 
-Module& candidate::module() { return module_; }
-Module const& candidate::module() const { return module_; }
+Module& candidate::module() { return *module_; }
+Module const& candidate::module() const { return *module_; }
 
 void candidate::resolve_names()
 {
@@ -268,9 +268,9 @@ llvm::Function* candidate::converter(llvm::Type* from, llvm::Type* to)
   if (converters_.find({from, to}) == converters_.end()) {
     auto func_ty = FunctionType::get(to, {from}, false);
     auto func = Function::Create(
-        func_ty, GlobalValue::InternalLinkage, "id", module_);
+        func_ty, GlobalValue::InternalLinkage, "id", *module_);
 
-    auto bb = BasicBlock::Create(module_.getContext(), "entry", func);
+    auto bb = BasicBlock::Create(module_->getContext(), "entry", func);
     auto build = IRBuilder(bb);
 
     llvm::Value* ret_val = func->arg_begin();
