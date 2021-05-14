@@ -85,10 +85,6 @@ Value* rule_filler::fill(CallInst* hole)
   collect_from(collect_params(hole));
   collect_from(collect_constants(hole));
 
-  for (auto&& c : choices) {
-    fmt::print("  consider? {}\n", *c);
-  }
-
   for_each(all_rules(), [&](auto const& rule) {
     rule.match(*this, hole, choices, generated);
   });

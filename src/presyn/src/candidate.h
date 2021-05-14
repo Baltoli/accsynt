@@ -73,6 +73,7 @@ private:
   void resolve_operators();
   void insert_phis(int n_per_type = 1);
   void hoist_phis();
+  void inline_identities();
 
   std::optional<std::string> arg_name(llvm::Value*) const;
 
