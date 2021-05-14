@@ -38,8 +38,12 @@ candidate::candidate(sketch&& sk, std::unique_ptr<filler> fill)
 
   resolve_names();
   insert_phis();
+  resolve_operators();
+  fmt::print("{}\n", module());
   choose_values();
   resolve_operators();
+
+  hoist_phis();
 }
 
 sketch_context& candidate::ctx() { return ctx_; }
@@ -123,6 +127,8 @@ void candidate::choose_values()
   while (!holes.empty()) {
     auto hole = holes.front();
     holes.pop_front();
+
+    fmt::print("Filling {}\n", *hole);
 
     auto new_val = filler_->fill(hole);
 

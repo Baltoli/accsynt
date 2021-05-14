@@ -136,6 +136,7 @@ try {
     auto cand = candidate(sketch(sig, *frag), std::make_unique<rule_filler>());
     assertion(cand.is_valid(), "Reification produced an invalid candidate");
 
+    /* fmt::print("{}\n", cand.module()); */
     auto cand_impl = call_wrapper(cand.function());
 
     if (test(ref_impl, cand_impl)) {
