@@ -71,9 +71,8 @@ Value* rule_filler::fill(CallInst* hole)
   auto choices = std::vector<llvm::Value*> {};
   auto generated = std::vector<llvm::Value*> {};
 
-  auto collect_from = [&choices, this](auto&& src) {
-    for (auto it = FWD(src).begin();
-         it != FWD(src).end() && choices.size() < pool_size_; ++it) {
+  auto collect_from = [&choices](auto&& src) {
+    for (auto it = FWD(src).begin(); it != FWD(src).end(); ++it) {
       auto ty = (*it)->getType();
       if (!ty->isVoidTy()) {
         choices.push_back(*it);

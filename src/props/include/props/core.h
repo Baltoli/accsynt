@@ -58,6 +58,8 @@ struct param {
 
   llvm::Type* llvm_type() const;
 
+  bool compatible(param const& other) const;
+
   bool operator==(param const& other) const;
   bool operator!=(param const& other) const;
 };
@@ -88,6 +90,8 @@ struct signature {
   signature(Input const& in, property_set& parent)
   {
   }
+
+  bool compatible(signature const& other) const;
 
   bool operator==(signature const& other) const;
   bool operator!=(signature const& other) const;

@@ -28,6 +28,7 @@ install(EXPORT PropsConfig DESTINATION share/Props/cmake)
 
 add_executable(props_unit
   test/llvm.cpp
+  test/compare.cpp
   test/usage.cpp
   test/printing.cpp
   test/parsing.cpp

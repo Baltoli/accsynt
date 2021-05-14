@@ -79,7 +79,15 @@ public:
    * Construct with a type signature - the signature is used to check that each
    * argument is correct when it is added to the pack.
    */
-  call_builder(props::signature sig);
+  explicit call_builder(props::signature sig);
+
+  /**
+   * Construct a call_builder with a type signature as well as a series of
+   * arguments. This just forwards to the variadic helper after delegating the
+   * constructor.
+   */
+  template <typename... Ts>
+  explicit call_builder(props::signature sig, Ts&&... args);
 
   /**
    * Copy constructor and assignment using copy-and-swap. The copy constructor
@@ -121,6 +129,8 @@ public:
    */
   template <typename T>
   void add(T arg);
+
+  void add(int arg);
 
   /**
    * Add a vector to the argument pack. Copies the vector into the builder's
@@ -186,6 +196,14 @@ public:
   uint8_t* args();
 
   /**
+   * Scalar equality comparison - are all the scalar arguments to this builder
+   * the same as the ones passed to the other builder? This essentially denotes
+   * equality up to possible mutation of memory (i.e. if the other builder
+   * represents the state after a call, we allow it to have been mutated).
+   */
+  bool scalar_args_equal(call_builder const& other) const;
+
+  /**
    * Deep equality comparison - descends into stored vectors rather than
    * comparing pointer data for equality.
    */
@@ -211,6 +229,13 @@ struct output_example {
   uint64_t return_value;
   call_builder output_args;
 };
+
+template <typename... Ts>
+call_builder::call_builder(props::signature sig, Ts&&... args)
+    : call_builder(sig)
+{
+  add(std::forward<Ts>(args)...);
+}
 
 template <typename T>
 void call_builder::add(T arg)

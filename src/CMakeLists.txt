@@ -67,6 +67,7 @@ include(GNUInstallDirs)
 enable_testing()
 
 add_subdirectory(coverage)
+add_subdirectory(holes)
 add_subdirectory(io)
 add_subdirectory(passes)
 add_subdirectory(perf)

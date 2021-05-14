@@ -1,4 +1,6 @@
 add_library(corepresyn
+  src/error_function.cpp
+  src/optimiser.cpp
   src/parameter.cpp
   src/fragment.cpp
   src/fragment_parse.cpp
@@ -29,6 +31,7 @@ target_link_libraries(corepresyn
   CONAN_PKG::taocpp-pegtl
   support
   props
+  holes
   ${llvm_libs})
 
 target_link_filesystem(corepresyn)
@@ -43,6 +46,8 @@ target_link_libraries(oracle
   corepresyn)
 
 add_executable(presyn_unit
+  test/optimiser.cpp
+  test/error_function.cpp
   test/fragment.cpp
   test/parsing.cpp
   test/regression.cpp

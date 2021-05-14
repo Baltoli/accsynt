@@ -24,11 +24,12 @@ class candidate {
 public:
   candidate(sketch&&, std::unique_ptr<filler>);
 
-  bool is_valid() const;
+  bool is_valid();
 
   llvm::Type* hole_type() const;
 
-  llvm::Function& function() const;
+  llvm::Function& function();
+  llvm::Function const& function() const;
 
   llvm::Module& module();
   llvm::Module const& module() const;
@@ -72,6 +73,7 @@ private:
   void resolve_operators();
   void insert_phis(int n_per_type = 1);
   void hoist_phis();
+  void inline_identities();
 
   std::optional<std::string> arg_name(llvm::Value*) const;
 

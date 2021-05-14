@@ -14,6 +14,7 @@
 #include <llvm/IR/InstVisitor.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Module.h>
+#include <llvm/Transforms/IPO/AlwaysInliner.h>
 
 #include <algorithm>
 #include <deque>
@@ -38,15 +39,26 @@ candidate::candidate(sketch&& sk, std::unique_ptr<filler> fill)
 
   resolve_names();
   insert_phis();
+  resolve_operators();
+  inline_identities();
   choose_values();
   resolve_operators();
+
+  hoist_phis();
 }
 
 sketch_context& candidate::ctx() { return ctx_; }
 
 Type* candidate::hole_type() const { return hole_type_; }
 
-Function& candidate::function() const
+Function& candidate::function()
+{
+  auto func = module_->getFunction(signature_.name);
+  assertion(func != nullptr, "Must have correctly named candidate function");
+  return *func;
+}
+
+Function const& candidate::function() const
 {
   auto func = module_->getFunction(signature_.name);
   assertion(func != nullptr, "Must have correctly named candidate function");
@@ -216,7 +228,30 @@ void candidate::hoist_phis()
   }
 }
 
-bool candidate::is_valid() const
+void candidate::inline_identities()
+{
+  auto is_id = [](auto& func) {
+    auto name_valid = func.getName().startswith("id");
+    auto type = func.getFunctionType();
+
+    auto type_valid = type->getNumParams() == 1
+                      && type->getParamType(0) == type->getReturnType();
+
+    return name_valid && type_valid;
+  };
+
+  for (auto& func : module()) {
+    if (is_id(func)) {
+      for (auto* use : func.users()) {
+        auto ci = cast<CallInst>(use);
+        ci->replaceAllUsesWith(ci->getArgOperand(0));
+        ci->eraseFromParent();
+      }
+    }
+  }
+}
+
+bool candidate::is_valid()
 {
   auto vis = is_valid_visitor();
   vis.visit(function());
@@ -263,6 +298,8 @@ llvm::Function* candidate::converter(llvm::Type* from, llvm::Type* to)
     auto func = Function::Create(
         func_ty, GlobalValue::InternalLinkage, "id", *module_);
 
+    func->addFnAttr(Attribute::AlwaysInline);
+
     auto bb = BasicBlock::Create(module_->getContext(), "entry", func);
     auto build = IRBuilder(bb);
 
@@ -270,7 +307,9 @@ llvm::Function* candidate::converter(llvm::Type* from, llvm::Type* to)
 
     assertion(
         to->isPointerTy() == from->isPointerTy(),
-        "Can't convert between pointer and non-pointer");
+        "Can't convert between pointer and non-pointer (when converting {} to "
+        "{})",
+        *from, *to);
 
     if (from != to) {
       if (to->isPointerTy()) {

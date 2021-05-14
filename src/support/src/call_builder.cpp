@@ -85,6 +85,8 @@ call_builder& call_builder::operator=(call_builder other)
   return *this;
 }
 
+void call_builder::add(int arg) { add(static_cast<long>(arg)); }
+
 void swap(call_builder& left, call_builder& right)
 {
   using std::swap;
@@ -102,6 +104,37 @@ uint8_t* call_builder::args()
       ready(), "Argument pack not fully built yet (count: {}, expected: {})",
       args_count(), args_capacity());
   return args_.data();
+}
+
+bool call_builder::scalar_args_equal(call_builder const& other) const
+{
+  if (args_.size() != other.args_.size()) {
+    return false;
+  }
+
+  if (!signature_.compatible(other.signature_)) {
+    return false;
+  }
+
+  size_t offset = 0;
+  bool all_eq = true;
+
+  for (auto const& param : signature_.parameters) {
+    if (!all_eq) {
+      return false;
+    }
+
+    if (param.pointer_depth == 0) {
+      // Value comparisons done on the raw byte data
+      for (auto i = 0u; i < base_type_size(param.type); ++i, ++offset) {
+        all_eq = all_eq && (args_.at(offset) == other.args_.at(offset));
+      }
+    } else {
+      offset += 8;
+    }
+  }
+
+  return all_eq;
 }
 
 std::vector<uint8_t> call_builder::get_bytes(size_t idx) const
