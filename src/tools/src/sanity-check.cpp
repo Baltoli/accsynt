@@ -25,10 +25,21 @@ static cl::opt<std::string>
 static cl::list<std::string>
     PropertyPaths(cl::Positional, cl::desc("[props...]"), cl::ZeroOrMore);
 
+static cl::opt<bool> RunFunction(
+    "run", cl::desc("Run the function loaded from the shared library"),
+    cl::init(false));
+
 void success(std::string const& name)
 {
   fmt::print(
-      "[{}OK{}] {}\n", terminal::f_green + terminal::bold, terminal::reset,
+      "[{} OK {}] {}\n", terminal::f_green + terminal::bold, terminal::reset,
+      name);
+}
+
+void skip(std::string const& name)
+{
+  fmt::print(
+      "[{}SKIP{}] {}\n", terminal::f_yellow + terminal::bold, terminal::reset,
       name);
 }
 
@@ -39,11 +50,10 @@ void fail(std::string const& name, std::string const& reason)
       name, reason);
 }
 
-bool skip(std::string const& name)
+bool should_skip(std::string const& name, bool running)
 {
-  static auto problems
-      = std::unordered_set<std::string> {"diveq", "diveq_sca", "kernel_adi"};
-  return problems.find(name) != problems.end();
+  static auto problems = std::unordered_set<std::string> {"diveq", "diveq_sca"};
+  return RunFunction && (problems.find(name) != problems.end());
 }
 
 int main(int argc, char** argv)
@@ -65,8 +75,8 @@ try {
       auto ps = props::property_set::load(path);
       auto name = ps.type_signature.name;
 
-      if (skip(name)) {
-        fail(name, "skipped");
+      if (should_skip(name, RunFunction)) {
+        skip(name);
         continue;
       }
 
@@ -75,13 +85,15 @@ try {
         continue;
       }
 
-      auto ref = call_wrapper(ps.type_signature, mod, name, lib);
-      auto gen = uniform_generator();
+      if (RunFunction) {
+        auto ref = call_wrapper(ps.type_signature, mod, name, lib);
+        auto gen = uniform_generator();
 
-      auto b = ref.get_builder();
-      gen.gen_args(b);
+        auto b = ref.get_builder();
+        gen.gen_args(b);
 
-      ref.call(b);
+        ref.call(b);
+      }
 
       success(name);
     } catch (props::parse_error& perr) {

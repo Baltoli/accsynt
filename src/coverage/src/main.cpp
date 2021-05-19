@@ -4,6 +4,7 @@
 
 #include <support/argument_generator.h>
 #include <support/load_module.h>
+#include <support/options.h>
 #include <support/timeout.h>
 
 #include <llvm/Support/TargetSelect.h>
@@ -53,6 +54,8 @@ int main(int argc, char** argv)
 try {
   using namespace fmt::literals;
   using namespace std::chrono_literals;
+
+  hide_llvm_options();
 
   InitializeNativeTarget();
   LLVMInitializeNativeAsmPrinter();
