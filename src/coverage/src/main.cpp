@@ -27,7 +27,17 @@ struct manifest_entry {
 
 std::vector<manifest_entry> read_manifest(std::string const& path)
 {
-  return {};
+  auto ret = std::vector<manifest_entry> {};
+
+  auto in = io::CSVReader<3>(path);
+  in.read_header(io::ignore_no_column, "function", "group", "implementation");
+
+  auto entry = manifest_entry {};
+  while (in.read_row(entry.function, entry.group, entry.implementation)) {
+    ret.push_back(entry);
+  }
+
+  return ret;
 }
 
 std::vector<manifest_entry> get_effective_input()

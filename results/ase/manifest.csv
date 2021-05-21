@@ -16,13 +16,13 @@ eq,mathfu,eq
 len,mathfu,len
 len_sq,mathfu,len_sq
 matmul_sca,mathfu,matmul_sca
-matmul_vec,mathfu,matmul_vec
+matmul_vec,mathfu,gemv
 muleq,mathfu,muleq
 muleq_sca,mathfu,muleq_sca
 negate,mathfu,negate
 noteq,mathfu,noteq
 pluseq,mathfu,pluseq
-pluseq_sca,mathfu,pluseq_sca
+pluseq_sca,mathfu,add
 subeq,mathfu,subeq
 subeq_sca,mathfu,subeq_sca
 abs,glm,vabs
@@ -48,7 +48,7 @@ length,strsafe,str_len
 blk_move,ti,mem_move
 convol,ti,convol
 dotp,ti,dot
-iir,ti,fir
+iir,ti,fir_small
 max,ti,max_elt
 min,ti,min_elt
 vecmul,ti,vmul
@@ -66,7 +66,7 @@ sqrt,arm,square_root
 vabs,arm,vabs
 vadd,arm,vadd
 vcopy,arm,vcopy
-vdot,arm,vdot
+vdot,arm,dot
 vfill,arm,vfill
 vmul,arm,vmul
 vneg,arm,vneg
