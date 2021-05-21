@@ -100,18 +100,20 @@ try {
   for (auto [func, gr, impl] : get_effective_input()) {
     auto wrapper = get_wrapper(*mod, impl);
 
-    for (auto i = 0; i < NumInputs; ++i) {
-      auto build = wrapper.get_builder();
-      gen.gen_args(build);
+    for (auto rep = 0; rep < Reps; ++rep) {
+      for (auto i = 0; i < NumInputs; ++i) {
+        auto build = wrapper.get_builder();
+        gen.gen_args(build);
 
-      wrapper.call(build);
+        wrapper.call(build);
 
-      if (!Single || i == NumInputs - 1) {
-        fmt::print(
-            "{name},{group},{iter},{cover},{total}\n",
-            "name"_a = wrapper.name(), "group"_a = gr, "iter"_a = i + 1,
-            "cover"_a = wrapper.covered_conditions(),
-            "total"_a = wrapper.total_conditions());
+        if (!Single || i == NumInputs - 1) {
+          fmt::print(
+              "{name},{group},{iter},{cover},{total}\n",
+              "name"_a = wrapper.name(), "group"_a = gr, "iter"_a = i + 1,
+              "cover"_a = wrapper.covered_conditions(),
+              "total"_a = wrapper.total_conditions());
+        }
       }
     }
   }
