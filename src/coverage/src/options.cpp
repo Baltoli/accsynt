@@ -28,7 +28,7 @@ cl::alias
 
 cl::opt<bool> Header(
     "header", cl::desc("Print a header for this individual run"),
-    cl::init(false));
+    cl::init(true));
 
 cl::opt<bool> Single(
     "single", cl::desc("Print only at the last iteration"), cl::init(false));

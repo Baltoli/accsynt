@@ -91,7 +91,8 @@ try {
   }
 
   if (Header) {
-    fmt::print("{},{},{},{}\n", "name", "inputs", "covered", "total");
+    fmt::print(
+        "{},{},{},{},{}\n", "name", "group", "inputs", "covered", "total");
   }
 
   auto gen = uniform_generator();
@@ -107,8 +108,9 @@ try {
 
       if (!Single || i == NumInputs - 1) {
         fmt::print(
-            "{name},{iter},{cover},{total}\n", "name"_a = wrapper.name(),
-            "iter"_a = i + 1, "cover"_a = wrapper.covered_conditions(),
+            "{name},{group},{iter},{cover},{total}\n",
+            "name"_a = wrapper.name(), "group"_a = gr, "iter"_a = i + 1,
+            "cover"_a = wrapper.covered_conditions(),
             "total"_a = wrapper.total_conditions());
       }
     }
