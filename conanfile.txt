@@ -1,5 +1,6 @@
 [requires]
 catch2/2.13.2
+fast-cpp-csv-parser/cci.20200830 
 fmt/7.0.3
 frozen/1.0.0
 nlohmann_json/3.9.1

@@ -11,6 +11,11 @@ cl::alias
 cl::opt<std::string>
     FunctionName("function", cl::desc("Function to test"), cl::init("-"));
 
+cl::opt<std::string> ManifestPath(
+    "manifest",
+    cl::desc("Manifest path with functions and groups to test coverage for"),
+    cl::init("-"));
+
 cl::alias FunctionNameA(
     "f", cl::desc("Alias for function"), cl::aliasopt(FunctionName));
 

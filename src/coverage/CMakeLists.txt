@@ -9,6 +9,7 @@ target_include_directories(coverage PUBLIC
 target_link_libraries(coverage
   ${llvm_libs}
   support
+  CONAN_PKG::fast-cpp-csv-parser
   CONAN_PKG::fmt)
 
 add_executable(input-cov

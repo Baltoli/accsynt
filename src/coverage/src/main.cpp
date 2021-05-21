@@ -10,12 +10,41 @@
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/Support/raw_ostream.h>
 
+#include <fast-cpp-csv-parser/csv.h>
+
 #include <fmt/format.h>
 
 #include <chrono>
 
 using namespace support;
 using namespace llvm;
+
+struct manifest_entry {
+  std::string function;
+  std::string group;
+  std::string implementation;
+};
+
+std::vector<manifest_entry> read_manifest(std::string const& path)
+{
+  return {};
+}
+
+std::vector<manifest_entry> get_effective_input()
+{
+  if (FunctionName != "-" && ManifestPath == "-") {
+    return {{FunctionName, "", FunctionName}};
+  } else if (FunctionName == "-" && ManifestPath != "-") {
+    return read_manifest(ManifestPath);
+  } else {
+    fmt::print(
+        stderr,
+        "Must specify exactly one of function name ({}) or manifest path "
+        "({})\n",
+        FunctionName, ManifestPath);
+    std::exit(3);
+  }
+}
 
 Function* get_single_function(Module& mod)
 {
@@ -37,17 +66,9 @@ Function* get_single_function(Module& mod)
   return ret_func;
 }
 
-coverage::wrapper get_wrapper(Module& mod)
+coverage::wrapper get_wrapper(Module& mod, std::string const& name)
 {
-  if (FunctionName == "-") {
-    if (auto func = get_single_function(mod)) {
-      return coverage::wrapper(*func);
-    } else {
-      throw std::runtime_error("Function selection ambiguous");
-    }
-  }
-
-  return coverage::wrapper(mod, FunctionName);
+  return coverage::wrapper(mod, name);
 }
 
 int main(int argc, char** argv)
@@ -69,26 +90,30 @@ try {
     return 1;
   }
 
-  auto wrapper = get_wrapper(*mod);
-  auto gen = uniform_generator();
-
   if (Header) {
     fmt::print("{},{},{},{}\n", "name", "inputs", "covered", "total");
   }
 
-  for (auto i = 0; i < NumInputs; ++i) {
-    auto build = wrapper.get_builder();
-    gen.gen_args(build);
+  auto gen = uniform_generator();
 
-    wrapper.call(build);
+  for (auto [func, gr, impl] : get_effective_input()) {
+    auto wrapper = get_wrapper(*mod, impl);
 
-    if (!Single || i == NumInputs - 1) {
-      fmt::print(
-          "{name},{iter},{cover},{total}\n", "name"_a = wrapper.name(),
-          "iter"_a = i + 1, "cover"_a = wrapper.covered_conditions(),
-          "total"_a = wrapper.total_conditions());
+    for (auto i = 0; i < NumInputs; ++i) {
+      auto build = wrapper.get_builder();
+      gen.gen_args(build);
+
+      wrapper.call(build);
+
+      if (!Single || i == NumInputs - 1) {
+        fmt::print(
+            "{name},{iter},{cover},{total}\n", "name"_a = wrapper.name(),
+            "iter"_a = i + 1, "cover"_a = wrapper.covered_conditions(),
+            "total"_a = wrapper.total_conditions());
+      }
     }
   }
+
 } catch (std::runtime_error& e) {
   llvm::errs() << "Error creating coverage JIT wrapper:  ";
   llvm::errs() << e.what() << '\n';
