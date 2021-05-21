@@ -4,10 +4,13 @@
 
 #include <support/argument_generator.h>
 #include <support/load_module.h>
+#include <support/options.h>
 #include <support/timeout.h>
 
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/Support/raw_ostream.h>
+
+#include <fast-cpp-csv-parser/csv.h>
 
 #include <fmt/format.h>
 
@@ -15,6 +18,43 @@
 
 using namespace support;
 using namespace llvm;
+
+struct manifest_entry {
+  std::string function;
+  std::string group;
+  std::string implementation;
+};
+
+std::vector<manifest_entry> read_manifest(std::string const& path)
+{
+  auto ret = std::vector<manifest_entry> {};
+
+  auto in = io::CSVReader<3>(path);
+  in.read_header(io::ignore_no_column, "function", "group", "implementation");
+
+  auto entry = manifest_entry {};
+  while (in.read_row(entry.function, entry.group, entry.implementation)) {
+    ret.push_back(entry);
+  }
+
+  return ret;
+}
+
+std::vector<manifest_entry> get_effective_input()
+{
+  if (FunctionName != "-" && ManifestPath == "-") {
+    return {{FunctionName, "", FunctionName}};
+  } else if (FunctionName == "-" && ManifestPath != "-") {
+    return read_manifest(ManifestPath);
+  } else {
+    fmt::print(
+        stderr,
+        "Must specify exactly one of function name ({}) or manifest path "
+        "({})\n",
+        FunctionName, ManifestPath);
+    std::exit(3);
+  }
+}
 
 Function* get_single_function(Module& mod)
 {
@@ -36,23 +76,17 @@ Function* get_single_function(Module& mod)
   return ret_func;
 }
 
-coverage::wrapper get_wrapper(Module& mod)
+coverage::wrapper get_wrapper(Module& mod, std::string const& name)
 {
-  if (FunctionName == "-") {
-    if (auto func = get_single_function(mod)) {
-      return coverage::wrapper(*func);
-    } else {
-      throw std::runtime_error("Function selection ambiguous");
-    }
-  }
-
-  return coverage::wrapper(mod, FunctionName);
+  return coverage::wrapper(mod, name);
 }
 
 int main(int argc, char** argv)
 try {
   using namespace fmt::literals;
   using namespace std::chrono_literals;
+
+  hide_llvm_options();
 
   InitializeNativeTarget();
   LLVMInitializeNativeAsmPrinter();
@@ -66,26 +100,41 @@ try {
     return 1;
   }
 
-  auto wrapper = get_wrapper(*mod);
+  if (Header) {
+    fmt::print(
+        "{},{},{},{},{}\n", "name", "group", "inputs", "covered", "total");
+  }
+
   auto gen = uniform_generator();
 
-  if (Header) {
-    fmt::print("{},{},{},{}\n", "name", "inputs", "covered", "total");
-  }
+  auto input = get_effective_input();
 
-  for (auto i = 0; i < NumInputs; ++i) {
-    auto build = wrapper.get_builder();
-    gen.gen_args(build);
+  auto idx = 0;
+  for (auto const& [func, gr, impl] : input) {
+    if (Progress) {
+      fmt::print(stderr, "[{}/{}]\r", ++idx, input.size());
+    }
 
-    wrapper.call(build);
+    auto wrapper = get_wrapper(*mod, impl);
 
-    if (!Single || i == NumInputs - 1) {
-      fmt::print(
-          "{name},{iter},{cover},{total}\n", "name"_a = wrapper.name(),
-          "iter"_a = i + 1, "cover"_a = wrapper.covered_conditions(),
-          "total"_a = wrapper.total_conditions());
+    for (auto rep = 0; rep < Reps; ++rep) {
+      for (auto i = 0; i < NumInputs; ++i) {
+        auto build = wrapper.get_builder();
+        gen.gen_args(build);
+
+        wrapper.call(build);
+
+        if (!Single || i == NumInputs - 1) {
+          fmt::print(
+              "{name},{group},{iter},{cover},{total}\n",
+              "name"_a = wrapper.name(), "group"_a = gr, "iter"_a = i + 1,
+              "cover"_a = wrapper.covered_conditions(),
+              "total"_a = wrapper.total_conditions());
+        }
+      }
     }
   }
+
 } catch (std::runtime_error& e) {
   llvm::errs() << "Error creating coverage JIT wrapper:  ";
   llvm::errs() << e.what() << '\n';
