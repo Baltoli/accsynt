@@ -107,7 +107,14 @@ try {
 
   auto gen = uniform_generator();
 
-  for (auto [func, gr, impl] : get_effective_input()) {
+  auto input = get_effective_input();
+
+  auto idx = 0;
+  for (auto const& [func, gr, impl] : input) {
+    if (Progress) {
+      fmt::print(stderr, "[{}/{}]\r", ++idx, input.size());
+    }
+
     auto wrapper = get_wrapper(*mod, impl);
 
     for (auto rep = 0; rep < Reps; ++rep) {

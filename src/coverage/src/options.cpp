@@ -38,3 +38,6 @@ cl::opt<bool> Single(
     "single", cl::desc("Print only at the last iteration"), cl::init(false));
 
 cl::alias SingleA("s", cl::desc("Alias for single"), cl::aliasopt(Single));
+
+cl::opt<bool>
+    Progress("progress", cl::desc("Print progress to stderr"), cl::init(false));
