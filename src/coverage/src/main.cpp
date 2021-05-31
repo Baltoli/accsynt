@@ -115,9 +115,11 @@ try {
       fmt::print(stderr, "[{}/{}]\r", ++idx, input.size());
     }
 
+    auto wrapper = get_wrapper(*mod, impl);
+
     for (auto rep = 0; rep < Reps; ++rep) {
       for (auto i = 0; i < NumInputs; ++i) {
-        auto wrapper = get_wrapper(*mod, impl);
+        wrapper.reset();
 
         for (auto j = 0; j < i; ++j) {
           auto build = wrapper.get_builder();
