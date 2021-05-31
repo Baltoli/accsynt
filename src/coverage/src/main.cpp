@@ -115,22 +115,23 @@ try {
       fmt::print(stderr, "[{}/{}]\r", ++idx, input.size());
     }
 
-    auto wrapper = get_wrapper(*mod, impl);
-
     for (auto rep = 0; rep < Reps; ++rep) {
       for (auto i = 0; i < NumInputs; ++i) {
+        auto wrapper = get_wrapper(*mod, impl);
+
         auto build = wrapper.get_builder();
+
         gen.gen_args(build);
 
-        wrapper.call(build);
-
-        if (!Single || i == NumInputs - 1) {
-          fmt::print(
-              "{name},{group},{iter},{cover},{total}\n",
-              "name"_a = wrapper.name(), "group"_a = gr, "iter"_a = i + 1,
-              "cover"_a = wrapper.covered_conditions(),
-              "total"_a = wrapper.total_conditions());
+        for (auto j = 0; j < i; ++j) {
+          wrapper.call(build);
         }
+
+        fmt::print(
+            "{name},{group},{iter},{cover},{total}\n",
+            "name"_a = wrapper.name(), "group"_a = gr, "iter"_a = i + 1,
+            "cover"_a = wrapper.covered_conditions(),
+            "total"_a = wrapper.total_conditions());
       }
     }
   }
