@@ -119,11 +119,9 @@ try {
       for (auto i = 0; i < NumInputs; ++i) {
         auto wrapper = get_wrapper(*mod, impl);
 
-        auto build = wrapper.get_builder();
-
-        gen.gen_args(build);
-
         for (auto j = 0; j < i; ++j) {
+          auto build = wrapper.get_builder();
+          gen.gen_args(build);
           wrapper.call(build);
         }
 
