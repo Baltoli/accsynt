@@ -84,9 +84,7 @@ void wrapper::instrument()
 
   instrument_visitor(branch_ids_, instance_ptr, func).visit(implementation());
 
-  for (auto [branch, id] : branch_ids_) {
-    visits_[id] = detail::branch_visits::None;
-  }
+  reset();
 }
 
 void wrapper::enable_interrupts(bool* signal_ptr)
@@ -154,6 +152,13 @@ void wrapper::handle_branch_event(int id, bool value)
   visits_[id] = detail::branch_visits(
       visits_[id]
       | (value ? detail::branch_visits::True : detail::branch_visits::False));
+}
+
+void wrapper::reset()
+{
+  for (auto [branch, id] : branch_ids_) {
+    visits_[id] = detail::branch_visits::None;
+  }
 }
 
 size_t wrapper::total_conditions() const { return branch_ids_.size() * 2; }

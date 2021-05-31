@@ -114,6 +114,23 @@ TEST_CASE("Can correctly record coverage stats")
     REQUIRE(wrap.coverage() == 1.0);
     b.reset();
   }
+
+  SECTION("With resets")
+  {
+    b.add(2ll, std::vector<float> {1, 4});
+    REQUIRE(wrap.call(b) == 0);
+    REQUIRE(wrap.coverage() > 0.0);
+    REQUIRE(wrap.coverage() < 1.0);
+    b.reset();
+
+    wrap.reset();
+
+    b.add(3ll, std::vector<float> {-11, -2, -6});
+    REQUIRE(wrap.call(b) == 3);
+    REQUIRE(wrap.coverage() > 0.0);
+    REQUIRE(wrap.coverage() < 1.0);
+    b.reset();
+  }
 }
 
 std::vector<float> random_input()

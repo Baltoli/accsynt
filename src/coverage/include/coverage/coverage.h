@@ -68,6 +68,14 @@ public:
    */
   void enable_interrupts(bool*);
 
+  /**
+   * Reset the running observations of branches visited.
+   *
+   * This allows for multiple experiments to be run without the costly step of
+   * re-instrumenting the entire function.
+   */
+  void reset();
+
 private:
   void instrument();
 
