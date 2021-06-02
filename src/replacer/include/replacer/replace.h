@@ -2,6 +2,9 @@
 
 #include <fmt/format.h>
 
+#include <llvm/IR/Module.h>
+#include <llvm/IR/Value.h>
+
 #include <nlohmann/json.hpp>
 
 #include <stdexcept>
@@ -10,6 +13,22 @@
 #include <vector>
 
 namespace idlr {
+
+std::unordered_map<std::string, llvm::Value*> collect_names(llvm::Module& mod);
+
+class call;
+class spec;
+
+class replacer {
+public:
+  explicit replacer(llvm::Module&);
+
+  void apply(spec const&);
+
+private:
+  llvm::Module& mod_;
+  std::unordered_map<std::string, llvm::Value*> name_map_;
+};
 
 class call {
 public:
@@ -77,6 +96,6 @@ struct fmt::formatter<::idlr::spec> {
     }
 
     return format_to(
-        ctx.out(), "Spec({}, [{}])", spec.function(), fmt::join(reps, ",\n  "));
+        ctx.out(), "Spec({}, [{}])", spec.function(), fmt::join(reps, ", "));
   }
 };
