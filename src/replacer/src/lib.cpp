@@ -1,17 +1,23 @@
 #include <replacer/replace.h>
 
+using json = ::nlohmann::json;
+
 namespace idlr {
 
-call::call(std::string t, std::vector<std::string> as)
-    : target_(t)
-    , args_(as)
+call::call(json j)
+    : target_(j["callee"])
+    , args_(j["args"])
 {
 }
 
-spec::spec(std::string f, std::unordered_map<std::string, call> rs)
-    : func_(f)
-    , replacements_(rs)
+spec::spec(json j)
+    : func_(j["function"])
+    , replacements_()
 {
+  for (auto& obj : j["replacements"].items()) {
+    replacements_.emplace(obj.key(), call(obj.value()));
+  }
 }
 
 } // namespace idlr
+

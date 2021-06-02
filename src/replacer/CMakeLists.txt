@@ -19,6 +19,7 @@ target_link_libraries(apply-match
   replace)
 
 add_executable(replace_unit
+  test/json.cpp
   test/main.cpp)
 
 target_link_libraries(replace_unit
