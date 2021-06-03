@@ -31,6 +31,9 @@ add_executable(instrument
   src/print_opcode.cpp
   src/instrument.cpp)
 
+add_executable(name
+  src/name.cpp)
+
 target_link_libraries(convert
   CONAN_PKG::fmt
   ${llvm_libs}
@@ -88,6 +91,12 @@ target_link_libraries(sanity-check
 
 target_link_filesystem(sanity-check)
 
+target_link_libraries(name
+  CONAN_PKG::fmt
+  ${llvm_libs}
+  support
+  AccsyntPasses_static)
+
 install(
-  TARGETS detect convert graph-match cyclo instrcount norm
+  TARGETS detect convert graph-match cyclo instrcount norm name
   DESTINATION ${CMAKE_INSTALL_BINDIR})
