@@ -2,9 +2,9 @@
   {
     "function": "add",
     "replacements": {
-      "v1": {
-        "callee": "func",
-        "args": ["v2", "v3"]
+      "v12": {
+        "callee": "fast_add",
+        "args": ["v11", "v7"]
       }
     }
   }

@@ -1,3 +1,4 @@
+#include <support/file.h>
 #include <support/llvm_format.h>
 #include <support/load_module.h>
 #include <support/options.h>
@@ -6,6 +7,7 @@
 
 #include <nlohmann/json.hpp>
 
+#include <llvm/Bitcode/BitcodeWriter.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/TargetSelect.h>
 
@@ -17,13 +19,24 @@ using namespace llvm;
 
 using json = ::nlohmann::json;
 
-cl::opt<std::string> SpecFile(
+static cl::opt<std::string> SpecFile(
     cl::Positional, cl::desc("<spec file>"),
     cl::value_desc("File containing replacement specification"), cl::Required);
 
-cl::opt<std::string> Bitcode(
+static cl::opt<std::string> Bitcode(
     cl::Positional, cl::desc("<bitcode file>"), cl::value_desc("Input bitcode"),
     cl::Required);
+
+static cl::opt<std::string> OutputFilename(
+    "o", cl::desc("Output filename"), cl::value_desc("filename"),
+    cl::init("-"));
+
+static cl::opt<bool> Textual(
+    "S", cl::desc("Output module as textual IR instead of bitcode"),
+    cl::init(false));
+
+static cl::opt<bool> Force(
+    "f", cl::desc("Force binary output to the terminal"), cl::init(false));
 
 std::vector<spec> load_specs()
 {
@@ -52,9 +65,6 @@ int main(int argc, char** argv)
   cl::ParseCommandLineOptions(argc, argv);
 
   auto specs = load_specs();
-  for (auto s : specs) {
-    fmt::print("{}\n", s);
-  }
 
   auto mod = load_or_parse_module(Bitcode);
   if (!mod) {
@@ -68,5 +78,18 @@ int main(int argc, char** argv)
     rep.apply(s);
   }
 
-  fmt::print("{}\n", *mod);
+  to_file_or_default(OutputFilename, [&mod](auto&& os) {
+    if (!Textual) {
+      if (OutputFilename == "-" && !Force) {
+        fmt::print(
+            stderr, "Not outputting binary data to the terminal (use -f if"
+                    "you really want to)\n");
+        return;
+      }
+
+      WriteBitcodeToFile(*mod, os);
+    } else {
+      mod->print(os, nullptr);
+    }
+  });
 }

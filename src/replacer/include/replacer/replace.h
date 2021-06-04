@@ -14,7 +14,9 @@
 
 namespace idlr {
 
-std::unordered_map<std::string, llvm::Value*> collect_names(llvm::Module& mod);
+using name_map = std::unordered_map<std::string, llvm::Value*>;
+
+name_map collect_names(llvm::Function& mod);
 
 class call;
 class spec;
@@ -24,10 +26,11 @@ public:
   explicit replacer(llvm::Module&);
 
   void apply(spec const&);
+  void apply(std::string const& target, call const& new_v, llvm::Function& fn);
 
 private:
   llvm::Module& mod_;
-  std::unordered_map<std::string, llvm::Value*> name_map_;
+  std::unordered_map<llvm::Function*, name_map> map_cache_;
 };
 
 class call {
