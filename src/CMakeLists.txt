@@ -77,4 +77,5 @@ add_subdirectory(props)
 add_subdirectory(support)
 # Deprecated until I can figure out Conan hosting again.
 # add_subdirectory(synth)
+add_subdirectory(replacer)
 add_subdirectory(tools)

@@ -1,0 +1,11 @@
+[
+  {
+    "function": "add",
+    "replacements": {
+      "v12": {
+        "callee": "fast_add",
+        "args": ["v11", "v7"]
+      }
+    }
+  }
+]
