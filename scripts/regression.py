@@ -40,6 +40,7 @@ class Log:
         return coef * np.log(x + 0.0001)
 
 def fit_r_squared(model, xs, ys):
+    ys = ys - min(ys)
     popt, pcov = opt.curve_fit(model, xs, ys)
     residuals = ys - model(xs, *popt)
     ss_res = np.sum(residuals**2)
